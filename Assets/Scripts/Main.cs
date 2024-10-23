@@ -201,6 +201,8 @@ namespace MainData
     {
         public static int targetFPS = 60;
         private static List<Item> InvetnoryElemetList;
+        public static float DefaultHeight = 10.8f;
+        public static float DefaultWidth = 19.2f;
         public static void Save()
         {
 

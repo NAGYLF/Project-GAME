@@ -160,7 +160,7 @@ RectTransform:
   m_AnchorMin: {x: 0.5, y: 0.5}
   m_AnchorMax: {x: 0.5, y: 0.5}
   m_AnchoredPosition: {x: 0, y: 0}
-  m_SizeDelta: {x: 100, y: 100}
+  m_SizeDelta: {x: 19.2, y: 10.8}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!222 &194837968
 CanvasRenderer:
@@ -185,6 +185,7 @@ MonoBehaviour:
   offset: {x: 0, y: 0, z: 0}
   damping: 0.1
   target: {fileID: 904199771}
+  CameraObject: {fileID: 1194298162}
 --- !u!1 &370826246
 GameObject:
   m_ObjectHideFlags: 0
@@ -306,7 +307,7 @@ RectTransform:
   m_AnchorMin: {x: 0, y: 0}
   m_AnchorMax: {x: 0, y: 0}
   m_AnchoredPosition: {x: 0, y: 0}
-  m_SizeDelta: {x: 19, y: 6}
+  m_SizeDelta: {x: 19.2, y: 10.8}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!114 &903902355
 MonoBehaviour:

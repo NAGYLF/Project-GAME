@@ -11,6 +11,7 @@ using Weapons;
 using Backpacks;
 using System.Reflection;
 using System.Linq;
+using MainData;
 
 
 
@@ -137,44 +138,46 @@ namespace InventoryClass
                         Debug.LogError("UI nem található!");
                     }
 
+                    float[] aranyok = Aranyszamitas(new float[] {6,5,6},Main.DefaultWidth);
 
-                    GameObject EquipmentPrefab = Resources.Load<GameObject>("GameElements/Equipment-Inventory");
-                    GameObject SlotsPrefab = Resources.Load<GameObject>("GameElements/Slots-Inventory");
-                    GameObject LootPrefab = Resources.Load<GameObject>("GameElements/Loot-Inventory");
+                    GameObject Equipments = CreatePrefab("GameElements/Equipment-Inventory");
+                    Equipments.transform.SetParent(InventoryObject.transform);
+                    Equipments.GetComponent<RectTransform>().sizeDelta = new Vector2(aranyok[0], Main.DefaultHeight);
+                    Equipments.GetComponent<RectTransform>().localPosition = new Vector3((aranyok[0] + aranyok[1]/2)*-1, 0, 0);
 
-                    if (EquipmentPrefab != null)
-                    {
-                        GameObject Equipment = Instantiate(EquipmentPrefab);
-                        Equipment.transform.SetParent(InventoryObject.transform);
-                        Equipment.transform.position = new Vector3(Equipment.transform.localPosition.x, Equipment.transform.localPosition.y, 0);
-                    }
-                    else
-                    {
-                        Debug.LogError("Equipment prefab nem található!");
-                    }
+                    GameObject Slots = CreatePrefab("GameElements/Slots-Inventory");
+                    Slots.transform.SetParent(InventoryObject.transform);
+                    Slots.GetComponent<RectTransform>().sizeDelta = new Vector2(aranyok[1], Main.DefaultHeight);
+                    Slots.GetComponent<RectTransform>().localPosition = new Vector3(aranyok[1]*-1 / 2, 0, 0);
 
-                    if (SlotsPrefab != null)
-                    {
-                        GameObject Slots = Instantiate(SlotsPrefab);
-                        Slots.transform.SetParent(InventoryObject.transform);
-                        Slots.transform.position = new Vector3(Slots.transform.localPosition.x, Slots.transform.localPosition.y, 0);
-                    }
-                    else
-                    {
-                        Debug.LogError("Slots prefab nem található!");
-                    }
-
-                    if (LootPrefab != null)
-                    {
-                        GameObject Loot = Instantiate(LootPrefab);
-                        Loot.transform.SetParent(InventoryObject.transform);
-                        Loot.transform.position = new Vector3(Loot.transform.localPosition.x, Loot.transform.localPosition.y, 0);
-                    }
-                    else
-                    {
-                        Debug.LogError("Loot prefab nem található!");
-                    }
+                    GameObject Loot = CreatePrefab("GameElements/Loot-Inventory");
+                    Loot.transform.SetParent(InventoryObject.transform);
+                    Loot.GetComponent<RectTransform>().sizeDelta = new Vector2(aranyok[2], Main.DefaultHeight);
+                    Loot.GetComponent<RectTransform>().localPosition = new Vector3(aranyok[1] / 2 + aranyok[2], 0, 0);
                 }
+            }
+        }
+        private float[] Aranyszamitas(float[] szamok, float max)
+        {
+            float szam4 = max / szamok.Sum();
+            float[] retunvalues = new float[szamok.Length];
+            for (int i = 0; i < retunvalues.Length; i++)
+            {
+                retunvalues[i] = szam4 * szamok[i];
+            }
+            return retunvalues;
+        }
+        private GameObject CreatePrefab(string path)
+        {
+            GameObject prefab = Instantiate(Resources.Load<GameObject>(path));
+            if (prefab != null)
+            {
+                return prefab;
+            }
+            else
+            {
+                Debug.LogError($"{path} prefab nem található!");
+                return null;
             }
         }
         public void InventoryAdd(Item item)

@@ -27,14 +27,6 @@ public class Player : MonoBehaviour
     private void FixedUpdate()
     {
         Movement();//mozgas
-        InventoryOpen();//Not working
-    }
-    private void InventoryOpen()//Not working
-    {
-        if (Input.GetKey(KeyCode.Tab))
-        {
-
-        }
     }
     private void Movement()
     {

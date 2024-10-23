@@ -16,8 +16,10 @@ using System.Linq;
 
 namespace InventoryClass
 {
+  
     public class Inventory : MonoBehaviour
     {
+        private static GameObject InventoryObject;
         public DefaultInvetoryStruct Equipments;
         public string InventoryType;
         private bool InventoryOpen = false;
@@ -75,13 +77,17 @@ namespace InventoryClass
             Item[] items = itemArray();
             for (int i = 0; i < items.Length; i++)
             {
-                GameObject NewGameObject = new GameObject();
+                if (items[i] != null)
+                {
+                    GameObject NewGameObject = new GameObject();
 
-                Item item = items[i];
+                    Item item = items[i];
 
-                NewGameObject.AddComponent<Item>().ItemConstructorSelector(item);
+                    NewGameObject.AddComponent<Item>().ItemConstructorSelector(item);
 
-                NewGameObject.transform.SetParent(gameObject.transform);
+                    NewGameObject.transform.SetParent(gameObject.transform);
+                }
+
                 
             }
 
@@ -104,15 +110,70 @@ namespace InventoryClass
         }
         public void OpenCloseInventory()
         {
-            if (Input.GetKey(KeyCode.Tab) || Input.GetKey(KeyCode.I))
+            if (Input.GetKeyUp(KeyCode.Tab) || Input.GetKeyUp(KeyCode.I))
             {
                 if (InventoryOpen)
                 {
                     InventoryOpen = false;
+                    Destroy(InventoryObject);
                 }
                 else
                 {
                     InventoryOpen= true;
+                    GameObject UI = GameObject.FindGameObjectWithTag("InGameUI");
+                    InventoryObject = new GameObject("Inventory");
+
+               
+
+                    if (UI != null)
+                    {
+                        InventoryObject.transform.SetParent(UI.transform,false);
+
+                        InventoryObject.AddComponent<RectTransform>().localPosition = new Vector3(0, 0, UI.transform.position.z);
+
+                    }
+                    else
+                    {
+                        Debug.LogError("UI nem található!");
+                    }
+
+
+                    GameObject EquipmentPrefab = Resources.Load<GameObject>("GameElements/Equipment-Inventory");
+                    GameObject SlotsPrefab = Resources.Load<GameObject>("GameElements/Slots-Inventory");
+                    GameObject LootPrefab = Resources.Load<GameObject>("GameElements/Loot-Inventory");
+
+                    if (EquipmentPrefab != null)
+                    {
+                        GameObject Equipment = Instantiate(EquipmentPrefab);
+                        Equipment.transform.SetParent(InventoryObject.transform);
+                        Equipment.transform.position = new Vector3(Equipment.transform.localPosition.x, Equipment.transform.localPosition.y, 0);
+                    }
+                    else
+                    {
+                        Debug.LogError("Equipment prefab nem található!");
+                    }
+
+                    if (SlotsPrefab != null)
+                    {
+                        GameObject Slots = Instantiate(SlotsPrefab);
+                        Slots.transform.SetParent(InventoryObject.transform);
+                        Slots.transform.position = new Vector3(Slots.transform.localPosition.x, Slots.transform.localPosition.y, 0);
+                    }
+                    else
+                    {
+                        Debug.LogError("Slots prefab nem található!");
+                    }
+
+                    if (LootPrefab != null)
+                    {
+                        GameObject Loot = Instantiate(LootPrefab);
+                        Loot.transform.SetParent(InventoryObject.transform);
+                        Loot.transform.position = new Vector3(Loot.transform.localPosition.x, Loot.transform.localPosition.y, 0);
+                    }
+                    else
+                    {
+                        Debug.LogError("Loot prefab nem található!");
+                    }
                 }
             }
         }

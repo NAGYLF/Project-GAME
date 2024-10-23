@@ -1,3 +1,4 @@
+using InventoryClass;
 using MainData;
 using System.Collections;
 using System.Collections.Generic;
@@ -16,6 +17,7 @@ public class Player : MonoBehaviour
     {
         moveSpeed = PlayerMovementSpeed;
         rigidbody = GetComponent<Rigidbody2D>();
+        gameObject.AddComponent<Inventory>().InventoryType = "Player";
     }
 
     private void Update()

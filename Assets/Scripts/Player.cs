@@ -1,12 +1,11 @@
 using MainData;
-using PlayerInventoryManagment;
 using System.Collections;
 using System.Collections.Generic;
 using System.Runtime.CompilerServices;
 using UnityEngine;
 public class Player : MonoBehaviour
 {
-    public static PlayerInventory playerInventory;
+
     [SerializeField] private float PlayerMovementSpeed = 5f;//default speed
     [SerializeField] private float PlayerMovementSpeedMax = 8f;//sprint speed
     [SerializeField] private float moveSpeed;//actual speeed
@@ -17,8 +16,6 @@ public class Player : MonoBehaviour
     {
         moveSpeed = PlayerMovementSpeed;
         rigidbody = GetComponent<Rigidbody2D>();
-        playerInventory = new PlayerInventory();
-        playerInventory.InventoryLoad();
     }
 
     private void Update()

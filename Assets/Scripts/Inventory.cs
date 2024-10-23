@@ -20,6 +20,7 @@ namespace InventoryClass
     {
         public DefaultInvetoryStruct Equipments;
         public string InventoryType;
+        private bool InventoryOpen = false;
         public Item[] itemArray()
         {
             return new Item[]
@@ -56,6 +57,10 @@ namespace InventoryClass
         { 
             initalisation();
         }
+        public void Update()
+        {
+            OpenCloseInventory();
+        }
         private void initalisation()
         {
             if (InventoryType == "Player")//player tipusu
@@ -70,11 +75,13 @@ namespace InventoryClass
             Item[] items = itemArray();
             for (int i = 0; i < items.Length; i++)
             {
-                GameObject gameObject = new GameObject();
+                GameObject NewGameObject = new GameObject();
 
                 Item item = items[i];
 
-                gameObject.AddComponent<Item>().ItemConstructorSelector(item);
+                NewGameObject.AddComponent<Item>().ItemConstructorSelector(item);
+
+                NewGameObject.transform.SetParent(gameObject.transform);
                 
             }
 
@@ -95,18 +102,18 @@ namespace InventoryClass
         {
 
         }
-        public void OpenInventory()
+        public void OpenCloseInventory()
         {
             if (Input.GetKey(KeyCode.Tab) || Input.GetKey(KeyCode.I))
             {
-
-            }
-        }
-        public void CloseInventory()
-        {
-            if (Input.GetKey(KeyCode.Tab) || Input.GetKey(KeyCode.I))
-            {
-
+                if (InventoryOpen)
+                {
+                    InventoryOpen = false;
+                }
+                else
+                {
+                    InventoryOpen= true;
+                }
             }
         }
         public void InventoryAdd(Item item)
@@ -133,12 +140,31 @@ namespace InventoryClass
 
 
 
-
 namespace Items
 {
     public abstract class Item : MonoBehaviour
     {
-        private Item self;
+        private void CopyProperties(Item source)
+        {
+            ItemType = source.ItemType;
+            Name = source.Name;
+            Description = source.Description;
+            Quantity = source.Quantity;
+            position = source.position;
+            SlotUse = source.SlotUse;
+            sectorName = source.sectorName;
+            Container = source.Container;
+            DefaultMagasineSize = source.DefaultMagasineSize;
+            Spread = source.Spread;
+            Rpm = source.Rpm;
+            Recoil = source.Recoil;
+            Accturacy = source.Accturacy;
+            Range = source.Range;
+            Ergonomy = source.Ergonomy;
+            BulletType = source.BulletType;
+            Accessors = source.Accessors;
+            usable = source.usable;
+        }
         public void ItemConstructorSelector(Item uncompletedItem)
         {
             Item completedItem = uncompletedItem.ItemType switch
@@ -147,7 +173,7 @@ namespace Items
                 "TestBackpack" => new TestBackpack(),
                 _ => throw new ArgumentException("Invalid type")
             };
-            self = completedItem;
+            CopyProperties(completedItem);
         }
 
         private void Start()
@@ -189,11 +215,15 @@ namespace Items
             parentRect.localPosition = (minPosition + maxPosition) / 2;
         }
         */
+
+        //general
         public string ItemType { get; set; }
         public string Name { get; set; }
         public string Description { get; set; }
         public int Quantity { get; set; } = 1;
-        private Vector2 position { get; set; }
+        public Vector2 position { get; set; }
+        public int[] SlotUse { get; set; }
+        public string sectorName { get; set; }
 
         //contain
         public Container Container { get; set; } = null;
@@ -222,7 +252,6 @@ namespace Items
         //ammo
 
 
-
         //med
 
 
@@ -231,7 +260,7 @@ namespace Items
 
     public class Container
     {
-        private List<Container_struct> Items { get; set; }
+        public List<Container_struct> Items { get; set; }
         public Container()
         {
 
@@ -240,14 +269,12 @@ namespace Items
     }
     public struct Container_struct
     {
-        Item Item { get; set; }
-        int[] SlotUse { get; set; }
-        string sectorName { get; set; }
+        public Item Item { get; set; }
     }
 
     public class SlotSector
     {
-        Vector2 position { get; set; }
+        public Vector2 position { get; set; }
     }
 
 }

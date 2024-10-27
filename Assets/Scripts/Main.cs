@@ -12,8 +12,9 @@ using Newtonsoft.Json;
 using UnityEngine.Video;
 using UnityEngine.UI;
 using TMPro;
-using Items;
+using ItemHandler;
 using TreeEditor;
+using InventoryClass;
 
 //test
 namespace MainData
@@ -218,8 +219,6 @@ namespace MainData
         public static string name;
         public static string email;
         public static string password;
-
-
     }
     #endregion
 

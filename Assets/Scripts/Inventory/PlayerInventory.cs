@@ -1,7 +1,7 @@
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
-using Items;
+using ItemHandler;
 using System.IO;
 using Newtonsoft.Json;
 using Unity.VisualScripting;
@@ -18,19 +18,18 @@ using System.Drawing;
 
 namespace InventoryClass
 {
-  
-    public class Inventory : MonoBehaviour
+    public class PlayerInventory : MonoBehaviour
     {
+        public static PlayerInventory Playerinventory;//a player mindenhol elerheto inventoryja
 
         public DefaultInvetoryStruct equipments;
-        public string InventoryType;
 
         private bool InventoryOpen = false;
 
         private GameObject InventoryObject;
-        private GameObject EquipmentsObject;
-        private GameObject SlotObject;
-        private GameObject LootObject;
+        public GameObject EquipmentsObject;
+        public GameObject SlotObject;
+        public GameObject LootObject;
         public Item[] itemArray()
         {
             return new Item[]
@@ -48,9 +47,6 @@ namespace InventoryClass
                 equipments.HeadsetSlot,
                 equipments.SkinSlot,
                 equipments.FingerSlot,
-
-
-
             };
         }
         public struct DefaultInvetoryStruct
@@ -69,16 +65,9 @@ namespace InventoryClass
         }
 
         public void Start() 
-        { 
-            initialisation();
-        }
-        private void initialisation()
         {
-            if (InventoryType == "Player")//player tipusu
-            {
-                InventoryLoad();
-                InventoryEquipmentsBuld();
-            }
+            InventoryLoad();
+            InventoryEquipmentsBuld();
         }
         private void InventoryEquipmentsBuld()//ez nem az inventoryban epiti fel az itememket hanem a playerre aggatja fel azokat, mint a fegyvert a kezebe adja, illetve a pancelt ra.   NOT WORKING!!!
         {
@@ -100,13 +89,9 @@ namespace InventoryClass
             }
 
         }
-        public void Update()
-        {
-            OpenCloseInventory();
-        }
         public void OpenCloseInventory()//ez az inventoryt epiti fel
         {
-            if (Input.GetKeyUp(KeyCode.Tab) || Input.GetKeyUp(KeyCode.I))
+            if (Input.GetKeyUp(KeyCode.Tab))
             {
                 if (InventoryOpen)
                 {
@@ -139,13 +124,15 @@ namespace InventoryClass
                     EquipmentsObject.transform.SetParent(InventoryObject.transform);
                     EquipmentsObject.GetComponent<RectTransform>().sizeDelta = new Vector2(aranyok[0], Main.DefaultHeight);
                     EquipmentsObject.GetComponent<RectTransform>().localPosition = new Vector3((aranyok[0] + aranyok[1]/2)*-1, 0, 0);
-                    foreach (GameObject item in EquipmentsObject.GetComponent<Equipments>().EquipmentsSlots)
+                    foreach (GameObject item in EquipmentsObject.GetComponent<EquipmentsPanelScript>().EquipmentsSlots)
                     {
                         for (int i = 0; i < itemArray().Length; i++)
                         {
                             if (itemArray()[i] != null && itemArray()[i].SlotUse[0] == item.GetComponent<EquipmentSlotScript>().SlotName)
                             {
-                                item.AddComponent<Item>().SetItem(itemArray()[i]);
+                                GameObject ItemObject = new GameObject($"{itemArray()[i].name}");
+                                item.transform.SetParent(ItemObject.transform);
+                                ItemObject.AddComponent<Item>().SetItem(itemArray()[i]);
                             }
                         }
                     }
@@ -154,6 +141,7 @@ namespace InventoryClass
                     SlotObject.transform.SetParent(InventoryObject.transform);
                     SlotObject.GetComponent<RectTransform>().sizeDelta = new Vector2(aranyok[1], Main.DefaultHeight);
                     SlotObject.GetComponent<RectTransform>().localPosition = new Vector3(aranyok[1]*-1 / 2, 0, 0);
+                    SlotObject.AddComponent<SlotsPanelScript>();
 
                     LootObject = CreatePrefab("GameElements/Loot-Inventory");
                     LootObject.transform.SetParent(InventoryObject.transform);
@@ -172,7 +160,7 @@ namespace InventoryClass
             }
             return retunvalues;
         }
-        private GameObject CreatePrefab(string path)
+        public GameObject CreatePrefab(string path)
         {
             GameObject prefab = Instantiate(Resources.Load<GameObject>(path));
             if (prefab != null)
@@ -194,13 +182,17 @@ namespace InventoryClass
 
 
 
+        public void InventorySave()
+        {
 
+        }
         public void InventoryLoad()//kelelne egy save manager script ami a be ovasat es a kiirast kezelni ezzel lehet idot lehetni sporolni
         {
             if (File.Exists("UserSave.json"))
             {
                 string jsonString = File.ReadAllText("PlayerSave.json");
                 equipments = JsonConvert.DeserializeObject<DefaultInvetoryStruct>(jsonString);
+                Playerinventory = this;
             }
             else
             {
@@ -211,15 +203,21 @@ namespace InventoryClass
         {
             equipments = new DefaultInvetoryStruct();
         }
+
+
+
+
+
+
         public void InventoryAdd(Item item)
         {
-
+            item.SetItem(item);
         }
         public void InventoryDelete(Item item)
         {
 
         }
-        public void InventorySave()
+        public void InventoryModify(Item item)
         {
 
         }
@@ -230,15 +228,56 @@ namespace InventoryClass
 
 
 }
-  
 
-
-
-
-namespace Items
+namespace ItemHandler
 {
-    public abstract class Item : MonoBehaviour// az item hozza letre azt a panelt a slot inventoryban amely a tartlomert felelos, de csak akkor ha õ equipment slotban van egybekent egy up relativ pozitcioju panelt hozzon letre mint az EFT-ban
+    using InventoryClass;
+    public class Item : ItemStruct
     {
+        private void Start()
+        {
+            //Slot/Slotok lefedése
+            RectTransform rectTransform = GetComponent<RectTransform>();
+            if (rectTransform == null) return;
+
+            // Inicializáljuk a minimum és maximum pozíciókat
+            Vector3 minPosition = Vector3.positiveInfinity;
+            Vector3 maxPosition = Vector3.negativeInfinity;
+
+            // Iteráljunk a gyerek objektumokon
+            foreach (RectTransform child in transform)
+            {
+                // A gyerek objektumok pozíciója a szülõhöz képest
+                Vector3 childPosition = child.localPosition;
+                Vector3 childSize = child.rect.size;
+
+                // Számold ki a gyerek pozíciójának sarkait
+                Vector3 childMin = childPosition - new Vector3(childSize.x / 2, childSize.y / 2, 0);
+                Vector3 childMax = childPosition + new Vector3(childSize.x / 2, childSize.y / 2, 0);
+
+                // Frissítsd a minimum és maximum pozíciókat
+                minPosition = Vector3.Min(minPosition, childMin);
+                maxPosition = Vector3.Max(maxPosition, childMax);
+            }
+
+            // Számold ki a szülõ méretét
+            Vector2 newSize = maxPosition - minPosition;
+            rectTransform.sizeDelta = newSize;
+
+            // Pozicionáld a szülõt a középpontba
+            rectTransform.localPosition = (minPosition + maxPosition) / 2;
+
+
+
+            //Item kép létrehozása
+            gameObject.AddComponent<SpriteRenderer>().sprite = Resources.Load<Sprite>(this.ImgPath);
+
+            //Ha van tartalma akkor azt generálásra küldjük a SlotPanel-be.
+            if (this.Container != null)
+            {
+                Container.CreatContainer(PlayerInventory.Playerinventory.SlotObject.transform.GetChild(0).transform);
+            }
+        }
         private void CopyProperties(Item source)
         {
             //altalanos adatok
@@ -247,8 +286,8 @@ namespace Items
             Description = source.Description;
             Quantity = source.Quantity;
             position = source.position;//a 2d pozitcioja. ez azert kell, hogy az item elfoglalja es teljesen le is fedje a slot objektumot (ATALAKITAS KELL: ennek egy trasformnak kell lenni, hogy orokolje mind pozitciojat mind nagysagat is)
-            //Nem biztosak
             SlotUse = source.SlotUse;// ez a jelenleg elfoglalt helye, ezt a betolteskor hasznaljuk, hogy tudjuk mit hova raktunk el.
+            ImgPath = source.ImgPath;
             //tartalom
             Container = source.Container;//tartalom
             //fegyver adatok
@@ -268,46 +307,15 @@ namespace Items
         {
             Item completedItem = uncompletedItem.Name switch
             {
-                "TestWeapon" => new TestWeapon(),
-                "TestBackpack" => new TestBackpack(),
+                "TestWeapon" => new TestWeapon().Set(),
+                //"TestBackpack" => new TestBackpack(),
                 _ => throw new ArgumentException("Invalid type")
             };
             CopyProperties(completedItem);
         }
-        /* lefedes!!!!!
-        public void Start()//nem biztos hogy mukodik
-        {
-            RectTransform parentRect = GetComponent<RectTransform>();
-            if (parentRect == null) return;
-
-            // Inicializáljuk a minimum és maximum pozíciókat
-            Vector3 minPosition = Vector3.positiveInfinity;
-            Vector3 maxPosition = Vector3.negativeInfinity;
-
-            // Iterálj a gyerek objektumokon
-            foreach (RectTransform child in transform)
-            {
-                // A gyerek objektumok pozíciója a szülõhöz képest
-                Vector3 childPosition = child.localPosition;
-                Vector3 childSize = child.rect.size;
-
-                // Számold ki a gyerek pozíciójának sarkait
-                Vector3 childMin = childPosition - new Vector3(childSize.x / 2, childSize.y / 2, 0);
-                Vector3 childMax = childPosition + new Vector3(childSize.x / 2, childSize.y / 2, 0);
-
-                // Frissítsd a minimum és maximum pozíciókat
-                minPosition = Vector3.Min(minPosition, childMin);
-                maxPosition = Vector3.Max(maxPosition, childMax);
-            }
-
-            // Számold ki a szülõ méretét
-            Vector3 newSize = maxPosition - minPosition;
-            parentRect.sizeDelta = new Vector2(newSize.x, newSize.y);
-
-            // Pozicionáld a szülõt a középpontba
-            parentRect.localPosition = (minPosition + maxPosition) / 2;
-        }
-        */
+    }
+    public abstract class ItemStruct : MonoBehaviour// az item hozza letre azt a panelt a slot inventoryban amely a tartlomert felelos, de csak akkor ha õ equipment slotban van egybekent egy up relativ pozitcioju panelt hozzon letre mint az EFT-ban
+    {
 
         //general
         public string ItemType { get; set; }
@@ -316,6 +324,7 @@ namespace Items
         public int Quantity { get; set; } = 1;
         public Vector2 position { get; set; }
         public string[] SlotUse { get; set; }
+        public string ImgPath { get; set; }
         //contain
         public Container Container { get; set; } = null;
 
@@ -349,35 +358,34 @@ namespace Items
         //armor
     }
 
-    public class Container
+    public class Container : MonoBehaviour
     {
-        public List<Container_struct> Items { get; set; }
-        public Container()
+        public List<Item> Items { get; set; }
+        public string PrefabPath;
+
+        public void CreatContainer(Transform ParentObject)
         {
-
+            GameObject Prefab = PlayerInventory.Playerinventory.CreatePrefab(PrefabPath);
+            Prefab.AddComponent<Container>().Set(this.Items);
+            Prefab.name = PrefabPath.Split('\\').Last();
+            ParentObject.GetComponent<SlotsPanelScript>().Containers.Add(Prefab);
         }
-        public int[,] slotZones { get; set; }
+        public void Set(List<Item> items)
+        {
+            Items = items;
+        }
     }
-    public struct Container_struct
+    public class BulletType
     {
-        public Item Item { get; set; }
+
     }
 
-    public class SlotSector
+    public class Accessors
     {
-        public Vector2 position { get; set; }
+
     }
-
-}
-public class BulletType
-{
-
 }
 
-public class Accessors
-{
-
-}
 
 
 

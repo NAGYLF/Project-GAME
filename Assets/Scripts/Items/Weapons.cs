@@ -3,12 +3,36 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
-using Items;
+using ItemHandler;
 
 namespace Weapons
 {
     public class TestWeapon : Item
     {
+        public Item Set()
+        {
+            return new Item()
+            {
+                ImgPath = "Textures/TestWeapon",//az item képe
+                ItemType = "WeaponMain",//typus azonosito
+                Name = "TestWeapon",//nev azonosito
+                DefaultMagasineSize = 30,//alap tár kapacitás
+                Spread = 1,//a spread minusz értéke és plusz erteke közötti random generált szögben indul ki a lövedék, az az ha ez 0 akkor minden lövedék pontos, ezt a recoil befolyasolja
+                Rpm = 500,//lovés percenként
+                Recoil = 1,//egy szorzó mely minden lövéssel önmagát szorozza, továbbá értéke mindig szorzatban áll a spreaddal.
+                Accturacy = 100,//pontosság a lövedék találatának esélye, ugyan is a jatekban van sebzes nem csak testre hanem testrészekre, minnél pontosabb egy fegyver annál kevesebb a karcolás, RHA esélye illetve annál nagyobb az esélye hogy a lovedék ott sebez ahol a talalat erkezik.
+                Range = 1000,//az a pont ameddig az általa ellőtt lövedék elmegy 1 = 1 méter
+                Ergonomy = 100,//a célzás során a célkereszt mozog ha 0 akkor nagyon mozog ha 100 akkor egyáltalán nem.
+                BulletType = new BulletType()//lőszer tipusa ez tartalmazza a sebzest, páncél átutest, stb NINCS KÉSZ
+                {
+                    // ez ugyan ugy fog kinezni mint a TestWeapon.Set() az az ez is egy páldány lesz
+                },
+                Accessors = new Accessors()//a fegyver alapvető értékeit modosito felszereltségek NINCS KÉSZ
+                {
+                    // ez ugyan ugy fog kinezni mint a TestWeapon.Set() az az ez is egy páldány lesz
+                }
+            };
 
+        }
     }
 }

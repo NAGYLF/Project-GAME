@@ -6,7 +6,7 @@ using System.Runtime.CompilerServices;
 using UnityEngine;
 public class Player : MonoBehaviour
 {
-
+    public static bool PlayerMovmentOnline = true;
     [SerializeField] private float PlayerMovementSpeed = 5f;//default speed
     [SerializeField] private float PlayerMovementSpeedMax = 8f;//sprint speed
     [SerializeField] private float moveSpeed;//actual speeed
@@ -17,16 +17,23 @@ public class Player : MonoBehaviour
     {
         moveSpeed = PlayerMovementSpeed;
         Objectrigidbody = GetComponent<Rigidbody2D>();
-        gameObject.AddComponent<Inventory>().InventoryType = "Player";
+        gameObject.AddComponent<PlayerInventory>();
     }
 
     private void Update()
     {
-        PlayerAnimation(Input.GetAxis("Horizontal"));
+        if (PlayerMovmentOnline)
+        {
+            PlayerAnimation(Input.GetAxis("Horizontal"));
+        }
     }
     private void FixedUpdate()
     {
-        Movement();//mozgas
+        if (PlayerMovmentOnline)
+        {
+            Movement();//mozgas
+        }
+
     }
     private void Movement()
     {

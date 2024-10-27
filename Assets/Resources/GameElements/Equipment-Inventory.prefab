@@ -460,7 +460,7 @@ PrefabInstance:
     m_Modifications:
     - target: {fileID: 1346842742886268391, guid: f0d27291768e23b48a34e2eb688eb4bf, type: 3}
       propertyPath: SlotType
-      value: WeaponMain;Secondary;Melee
+      value: WeaponMain;WeaponSecondary;Melee
       objectReference: {fileID: 0}
     - target: {fileID: 8134937336055648193, guid: f0d27291768e23b48a34e2eb688eb4bf, type: 3}
       propertyPath: m_Name
@@ -1237,7 +1237,7 @@ PrefabInstance:
     m_Modifications:
     - target: {fileID: 1346842742886268391, guid: f0d27291768e23b48a34e2eb688eb4bf, type: 3}
       propertyPath: SlotType
-      value: Secondary
+      value: WeaponSecondary
       objectReference: {fileID: 0}
     - target: {fileID: 8134937336055648193, guid: f0d27291768e23b48a34e2eb688eb4bf, type: 3}
       propertyPath: m_Name
@@ -1348,7 +1348,7 @@ PrefabInstance:
     m_Modifications:
     - target: {fileID: 1346842742886268391, guid: f0d27291768e23b48a34e2eb688eb4bf, type: 3}
       propertyPath: SlotType
-      value: WeaponMain;Secondary;Melee
+      value: WeaponMain;WeaponSecondary;Melee
       objectReference: {fileID: 0}
     - target: {fileID: 8134937336055648193, guid: f0d27291768e23b48a34e2eb688eb4bf, type: 3}
       propertyPath: m_Name

@@ -33,6 +33,7 @@ public class InGameUI : MonoBehaviour
     private void Update()
     {
         OpenCloseDevConsole();
+        InventoryClass.PlayerInventory.Playerinventory.OpenCloseInventory();
     }
     private void OpenCloseDevConsole()
     {

@@ -10,7 +10,7 @@ using UnityEngine.Video;
 using UnityEngine.UI;
 
 namespace Assets.Scripts
-{
+{ 
     internal class ItemSlot : MonoBehaviour
     {
 

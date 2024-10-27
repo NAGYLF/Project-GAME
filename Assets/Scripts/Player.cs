@@ -12,11 +12,11 @@ public class Player : MonoBehaviour
     [SerializeField] private float moveSpeed;//actual speeed
     private bool isSprinting = false;
 
-    private Rigidbody2D rigidbody;//az objektum ami jelenleg a player, van egy unity altal biztositott fizika komponense ezzel lehet olyat csinalni, hogy nekimegy valaminek, mozog, stb
+    private Rigidbody2D Objectrigidbody;//az objektum ami jelenleg a player, van egy unity altal biztositott fizika komponense ezzel lehet olyat csinalni, hogy nekimegy valaminek, mozog, stb
     private void Awake()
     {
         moveSpeed = PlayerMovementSpeed;
-        rigidbody = GetComponent<Rigidbody2D>();
+        Objectrigidbody = GetComponent<Rigidbody2D>();
         gameObject.AddComponent<Inventory>().InventoryType = "Player";
     }
 
@@ -51,14 +51,14 @@ public class Player : MonoBehaviour
         //itt igy erteheto hogy az tortenik, hogy a movement az az az utvonal iranyat és annak iranyat felszorzom a sebeseggel tovabba hozza adom a fizikai komponenshez ami azt lebontja és vegre is hajtja.
         if (movement.magnitude > 0)
         {
-            rigidbody.velocity = movement * moveSpeed;
+            Objectrigidbody.velocity = movement * moveSpeed;
         }
         else// mivel a magnitude az az a célirány és az objektum közötti tavolsag maximum 1 lehet (az elobbiekbol adodoan), de csak akkor ha van bevitt WASD.
             //és az a helyzet, hogy meg igy is eszreveheto, hogy ha elengeded a WASD valamelyiket akkor a karakte rmeg egy kicsit megy, na ez azert van mert a fizikai komponens vegrehajtja a pozitcionalast,
             //de az utan is folytatja ha meg nem felyezte be, hogy te elengedted a WASD-t ezert ekkor meg kell allitani azzal, hogy 0 lesz és kesz.
         {
             // Azonnali megállás
-            rigidbody.velocity = Vector2.zero;
+            Objectrigidbody.velocity = Vector2.zero;
         }
 
 

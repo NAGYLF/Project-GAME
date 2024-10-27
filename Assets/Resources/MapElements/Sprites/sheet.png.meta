@@ -101,6 +101,18 @@ TextureImporter:
     overridden: 0
     androidETC2FallbackOverride: 0
     forceMaximumCompressionQuality_BC6H_BC7: 0
+  - serializedVersion: 3
+    buildTarget: WebGL
+    maxTextureSize: 2048
+    resizeAlgorithm: 0
+    textureFormat: -1
+    textureCompression: 0
+    compressionQuality: 50
+    crunchedCompression: 0
+    allowsAlphaSplitting: 0
+    overridden: 0
+    androidETC2FallbackOverride: 0
+    forceMaximumCompressionQuality_BC6H_BC7: 0
   spriteSheet:
     serializedVersion: 2
     sprites:
@@ -5830,17 +5842,18 @@ TextureImporter:
       sheet_64: 1682087158
       sheet_250: 96267312
       sheet_128: -811251171
+      sheet_245: 631348067
       sheet_155: -1412036073
       sheet_145: 1401306857
       sheet_44: 1271067129
-      sheet_75: 1986298671
       sheet_29: 1639264265
-      sheet_148: -515767889
+      sheet_75: 1986298671
       sheet_138: -1025337969
-      sheet_183: 510833565
+      sheet_148: -515767889
       sheet_13: 1351244768
-      sheet_88: -1927361923
+      sheet_183: 510833565
       sheet_205: 2115779340
+      sheet_88: -1927361923
       sheet_142: 1624523718
       sheet_234: 2051176975
       sheet_156: -1665174280
@@ -5854,18 +5867,17 @@ TextureImporter:
       sheet_96: -91855415
       sheet_269: -1191227912
       sheet_189: 687305455
-      sheet_245: 631348067
       sheet_182: 39281227
       sheet_26: 1378680549
       sheet_229: -520645070
       sheet_14: 2131876945
       sheet_93: -1930721909
       sheet_255: -219657747
-      sheet_53: -520892214
       sheet_99: -955415551
       sheet_176: 1902275750
-      sheet_261: 799187283
       sheet_259: -1665556215
+      sheet_53: -520892214
+      sheet_261: 799187283
       sheet_141: 1481792186
       sheet_69: 1965221711
       sheet_268: 839986277
@@ -5946,11 +5958,9 @@ TextureImporter:
       sheet_33: 57298446
       sheet_30: -180250297
       sheet_82: 878956069
-      sheet_217: 1957943976
       sheet_262: 983255962
       sheet_70: -1364343252
       sheet_25: -336292810
-      sheet_222: -826628461
       sheet_228: 1596151136
       sheet_119: -377696798
       sheet_225: 624035135
@@ -5959,11 +5969,13 @@ TextureImporter:
       sheet_7: -228673162
       sheet_37: -1520442125
       sheet_237: 1948856225
+      sheet_217: 1957943976
       sheet_215: -1552632257
       sheet_246: -2095477550
       sheet_95: -375930146
       sheet_67: 689842538
       sheet_80: 830023577
+      sheet_222: -826628461
       sheet_22: 1845921222
       sheet_236: 398860770
       sheet_56: 456079785

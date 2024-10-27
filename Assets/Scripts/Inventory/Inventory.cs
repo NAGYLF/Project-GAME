@@ -21,38 +21,6 @@ namespace InventoryClass
   
     public class Inventory : MonoBehaviour
     {
-        public Equipmnet_Type_ObjSize[] EquipmentTypes_ObjSize = new Equipmnet_Type_ObjSize[]
-        {
-            new Equipmnet_Type_ObjSize("Vest", 1f, 1f ,1f,1f,1f),
-            new Equipmnet_Type_ObjSize("Backpack", 1f, 1f ,1f,1f,1f),
-            new Equipmnet_Type_ObjSize("Helmet", 1f, 1f ,1f,1f,1f),
-            new Equipmnet_Type_ObjSize("Armor", 1f, 1f ,1f,1f,1f),
-            new Equipmnet_Type_ObjSize("Headset", 1f, 1f ,1f,1f,1f),
-            new Equipmnet_Type_ObjSize("Finger", 1f, 1f ,1f,1f,1f),
-            new Equipmnet_Type_ObjSize("Mask", 1f, 1f ,1f,1f,1f),
-            new Equipmnet_Type_ObjSize("Boots", 1f, 1f ,1f,1f,1f),
-            new Equipmnet_Type_ObjSize("Pants", 1f, 1f ,1f,1f,1f),
-            new Equipmnet_Type_ObjSize("Skin", 1f, 1f ,1f,1f,1f),
-        };
-        public struct Equipmnet_Type_ObjSize
-        {
-            public string type;
-            public float sizeX;
-            public float sizeY;
-            public float positionX;
-            public float positionY;
-            public float positionZ;
-
-            public Equipmnet_Type_ObjSize(string type, float sizeX, float sizeY,float positonX,float positonY,float positionZ)
-            {
-                this.type = type;
-                this.sizeX = sizeX;
-                this.sizeY = sizeY;
-                this.positionX = positonX;
-                this.positionY = positonY;
-                this.positionZ = positionZ;
-            }
-        }
 
         public DefaultInvetoryStruct equipments;
         public string InventoryType;
@@ -60,24 +28,29 @@ namespace InventoryClass
         private bool InventoryOpen = false;
 
         private GameObject InventoryObject;
-        private GameObject Equipments;
-        private GameObject Slots;
-        private GameObject Loot;
+        private GameObject EquipmentsObject;
+        private GameObject SlotObject;
+        private GameObject LootObject;
         public Item[] itemArray()
         {
             return new Item[]
             {
-                equipments.VestSlot,
-                equipments.BackbackSlot,
+                //sector1
                 equipments.HelmetSlot,
                 equipments.ArmorSlot,
-                equipments.HeadsetSlot,
-                equipments.FingerSlot,
-                equipments.HeadsetSlot,
-                equipments.MaskSlot,
-                equipments.BootsSlot,
                 equipments.PantsSlot,
+                equipments.BootsSlot,
+                //sector2
+                equipments.MaskSlot,
+                equipments.VestSlot,
+                equipments.BackbackSlot,
+                //sector3
+                equipments.HeadsetSlot,
                 equipments.SkinSlot,
+                equipments.FingerSlot,
+
+
+
             };
         }
         public struct DefaultInvetoryStruct
@@ -97,13 +70,12 @@ namespace InventoryClass
 
         public void Start() 
         { 
-            initalisation();
+            initialisation();
         }
-        private void initalisation()
+        private void initialisation()
         {
             if (InventoryType == "Player")//player tipusu
             {
-                equipments = new DefaultInvetoryStruct();
                 InventoryLoad();
                 InventoryEquipmentsBuld();
             }
@@ -119,7 +91,7 @@ namespace InventoryClass
 
                     Item item = items[i];
 
-                    NewGameObject.AddComponent<Item>().ItemConstructorSelector(item);
+                    NewGameObject.AddComponent<Item>().SetItem(item);
 
                     NewGameObject.transform.SetParent(gameObject.transform);
                 }
@@ -163,38 +135,30 @@ namespace InventoryClass
 
                     float[] aranyok = Aranyszamitas(new float[] {6,5,6},Main.DefaultWidth);
 
-                    Equipments = CreatePrefab("GameElements/Equipment-Inventory");
-                    Equipments.transform.SetParent(InventoryObject.transform);
-                    Equipments.GetComponent<RectTransform>().sizeDelta = new Vector2(aranyok[0], Main.DefaultHeight);
-                    Equipments.GetComponent<RectTransform>().localPosition = new Vector3((aranyok[0] + aranyok[1]/2)*-1, 0, 0);
-
-                    RectTransform EquipmentRectransform = Equipments.GetComponent<RectTransform>();
-
-                    GameObject[] EquipmentsSlots = new GameObject[EquipmentTypes_ObjSize.Length];
-                    for (int i = 0; i < EquipmentsSlots.Length; i++)
+                    EquipmentsObject = CreatePrefab("GameElements/Equipment-Inventory");
+                    EquipmentsObject.transform.SetParent(InventoryObject.transform);
+                    EquipmentsObject.GetComponent<RectTransform>().sizeDelta = new Vector2(aranyok[0], Main.DefaultHeight);
+                    EquipmentsObject.GetComponent<RectTransform>().localPosition = new Vector3((aranyok[0] + aranyok[1]/2)*-1, 0, 0);
+                    foreach (GameObject item in EquipmentsObject.GetComponent<Equipments>().EquipmentsSlots)
                     {
-                        EquipmentsSlots[i] = CreatePrefab("GameElements/EquipmentSlot");
-                        EquipmentsSlots[i].name = $"{EquipmentTypes_ObjSize[i].type}Slot";
-                        if (itemArray()[i] != null){
-                            EquipmentsSlots[i].AddComponent<Item>().ItemConstructorSelector(itemArray()[i]);
+                        for (int i = 0; i < itemArray().Length; i++)
+                        {
+                            if (itemArray()[i] != null && itemArray()[i].SlotUse[0] == item.GetComponent<EquipmentSlotScript>().SlotName)
+                            {
+                                item.AddComponent<Item>().SetItem(itemArray()[i]);
+                            }
                         }
-                        EquipmentsSlots[i].transform.SetParent(EquipmentRectransform);
-                        EquipmentsSlots[i].GetComponent<RectTransform>().sizeDelta = new Vector2(EquipmentTypes_ObjSize[i].sizeX, EquipmentTypes_ObjSize[i].sizeY);//nem biztos hogy mukodik
-                        EquipmentsSlots[i].GetComponent<RectTransform>().localPosition = new Vector3(EquipmentTypes_ObjSize[i].positionX, EquipmentTypes_ObjSize[i].positionY, EquipmentTypes_ObjSize[i].positionZ);//nics kesz
                     }
-                    //feladat: mindegyik slotot el kell megfeleloen rendezni, ehez algoritmust kell irni mely kiszamitja és azokat megfelelo helyre rakja. lehetoleg visszatero erteke egy float[] legyen!
 
+                    SlotObject = CreatePrefab("GameElements/Slots-Inventory");
+                    SlotObject.transform.SetParent(InventoryObject.transform);
+                    SlotObject.GetComponent<RectTransform>().sizeDelta = new Vector2(aranyok[1], Main.DefaultHeight);
+                    SlotObject.GetComponent<RectTransform>().localPosition = new Vector3(aranyok[1]*-1 / 2, 0, 0);
 
-
-                    Slots = CreatePrefab("GameElements/Slots-Inventory");
-                    Slots.transform.SetParent(InventoryObject.transform);
-                    Slots.GetComponent<RectTransform>().sizeDelta = new Vector2(aranyok[1], Main.DefaultHeight);
-                    Slots.GetComponent<RectTransform>().localPosition = new Vector3(aranyok[1]*-1 / 2, 0, 0);
-
-                    Loot = CreatePrefab("GameElements/Loot-Inventory");
-                    Loot.transform.SetParent(InventoryObject.transform);
-                    Loot.GetComponent<RectTransform>().sizeDelta = new Vector2(aranyok[2], Main.DefaultHeight);
-                    Loot.GetComponent<RectTransform>().localPosition = new Vector3(aranyok[1] / 2 + aranyok[2], 0, 0);
+                    LootObject = CreatePrefab("GameElements/Loot-Inventory");
+                    LootObject.transform.SetParent(InventoryObject.transform);
+                    LootObject.GetComponent<RectTransform>().sizeDelta = new Vector2(aranyok[2], Main.DefaultHeight);
+                    LootObject.GetComponent<RectTransform>().localPosition = new Vector3(aranyok[1] / 2 + aranyok[2], 0, 0);
                 }
             }
         }
@@ -278,16 +242,15 @@ namespace Items
         private void CopyProperties(Item source)
         {
             //altalanos adatok
-            ItemType = source.ItemType;
-            Name = source.Name;
+            ItemType = source.ItemType;//ez alapján kerülhet be egy slotba ugyan is vannak pecifikus slotok melyeknek typusváltozójában benen kell, hogy legyen.
+            Name = source.Name;//ez alapján hozza létre egy item saját magát
             Description = source.Description;
             Quantity = source.Quantity;
-            position = source.position;
+            position = source.position;//a 2d pozitcioja. ez azert kell, hogy az item elfoglalja es teljesen le is fedje a slot objektumot (ATALAKITAS KELL: ennek egy trasformnak kell lenni, hogy orokolje mind pozitciojat mind nagysagat is)
             //Nem biztosak
-            SlotUse = source.SlotUse;
-            sectorName = source.sectorName;
+            SlotUse = source.SlotUse;// ez a jelenleg elfoglalt helye, ezt a betolteskor hasznaljuk, hogy tudjuk mit hova raktunk el.
             //tartalom
-            Container = source.Container;
+            Container = source.Container;//tartalom
             //fegyver adatok
             DefaultMagasineSize = source.DefaultMagasineSize;
             Spread = source.Spread;
@@ -301,21 +264,15 @@ namespace Items
             //felhasznalhato e?
             usable = source.usable;
         }
-        public void ItemConstructorSelector(Item uncompletedItem)
+        public void SetItem(Item uncompletedItem)
         {
-            Item completedItem = uncompletedItem.ItemType switch
+            Item completedItem = uncompletedItem.Name switch
             {
                 "TestWeapon" => new TestWeapon(),
                 "TestBackpack" => new TestBackpack(),
                 _ => throw new ArgumentException("Invalid type")
             };
             CopyProperties(completedItem);
-        }
-
-        private void Start()
-        {
-            //self building / constructing
-
         }
         /* lefedes!!!!!
         public void Start()//nem biztos hogy mukodik
@@ -358,9 +315,7 @@ namespace Items
         public string Description { get; set; }
         public int Quantity { get; set; } = 1;
         public Vector2 position { get; set; }
-        public int[] SlotUse { get; set; }
-        public string sectorName { get; set; }
-
+        public string[] SlotUse { get; set; }
         //contain
         public Container Container { get; set; } = null;
 

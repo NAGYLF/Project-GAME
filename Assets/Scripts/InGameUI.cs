@@ -2,6 +2,7 @@ using MainData;
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using InventoryClass;
 
 public class InGameUI : MonoBehaviour
 {
@@ -33,7 +34,6 @@ public class InGameUI : MonoBehaviour
     private void Update()
     {
         OpenCloseDevConsole();
-        InventoryClass.PlayerInventory.Playerinventory.OpenCloseInventory();
     }
     private void OpenCloseDevConsole()
     {

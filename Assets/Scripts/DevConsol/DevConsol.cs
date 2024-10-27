@@ -7,12 +7,16 @@ using InventoryClass;
 using ItemHandler;
 public class DevConsol : MonoBehaviour
 {
-    public TextMeshPro text;
-    
+    public GameObject text;
+
+    private void Start()
+    {
+        gameObject.GetComponent<RectTransform>().localPosition = new Vector3(0, 0, gameObject.GetComponent<RectTransform>().localPosition.z);
+    }
     public void Consol()
     {
         Debug.Log($"{text}");
-        string[] Command = text.text.Split(' ');
+        string[] Command = text.GetComponent<TMP_InputField>().text.Split(' ');
         switch (Command[0])
         {
             case "add":

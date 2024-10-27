@@ -27,9 +27,9 @@ namespace InventoryClass
         private bool InventoryOpen = false;
 
         private GameObject InventoryObject;
-        public GameObject EquipmentsObject;
-        public GameObject SlotObject;
-        public GameObject LootObject;
+        [HideInInspector] public GameObject EquipmentsObject;
+        [HideInInspector] public GameObject SlotObject;
+        [HideInInspector] public GameObject LootObject;
         public Item[] itemArray()
         {
             return new Item[]
@@ -64,7 +64,7 @@ namespace InventoryClass
             public Item SkinSlot { get; set; }
         }
 
-        public void Start() 
+        private void Start() 
         {
             InventoryLoad();
             InventoryEquipmentsBuld();
@@ -88,6 +88,10 @@ namespace InventoryClass
 
             }
 
+        }
+        private void Update()
+        {
+            OpenCloseInventory();
         }
         public void OpenCloseInventory()//ez az inventoryt epiti fel
         {

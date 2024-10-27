@@ -205,6 +205,7 @@ GameObject:
   - component: {fileID: 4692200086804235415}
   - component: {fileID: 2325227704896289321}
   - component: {fileID: 7315194999473561173}
+  - component: {fileID: 787548074930325272}
   m_Layer: 0
   m_Name: DevConsole
   m_TagString: Untagged
@@ -287,6 +288,19 @@ MonoBehaviour:
   - {fileID: 1187164971734308405}
   ThisWidth: 108
   ThisHeight: 192
+--- !u!114 &787548074930325272
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1971512971072696201}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 4a230e612d38f1c43ae45ca6809f38c5, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  text: {fileID: 1187164971734308405}
 --- !u!1 &2768912861827698099
 GameObject:
   m_ObjectHideFlags: 0

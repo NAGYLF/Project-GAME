@@ -12,14 +12,4 @@ public class EquipmentSlotScript : MonoBehaviour
     {
         SlotName = gameObject.name;
     }
-    void Start()
-    {
-        
-    }
-
-    // Update is called once per frame
-    void Update()
-    {
-        
-    }
 }

@@ -15,7 +15,11 @@ namespace Weapons
             {
                 ImgPath = "Textures/TestWeapon",//az item képe
                 ItemType = "WeaponMain",//typus azonosito
-                Name = "TestWeapon",//nev azonosito
+                ItemName = "TestWeapon",//nev azonosito
+                Description = "Ez egy Admin fegyver, statjai a leheto legjobbak",
+                SizeX = 4,//az item slotokban elfoglalt szelessege
+                SizeY = 2,//az item slotokban elfoglalt magassaga
+
                 DefaultMagasineSize = 30,//alap tár kapacitás
                 Spread = 1,//a spread minusz értéke és plusz erteke közötti random generált szögben indul ki a lövedék, az az ha ez 0 akkor minden lövedék pontos, ezt a recoil befolyasolja
                 Rpm = 500,//lovés percenként
@@ -26,12 +30,14 @@ namespace Weapons
                 BulletType = new BulletType()//lőszer tipusa ez tartalmazza a sebzest, páncél átutest, stb NINCS KÉSZ
                 {
                     // ez ugyan ugy fog kinezni mint a TestWeapon.Set() az az ez is egy páldány lesz
+                    //Köteleő tartalom
                 },
                 Accessors = new Accessors()//a fegyver alapvető értékeit modosito felszereltségek NINCS KÉSZ
                 {
                     // ez ugyan ugy fog kinezni mint a TestWeapon.Set() az az ez is egy páldány lesz
+                    //nem kötelelző tartalom
                 }
-            };
+            }; 
 
         }
     }

@@ -2,7 +2,8 @@ using MainData;
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
-using InventoryClass;
+using PlayerInventoryVisualBuild;
+using static MainData.SupportScripts;
 
 public class InGameUI : MonoBehaviour
 {
@@ -47,23 +48,8 @@ public class InGameUI : MonoBehaviour
             DevConsolOpen = true;
             DevConsole = CreatePrefab("GameElements/DevConsole");
             DevConsole.transform.SetParent(transform);
-            DevConsole.GetComponent<RectTransform>().sizeDelta = new Vector2(Main.DefaultWidth,Main.DefaultHeight);
+            DevConsole.GetComponent<RectTransform>().sizeDelta = new Vector2(Main.DefaultWidth, Main.DefaultHeight);
 
         }
     }
-
-    private GameObject CreatePrefab(string path)
-    {
-        GameObject prefab = Instantiate(Resources.Load<GameObject>(path));
-        if (prefab != null)
-        {
-            return prefab;
-        }
-        else
-        {
-            Debug.LogError($"{path} prefab nem található!");
-            return null;
-        }
-    }
-
 }

@@ -18,7 +18,7 @@ public class SlotsPanelScript : MonoBehaviour
             List<Item> Items = container.GetComponent<Container>().Items;
             for (int i = 0; i < Items.Count; i++)
             {
-                GameObject ItemObject = new GameObject($"{Items[i].Name}");
+                GameObject ItemObject = new GameObject($"{Items[i].ItemName}");
                 foreach (Transform childerObject in gameObject.transform)
                 {
                     if (Items[i].SlotUse.Contains(childerObject.name))
@@ -26,12 +26,31 @@ public class SlotsPanelScript : MonoBehaviour
                         childerObject.transform.SetParent(ItemObject.transform);
                     }
                 }
-                ItemObject.AddComponent<Item>().SetItem(Items[i]);
+                ItemObject.AddComponent<ItemObject>().Data.SetItem(Items[i].ItemName);
             }
         }
     }
     public void UpdateSlotPanel()
     {
-        
+        foreach (Transform child in gameObject.transform)
+        {
+            Destroy(child.gameObject);
+        }
+        foreach (GameObject container in Containers)
+        {
+            List<Item> Items = container.GetComponent<Container>().Items;
+            for (int i = 0; i < Items.Count; i++)
+            {
+                GameObject ItemObject = new GameObject($"{Items[i].ItemName}");
+                foreach (Transform childerObject in gameObject.transform)
+                {
+                    if (Items[i].SlotUse.Contains(childerObject.name))
+                    {
+                        childerObject.transform.SetParent(ItemObject.transform);
+                    }
+                }
+                ItemObject.AddComponent<ItemObject>().Data.SetItem(Items[i].ItemName);
+            }
+        }
     }
 }

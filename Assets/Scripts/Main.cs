@@ -13,8 +13,7 @@ using UnityEngine.Video;
 using UnityEngine.UI;
 using TMPro;
 using ItemHandler;
-using TreeEditor;
-using InventoryClass;
+using PlayerInventoryVisualBuild;
 
 //test
 namespace MainData
@@ -222,6 +221,32 @@ namespace MainData
     }
     #endregion
 
- 
+    class SupportScripts : MonoBehaviour
+    {
+        public static float[] Aranyszamitas(float[] szamok, float max)
+        {
+            float szam4 = max / szamok.Sum();
+            float[] retunvalues = new float[szamok.Length];
+            for (int i = 0; i < retunvalues.Length; i++)
+            {
+                retunvalues[i] = szam4 * szamok[i];
+            }
+            return retunvalues;
+        }
+        public static GameObject CreatePrefab(string path)
+        {
+            GameObject prefab = Instantiate(Resources.Load<GameObject>(path));
+            if (prefab != null)
+            {
+                prefab.name = path.Split('/').Last();
+                return prefab;
+            }
+            else
+            {
+                Debug.LogError($"{path} prefab nem található!");
+                return null;
+            }
+        }
+    }
 
 }

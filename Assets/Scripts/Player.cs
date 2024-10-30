@@ -1,4 +1,5 @@
-using InventoryClass;
+using PlayerInventoryVisualBuild;
+using PlayerInventoryClass;
 using MainData;
 using System.Collections;
 using System.Collections.Generic;

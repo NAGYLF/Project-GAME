@@ -3,19 +3,19 @@ using System.Collections.Generic;
 using TMPro;
 using UnityEngine;
 using MainData;
-using InventoryClass;
+using PlayerInventoryVisualBuild;
 using ItemHandler;
+using PlayerInventoryClass;
 public class DevConsol : MonoBehaviour
 {
     public GameObject text;
-
+    //add [playerName] Item [itemName]
     private void Start()
     {
         gameObject.GetComponent<RectTransform>().localPosition = new Vector3(0, 0, gameObject.GetComponent<RectTransform>().localPosition.z);
     }
     public void Consol()
     {
-        Debug.Log($"{text}");
         string[] Command = text.GetComponent<TMP_InputField>().text.Split(' ');
         switch (Command[0])
         {
@@ -25,10 +25,11 @@ public class DevConsol : MonoBehaviour
                     case var _ when Command[1] == Main.name:
                         switch (Command[2])
                         {
-                            case "Item":
-                                Item item = new();
-                                item.name = Command[3];
-                                PlayerInventory.Playerinventory.InventoryAdd(item);
+                            case "item":
+                                Debug.Log($"{text.GetComponent<TMP_InputField>().text}");
+                                Debug.Log($"{Command[3]}");
+                                Item item = new Item(Command[3]);
+                                PlayerInventory.InventoryAdd(item);
                                 break;
                             default:
                                 break;

@@ -201,8 +201,9 @@ namespace MainData
     {
         public static int targetFPS = 60;
         private static List<Item> InvetnoryElemetList;
-        public static float DefaultHeight = 10.8f;
-        public static float DefaultWidth = 19.2f;
+        public static float DefaultHeight = 1080f;
+        public static float DefaultWidth = 1920f;
+        public static float SectorScale = 0.5f;//ez az inventorySlotok scale-je ez befolyásolja egy item meretet is
         public static void Save()
         {
 
@@ -235,7 +236,9 @@ namespace MainData
         }
         public static GameObject CreatePrefab(string path)
         {
+            Debug.Log($"CreatePrefab path: {path}");
             GameObject prefab = Instantiate(Resources.Load<GameObject>(path));
+            Debug.Log($"CreatePrefab path: {path} DONE");
             if (prefab != null)
             {
                 prefab.name = path.Split('/').Last();

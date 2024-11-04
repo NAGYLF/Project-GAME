@@ -8,8 +8,8 @@ using UnityEngine;
 public class Player : MonoBehaviour
 {
     public static bool PlayerMovmentOnline = true;
-    [SerializeField] private float PlayerMovementSpeed = 5f;//default speed
-    [SerializeField] private float PlayerMovementSpeedMax = 8f;//sprint speed
+    [HideInInspector] private float PlayerMovementSpeed = 50f;//default speed
+    [HideInInspector] private float PlayerMovementSpeedMax = 100f;//sprint speed
     [SerializeField] private float moveSpeed;//actual speeed
     private bool isSprinting = false;
 

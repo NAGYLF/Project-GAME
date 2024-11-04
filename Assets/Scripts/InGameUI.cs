@@ -10,6 +10,7 @@ public class InGameUI : MonoBehaviour
     [SerializeField] private Vector3 offset;
     [SerializeField] private float damping;
 
+    public Vector2 InGameUISize = new Vector2(192,108);
 
     public Transform target;
     public Camera CameraObject;
@@ -22,8 +23,11 @@ public class InGameUI : MonoBehaviour
 
     private void Awake()
     {
+        Main.DefaultHeight = InGameUISize.y;
+        Main.DefaultWidth = InGameUISize.x;
         gameObject.GetComponent<RectTransform>().sizeDelta = new Vector2(Main.DefaultWidth, Main.DefaultHeight);
-        CameraObject.orthographicSize = gameObject.GetComponent<RectTransform>().sizeDelta.y / 2f;
+        gameObject.GetComponent<RectTransform>().transform.localPosition = new Vector3(Main.DefaultWidth,Main.DefaultHeight,-8);
+        CameraObject.orthographicSize = gameObject.GetComponent<RectTransform>().sizeDelta.y / 2f;//ha szukseges a camera manualis meretezese
     }
     private void FixedUpdate()
     {
@@ -48,7 +52,7 @@ public class InGameUI : MonoBehaviour
             DevConsolOpen = true;
             DevConsole = CreatePrefab("GameElements/DevConsole");
             DevConsole.transform.SetParent(transform);
-            DevConsole.GetComponent<RectTransform>().sizeDelta = new Vector2(Main.DefaultWidth, Main.DefaultHeight);
+            DevConsole.GetComponent<RectTransform>().transform.localPosition = new Vector3(Main.DefaultWidth, Main.DefaultHeight,0);
 
         }
     }

@@ -29,7 +29,41 @@ public class DevConsol : MonoBehaviour
                                 Debug.Log($"{text.GetComponent<TMP_InputField>().text}");
                                 Debug.Log($"{Command[3]}");
                                 Item item = new Item(Command[3]);
-                                PlayerInventory.InventoryAdd(item);
+                                PlayerInventory.playerInventoryData.InventoryAdd(item);
+                                break;
+                            case "DevInventory":
+                                Debug.Log($"{text.GetComponent<TMP_InputField>().text}");
+                                Item[] items00 = new Item[]
+                                {
+                                    new Item("TestWeapon"),
+                                    new Item("TestWeapon"),
+                                    new Item("TestHandgun"),
+                                    new Item("TestArmor"),
+                                    new Item("TestBackpack"),
+                                    new Item("TestVest"),
+                                };
+                                foreach (Item item_ in items00)
+                                {
+                                    Debug.Log(item_.ItemName);
+                                    Debug.Log($"{PlayerInventory.playerInventoryData==null}");
+                                    PlayerInventory.playerInventoryData.InventoryAdd(item_);
+                                }
+                                break;
+                            case "3xTestWeapon+TestBackPack":
+                                Debug.Log($"{text.GetComponent<TMP_InputField>().text}");
+                                Item[] items01 = new Item[]
+                                {
+                                    new Item("TestBackpack"),
+                                    new Item("TestWeapon"),
+                                    new Item("TestWeapon"),
+                                    new Item("TestWeapon"),
+                                };
+                                foreach (Item item_ in items01)
+                                {
+                                    Debug.Log(item_.ItemName);
+                                    Debug.Log($"{PlayerInventory.playerInventoryData == null}");
+                                    PlayerInventory.playerInventoryData.InventoryAdd(item_);
+                                }
                                 break;
                             default:
                                 break;

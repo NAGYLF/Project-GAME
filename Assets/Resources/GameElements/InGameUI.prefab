@@ -10,7 +10,7 @@ GameObject:
   m_Component:
   - component: {fileID: 586048519737888617}
   - component: {fileID: 586048519737888631}
-  - component: {fileID: 586048519737888630}
+  - component: {fileID: 1730488807}
   m_Layer: 5
   m_Name: InGameUI
   m_TagString: InGameUI
@@ -47,7 +47,7 @@ CanvasRenderer:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 586048519737888618}
   m_CullTransparentMesh: 1
---- !u!114 &586048519737888630
+--- !u!114 &1730488807
 MonoBehaviour:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
@@ -60,8 +60,9 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   offset: {x: 0, y: 0, z: 0}
-  damping: 0.1
-  target: {fileID: 519393534644049869, guid: 4e062f40804f76440adb017283c3a68e, type: 3}
+  damping: 0.05
+  InGameUISize: {x: 192, y: 108}
+  target: {fileID: 0}
   CameraObject: {fileID: 586048521022323093}
 --- !u!1 &586048521022323081
 GameObject:
@@ -131,7 +132,7 @@ Camera:
   far clip plane: 1000
   field of view: 60
   orthographic: 1
-  orthographic size: 5
+  orthographic size: 100
   m_Depth: -1
   m_CullingMask:
     serializedVersion: 2

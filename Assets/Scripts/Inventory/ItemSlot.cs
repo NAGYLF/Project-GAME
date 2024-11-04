@@ -15,7 +15,6 @@ namespace Assets.Scripts
     public class ItemSlot : MonoBehaviour
     {
         public string SlotType;//azon tipusok melyeket befogadhat, ha nincs megadva akkor mindent.
-        public string SlotName;
         public Item PartOfItem;
     }
 }

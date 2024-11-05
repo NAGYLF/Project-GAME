@@ -12,6 +12,7 @@ public class EquipmentSlot : MonoBehaviour
     public Item ActualData;
     private Item RefData;
 
+    private bool Synch = false;
 
     public string SlotType;//azon tipusok melyeket befogadhat, ha nincs megadva akkor mindent.
     public string SlotName;
@@ -22,25 +23,33 @@ public class EquipmentSlot : MonoBehaviour
     }
     public void Update()
     {
-        if (ActualData != RefData && ActualData != null)//resetelni kell a slotot
+        DataSynch();
+    }
+    private void DataSynch()
+    {
+        if (Synch)
         {
-            ItemVisualisation();
-            RefData = ActualData;
-        }
-        else if (ActualData == null)
-        {
-            RefData = null;
+            if (ActualData != RefData && ActualData != null)//resetelni kell a slotot
+            {
+                ItemVisualisation();
+                RefData = ActualData;
+            }
+            else if (ActualData == null)
+            {
+                RefData = null;
+            }
         }
     }
-    public void DataSynch(ref Item Data)
+    public void SetRootDataRoute(ref Item Data)
     {
         ActualData = Data;
+        Synch = true;
     }
     private void ItemVisualisation()//10. az item vizuálisan létrejön az equipmentslotban, objektuma tovább örökli az item adatának referenciáját
     {
         //--> ItemObject.cs (Item)
         Debug.LogWarning($"{ActualData.ItemName} EquipmentSlot.cs ------- ref --------> ItemObject.cs");
         GameObject itemObject = new GameObject($"{ActualData.ItemName}");
-        itemObject.AddComponent<ItemObject>().DataSynch(ActualData, gameObject);//item adatok itemobjektumba való adatátvitele//itemobjektum létrehozása                                                                                          
+        itemObject.AddComponent<ItemObject>().SetDataRoute(ActualData, gameObject);//item adatok itemobjektumba való adatátvitele//itemobjektum létrehozása                                                                                          
     }
 }

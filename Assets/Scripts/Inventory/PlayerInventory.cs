@@ -1,4 +1,4 @@
-using System.Collections;
+Ôªøusing System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 using ItemHandler;
@@ -21,27 +21,27 @@ using PlayerInventoryClass;
 using static PlayerInventoryClass.PlayerInventory;
 
 
-
 namespace PlayerInventoryClass
 {
     public class PlayerInventory : MonoBehaviour
     {
-        public static PlayerInventory playerInventoryData;//a player mindenhol elerheto inventoryja ezzel tortenik meg a mentes is
+        public static PlayerInventory playerInventoryData;//a player mindenhol elerheto inventoryja ez a gy√∂k√©r mely referencia k√©nt √∂ssze van k√∂tve a playerInventoryVisual.cs - vel
+        //a playerinventoryVisual equipmentenk√©nt osztja sz√©t a root adatokat, √≠gy ezen adat az equipmetekig tart, ut√°na az itemek egym√°s shyncroniz√°l√°s√°√©rt felelnek 
 
         public Equipmnets equipments;
 
         public class Equipmnets
         {
             public List<EquipmnetStruct> equipmnetsData;
-            public Equipmnets()
+            public Equipmnets()//az equipmnets v√°ltoz√≥ adatait itt p√©ld√°nyos√≠tjuk. az √∂sszes equipmentet alapbeallitotts√°ggal p√©ld√°nyos√≠tjuk
             {
-                //1.az equpmentek adatlist·j·t pÈd·nyosÌtjuk
+                //1.az equpmentek adatlist√°j√°t p√©d√°nyos√≠tjuk
                 equipmnetsData = new List<EquipmnetStruct>();
                 Transform transform = Resources.Load<GameObject>("GameElements/Equipment-Inventory").transform;
                 for (int i = 0; i < transform.childCount; i++)
                 {
-                    //2. az equipment adatlist·t feltˆltj¸k az erıre megalkotot prefab adataival, tov·bb· lÈtrehoz egy ures item pÈld·nyt
-                    equipmnetsData.Add(new EquipmnetStruct(transform.GetChild(i).GetComponent<EquipmentSlot>().SlotName, transform.GetChild(i).GetComponent<EquipmentSlot>().SlotType,new Item()));
+                    //2. az equipment adatlist√°t felt√∂ltj√ºk az er≈ëre megalkotot prefab adataival, tov√°bb√° l√©trehoz egy ures item p√©ld√°nyt
+                    equipmnetsData.Add(new EquipmnetStruct(transform.GetChild(i).GetComponent<EquipmentSlot>().SlotName, transform.GetChild(i).GetComponent<EquipmentSlot>().SlotType, new Item()));
                 }
             }
             public class EquipmnetStruct
@@ -62,9 +62,9 @@ namespace PlayerInventoryClass
         {
             //0. egy uj pedlanyt hozunk letre az equipmnetkenek
             equipments = new Equipmnets();
-            //3. ha van inventory akkor betoltj¸k azt
+            //3. ha van inventory akkor betoltj√ºk azt
             InventoryLoad();
-            //5. a player megkapja a vizualiz·ciÛt az inventoryhoz
+            //5. a player megkapja a vizualiz√°ci√≥t az inventoryhoz
             gameObject.AddComponent<PlayerInventoryVisual>().DataSynch(ref playerInventoryData);
         }
         public void InventorySave()
@@ -78,7 +78,7 @@ namespace PlayerInventoryClass
                 string jsonString = File.ReadAllText("PlayerSave.json");
                 equipments = JsonConvert.DeserializeObject<Equipmnets>(jsonString);
             }
-            //4. ha nincs elmentett inventory akkor az eddig letrehozott ures inventory adat·t a fı publikus playerInventoryData v·ltozÛ megkapja
+            //4. ha nincs elmentett inventory akkor az eddig letrehozott ures inventory adat√°t a f≈ë publikus playerInventoryData v√°ltoz√≥ megkapja
             InventoryUpdate();
         }
 
@@ -100,7 +100,7 @@ namespace PlayerInventoryClass
                 Debug.Log($"Adding into equipmnets...    {i}   equipments.equipmnetsData[i].EquipmnetType:{equipments.equipmnetsData[i].EquipmnetSlotType} =?= item.ItemType:{item.ItemType}   equipments.equipmnetsData[i].EquipmnetItem.ItemName:{equipments.equipmnetsData[i].EquipmnetItem.ItemName == null}");
                 if (equipments.equipmnetsData[i].EquipmnetSlotType.Contains(item.ItemType) && equipments.equipmnetsData[i].EquipmnetItem.ItemName == null)
                 {
-                    item.SlotUse = new string[] {equipments.equipmnetsData[i].EquipmentSlotName};
+                    item.SlotUse = new string[] { equipments.equipmnetsData[i].EquipmentSlotName };
                     equipments.equipmnetsData[i].EquipmnetItem = item;
                     ItemAdded = true;
                     InventoryUpdate();
@@ -110,74 +110,38 @@ namespace PlayerInventoryClass
             }
             if (!ItemAdded)//container
             {
-                for (int equpmentIndex = 0; equpmentIndex < equipments.equipmnetsData.Count; equpmentIndex++)//vegig iter·lunk az osszes equipmenten
+                for (int equpmentIndex = 0; equpmentIndex < equipments.equipmnetsData.Count; equpmentIndex++)//vegig iter√°lunk az osszes equipmenten
                 {
-                    if (equipments.equipmnetsData[equpmentIndex].EquipmnetItem==null) { Debug.LogError($"EquipmnetItem == null");};
+                    if (equipments.equipmnetsData[equpmentIndex].EquipmnetItem == null) { Debug.LogError($"EquipmnetItem == null"); };
                     if (equipments.equipmnetsData[equpmentIndex].EquipmnetItem.Container != null)//ha az equipmnetnek nincs containerje akkor kihadjuk
                     {
-                        
                         if (equipments.equipmnetsData[equpmentIndex].EquipmnetItem.Container.Sectors == null) { Debug.LogError($"EquipmnetItem.Container.Sectrors == null"); };
                         for (int sectorIndex = 0; sectorIndex < equipments.equipmnetsData[equpmentIndex].EquipmnetItem.Container.Sectors.Length; sectorIndex++)//mivel a szector 2D array-okat tartalmaz ezert a sectorokon az az ezen 2D arrayokon iteralunk vegig
                         {
-                            
-                            if (equipments.equipmnetsData[equpmentIndex].EquipmnetItem.Container.Sectors[sectorIndex].GetLength(0) >= item.SizeX && equipments.equipmnetsData[equpmentIndex].EquipmnetItem.Container.Sectors[sectorIndex].GetLength(1) >= item.SizeY)//egy gyors ellenˆrzÈst vÈgz¸nk, hogy az itemunk a feltetelezett teljesen ures sectorba belefÈr e, ha nem kihadjuk
+                            if (equipments.equipmnetsData[equpmentIndex].EquipmnetItem.Container.Sectors[sectorIndex].GetLength(1) >= item.SizeX && equipments.equipmnetsData[equpmentIndex].EquipmnetItem.Container.Sectors[sectorIndex].GetLength(0) >= item.SizeY)//egy gyors ellen√∂rz√©st v√©gz√ºnk, hogy az itemunk a feltetelezett teljesen ures sectorba belef√©r e, ha nem kihadjuk
                             {
-                                Debug.Log($"AZ item elfÈr X: {item.SizeX}   Y: {item.SizeY}");
-                                List<ItemSlot> tartgetSlots = new List<ItemSlot>();//ha belefer akkor el kell dˆnten¸nk hov fer, ehez segit a targetSlot valtozo mely a lehetseges slotokat t·rolja
-                                for (int row = 0; row < equipments.equipmnetsData[equpmentIndex].EquipmnetItem.Container.Sectors[sectorIndex].GetLength(0) && !ItemAdded; row++)//vegig iter·lunk a sorokon
+                                Debug.Log($"AZ item elf√©r X: {item.SizeX}   Y: {item.SizeY}   SectorIndex: {sectorIndex}");
+                                for (int Y = 0; Y < equipments.equipmnetsData[equpmentIndex].EquipmnetItem.Container.Sectors[sectorIndex].GetLength(0) && !ItemAdded; Y++)//vegig iter√°lunk a sorokon
                                 {
-                                    for (int colum = 0; colum < equipments.equipmnetsData[equpmentIndex].EquipmnetItem.Container.Sectors[sectorIndex].GetLength(1) && !ItemAdded; colum++)//a sorokon belul az oszlopokon
+                                    for (int X = 0; X < equipments.equipmnetsData[equpmentIndex].EquipmnetItem.Container.Sectors[sectorIndex].GetLength(1) && !ItemAdded; X++)//a sorokon belul az oszlopokon
                                     {
-                                        if (equipments.equipmnetsData[equpmentIndex].EquipmnetItem.Container.Sectors[sectorIndex][row, colum].PartOfItem == null)//ha a slot nem tagja egy itemnek sem akkor target
+                                        if (equipments.equipmnetsData[equpmentIndex].EquipmnetItem.Container.Sectors[sectorIndex][Y, X].PartOfItem == null && CanBePlace(equipments.equipmnetsData[equpmentIndex].EquipmnetItem.Container.Sectors[sectorIndex],Y,X,item))//ha a slot nem tagja egy itemnek sem akkor target
                                         {
-                                            for (int itemY = 0; itemY < item.SizeY && !ItemAdded; itemY++)
+                                            int index = 0;
+                                            item.SlotUse = new string[item.SizeX * item.SizeY];
+                                            for (int y = Y; y  < Y + item.SizeY; y++)
                                             {
-                                                for (int itemX = 0; itemX < item.SizeX && !ItemAdded; itemX++)
-                                                {/*
-                                                        if (equipments.equipmnetsData[equpmentIndex].EquipmnetItem.Container.Sectors[sectorIndex][itemX, itemY].PartOfItem != null) 
-                                                        {
-                                                            Debug.Log($"{equipments.equipmnetsData[equpmentIndex].EquipmnetItem.Container.Sectors[sectorIndex][itemX, itemY].PartOfItem.ItemName}");
-                                                            for (int i = 0; i < equipments.equipmnetsData[equpmentIndex].EquipmnetItem.Container.Sectors[sectorIndex].GetLength(0); i++)
-                                                            {
-                                                                for (int j = 0; j < equipments.equipmnetsData[equpmentIndex].EquipmnetItem.Container.Sectors[sectorIndex].GetLength(1); j++)
-                                                                {
-                                                                    if (equipments.equipmnetsData[equpmentIndex].EquipmnetItem.Container.Sectors[sectorIndex][i, j].PartOfItem != null)
-                                                                    {
-                                                                        Debug.Log($"{equipments.equipmnetsData[equpmentIndex].EquipmnetItem.Container.Sectors[sectorIndex][i, j].PartOfItem.ItemName}       {i}x {j}y");
-                                                                    }
-                                                                    else
-                                                                    {
-                                                                        Debug.Log($"null {i}x {j}y");
-                                                                    }
-                                                                }
-                                                            }
-                                                        }
-                                                         */
-                                                    if (tartgetSlots.Count == item.SizeY*item.SizeX)
-                                                    {
-                                                        item.SlotUse = new string[tartgetSlots.Count];
-                                                        for (int j1 = 0; j1 < tartgetSlots.Count; j1++)
-                                                        {
-                                                            Debug.Log($"{item.ItemName} slotuse add: {tartgetSlots[j1].name}");
-                                                            item.SlotUse[j1] = tartgetSlots[j1].name;//NEM A SLOTNAME hasznaljuk mert azt csak akkor kapja meg ha letezik mint objektum, de egynkent az objetum neve Ès adat neve ugyan az
-                                                            tartgetSlots[j1].PartOfItem = item;
-                                                        }
-                                                        equipments.equipmnetsData[equpmentIndex].EquipmnetItem.Container.Items.Add(item);
-                                                        InventoryUpdate();
-                                                        ItemAdded = true;
-                                                        Debug.LogWarning($"Item Added");
-                                                    }
-                                                    else if (equipments.equipmnetsData[equpmentIndex].EquipmnetItem.Container.Sectors[sectorIndex][itemY, itemX].PartOfItem == null)
-                                                    {
-                                                        Debug.Log($"{item.ItemName}  adding to container: slot add: {equipments.equipmnetsData[equpmentIndex].EquipmnetItem.Container.Sectors[sectorIndex][itemY, itemX].name}     x{itemX}  y{itemY}");
-                                                        tartgetSlots.Add(equipments.equipmnetsData[equpmentIndex].EquipmnetItem.Container.Sectors[sectorIndex][itemY, itemX]);
-                                                    }
-                                                    else
-                                                    {
-                                                        tartgetSlots.Clear();
-                                                    }
+                                                for (int x = X; x < X + item.SizeX; x++)
+                                                {
+                                                    equipments.equipmnetsData[equpmentIndex].EquipmnetItem.Container.Sectors[sectorIndex][y, x].PartOfItem = item;
+                                                    item.SlotUse[index] = equipments.equipmnetsData[equpmentIndex].EquipmnetItem.Container.Sectors[sectorIndex][y, x].name;//ne alapjan azonositunk egy itemslotot
+                                                    index++;
                                                 }
                                             }
+                                            equipments.equipmnetsData[equpmentIndex].EquipmnetItem.Container.Items.Add(item);
+                                            InventoryUpdate();
+                                            ItemAdded = true;
+                                            Debug.Log($"Item Added in container");
                                         }
                                     }
                                 }
@@ -187,7 +151,7 @@ namespace PlayerInventoryClass
                 }
                 if (!ItemAdded)
                 {
-                    Debug.Log($"item: {item.ItemName} cannot added, probably no space for that");
+                    Debug.LogWarning($"item: {item.ItemName} cannot added, probably no space for that");
                 }
             }
         }
@@ -199,12 +163,25 @@ namespace PlayerInventoryClass
         {
 
         }
-
-
+        private bool CanBePlace(ItemSlot[,] slots, int Y, int X, Item item)
+        {
+            if (X + item.SizeX <= slots.GetLength(1) && Y + item.SizeY <= slots.GetLength(0))
+            {
+                for (int y = Y; y < Y + item.SizeY; y++)
+                {
+                    for (int x = X; x < X + item.SizeY; x++)
+                    {
+                        if (slots[y, x].PartOfItem != null)
+                        {
+                            return false;
+                        }
+                    }
+                }
+                return true;
+            }
+            return false;
+        }
     };
-
-
-
 }
 
 
@@ -217,7 +194,7 @@ namespace ItemHandler
         private Item RefData;
         private int index = -1;
 
-        private GameObject StarterObject;
+        private GameObject StarterObject;//azon objektum melynek a friss adatszinkroniz√°ci√≥√©rt felel
         private void Update()
         {
             /*
@@ -238,22 +215,22 @@ namespace ItemHandler
                 Destroy(gameObject);
             }*/
         }
-        public void DataSynch(Item Data, GameObject Starter)
+        public void SetDataRoute(Item Data, GameObject Starter)
         {
             ActualData = Data;
             StarterObject = Starter;
-            if (Data.Container != null)//11. ha az item adatai tartalmaznak containert akkor az lÈtrejˆn
+            if (Data.Container != null)//11. ha az item adatai tartalmaznak containert akkor az l√©trej√∂n
             {
                 SetContainer();
             }
             SelfVisualisation();
         }
-        public void DataSynch(Item Data, GameObject Starter,int index)
+        public void SetDataRoute(Item Data, GameObject Starter,int index)
         {
             ActualData = Data;
             StarterObject = Starter;
             this.index = index;
-            if (Data.Container != null)//11. ha az item adatai tartalmaznak containert akkor az lÈtrejˆn
+            if (Data.Container != null)//11. ha az item adatai tartalmaznak containert akkor az l√©trej√∂n
             {
                 SetContainer();
             }
@@ -270,7 +247,7 @@ namespace ItemHandler
         {
             RectTransform itemObjectRectTransform = gameObject.AddComponent<RectTransform>();
             SpriteRenderer itemObjectSpriteRedner = gameObject.AddComponent<SpriteRenderer>();
-            itemObjectSpriteRedner.sprite = Resources.Load<Sprite>(gameObject.GetComponent<ItemObject>().ActualData.ImgPath);//az itemobjektum megkapja kÈpÈt
+            itemObjectSpriteRedner.sprite = Resources.Load<Sprite>(gameObject.GetComponent<ItemObject>().ActualData.ImgPath);//az itemobjektum megkapja k√©p√©t
             itemObjectSpriteRedner.drawMode = SpriteDrawMode.Sliced;
 
             if (StarterObject.GetComponent<EquipmentSlot>() != null)
@@ -322,31 +299,31 @@ namespace ItemHandler
                 
 
                 gameObject.transform.SetParent(itemSlots[0].transform.parent, false);
-                // AlapÈrtelmezett kezdıÈrtÈkek (Èrtelmesen kisz·mÌtva)
+                // Alap√©rtelmezett kezd≈ë√©rt√©kek (√©rtelmesen kisz√°m√≠tva)
                 Vector2 minPos = new Vector2(float.MaxValue, float.MaxValue);
                 Vector2 maxPos = new Vector2(float.MinValue, float.MinValue);
 
-                // VÈgigmegy az ˆsszes itemSlot-on Ès kisz·mÌtja a minim·lis Ès maxim·lis pozÌciÛkat
+                // V√©gigmegy az √∂sszes itemSlot-on √©s kisz√°m√≠tja a minim√°lis √©s maxim√°lis poz√≠ci√≥kat
                 foreach (GameObject itemSlot in itemSlots)
                 {
-                    // Az itemSlot helyi pozÌciÛja a gameObject sz¸lıhˆz kÈpest
+                    // Az itemSlot helyi poz√≠ci√≥ja a gameObject sz√ºl≈ëh√∂z k√©pest
                     Vector3 slotLocalPos = itemSlot.GetComponent<RectTransform>().localPosition;
                     Vector2 slotMin = slotLocalPos - (Vector3)itemSlot.GetComponent<RectTransform>().sizeDelta / 2;
                     Vector2 slotMax = slotLocalPos + (Vector3)itemSlot.GetComponent<RectTransform>().sizeDelta / 2;
 
-                    // Be·llÌtja a minim·lis Ès maxim·lis pontokat az ˆsszes itemSlot lefedÈsÈre
+                    // Be√°ll√≠tja a minim√°lis √©s maxim√°lis pontokat az √∂sszes itemSlot lefed√©s√©re
                     minPos = Vector2.Min(minPos, slotMin);
                     maxPos = Vector2.Max(maxPos, slotMax);
                 }
 
-                // MÈret kisz·mÌt·sa Ès a sz¸lı objektum mÈretÈnek be·llÌt·sa
+                // M√©ret kisz√°m√≠t√°sa √©s a sz√ºl≈ë objektum m√©ret√©nek be√°ll√≠t√°sa
                 Vector2 newSize = maxPos - minPos;
                 itemObjectRectTransform.sizeDelta = newSize;
 
-                // A sz¸lı objektum pivotj·t kˆzÈpre ·llÌtja a pontos igazÌt·shoz
+                // A sz√ºl≈ë objektum pivotj√°t k√∂z√©pre √°ll√≠tja a pontos igaz√≠t√°shoz
                 itemObjectRectTransform.pivot = new Vector2(0.5f, 0.5f);
 
-                // ⁄j pozÌciÛ be·llÌt·sa ˙gy, hogy a sz¸lı lefedje az itemSlots ˆsszes elemÈt
+                // √öj poz√≠ci√≥ be√°ll√≠t√°sa √∫gy, hogy a sz√ºl≈ë lefedje az itemSlots √∂sszes elem√©t
                 itemObjectRectTransform.localPosition = (Vector3)((maxPos + minPos) / 2f);
 
                 float Scale = Mathf.Min(itemObjectRectTransform.rect.height / itemObjectSpriteRedner.sprite.bounds.size.y, itemObjectRectTransform.rect.width / itemObjectSpriteRedner.sprite.bounds.size.x);
@@ -361,8 +338,8 @@ namespace ItemHandler
         private void CopyProperties(Item source)
         {
             //altalanos adatok
-            ItemType = source.ItemType;//ez alapj·n ker¸lhet be egy slotba ugyan is vannak pecifikus slotok melyeknek typusv·ltozÛj·ban benen kell, hogy legyen.
-            ItemName = source.ItemName;//ez alapj·n hozza lÈtre egy item saj·t mag·t
+            ItemType = source.ItemType;//ez alapj√°n ker√ºlhet be egy slotba ugyan is vannak pecifikus slotok melyeknek typusv√°ltoz√≥j√°ban benen kell, hogy legyen.
+            ItemName = source.ItemName;//ez alapj√°n hozza l√©tre egy item saj√°t mag√°t
             Description = source.Description;
             Quantity = source.Quantity;
             SlotUse = source.SlotUse;// ez a jelenleg elfoglalt helye, ezt a betolteskor hasznaljuk, hogy tudjuk mit hova raktunk el.
@@ -409,12 +386,12 @@ namespace ItemHandler
             Debug.Log($"Item created {this}");
         }
         public Item() { }
-        public Item(string name)// egy itemet mindeg nÈv alapjan peldanyositunk
+        public Item(string name)// egy itemet mindeg n√©v alapjan peldanyositunk
         {
             SetItem(name);
         }
     }
-    public abstract class ItemStruct// az item hozza letre azt a panelt a slot inventoryban amely a tartlomert felelos, de csak akkor ha ı equipment slotban van egybekent egy up relativ pozitcioju panelt hozzon letre mint az EFT-ban
+    public abstract class ItemStruct// az item hozza letre azt a panelt a slot inventoryban amely a tartlomert felelos, de csak akkor ha ≈ë equipment slotban van egybekent egy up relativ pozitcioju panelt hozzon letre mint az EFT-ban
     {
 
         //general
@@ -448,11 +425,11 @@ namespace ItemHandler
     }
     public class Container
     {
-        //egy container az itemjÈhez tartozik.
-        //az item constructor selekciÛj·n·l itemet peldanyositunk: pl: TestWeapon
-        //ebben az eddig null ÈrÈk˚ container v·ltozÛ egy ures containerrre v·ltozik
-        //az item pÈd·nyosÌt·s·n·l igy egy ˙j pÈld·ny kÈsz¸l a containerbıl is mely alapvetıen tartalmazza a container PrefabPath-Èt
-        //a kostructora az igy megkapott prefabPath-bıl lekerdezi a Sectorokat
+        //egy container az itemj√©hez tartozik.
+        //az item constructor selekci√≥j√°n√°l itemet peldanyositunk: pl: TestWeapon
+        //ebben az eddig null √©r√©k≈± container v√°ltoz√≥ egy ures containerrre v√°ltozik
+        //az item p√©d√°nyos√≠t√°s√°n√°l igy egy √∫j p√©ld√°ny k√©sz√ºl a containerb≈ël is mely alapvet≈ëen tartalmazza a container PrefabPath-√©t
+        //a kostructora az igy megkapott prefabPath-b≈ël lekerdezi a Sectorokat
         public List<Item> Items { get; set; }
         public string PrefabPath;
         public ItemSlot[][,] Sectors { get; set; }
@@ -470,7 +447,7 @@ namespace ItemHandler
                 {
                     for (int col = 0; col < Sectors[i].GetLength(1); col++)
                     {
-                        Debug.Log($"index: {index} {sectors[i].GetComponent<SectorManager>().ItemSlots[index].GetComponent<ItemSlot>().name}     C{row}   R{col}");
+                        Debug.Log($"index: {index} {sectors[i].GetComponent<SectorManager>().ItemSlots[index].GetComponent<ItemSlot>().name}     R{row}   C{col}");
                         Sectors[i][row, col] = sectors[i].GetComponent<SectorManager>().ItemSlots[index].GetComponent<ItemSlot>();
                         index++;
                     }
@@ -504,16 +481,16 @@ namespace PlayerInventoryVisualBuild
     {
         private bool InventoryOpen = false;
 
-        private GameObject InventoryObject;//az invenory fı objektum·nak t·rol·s·Èrt fele
+        private GameObject InventoryObject;//az invenory f≈ë objektum√°nak t√°rol√°s√°√©rt fele
 
         private PlayerInventory playerInventory;
 
-        [HideInInspector] public static GameObject EquipmentsObject;//az inventory 3 alsÛbrend˚bb objektum·nak egyike
-        [HideInInspector] public static GameObject SlotObject;//az inventory 3 alsÛbrend˚bb objektum·nak egyike
-        [HideInInspector] public static GameObject LootObject;//az inventory 3 alsÛbrend˚bb objektum·nak egyike
+        [HideInInspector] public static GameObject EquipmentsObject;//az inventory 3 als√≥brend≈±bb objektum√°nak egyike
+        [HideInInspector] public static GameObject SlotObject;//az inventory 3 als√≥brend≈±bb objektum√°nak egyike
+        [HideInInspector] public static GameObject LootObject;//az inventory 3 als√≥brend≈±bb objektum√°nak egyike
         private void Update()
         {
-            //6. ebben az update metÛdusban az inventory be Ès ki kapcsolasat figyeli
+            //6. ebben az update met√≥dusban az inventory be √©s ki kapcsolasat figyeli
             OpenCloseInventory();
         }
         public void DataSynch(ref PlayerInventory playerInventory)
@@ -536,7 +513,7 @@ namespace PlayerInventoryVisualBuild
                 }
             }
         }
-        private void EquipmentInitialisation()//7. ha az inventory megnyitÛdik akkor az inventory adatai felÈpÌtik az inventoryt
+        private void EquipmentInitialisation()//7. ha az inventory megnyit√≥dik akkor az inventory adatai fel√©p√≠tik az inventoryt
         {
             GameObject UI = GameObject.FindGameObjectWithTag("InGameUI");
             InventoryObject = new GameObject("Inventory");
@@ -549,7 +526,7 @@ namespace PlayerInventoryVisualBuild
             }
             else
             {
-                Debug.LogError("UI nem tal·lhatÛ!");
+                Debug.LogError("UI nem tal√°lhat√≥!");
             }
             if (playerInventory == null || playerInventory.equipments.equipmnetsData == null)
             {
@@ -582,10 +559,10 @@ namespace PlayerInventoryVisualBuild
                     if (playerInventory.equipments.equipmnetsData[j].EquipmnetItem.ItemName != null && playerInventory.equipments.equipmnetsData[j].EquipmnetItem.SlotUse.Contains(panelEquipments.EquipmentsSlots[i].name))
                     {
                         //--> EquipmnetSlot.cs
-                        //8. az inventory equipmnetjei egyesÈvel innin indulnak ki, ez a vizualiz·ciÛ Ès az adat·raml·s l·ncreakciÛszer˚ kiindul·sipontja.
+                        //8. az inventory equipmnetjei egyes√©vel innin indulnak ki, ez a vizualiz√°ci√≥ √©s az adat√°raml√°s l√°ncreakci√≥szer≈± kiindul√°sipontja.
                         Debug.LogWarning($"{playerInventory.equipments.equipmnetsData[j].EquipmnetItem.ItemName} PlayerInventory.cs ------- ref --------> EquipmentSlot.cs");
-                        //9. az equipmnetSlot objektum komponense adatszinkroniz·ciÛban refer·l az Playerinventory adat equipmnet slotban lÈvı equipment itemÈnek adat·ra
-                        panelEquipments.EquipmentsSlots[i].GetComponent<EquipmentSlot>().DataSynch(ref playerInventory.equipments.equipmnetsData[j].EquipmnetItem);
+                        //9. az equipmnetSlot objektum komponense refer√°l egy equipmnet v√°ltoz√≥ item adat√°ra
+                        panelEquipments.EquipmentsSlots[i].GetComponent<EquipmentSlot>().SetRootDataRoute(ref playerInventory.equipments.equipmnetsData[j].EquipmnetItem);
                     }
                 }
             }

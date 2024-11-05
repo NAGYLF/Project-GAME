@@ -7,12 +7,10 @@ using static PlayerInventoryClass.PlayerInventory;
 
 public class EquipmentSlot : MonoBehaviour
 {
-
-
-    public Item ActualData;
+    #region DataSynch
+    public Item ActualData;//ezek alapján vizualizálja es szinkronizálja az itemeket
     private Item RefData;
-
-    private bool Synch = false;
+    #endregion
 
     public string SlotType;//azon tipusok melyeket befogadhat, ha nincs megadva akkor mindent.
     public string SlotName;
@@ -27,23 +25,19 @@ public class EquipmentSlot : MonoBehaviour
     }
     private void DataSynch()
     {
-        if (Synch)
+        if (ActualData != RefData && ActualData != null)//resetelni kell a slotot
         {
-            if (ActualData != RefData && ActualData != null)//resetelni kell a slotot
-            {
-                ItemVisualisation();
-                RefData = ActualData;
-            }
-            else if (ActualData == null)
-            {
-                RefData = null;
-            }
+            ItemVisualisation();
+            RefData = ActualData;
+        }
+        else if (ActualData == null)
+        {
+            RefData = null;
         }
     }
     public void SetRootDataRoute(ref Item Data)
     {
         ActualData = Data;
-        Synch = true;
     }
     private void ItemVisualisation()//10. az item vizuálisan létrejön az equipmentslotban, objektuma tovább örökli az item adatának referenciáját
     {

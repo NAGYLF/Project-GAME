@@ -203,6 +203,7 @@ namespace MainData
         private static List<Item> InvetnoryElemetList;
         public static float DefaultHeight = 1080f;
         public static float DefaultWidth = 1920f;
+        public static float DefaultItemSlotSize = 10f;
         public static float SectorScale = 0.5f;//ez az inventorySlotok scale-je ez befolyásolja egy item meretet is
         public static void Save()
         {

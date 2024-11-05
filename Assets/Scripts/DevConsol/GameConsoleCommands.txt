@@ -1,0 +1,25 @@
+add TestPlayer item TestWeapon
+
+
+add TestPlayer item TestHandgun
+
+
+add TestPlayer item TestBackpack
+
+
+
+
+add TestPlayer item TestVest
+
+
+add TestPlayer item TestArmor
+
+
+
+
+
+
+add TestPlayer DevInventory
+
+
+add TestPlayer 3xTestWeapon+TestBackPack

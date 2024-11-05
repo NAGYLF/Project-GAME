@@ -414,6 +414,16 @@ namespace ItemHandler
 
     public class Item : NonGeneralItemProperties
     {
+        //general
+        public string ItemType { get; set; }
+        public string ItemName { get; set; }
+        public string Description { get; set; }
+        public int Quantity { get; set; }
+        public string[] SlotUse { get; set; }
+        public int SizeX { get; set; }
+        public int SizeY { get; set; }
+        public string ImgPath { get; set; }
+        //public int Rotated { get; set; }
         private void CopyProperties(Item source)
         {
             //altalanos adatok
@@ -472,16 +482,6 @@ namespace ItemHandler
     }
     public abstract class NonGeneralItemProperties// az item hozza letre azt a panelt a slot inventoryban amely a tartlomert felelos, de csak akkor ha ő equipment slotban van egybekent egy up relativ pozitcioju panelt hozzon letre mint az EFT-ban
     {
-        //general
-        public string ItemType { get; set; }
-        public string ItemName { get; set; }
-        public string Description { get; set; }
-        public int Quantity { get; set; }
-        public string[] SlotUse { get; set; }
-        public int SizeX { get; set; }
-        public int SizeY { get; set; }
-        public string ImgPath { get; set; }
-        //public int Rotated { get; set; }
         //contain
         public Container Container { get; set; }
         //weapon

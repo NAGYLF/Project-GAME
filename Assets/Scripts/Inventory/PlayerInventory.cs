@@ -20,6 +20,7 @@ using PlayerInventoryVisualBuild;
 using PlayerInventoryClass;
 using static PlayerInventoryVisualBuild.PlayerInventoryVisual;
 using UnityEngine.UI;
+using System.Threading;
 
 
 
@@ -207,6 +208,34 @@ namespace ItemHandler
         private Vector2 originalPivot;
         private Vector2 originalAnchorMin;
         private Vector2 originalAnchorMax;
+        public PlacerStruct placer { private get; set; }
+        private bool placerInProgress = false;
+        public struct PlacerStruct
+        {
+
+            public List<GameObject> activeItemSlots { get; set; }
+            public GameObject newStarter { get; set; }
+        }
+        private bool CanBePlace()
+        {
+            //az itemslotok szama egynelo az item meretevel és mindegyik slot ugyan abban a sectorban van
+            if (placer.activeItemSlots != null && placer.activeItemSlots.Count == ActualData.SizeX*ActualData.SizeY && placer.activeItemSlots.Count == placer.activeItemSlots.FindAll(elem => elem.GetComponent<ItemSlot>().Sector == placer.activeItemSlots[0].GetComponent<ItemSlot>().Sector).Count)
+            {
+                for (int i = 0; i < placer.activeItemSlots.Count; i++)
+                {
+                    //az itemslototk itemobject tartalma vagy null vagy az itemobjectum maga
+                    if (!(placer.activeItemSlots[i].GetComponent<ItemSlot>().ActualPartOfItemObject == null || placer.activeItemSlots[i].GetComponent<ItemSlot>().ActualPartOfItemObject == gameObject))
+                    {
+                        return false;
+                    }
+                }
+                return true;
+            }
+            else
+            {
+                return false;
+            }
+        }
         /*
         public void Rotate(int deg)
         {
@@ -219,13 +248,6 @@ namespace ItemHandler
             }
         }
         */
-        public void SetNewStarter(GameObject newStarter)
-        {
-            Item temporaryData = ActualData;
-            ActualData = null;
-            DataSynch();
-            StarterObject = newStarter;
-        }
         public void Delete()
         {
             ActualData = null;
@@ -310,6 +332,9 @@ namespace ItemHandler
             SlotObject.GetComponent<PanelSlots>().Scrollbar.GetComponent<ScrollRect>().enabled = true;
             isDragging = false;
             #endregion
+
+            placerInProgress = CanBePlace();
+            SelfVisualisation();
         }
         private void Start()
         {
@@ -322,22 +347,20 @@ namespace ItemHandler
         private void Update()
         {
             ObjectMovement();
-            DataSynch();
         }
         private void DataSynch()
         {
-            if (ActualData != RefData)
+            Debug.Log($"{ActualData.ItemName}   dataSynch");
+            if (index == -1)
             {
-                if (index == -1)
-                {
-                    StarterObject.GetComponent<EquipmentSlot>().ActualData = ActualData;
-                }
-                else
-                {
-                    StarterObject.GetComponent<ContainerObject>().ActualData.Container.Items[index] = ActualData;
-                }
-                RefData = ActualData;
+                //StarterObject.GetComponent<EquipmentSlot>().ActualData = ActualData;
             }
+            else
+            {
+                //StarterObject.GetComponent<ContainerObject>().ActualData.Container.Items[index] = ActualData;
+            }
+            RefData = ActualData;
+            SelfVisualisation();
         }
         public void SetDataRoute(Item Data, GameObject Starter)
         {
@@ -359,7 +382,15 @@ namespace ItemHandler
         }
         private void SelfVisualisation()//ha az item equipment slotban van
         {
-            Rigidbody2D itemObjectRigibody2D = gameObject.AddComponent<Rigidbody2D>();
+            Rigidbody2D itemObjectRigibody2D;
+            if (gameObject.GetComponent<Rigidbody2D>() == null) 
+            {
+                itemObjectRigibody2D = gameObject.AddComponent<Rigidbody2D>();
+            }
+            else
+            {
+                itemObjectRigibody2D = gameObject.GetComponent<Rigidbody2D>();
+            }
             itemObjectRigibody2D.mass = 0;
             itemObjectRigibody2D.drag = 0;
             itemObjectRigibody2D.angularDrag = 0;
@@ -367,14 +398,31 @@ namespace ItemHandler
             itemObjectRigibody2D.constraints = RigidbodyConstraints2D.FreezeAll;
             itemObjectRigibody2D.bodyType = RigidbodyType2D.Static;
 
-            RectTransform itemObjectRectTransform = gameObject.AddComponent<RectTransform>();
-            SpriteRenderer itemObjectSpriteRedner = gameObject.AddComponent<SpriteRenderer>();
+            RectTransform itemObjectRectTransform;
+            if (gameObject.GetComponent<RectTransform>() == null)
+            {
+                itemObjectRectTransform = gameObject.AddComponent<RectTransform>();
+            }
+            else
+            {
+                itemObjectRectTransform = gameObject.GetComponent<RectTransform>();
+            }
+
+            SpriteRenderer itemObjectSpriteRedner;
+            if (gameObject.GetComponent<SpriteRenderer>() == null)
+            {
+                itemObjectSpriteRedner = gameObject.AddComponent<SpriteRenderer>();
+            }
+            else
+            {
+                itemObjectSpriteRedner = gameObject.GetComponent<SpriteRenderer>();
+            }
             itemObjectSpriteRedner.sprite = Resources.Load<Sprite>(gameObject.GetComponent<ItemObject>().ActualData.ImgPath);//az itemobjektum megkapja képét
             itemObjectSpriteRedner.drawMode = SpriteDrawMode.Sliced;
 
             if (StarterObject.GetComponent<EquipmentSlot>() != null)
             {
-
+                Debug.Log($"{ActualData.ItemName}: Equipment visualisation");
                 RectTransform EquipmentSlot = StarterObject.GetComponent<RectTransform>();
 
                 gameObject.transform.SetParent(EquipmentSlot.transform.parent, false);//itemObj parent set
@@ -386,35 +434,47 @@ namespace ItemHandler
                 itemObjectRectTransform.offsetMin = Vector2.zero;
                 itemObjectRectTransform.offsetMax = Vector2.zero;
 
-                float Scale = Mathf.Min(itemObjectRectTransform.rect.height / itemObjectSpriteRedner.sprite.bounds.size.y, itemObjectRectTransform.rect.width / itemObjectSpriteRedner.sprite.bounds.size.x);
+                float Scale = Mathf.Min(itemObjectRectTransform.rect.height / itemObjectSpriteRedner.size.y, itemObjectRectTransform.rect.width / itemObjectSpriteRedner.size.x);
                 itemObjectSpriteRedner.size = new Vector2(itemObjectSpriteRedner.size.x * Scale, itemObjectSpriteRedner.size.y * Scale);
             }
             else if (StarterObject.GetComponent<ContainerObject>() != null)//ha az item containerben van
             {
+                Debug.Log($"{ActualData.ItemName}: Slot visualisation     {gameObject.GetComponent<RectTransform>().localPosition}");
                 ContainerObject containerObject = StarterObject.GetComponent<ContainerObject>();
                 List<GameObject> itemSlots = new List<GameObject>();
-                Debug.Log($"{ActualData.ItemName} item Slotuses count : {ActualData.SlotUse.Length}");
                 for (int sector = 0; sector < containerObject.SectorManagers.Length; sector++)
                 {
-                    for (int i = 0; i < ActualData.SlotUse.Length; i++)
-                    {
-                        Debug.Log(ActualData.SlotUse[i]);
-                    }
                     for (int slot = 0; slot < containerObject.SectorManagers[sector].GetComponent<SectorManager>().ItemSlots.Length; slot++)
                     {
-                        Debug.Log($"Find item slot {slot}.try : {containerObject.SectorManagers[sector].GetComponent<SectorManager>().ItemSlots[slot].name}           {containerObject.SectorManagers[sector].GetComponent<SectorManager>().ItemSlots[slot].GetComponent<ItemSlot>().name}");
-                        Debug.Log($"{ActualData.SlotUse.Contains(containerObject.SectorManagers[sector].GetComponent<SectorManager>().ItemSlots[slot].GetComponent<ItemSlot>().name)}");
-                        if (ActualData.SlotUse.Contains(containerObject.SectorManagers[sector].GetComponent<SectorManager>().ItemSlots[slot].GetComponent<ItemSlot>().name))//mivel objektumkent nem letezik az itemslot ezert az obejktum(prefab) nevet hazsnaljuk
+                        if (placerInProgress && placer.activeItemSlots.Contains(containerObject.SectorManagers[sector].GetComponent<SectorManager>().ItemSlots[slot]) && ActualData.SlotUse.Contains(containerObject.SectorManagers[sector].GetComponent<SectorManager>().ItemSlots[slot].GetComponent<ItemSlot>().name))
                         {
-                            Debug.Log($"{containerObject.SectorManagers[sector].GetComponent<SectorManager>().ItemSlots[slot].name} added");
+                            containerObject.SectorManagers[sector].GetComponent<SectorManager>().ItemSlots[slot].GetComponent<ItemSlot>().PartOfItemObject = gameObject;
+                            itemSlots.Add(containerObject.SectorManagers[sector].GetComponent<SectorManager>().ItemSlots[slot]);
+                        }
+                        else if (placerInProgress && placer.activeItemSlots.Contains(containerObject.SectorManagers[sector].GetComponent<SectorManager>().ItemSlots[slot]) && !ActualData.SlotUse.Contains(containerObject.SectorManagers[sector].GetComponent<SectorManager>().ItemSlots[slot].GetComponent<ItemSlot>().name))
+                        {
+                            containerObject.SectorManagers[sector].GetComponent<SectorManager>().ItemSlots[slot].GetComponent<ItemSlot>().PartOfItemObject = gameObject;
+                            itemSlots.Add(containerObject.SectorManagers[sector].GetComponent<SectorManager>().ItemSlots[slot]);
+                        }
+                        else if (placerInProgress && !placer.activeItemSlots.Contains(containerObject.SectorManagers[sector].GetComponent<SectorManager>().ItemSlots[slot]) && ActualData.SlotUse.Contains(containerObject.SectorManagers[sector].GetComponent<SectorManager>().ItemSlots[slot].GetComponent<ItemSlot>().name))
+                        {
+                            containerObject.SectorManagers[sector].GetComponent<SectorManager>().ItemSlots[slot].GetComponent<ItemSlot>().PartOfItemObject = null;
+                        }
+                        else if (ActualData.SlotUse.Contains(containerObject.SectorManagers[sector].GetComponent<SectorManager>().ItemSlots[slot].GetComponent<ItemSlot>().name))
+                        {
+                            Debug.Log($"{containerObject.SectorManagers[sector].GetComponent<SectorManager>().ItemSlots[slot].GetComponent<ItemSlot>().name}");
                             itemSlots.Add(containerObject.SectorManagers[sector].GetComponent<SectorManager>().ItemSlots[slot]);
                             containerObject.SectorManagers[sector].GetComponent<SectorManager>().ItemSlots[slot].GetComponent<ItemSlot>().PartOfItemObject = gameObject;
                         }
                     }
                 }
+                for (int i = 0; i < ActualData.SlotUse.Length; i++)
+                {
+                    ActualData.SlotUse[i] = itemSlots[i].name;
+                }
+                placerInProgress = false;
 
-
-                gameObject.transform.SetParent(itemSlots[0].transform.parent, false);
+                Debug.Log($"{ActualData.ItemName}:  position     {gameObject.GetComponent<RectTransform>().localPosition}");
                 // Alapértelmezett kezdőértékek (értelmesen kiszámítva)
                 Vector2 minPos = new Vector2(float.MaxValue, float.MaxValue);
                 Vector2 maxPos = new Vector2(float.MinValue, float.MinValue);
@@ -434,6 +494,7 @@ namespace ItemHandler
 
                 // Méret kiszámítása és a szülő objektum méretének beállítása
                 Vector2 newSize = maxPos - minPos;
+
                 itemObjectRectTransform.sizeDelta = newSize;
 
                 // A szülő objektum pivotját középre állítja a pontos igazításhoz
@@ -442,11 +503,25 @@ namespace ItemHandler
                 // Új pozíció beállítása úgy, hogy a szülő lefedje az itemSlots összes elemét
                 itemObjectRectTransform.localPosition = (Vector3)((maxPos + minPos) / 2f);
 
-                float Scale = Mathf.Min(itemObjectRectTransform.rect.height / itemObjectSpriteRedner.sprite.bounds.size.y, itemObjectRectTransform.rect.width / itemObjectSpriteRedner.sprite.bounds.size.x);
+                float Scale = Mathf.Min(itemObjectRectTransform.rect.height / itemObjectSpriteRedner.size.y, itemObjectRectTransform.rect.width / itemObjectSpriteRedner.size.x);
                 itemObjectSpriteRedner.size = new Vector2(itemObjectSpriteRedner.size.x * Scale, itemObjectSpriteRedner.size.y * Scale);
+                Debug.Log($"{ActualData.ItemName}:  position     {gameObject.GetComponent<RectTransform>().localPosition}");
+                gameObject.transform.SetParent(itemSlots[0].transform.parent, false);
+            }
+            else
+            {
+                Debug.LogError($"{ActualData.ItemName}: non visualisation");
             }
 
-            BoxCollider2D itemObjectBoxCollider2D = gameObject.AddComponent<BoxCollider2D>();
+            BoxCollider2D itemObjectBoxCollider2D;
+            if (gameObject.GetComponent<BoxCollider2D>() == null)
+            {
+                itemObjectBoxCollider2D = gameObject.AddComponent<BoxCollider2D>();
+            }
+            else
+            {
+                itemObjectBoxCollider2D = gameObject.GetComponent<BoxCollider2D>();
+            }
             itemObjectBoxCollider2D.autoTiling = true;
             itemObjectBoxCollider2D.size = itemObjectRectTransform.rect.size;
         }

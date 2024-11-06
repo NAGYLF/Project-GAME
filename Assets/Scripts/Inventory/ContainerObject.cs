@@ -25,6 +25,7 @@ public class ContainerObject : MonoBehaviour
     {
         foreach (GameObject sector in SectorManagers)
         {
+            sector.GetComponent<SectorManager>().Container = gameObject;
             sector.GetComponent<RectTransform>().localScale *= Main.SectorScale;
         }
         ContentItemObjects = new List<GameObject>();

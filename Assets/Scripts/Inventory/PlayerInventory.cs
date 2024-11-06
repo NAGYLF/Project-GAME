@@ -217,8 +217,21 @@ namespace ItemHandler
                 default:
                     break;
             }
-        }*/
-
+        }
+        */
+        public void SetNewStarter(GameObject newStarter)
+        {
+            Item temporaryData = ActualData;
+            ActualData = null;
+            DataSynch();
+            StarterObject = newStarter;
+        }
+        public void Delete()
+        {
+            ActualData = null;
+            DataSynch();
+            Destroy(gameObject);
+        }
         private void ObjectMovement()
         {
             if (isDragging)
@@ -232,49 +245,71 @@ namespace ItemHandler
         private void OnMouseDown()
         {
             // Ekkor indul a mozgatás, ha rákattintunk az objektumra
+            #region Save Original Object Datas
             originalPosition = transform.position;
             originalSize = transform.GetComponent<RectTransform>().sizeDelta;
             originalParent = transform.parent;
             originalPivot = transform.GetComponent<RectTransform>().pivot;
             originalAnchorMin = transform.GetComponent<RectTransform>().anchorMin;
             originalAnchorMax = transform.GetComponent<RectTransform>().anchorMax;
+            #endregion
 
+            #region Set Moveable position
             transform.SetParent(InventoryObject.transform,false);
-
-            transform.GetComponent<RectTransform>().pivot = new Vector2(0.5f,0.5f);
+            transform.GetComponent<RectTransform>().pivot = new Vector2(0.5f, 0.5f);
             transform.GetComponent<RectTransform>().anchorMin = new Vector2(0.5f, 0.5f);
             transform.GetComponent<RectTransform>().anchorMax = new Vector2(0.5f, 0.5f);
+            transform.GetComponent<RectTransform>().sizeDelta = new Vector2(ActualData.SizeX * Main.SectorScale * Main.DefaultItemSlotSize, ActualData.SizeY * Main.SectorScale * Main.DefaultItemSlotSize);
+            #endregion
 
-            transform.GetComponent<RectTransform>().sizeDelta = new Vector2(ActualData.SizeX*Main.SectorScale*Main.DefaultItemSlotSize, ActualData.SizeY * Main.SectorScale * Main.DefaultItemSlotSize);
-
+            #region Set Sprite
             RectTransform itemObjectRectTransform = gameObject.GetComponent<RectTransform>();
             SpriteRenderer itemObjectSpriteRedner = gameObject.GetComponent<SpriteRenderer>();
-
             float Scale = Mathf.Min(itemObjectRectTransform.rect.height / itemObjectSpriteRedner.size.y, itemObjectRectTransform.rect.width / itemObjectSpriteRedner.size.x);
             itemObjectSpriteRedner.size = new Vector2(itemObjectSpriteRedner.size.x * Scale, itemObjectSpriteRedner.size.y * Scale);
+            #endregion
 
+            #region Set Targeting Mode 
+            gameObject.GetComponent<Rigidbody2D>().bodyType = RigidbodyType2D.Dynamic;
+            transform.GetComponent<BoxCollider2D>().size = transform.GetComponent<RectTransform>().rect.size;
+            #endregion
+
+            #region Set Dragable mod
             SlotObject.GetComponent<PanelSlots>().Scrollbar.GetComponent<ScrollRect>().enabled = false;
             isDragging = true;
+            #endregion
         }
         private void OnMouseUp()
         {
             // Mozgatás leállítása, amikor elengedjük az egeret
+            #region unSet Moveable position
             transform.SetParent(originalParent, false);
+            #endregion
 
+            #region Load Original Object Datas
             transform.GetComponent<RectTransform>().pivot = originalPivot;
             transform.GetComponent<RectTransform>().anchorMin = originalAnchorMin;
             transform.GetComponent<RectTransform>().anchorMax = originalAnchorMax;
             transform.position = originalPosition;
             transform.GetComponent<RectTransform>().sizeDelta = originalSize;
+            #endregion
 
+            #region Set Sprite
             RectTransform itemObjectRectTransform = gameObject.GetComponent<RectTransform>();
             SpriteRenderer itemObjectSpriteRedner = gameObject.GetComponent<SpriteRenderer>();
-
             float Scale = Mathf.Min(itemObjectRectTransform.rect.height / itemObjectSpriteRedner.size.y, itemObjectRectTransform.rect.width / itemObjectSpriteRedner.size.x);
             itemObjectSpriteRedner.size = new Vector2(itemObjectSpriteRedner.size.x * Scale, itemObjectSpriteRedner.size.y * Scale);
+            #endregion
 
+            #region unSet Targeting Mode 
+            gameObject.GetComponent<Rigidbody2D>().bodyType = RigidbodyType2D.Static;
+            transform.GetComponent<BoxCollider2D>().size = transform.GetComponent<RectTransform>().rect.size;
+            #endregion
+
+            #region unSet Dragable mod
             SlotObject.GetComponent<PanelSlots>().Scrollbar.GetComponent<ScrollRect>().enabled = true;
             isDragging = false;
+            #endregion
         }
         private void Start()
         {
@@ -303,10 +338,6 @@ namespace ItemHandler
                 }
                 RefData = ActualData;
             }
-            if (ActualData == null)//az az ha az item torlodik
-            {
-                Destroy(gameObject);
-            }
         }
         public void SetDataRoute(Item Data, GameObject Starter)
         {
@@ -328,8 +359,13 @@ namespace ItemHandler
         }
         private void SelfVisualisation()//ha az item equipment slotban van
         {
-            BoxCollider2D itemObjectBoxCollider2D = gameObject.AddComponent<BoxCollider2D>();
-            itemObjectBoxCollider2D.autoTiling = true;
+            Rigidbody2D itemObjectRigibody2D = gameObject.AddComponent<Rigidbody2D>();
+            itemObjectRigibody2D.mass = 0;
+            itemObjectRigibody2D.drag = 0;
+            itemObjectRigibody2D.angularDrag = 0;
+            itemObjectRigibody2D.gravityScale = 0;
+            itemObjectRigibody2D.constraints = RigidbodyConstraints2D.FreezeAll;
+            itemObjectRigibody2D.bodyType = RigidbodyType2D.Static;
 
             RectTransform itemObjectRectTransform = gameObject.AddComponent<RectTransform>();
             SpriteRenderer itemObjectSpriteRedner = gameObject.AddComponent<SpriteRenderer>();
@@ -372,6 +408,7 @@ namespace ItemHandler
                         {
                             Debug.Log($"{containerObject.SectorManagers[sector].GetComponent<SectorManager>().ItemSlots[slot].name} added");
                             itemSlots.Add(containerObject.SectorManagers[sector].GetComponent<SectorManager>().ItemSlots[slot]);
+                            containerObject.SectorManagers[sector].GetComponent<SectorManager>().ItemSlots[slot].GetComponent<ItemSlot>().PartOfItemObject = gameObject;
                         }
                     }
                 }
@@ -409,6 +446,9 @@ namespace ItemHandler
                 itemObjectSpriteRedner.size = new Vector2(itemObjectSpriteRedner.size.x * Scale, itemObjectSpriteRedner.size.y * Scale);
             }
 
+            BoxCollider2D itemObjectBoxCollider2D = gameObject.AddComponent<BoxCollider2D>();
+            itemObjectBoxCollider2D.autoTiling = true;
+            itemObjectBoxCollider2D.size = itemObjectRectTransform.rect.size;
         }
     }
 

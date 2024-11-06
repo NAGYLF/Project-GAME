@@ -12,7 +12,7 @@ using static PlayerInventoryVisualBuild.PlayerInventoryVisual;
 public class ContainerObject : MonoBehaviour
 {
     #region DataSynch
-    public Item ActualData;//ezek alapján vizualizálja es szinkronizálja az itemeket
+    public Item ActualData;//ezek alapján vizualizálja es szinkronizálja az itemeket az az ha valami ezt az objektumot staterként megkapja akkor ezt kell megvaltoztatni a szinkronizalashoz
     private Item RefData;
     private GameObject StarterObject;
     #endregion

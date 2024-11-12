@@ -9,7 +9,7 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 
 namespace EphemeralCourage_API.Migrations
 {
-    [DbContext(typeof(PlayersDbContext))]
+    [DbContext(typeof(Models.DatasDbContext))]
     [Migration("20241112100640_CretateDatabase")]
     partial class CretateDatabase
     {

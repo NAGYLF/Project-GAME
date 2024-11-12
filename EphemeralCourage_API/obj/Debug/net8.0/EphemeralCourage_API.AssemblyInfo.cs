@@ -14,7 +14,7 @@ using System.Reflection;
 [assembly: System.Reflection.AssemblyCompanyAttribute("EphemeralCourage_API")]
 [assembly: System.Reflection.AssemblyConfigurationAttribute("Debug")]
 [assembly: System.Reflection.AssemblyFileVersionAttribute("1.0.0.0")]
-[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0+23baf83349778461b47eeb33fa538f76586c4532")]
+[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0+cd0cc8572a97abb787057180602868ed8128775b")]
 [assembly: System.Reflection.AssemblyProductAttribute("EphemeralCourage_API")]
 [assembly: System.Reflection.AssemblyTitleAttribute("EphemeralCourage_API")]
 [assembly: System.Reflection.AssemblyVersionAttribute("1.0.0.0")]

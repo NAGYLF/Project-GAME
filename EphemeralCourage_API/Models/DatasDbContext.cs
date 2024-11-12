@@ -2,7 +2,7 @@
 
 namespace EphemeralCourage_API.Models
 {
-    public class PlayersDbContext : DbContext
+    public class DatasDbContext : DbContext
     {
         protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
         {
@@ -13,6 +13,7 @@ namespace EphemeralCourage_API.Models
                 optionsBuilder.UseMySQL(conn);
             }
         }
-        public DbSet<Player> NewPlayer { get; set; } = null!;
+        public DbSet<Player> Players { get; set; } = null!;
+        public DbSet<Admin> Admins { get; set; } = null!;
     }
 }

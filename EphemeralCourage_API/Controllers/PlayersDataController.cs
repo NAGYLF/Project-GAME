@@ -9,9 +9,9 @@ public class PlayersDataController : ControllerBase
     [HttpGet]
     public ActionResult<List<Player>> Get()
     {
-        using (var context = new PlayersDbContext())
+        using (var context = new DatasDbContext())
         {
-            return StatusCode(201, context.NewPlayer.ToList());
+            return StatusCode(201, context.Players.ToList());
         }
     }
 
@@ -26,9 +26,9 @@ public class PlayersDataController : ControllerBase
             IsAdmin = createPlayerDto.IsAdmin,
         };
 
-        using (var context = new PlayersDbContext())
+        using (var context = new DatasDbContext())
         {
-            context.NewPlayer.Add(Player);
+            context.Players.Add(Player);
             context.SaveChanges();
 
             return StatusCode(201, Player);
@@ -47,9 +47,9 @@ public class PlayersDataController : ControllerBase
             IsAdmin = true
         };
 
-        using (var context = new PlayersDbContext())
+        using (var context = new DatasDbContext())
         {
-            context.NewPlayer.Add(Player);
+            context.Players.Add(Player);
             context.SaveChanges();
 
             return StatusCode(201, Player);
@@ -60,9 +60,9 @@ public class PlayersDataController : ControllerBase
     [HttpPut("{id}")]
     public ActionResult<Player> Put(int id, UpdatePlayer updatePlayerDto)
     {
-        using (var context = new PlayersDbContext())
+        using (var context = new DatasDbContext())
         {
-            var existingPlayer = context.NewPlayer.FirstOrDefault(x => x.Id == id);
+            var existingPlayer = context.Players.FirstOrDefault(x => x.Id == id);
 
             existingPlayer.Name = updatePlayerDto.Name;
             existingPlayer.Email = updatePlayerDto.Email;
@@ -70,7 +70,7 @@ public class PlayersDataController : ControllerBase
             existingPlayer.IsAdmin = updatePlayerDto.IsAdmin;
 
 
-            context.NewPlayer.Update(existingPlayer);
+            context.Players.Update(existingPlayer);
             context.SaveChanges();
 
             return StatusCode(200, existingPlayer);
@@ -81,13 +81,13 @@ public class PlayersDataController : ControllerBase
     [HttpDelete]
     public ActionResult<object> Delete(int id)
     {
-        using (var context = new PlayersDbContext())
+        using (var context = new DatasDbContext())
         {
-            var Tantargy = context.NewPlayer.FirstOrDefault(x => x.Id == id);
+            var Tantargy = context.Players.FirstOrDefault(x => x.Id == id);
 
             if (Tantargy != null)
             {
-                context.NewPlayer.Remove(Tantargy);
+                context.Players.Remove(Tantargy);
                 context.SaveChanges();
                 return StatusCode(200, new { message = "Sikeres törlés!" });
             }

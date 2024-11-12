@@ -8,7 +8,7 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 
 namespace EphemeralCourage_API.Migrations
 {
-    [DbContext(typeof(PlayersDbContext))]
+    [DbContext(typeof(Models.DatasDbContext))]
     partial class PlayersDbContextModelSnapshot : ModelSnapshot
     {
         protected override void BuildModel(ModelBuilder modelBuilder)

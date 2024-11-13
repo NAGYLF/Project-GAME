@@ -26,13 +26,19 @@ namespace Assets.Scripts
         private Color color;
         private void OnCollisionEnter2D(Collision2D collision)
         {
-            if (PartOfItemObject == null || PartOfItemObject.GetInstanceID() == collision.gameObject.GetInstanceID())
+            if ((PartOfItemObject == null || PartOfItemObject.GetInstanceID() == collision.gameObject.GetInstanceID()) && (SlotType == "" || SlotType.Contains(collision.gameObject.GetComponent<ItemObject>().ActualData.ItemType)))
             {
                 ActualPartOfItemObject = collision.gameObject;
                 Sector.GetComponent<SectorManager>().activeSlots.Add(gameObject);
+                color = gameObject.GetComponent<Image>().color;
+                gameObject.GetComponent<Image>().color = Color.yellow;
             }
-            color = gameObject.GetComponent<Image>().color;
-            gameObject.GetComponent<Image>().color = Color.yellow;
+            else
+            {
+                color = gameObject.GetComponent<Image>().color;
+                gameObject.GetComponent<Image>().color = Color.red;
+            }
+
         }
         private void OnCollisionExit2D(Collision2D collision)
         {

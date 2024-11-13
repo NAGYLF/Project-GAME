@@ -29,9 +29,9 @@ public class SectorManager : MonoBehaviour
         activeSlots = new List<GameObject>();
         placer.activeItemSlots = new List<GameObject>();
     }
-    private void Update()
+    private IEnumerator Targeting()
     {
-        if (activeSlots.Count>0)
+        if (activeSlots.Count > 0)
         {
             PlaceableObject = activeSlots.First().GetComponent<ItemSlot>().ActualPartOfItemObject;
             if (activeSlots.Count == PlaceableObject.GetComponent<ItemObject>().ActualData.SizeX * PlaceableObject.GetComponent<ItemObject>().ActualData.SizeY)
@@ -40,6 +40,15 @@ public class SectorManager : MonoBehaviour
                 placer.newStarter = Container;
                 PlaceableObject.GetComponent<ItemObject>().placer = placer;
             }
+        }
+        yield return null;
+    }
+    private int activeSlotsCount = 0;
+    private void Update()
+    {
+        if (activeSlots.Count != activeSlotsCount)
+        {
+            StartCoroutine(Targeting());
         }
     }
 }

@@ -112,6 +112,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 76a71bda2f858e644b7ee2b34751b146, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  Container: {fileID: 0}
   ItemSlots:
   - {fileID: 6595084521253739957}
   - {fileID: 3371051842265815919}
@@ -125,6 +126,8 @@ MonoBehaviour:
   - {fileID: 1527025179101064467}
   row: 2
   columb: 5
+  activeSlots: []
+  PlaceableObject: {fileID: 0}
 --- !u!1 &3571044685359639320
 GameObject:
   m_ObjectHideFlags: 0
@@ -181,6 +184,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 76a71bda2f858e644b7ee2b34751b146, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  Container: {fileID: 0}
   ItemSlots:
   - {fileID: 3976399128320052454}
   - {fileID: 2873730400898751294}
@@ -191,6 +195,8 @@ MonoBehaviour:
   - {fileID: 5031256637917156886}
   row: 1
   columb: 7
+  activeSlots: []
+  PlaceableObject: {fileID: 0}
 --- !u!1001 &240399785107701462
 PrefabInstance:
   m_ObjectHideFlags: 0

@@ -1,49 +1,103 @@
+using Assets.Scripts;
 using ItemHandler;
 using System.Collections;
 using System.Collections.Generic;
+using System.Linq;
 using UnityEngine;
-using static MainData.SupportScripts;
-using static PlayerInventoryClass.PlayerInventory;
+using UnityEngine.UI;
+using static ItemHandler.ItemObject;
 
 public class EquipmentSlot : MonoBehaviour
 {
     #region DataSynch
-    public Item ActualData;//ezek alapján vizualizálja es szinkronizálja az itemeket
-    private Item RefData;
+    private Item ActualData;//ezek alapján vizualizálja es szinkronizálja az itemeket
+    private GameObject VirualChildObject;
     #endregion
 
     public string SlotType;//azon tipusok melyeket befogadhat, ha nincs megadva akkor mindent.
     public string SlotName;
-    // Start is called before the first frame update
+    
+    public Item PartOfItem;//ezt adatként kaphatja meg
+
+    public GameObject PartOfItemObject;
+    public GameObject ActualPartOfItemObject;//ezt vizualizációkor kapja és továbbiakban a vizualizációban lesz fumciója az iteomobjectum azonosításban
+    private Color color;
+
+    [HideInInspector] public List<GameObject> activeSlots;
+    [HideInInspector] public GameObject PlaceableObject;
+    private PlacerStruct placer;
+    private void OnCollisionEnter2D(Collision2D collision)
+    {
+        if ((PartOfItemObject == null || PartOfItemObject.GetInstanceID() == collision.gameObject.GetInstanceID()) && (SlotType=="" || SlotType.Contains(collision.gameObject.GetComponent<ItemObject>().ActualData.ItemType)))
+        {
+            ActualPartOfItemObject = collision.gameObject;
+            color = gameObject.GetComponent<Image>().color;
+            gameObject.GetComponent<Image>().color = Color.yellow;
+            activeSlots.Add(gameObject);
+        }
+        else
+        {
+            color = gameObject.GetComponent<Image>().color;
+            gameObject.GetComponent<Image>().color = Color.red;
+        }
+    }
+    private void OnCollisionExit2D(Collision2D collision)
+    {
+        if (!(PartOfItemObject != null && PartOfItemObject.GetInstanceID() != collision.gameObject.GetInstanceID()))
+        {
+            ActualPartOfItemObject = null;
+            activeSlots.Remove(gameObject);
+        }
+        gameObject.GetComponent<Image>().color = color;
+    }
     private void Awake()
     {
         SlotName = gameObject.name;
+        activeSlots = new List<GameObject>();
+        placer.activeItemSlots = new List<GameObject>();
     }
-    public void Update()
+    private void Start()
     {
-        DataSynch();
+        DataLoad();
     }
-    private void DataSynch()
+    private void Update()
     {
-        if (ActualData != RefData && ActualData != null)//resetelni kell a slotot
+        if (activeSlots.Count > 0)
         {
-            ItemVisualisation();
-            RefData = ActualData;
-        }
-        else if (ActualData == null)
-        {
-            RefData = null;
+            PlaceableObject = activeSlots.First().GetComponent<EquipmentSlot>().ActualPartOfItemObject;
+            placer.activeItemSlots = activeSlots;
+            placer.newStarter = gameObject;
+            PlaceableObject.GetComponent<ItemObject>().placer = placer;
         }
     }
-    public void SetRootDataRoute(ref Item Data)
+    public void DataOut(Item Data, GameObject VirtualChildObject)
+    {
+        ActualData = new Item();//az actual data a gyökér adatokban modositja az adatokat ezert tovabbi szinkronizaciora nincs szukseg
+    }
+    public void DataUpdate(Item Data, GameObject VirtualChildObject)
+    {
+        VirualChildObject = VirtualChildObject;
+        ActualData = Data;//az actual data a gyökér adatokban modositja az adatokat ezert tovabbi szinkronizaciora nincs szukseg
+    }
+    public void DataIn(Item Data, GameObject VirtualChildObject)
+    {
+        VirualChildObject = VirtualChildObject;
+        ActualData = Data;//az actual data a gyökér adatokban modositja az adatokat ezert tovabbi szinkronizaciora nincs szukseg
+        VirualChildObject.GetComponent<ItemObject>().SetDataRoute(ActualData, gameObject);
+    }
+    public void SetRootDataRoute(ref Item Data)//ezt csak is a parent hivhatja meg
     {
         ActualData = Data;
     }
-    private void ItemVisualisation()//10. az item vizuálisan létrejön az equipmentslotban, objektuma tovább örökli az item adatának referenciáját
+    public void DataLoad()
     {
-        //--> ItemObject.cs (Item)
-        Debug.LogWarning($"{ActualData.ItemName} EquipmentSlot.cs ------- ref --------> ItemObject.cs");
-        GameObject itemObject = new GameObject($"{ActualData.ItemName}");
-        itemObject.AddComponent<ItemObject>().SetDataRoute(ActualData, gameObject);//item adatok itemobjektumba való adatátvitele//itemobjektum létrehozása                                                                                          
+        //EquipmentSlot.cs --> ItemObject.cs
+        if (ActualData != null)
+        {
+            Debug.LogWarning($"{ActualData.ItemName} EquipmentSlot.cs ------- ref --------> ItemObject.cs");
+            GameObject itemObject = new GameObject($"{ActualData.ItemName}");
+            itemObject.AddComponent<ItemObject>().SetDataRoute(ActualData, gameObject);//item adatok itemobjektumba való adatátvitele//itemobjektum létrehozása
+            PartOfItemObject = itemObject;
+        }
     }
 }

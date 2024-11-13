@@ -29,9 +29,7 @@ public class MainMenu : MonoBehaviour
 
 
     }
-    
-      
-    
+
     private IEnumerator StartFadeOutScreen(VideoPlayer videoPlayer,GameObject fadeOutScreen)
     {
 

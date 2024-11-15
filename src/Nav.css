@@ -1,0 +1,52 @@
+.custom-navbar {
+    background: rgba(173, 216, 230, 0.7) url('./img/hatterkep.jfif') no-repeat center center;
+    background-size: cover;
+    background-repeat: no-repeat;
+    color: white;
+  }
+  
+  .nav-link {
+    color: white !important;
+  }
+  
+  .dropdown-menu {
+    background-color: rgba(255, 255, 255, 0.8);
+  }
+  
+  .nav-item {
+    margin-right: 20px;
+  }
+  
+  .d-flex {
+    display: flex;
+    justify-content: flex-end;
+    align-items: center;
+  }
+  
+  .ms-2 {
+    margin-left: 10px;
+  }
+
+  #pic{
+    background-color:rgb(255, 255, 255, 0);
+  }
+
+  #pic img{
+    border-radius: 50%;
+  }
+
+  a{
+    border-radius: 10px;
+    cursor: pointer;
+    transition: 0.5s;
+  }
+
+  a:hover{
+    background-color: rgba(196, 196, 196, 0.5);
+    transition: 0.5s;
+  }
+
+  .btn:hover{
+    background-color:white;
+    transition: 0.5s;
+  }

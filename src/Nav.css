@@ -1,3 +1,4 @@
+/*Navbar*/
 .custom-navbar {
     background: rgba(173, 216, 230, 0.7) url('./img/hatterkep.jfif') no-repeat center center;
     background-size: cover;
@@ -47,7 +48,73 @@
     transition: 0.5s;
   }
 
-  .btn:hover{
+.btn:hover{
     background-color:white;
     transition: 0.5s;
   }
+
+  /*Description*/
+  .centered-div {
+    position: fixed;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    width: 860px;
+    height: 600px;
+    border-radius: 2%;
+    padding: 25px;
+    background-color: rgba(83, 88, 90, 0.4);
+    color: white;
+    font-size: 20px;
+    box-sizing: border-box;
+    display: none;
+    border: 2px solid black;
+}
+
+@media (max-width: 1024px) {
+    .centered-div {
+        width: 80%;
+        height: auto;
+        padding: 20px;
+        font-size: 18px;
+    }
+}
+
+@media (max-width: 768px) {
+    .centered-div {
+        width: 90%;
+        height: auto;
+        padding: 15px;
+        font-size: 16px;
+    }
+}
+
+@media (max-width: 480px) {
+    .centered-div {
+        width: 95%;
+        height: auto;
+        padding: 10px;
+        font-size: 14px;
+    }
+}
+
+.close-btn {
+    position: absolute;
+    top: 5px;
+    right: 5px;
+    font-size: 30px;
+    background: none;
+    border: none;
+    cursor: pointer;
+    color: white;
+}
+
+.close-btn:hover {
+    color: red;
+}
+
+
+
+
+
+

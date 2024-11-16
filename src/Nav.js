@@ -15,7 +15,7 @@ export default function Nav() {
 
   return (
     <nav className="navbar navbar-expand-lg custom-navbar">
-      <div className="container-fluid">
+      <div style={{display: isDescriptionVisible ? "none" : "block"}} className="container-fluid">
         <button
           className="navbar-toggler"
           type="button"

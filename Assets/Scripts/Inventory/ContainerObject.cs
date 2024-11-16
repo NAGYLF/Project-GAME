@@ -8,6 +8,7 @@ using System.Linq;
 using System;
 using static PlayerInventoryVisualBuild.PlayerInventoryVisual;
 using System.Reflection;
+using Unity.VisualScripting;
 
 
 public class ContainerObject : MonoBehaviour
@@ -28,19 +29,63 @@ public class ContainerObject : MonoBehaviour
     {
         int index = ActualData.Container.Items.FindIndex(elem => elem.GetSlotUseId() == Data.GetSlotUseId());
         ActualData.Container.Items.RemoveAt(index);
+        foreach (ItemSlot[,] sector in ActualData.Container.Sectors)
+        {
+            foreach (ItemSlot itemSlot in sector)
+            {
+                if (Data.GetSlotUseId().Contains(itemSlot.name))
+                {
+                    itemSlot.PartOfItemData = null;
+                }
+            }
+        }
         VirtualParentObject.GetComponent<ItemObject>().DataUpdate(ActualData,gameObject);
     }
-    public void DataUpdate(Item Data, GameObject VirtualChildrenObject)
+
+    //a megváltozott itemobjektum szikronizálja uj adatait parentobjektumával ki nem változott meg.
+    public void DataUpdate(Item Data, GameObject VirtualChildrenObject)//csak itemobjektum hivhatja meg
     {
+        //az itemobejtum adatának idexét egy itemslot id-ból kapja meg 
         int index = ActualData.Container.Items.FindIndex(elem => elem.GetSlotUseId() == Data.GetSlotUseId());
-        ActualData.Container.Items[index] = Data;
+        foreach (ItemSlot[,] sector in ActualData.Container.Sectors)
+        {
+            foreach (ItemSlot itemSlot in sector)
+            {
+                if (Data.GetSlotUseId().Contains(itemSlot.name))
+                {
+                    itemSlot.PartOfItemData = null;
+                }
+            }
+        }
         Data.SetSlotUseId();
+        foreach (ItemSlot[,] sector in ActualData.Container.Sectors)
+        {
+            foreach (ItemSlot itemSlot in sector)
+            {
+                if (Data.GetSlotUseId().Contains(itemSlot.name))
+                {
+                    itemSlot.PartOfItemData = Data;
+                }
+            }
+        }
+        ActualData.Container.Items[index] = Data;
+        VirtualChildrenObject.GetComponent<ItemObject>().ActualData.SetSlotUseId();
         VirtualParentObject.GetComponent<ItemObject>().DataUpdate(ActualData,gameObject);
     }
     public void DataIn(Item Data, GameObject VirtualChildrenObject)
     {
         Data.SetSlotUseId();
         ActualData.Container.Items.Add(Data);
+        foreach (ItemSlot[,] sector in ActualData.Container.Sectors)
+        {
+            foreach (ItemSlot itemSlot in sector)
+            {
+                if (Data.GetSlotUseId().Contains(itemSlot.name))
+                {
+                    itemSlot.PartOfItemData = Data;
+                }
+            }
+        }
         VirtualParentObject.GetComponent<ItemObject>().DataUpdate(ActualData,gameObject);
     }
     public void SetDataRoute(Item Data,GameObject VirtualParentObject)

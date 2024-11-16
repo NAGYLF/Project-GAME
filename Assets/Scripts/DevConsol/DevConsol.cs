@@ -6,9 +6,12 @@ using MainData;
 using PlayerInventoryVisualBuild;
 using ItemHandler;
 using PlayerInventoryClass;
+using UnityEditor;
 public class DevConsol : MonoBehaviour
 {
     public GameObject text;
+
+    private static PlayerInventory playerInventory = new PlayerInventory();
     //add [playerName] Item [itemName]
     private void Start()
     {
@@ -65,6 +68,26 @@ public class DevConsol : MonoBehaviour
                                     PlayerInventory.playerInventoryData.InventoryAdd(item_);
                                 }
                                 break;
+                             case "DevInventory_2xHandgun":
+                                Debug.Log($"{text.GetComponent<TMP_InputField>().text}");
+                                Item[] items02 = new Item[]
+                                           {
+                                    new Item("TestWeapon"),
+                                    new Item("TestWeapon"),
+                                    new Item("TestHandgun"),
+                                    new Item("TestArmor"),
+                                    new Item("TestBackpack"),
+                                    new Item("TestVest"),
+                                    new Item("TestHandgun"),
+                                    new Item("TestHandgun"),
+                                           };
+                                foreach (Item item_ in items02)
+                                {
+                                    Debug.Log(item_.ItemName);
+                                    Debug.Log($"{PlayerInventory.playerInventoryData == null}");
+                                    PlayerInventory.playerInventoryData.InventoryAdd(item_);
+                                }
+                                break;
                             default:
                                 break;
                         }
@@ -72,6 +95,15 @@ public class DevConsol : MonoBehaviour
                     default:
                         break;
                 }
+                break;
+            case "Save":
+                playerInventory.equipments = PlayerInventory.playerInventoryData.equipments;
+                break;
+            case "Clear":
+                PlayerInventory.playerInventoryData.equipments = new PlayerInventory.Equipmnets();
+                break;
+            case "Load":
+                PlayerInventory.playerInventoryData.equipments = playerInventory.equipments;
                 break;
             default:
                 break;

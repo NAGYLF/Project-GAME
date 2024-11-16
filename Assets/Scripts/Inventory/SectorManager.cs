@@ -37,7 +37,7 @@ public class SectorManager : MonoBehaviour
             if (activeSlots.Count == PlaceableObject.GetComponent<ItemObject>().ActualData.SizeX * PlaceableObject.GetComponent<ItemObject>().ActualData.SizeY)
             {
                 placer.activeItemSlots = activeSlots;
-                placer.newStarter = Container;
+                placer.NewVirtualParentObject = Container;
                 PlaceableObject.GetComponent<ItemObject>().placer = placer;
             }
         }

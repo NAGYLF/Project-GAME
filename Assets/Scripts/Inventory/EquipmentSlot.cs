@@ -1,25 +1,26 @@
 using Assets.Scripts;
 using ItemHandler;
+using PlayerInventoryClass;
 using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
 using UnityEngine;
 using UnityEngine.UI;
 using static ItemHandler.ItemObject;
+using static PlayerInventoryClass.PlayerInventory;
 
 public class EquipmentSlot : MonoBehaviour
 {
     #region DataSynch
-    private Item ActualData;//ezek alapján vizualizálja es szinkronizálja az itemeket
-    private GameObject VirualChildObject;
+    public EquipmnetStruct PartOfItemData;//ezek alapján vizualizálja es szinkronizálja az itemeket
+    public GameObject PartOfItemObject;
+    private GameObject Inventory;
     #endregion
 
     public string SlotType;//azon tipusok melyeket befogadhat, ha nincs megadva akkor mindent.
     public string SlotName;
     
-    public Item PartOfItem;//ezt adatként kaphatja meg
-
-    public GameObject PartOfItemObject;
+    [SerializeField] private string partofitem;
     public GameObject ActualPartOfItemObject;//ezt vizualizációkor kapja és továbbiakban a vizualizációban lesz fumciója az iteomobjectum azonosításban
     private Color color;
 
@@ -56,47 +57,49 @@ public class EquipmentSlot : MonoBehaviour
         activeSlots = new List<GameObject>();
         placer.activeItemSlots = new List<GameObject>();
     }
-    private void Start()
-    {
-        DataLoad();
-    }
     private void Update()
     {
         if (activeSlots.Count > 0)
         {
             PlaceableObject = activeSlots.First().GetComponent<EquipmentSlot>().ActualPartOfItemObject;
             placer.activeItemSlots = activeSlots;
-            placer.newStarter = gameObject;
+            placer.NewVirtualParentObject = gameObject;
             PlaceableObject.GetComponent<ItemObject>().placer = placer;
         }
     }
     public void DataOut(Item Data, GameObject VirtualChildObject)
     {
-        ActualData = new Item();//az actual data a gyökér adatokban modositja az adatokat ezert tovabbi szinkronizaciora nincs szukseg
+        PartOfItemData.EquipmentItem = null;//az actual data a gyökér adatokban modositja az adatokat ezert tovabbi szinkronizaciora nincs szukseg
+        PartOfItemObject = null;
+        Inventory.GetComponent<PlayerInventory>().EquipmentRefresh(PartOfItemData);
     }
     public void DataUpdate(Item Data, GameObject VirtualChildObject)
     {
-        VirualChildObject = VirtualChildObject;
-        ActualData = Data;//az actual data a gyökér adatokban modositja az adatokat ezert tovabbi szinkronizaciora nincs szukseg
+        PartOfItemObject = VirtualChildObject;
+        PartOfItemData.EquipmentItem = Data;//az actual data a gyökér adatokban modositja az adatokat ezert tovabbi szinkronizaciora nincs szukseg
+        Inventory.GetComponent<PlayerInventory>().EquipmentRefresh(PartOfItemData);
     }
     public void DataIn(Item Data, GameObject VirtualChildObject)
     {
-        VirualChildObject = VirtualChildObject;
-        ActualData = Data;//az actual data a gyökér adatokban modositja az adatokat ezert tovabbi szinkronizaciora nincs szukseg
-        VirualChildObject.GetComponent<ItemObject>().SetDataRoute(ActualData, gameObject);
+        PartOfItemObject = VirtualChildObject;
+        PartOfItemData.EquipmentItem = Data;//az actual data a gyökér adatokban modositja az adatokat ezert tovabbi szinkronizaciora nincs szukseg
+        PartOfItemObject.GetComponent<ItemObject>().SetDataRoute(PartOfItemData.EquipmentItem, gameObject);
+        Inventory.GetComponent<PlayerInventory>().EquipmentRefresh(PartOfItemData);
     }
-    public void SetRootDataRoute(ref Item Data)//ezt csak is a parent hivhatja meg
+    public void SetRootDataRoute(EquipmnetStruct Data, GameObject inventory)//ezt csak is a parent hivhatja meg
     {
-        ActualData = Data;
+        Inventory = inventory;
+        PartOfItemData = Data;
+        DataLoad();
     }
     public void DataLoad()
     {
         //EquipmentSlot.cs --> ItemObject.cs
-        if (ActualData != null)
+        if (PartOfItemData.EquipmentItem != null)
         {
-            Debug.LogWarning($"{ActualData.ItemName} EquipmentSlot.cs ------- ref --------> ItemObject.cs");
-            GameObject itemObject = new GameObject($"{ActualData.ItemName}");
-            itemObject.AddComponent<ItemObject>().SetDataRoute(ActualData, gameObject);//item adatok itemobjektumba való adatátvitele//itemobjektum létrehozása
+            Debug.LogWarning($"{PartOfItemData.EquipmentItem.ItemName} EquipmentSlot.cs ------- ref --------> ItemObject.cs");
+            GameObject itemObject = new GameObject($"{PartOfItemData.EquipmentItem.ItemName}");
+            itemObject.AddComponent<ItemObject>().SetDataRoute(PartOfItemData.EquipmentItem, gameObject);//item adatok itemobjektumba való adatátvitele//itemobjektum létrehozása
             PartOfItemObject = itemObject;
         }
     }

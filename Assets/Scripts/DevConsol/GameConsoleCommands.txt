@@ -23,3 +23,13 @@ add TestPlayer DevInventory
 
 
 add TestPlayer 3xTestWeapon+TestBackPack
+
+
+add TestPlayer DevInventory_2xHandgun
+
+
+Save
+
+Clear
+
+Load

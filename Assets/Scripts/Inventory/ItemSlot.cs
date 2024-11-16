@@ -18,8 +18,8 @@ namespace Assets.Scripts
                                  //hogyha nem egy szektoron belün, de egyszere anyi itemcontainer kerülne targetba ami eleglenne az item tarolasakor,
                                  //ekkor az item ellenorzi, hogy a tergetek egy sectorba tartoznak e.
 
-        public Item PartOfItem;//ezt adatként kaphatja meg
-
+        public Item PartOfItemData;//ezt adatként kaphatja meg
+        [SerializeField] private string partofitem;
         public GameObject PartOfItemObject;
         public GameObject ActualPartOfItemObject;//ezt vizualizációkor kapja és továbbiakban a vizualizációban lesz fumciója az iteomobjectum azonosításban
 
@@ -47,8 +47,18 @@ namespace Assets.Scripts
                 ActualPartOfItemObject = null;
                 Sector.GetComponent<SectorManager>().activeSlots.Remove(gameObject);
             }
-
             gameObject.GetComponent<Image>().color = color;
+        }
+        private void Update()
+        {
+            if (PartOfItemData != null)
+            {
+                partofitem = PartOfItemData.ItemName;
+            }
+            else
+            {
+                partofitem = "ures";
+            }
         }
     }
 }

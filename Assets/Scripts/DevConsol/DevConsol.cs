@@ -43,6 +43,14 @@ public class DevConsol : MonoBehaviour
                                     new Item("TestArmor"),
                                     new Item("TestBackpack"),
                                     new Item("TestVest"),
+                                    new Item("TestBoots"),
+                                    new Item("TestFingers"),
+                                    new Item("TestHeadset"),
+                                    new Item("TestHelmet"),
+                                    new Item("TestMask"),
+                                    new Item("TestMelee"),
+                                    new Item("TestPant"),
+                                    new Item("TestSkin"),
                                 };
                                 foreach (Item item_ in items00)
                                 {
@@ -77,6 +85,14 @@ public class DevConsol : MonoBehaviour
                                     new Item("TestArmor"),
                                     new Item("TestBackpack"),
                                     new Item("TestVest"),
+                                    new Item("TestBoots"),
+                                    new Item("TestFingers"),
+                                    new Item("TestHeadset"),
+                                    new Item("TestHelmet"),
+                                    new Item("TestMask"),
+                                    new Item("TestMelee"),
+                                    new Item("TestPant"),
+                                    new Item("TestSkin"),
                                     new Item("TestHandgun"),
                                     new Item("TestHandgun"),
                                            };

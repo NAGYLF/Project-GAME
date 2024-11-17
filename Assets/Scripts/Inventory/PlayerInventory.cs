@@ -20,7 +20,14 @@ using Weapons;
 using Backpacks;
 using Vests;
 using Armors;
-using UnityEngine.UIElements;
+using Helmets;
+using Fingers;
+using Boots;
+using Masks;
+using Headsets;
+using Skins;
+using Pants;
+using Melees;
 
 
 namespace PlayerInventoryClass
@@ -677,6 +684,10 @@ namespace ItemHandler
         public string ItemName { get; set; }
         public string Description { get; set; }
         public int Quantity { get; set; }
+        public int SizeX { get; set; }
+        public int SizeY { get; set; }
+        public string ImgPath { get; set; }
+        public float RotateDegree { get; set; } = 0f;
         public string[] SlotUse { get; set; }
         private string SlotUseId;//ezt az azonositot a localis containeren belul használjuk a container listában lévő item adatok megkülönbözetésére
         public string GetSlotUseId()
@@ -694,10 +705,6 @@ namespace ItemHandler
             SlotUseId = id;
             Debug.Log($"Set {ItemName} : slotuse id = {SlotUseId}");
         }
-        public int SizeX { get; set; }
-        public int SizeY { get; set; }
-        public string ImgPath { get; set; }
-        public float RotateDegree { get; set; } = 0f;
         private void CopyProperties(Item source)
         {
             //altalanos adatok
@@ -733,17 +740,15 @@ namespace ItemHandler
                 "TestVest" => new TestVest().Set(),
                 "TestArmor" => new TestArmor().Set(),
                 "TestHandgun" => new TestHandgun().Set(),
-                /*
-                "TestHelmet" => new TestVest().Set(),
-                "TestFingers" => new TestVest().Set(),
-                "TestBoots" => new TestVest().Set(),
-                "TestMask" => new TestVest().Set(),
-                "TestHeadset" => new TestVest().Set(),
-                "TestSkin" => new TestVest().Set(),
-                "TestPant" => new TestVest().Set(),
-                "TestMelee" => new TestVest().Set(),
-                */
-                _ => throw new ArgumentException("Invalid type")
+                "TestHelmet" => new TestHelmet().Set(),
+                "TestFingers" => new TestFingers().Set(),
+                "TestBoots" => new TestBoots().Set(),
+                "TestMask" => new TestMask().Set(),
+                "TestHeadset" => new TestHeadset().Set(),
+                "TestSkin" => new TestSkin().Set(),
+                "TestPant" => new TestPant().Set(),
+                "TestMelee" => new TestMelee().Set(),
+                _ => throw new ArgumentException($"Invalid type {name}")
             };
             CopyProperties(completedItem);
             Debug.Log($"Item created {this}");
@@ -911,17 +916,15 @@ namespace PlayerInventoryVisualBuild
             for (int i = 0; i < panelEquipments.EquipmentsSlots.Length; i++)
             {
                 //Debug.LogWarning($" Ref root start: item: {playerInventory.equipments.equipment[j].DataRefPoint.EquipmentItem != null}       item neve: {(playerInventory.equipments.equipment[j].DataRefPoint.EquipmentItem != null?(playerInventory.equipments.equipment[j].DataRefPoint.EquipmentItem.ItemName):"null")}  ");
-                if (playerInventory.equipments.equipmentList[i].EquipmentSlotName == panelEquipments.EquipmentsSlots[i].name)
+
+                //--> EquipmnetSlot.cs
+                //8. az inventory equipmnetjei egyesével innin indulnak ki, ez a vizualizáció és az adatáramlás láncreakciószerű kiindulásipontja.
+                if (playerInventory.equipments.equipmentList[i].EquipmentItem != null)
                 {
-                    //--> EquipmnetSlot.cs
-                    //8. az inventory equipmnetjei egyesével innin indulnak ki, ez a vizualizáció és az adatáramlás láncreakciószerű kiindulásipontja.
-                    if (playerInventory.equipments.equipmentList[i].EquipmentItem != null)
-                    {
-                        Debug.Log($"({playerInventory.equipments.equipmentList[i].EquipmentSlotName})    PlayerInventory.cs ------- SetDataRoute --------> EquipmentSlot.cs  ({panelEquipments.EquipmentsSlots[i].name})         RootItem:{playerInventory.equipments.equipmentList[i].EquipmentItem.ItemName}  ");
-                    }
-                    //9. az equipmnetSlot objektum komponense referál egy equipmnet változó item adatára
-                    panelEquipments.EquipmentsSlots[i].GetComponent<EquipmentSlot>().SetRootDataRoute(playerInventory.equipments.equipmentList[i], gameObject);
+                    Debug.Log($"({playerInventory.equipments.equipmentList[i].EquipmentSlotName})    PlayerInventory.cs ------- SetDataRoute --------> EquipmentSlot.cs  ({panelEquipments.EquipmentsSlots[i].name})         RootItem:{playerInventory.equipments.equipmentList[i].EquipmentItem.ItemName}  ");
                 }
+                //9. az equipmnetSlot objektum komponense referál egy equipmnet változó item adatára
+                panelEquipments.EquipmentsSlots[i].GetComponent<EquipmentSlot>().SetRootDataRoute(playerInventory.equipments.equipmentList[i], gameObject);
             }
         }
     }

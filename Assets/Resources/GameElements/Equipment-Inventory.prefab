@@ -1047,15 +1047,15 @@ PrefabInstance:
     m_Modifications:
     - target: {fileID: 1346842742886268391, guid: f0d27291768e23b48a34e2eb688eb4bf, type: 3}
       propertyPath: SlotName
-      value: EquipmentSlotArmor
+      value: EquipmentSlotFingers
       objectReference: {fileID: 0}
     - target: {fileID: 1346842742886268391, guid: f0d27291768e23b48a34e2eb688eb4bf, type: 3}
       propertyPath: SlotType
-      value: Finger
+      value: Fingers
       objectReference: {fileID: 0}
     - target: {fileID: 8134937336055648193, guid: f0d27291768e23b48a34e2eb688eb4bf, type: 3}
       propertyPath: m_Name
-      value: EquipmentSlotFinger
+      value: EquipmentSlotFingers
       objectReference: {fileID: 0}
     - target: {fileID: 8700405968672200317, guid: f0d27291768e23b48a34e2eb688eb4bf, type: 3}
       propertyPath: m_Pivot.x

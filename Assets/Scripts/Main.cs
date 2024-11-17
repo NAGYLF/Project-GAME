@@ -237,9 +237,9 @@ namespace MainData
         }
         public static GameObject CreatePrefab(string path)
         {
-            Debug.Log($"CreatePrefab path: {path}");
+            //Debug.Log($"CreatePrefab path: {path}");
             GameObject prefab = Instantiate(Resources.Load<GameObject>(path));
-            Debug.Log($"CreatePrefab path: {path} DONE");
+            //Debug.Log($"CreatePrefab path: {path} DONE");
             if (prefab != null)
             {
                 prefab.name = path.Split('/').Last();

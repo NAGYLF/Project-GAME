@@ -1,28 +1,25 @@
 ﻿using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
-using ItemHandler;
 using System.IO;
 using Newtonsoft.Json;
 using Unity.VisualScripting;
+using UnityEngine.UI;
 using Assets.Scripts;
 using System;
-using Weapons;
-using Backpacks;
-using Vests;
-using Armors;
 using System.Reflection;
 using System.Linq;
 using System.Drawing;
 using MainData;
+using static PlayerInventoryVisualBuild.PlayerInventoryVisual;
 using static MainData.SupportScripts;
 using PlayerInventoryVisualBuild;
 using PlayerInventoryClass;
-using static PlayerInventoryVisualBuild.PlayerInventoryVisual;
-using static PlayerInventoryClass.PlayerInventory;
-using UnityEngine.UI;
-using System.ComponentModel;
-
+using ItemHandler;
+using Weapons;
+using Backpacks;
+using Vests;
+using Armors;
 
 
 namespace PlayerInventoryClass
@@ -101,12 +98,12 @@ namespace PlayerInventoryClass
         }
         public void InventoryAdd(Item item)
         {
-            item.SetItem(item.ItemName);
+            //item.SetItem(item.ItemName);
             Debug.Log($"Add item: {item.ItemName}   in progress");
             bool ItemAdded = false;
             for (int i = 0; i < equipments.equipmentList.Count; i++)//equipment
             {
-                Debug.Log($"Adding into equipmnets... :    {equipments.equipmentList[i].EquipmentSlotName}   tipus:{equipments.equipmentList[i].EquipmnetSlotType} ItemType:{item.ItemType}   slot tartalma: {(equipments.equipmentList[i].EquipmentItem == null? "null": equipments.equipmentList[i].EquipmentItem)}");
+                //Debug.Log($"Adding into equipmnets... :    {equipments.equipmentList[i].EquipmentSlotName}   tipus:{equipments.equipmentList[i].EquipmnetSlotType} ItemType:{item.ItemType}   slot tartalma: {(equipments.equipmentList[i].EquipmentItem == null? "null": equipments.equipmentList[i].EquipmentItem)}");
                 if (equipments.equipmentList[i].EquipmnetSlotType.Contains(item.ItemType) && equipments.equipmentList[i].EquipmentItem == null)
                 {
                     item.SlotUse = new string[] { equipments.equipmentList[i].EquipmentSlotName };
@@ -173,11 +170,7 @@ namespace PlayerInventoryClass
                 }
             }
         }
-        public void InventoryDelete(Item item)
-        {
-
-        }
-        public void InventoryModify(Item item)
+        public void InventoryRemove(Item item)
         {
 
         }
@@ -226,7 +219,6 @@ namespace ItemHandler
         List<GameObject> itemSlots { get; set; }
         public struct PlacerStruct
         {
-
             public List<GameObject> activeItemSlots { get; set; }
             public GameObject NewVirtualParentObject { get; set; }
         }
@@ -271,10 +263,6 @@ namespace ItemHandler
             }
         }
         */
-        public void Delete()
-        {
-
-        }
         private void ObjectMovement()
         {
             if (isDragging)
@@ -375,7 +363,7 @@ namespace ItemHandler
                         {
                             for (int slot = 0; slot < containerObject.SectorManagers[sector].GetComponent<SectorManager>().ItemSlots.Length; slot++)
                             {
-                                if (!placer.activeItemSlots.Contains(containerObject.SectorManagers[sector].GetComponent<SectorManager>().ItemSlots[slot]) && ActualData.SlotUse.Contains(containerObject.SectorManagers[sector].GetComponent<SectorManager>().ItemSlots[slot].GetComponent<ItemSlot>().name))
+                                if (ActualData.SlotUse.Contains(containerObject.SectorManagers[sector].GetComponent<SectorManager>().ItemSlots[slot].GetComponent<ItemSlot>().name))
                                 {
                                     containerObject.SectorManagers[sector].GetComponent<SectorManager>().ItemSlots[slot].GetComponent<ItemSlot>().PartOfItemObject = null;
                                     containerObject.SectorManagers[sector].GetComponent<SectorManager>().ItemSlots[slot].GetComponent<ItemSlot>().PartOfItemData = null;
@@ -398,7 +386,7 @@ namespace ItemHandler
                         {
                             for (int slot = 0; slot < containerObject.SectorManagers[sector].GetComponent<SectorManager>().ItemSlots.Length; slot++)
                             {
-                                if (placer.activeItemSlots.Contains(containerObject.SectorManagers[sector].GetComponent<SectorManager>().ItemSlots[slot]) && !ActualData.SlotUse.Contains(containerObject.SectorManagers[sector].GetComponent<SectorManager>().ItemSlots[slot].GetComponent<ItemSlot>().name))
+                                if (placer.activeItemSlots.Contains(containerObject.SectorManagers[sector].GetComponent<SectorManager>().ItemSlots[slot]))
                                 {
                                     containerObject.SectorManagers[sector].GetComponent<SectorManager>().ItemSlots[slot].GetComponent<ItemSlot>().PartOfItemObject = gameObject;
                                     itemSlots.Add(containerObject.SectorManagers[sector].GetComponent<SectorManager>().ItemSlots[slot]);
@@ -520,7 +508,7 @@ namespace ItemHandler
         public void DataLoad()
         {
             itemSlots = new List<GameObject>();
-            if (ActualData.Container != null /*&& !Array.Exists(ActualData.SlotUse,elem=>elem.Contains("EquipmentSlot"))*/)//11. ha az item adatai tartalmaznak containert akkor az létrejön
+            if (ActualData.Container != null)//11. ha az item adatai tartalmaznak containert akkor az létrejön
             {
                 //--> ContainerObject.cs
                 Debug.LogWarning($"{ActualData.ItemName} ItemObject ------- ref --------> ContainerObject.cs");
@@ -674,7 +662,7 @@ namespace ItemHandler
         public string Description { get; set; }
         public int Quantity { get; set; }
         public string[] SlotUse { get; set; }
-        private string SlotUseId;
+        private string SlotUseId;//ezt az azonositot a localis containeren belul használjuk a container listában lévő item adatok megkülönbözetésére
         public string GetSlotUseId()
         {
             Debug.Log($"Get {ItemName} : slotuse id = {SlotUseId}");
@@ -906,17 +894,17 @@ namespace PlayerInventoryVisualBuild
 
             for (int i = 0; i < panelEquipments.EquipmentsSlots.Length; i++)
             {
-                for (int j = 0; j < playerInventory.equipments.equipmentList.Count; j++)
+                //Debug.LogWarning($" Ref root start: item: {playerInventory.equipments.equipment[j].DataRefPoint.EquipmentItem != null}       item neve: {(playerInventory.equipments.equipment[j].DataRefPoint.EquipmentItem != null?(playerInventory.equipments.equipment[j].DataRefPoint.EquipmentItem.ItemName):"null")}  ");
+                if (playerInventory.equipments.equipmentList[i].EquipmentSlotName == panelEquipments.EquipmentsSlots[i].name)
                 {
-                    //Debug.LogWarning($" Ref root start: item: {playerInventory.equipments.equipment[j].DataRefPoint.EquipmentItem != null}       item neve: {(playerInventory.equipments.equipment[j].DataRefPoint.EquipmentItem != null?(playerInventory.equipments.equipment[j].DataRefPoint.EquipmentItem.ItemName):"null")}  ");
-                    if (playerInventory.equipments.equipmentList[j].EquipmentSlotName == panelEquipments.EquipmentsSlots[i].name)
+                    //--> EquipmnetSlot.cs
+                    //8. az inventory equipmnetjei egyesével innin indulnak ki, ez a vizualizáció és az adatáramlás láncreakciószerű kiindulásipontja.
+                    if (playerInventory.equipments.equipmentList[i].EquipmentItem != null)
                     {
-                        //--> EquipmnetSlot.cs
-                        //8. az inventory equipmnetjei egyesével innin indulnak ki, ez a vizualizáció és az adatáramlás láncreakciószerű kiindulásipontja.
-                        Debug.Log($"{playerInventory.equipments.equipmentList[j].EquipmentSlotName}              PlayerInventory.cs ------- ref --------> EquipmentSlot.cs              {panelEquipments.EquipmentsSlots[i].name}");
-                        //9. az equipmnetSlot objektum komponense referál egy equipmnet változó item adatára
-                        panelEquipments.EquipmentsSlots[i].GetComponent<EquipmentSlot>().SetRootDataRoute(playerInventory.equipments.equipmentList[j],gameObject);
+                        Debug.Log($"({playerInventory.equipments.equipmentList[i].EquipmentSlotName})    PlayerInventory.cs ------- SetDataRoute --------> EquipmentSlot.cs  ({panelEquipments.EquipmentsSlots[i].name})         RootItem:{playerInventory.equipments.equipmentList[i].EquipmentItem.ItemName}  ");
                     }
+                    //9. az equipmnetSlot objektum komponense referál egy equipmnet változó item adatára
+                    panelEquipments.EquipmentsSlots[i].GetComponent<EquipmentSlot>().SetRootDataRoute(playerInventory.equipments.equipmentList[i], gameObject);
                 }
             }
         }

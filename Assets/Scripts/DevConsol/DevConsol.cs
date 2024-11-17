@@ -30,7 +30,6 @@ public class DevConsol : MonoBehaviour
                         {
                             case "item":
                                 Debug.Log($"{text.GetComponent<TMP_InputField>().text}");
-                                Debug.Log($"{Command[3]}");
                                 Item item = new Item(Command[3]);
                                 PlayerInventory.playerInventoryData.InventoryAdd(item);
                                 break;
@@ -47,8 +46,8 @@ public class DevConsol : MonoBehaviour
                                 };
                                 foreach (Item item_ in items00)
                                 {
-                                    Debug.Log(item_.ItemName);
-                                    Debug.Log($"{PlayerInventory.playerInventoryData==null}");
+                                    //Debug.Log(item_.ItemName);
+                                    //Debug.Log($"{PlayerInventory.playerInventoryData==null}");
                                     PlayerInventory.playerInventoryData.InventoryAdd(item_);
                                 }
                                 break;

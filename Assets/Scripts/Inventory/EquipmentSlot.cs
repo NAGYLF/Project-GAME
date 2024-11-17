@@ -97,7 +97,7 @@ public class EquipmentSlot : MonoBehaviour
         //EquipmentSlot.cs --> ItemObject.cs
         if (PartOfItemData.EquipmentItem != null)
         {
-            Debug.LogWarning($"{PartOfItemData.EquipmentItem.ItemName} EquipmentSlot.cs ------- ref --------> ItemObject.cs");
+            Debug.Log($"{PartOfItemData.EquipmentItem.ItemName} EquipmentSlot.cs ------- SetDataRoute --------> ItemObject.cs     (RootItemObject)");
             GameObject itemObject = new GameObject($"{PartOfItemData.EquipmentItem.ItemName}");
             itemObject.AddComponent<ItemObject>().SetDataRoute(PartOfItemData.EquipmentItem, gameObject);//item adatok itemobjektumba való adatátvitele//itemobjektum létrehozása
             PartOfItemObject = itemObject;

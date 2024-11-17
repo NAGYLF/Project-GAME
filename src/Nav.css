@@ -1,23 +1,46 @@
-/*Navbar*/
+/* Általános transition minden elemhez */
+* {
+  transition: all 0.5s ease;
+}
+
+/* Navbar */
 .custom-navbar {
   background: rgba(173, 216, 230, 0.7) url('./img/hatterkep.jfif') no-repeat center center;
   background-size: cover;
-  background-repeat: no-repeat;
+  background-blend-mode: hard-light;
   color: white;
+  box-shadow: 0px 5px 10px 1px rgba(255, 255, 255, 0.4);
+  
 }
 
 .nav-link {
   color: white !important;
 }
 
+.nav-link:hover {
+  color: #ddd !important;
+  transition: 0.5s;
+}
+
 .dropdown-menu {
   background-color: rgba(255, 255, 255, 0.8);
   padding: 0;
   border-radius: 15px;
+  transform: scale(0.95);
+  opacity: 0;
+  visibility: hidden;
+  transition: opacity 0.5s ease, transform 0.5s ease;
+}
+
+.dropdown-menu.show {
+  transform: scale(1);
+  opacity: 1;
+  visibility: visible;
 }
 
 .nav-item {
   margin-right: 20px;
+  text-align: center;
 }
 
 .d-flex {
@@ -30,70 +53,54 @@
   margin-left: 10px;
 }
 
-#pic{
-  background-color:rgb(255, 255, 255, 0);
+/* Profilkép */
+#pic {
+  background-color: rgba(255, 255, 255, 0);
 }
 
-#pic img{
+#pic img {
   border-radius: 50%;
   -webkit-user-drag: none;
 }
 
-a{
+/* Linkek */
+a {
   border-radius: 10px;
   cursor: pointer;
-  transition: 0.5s;
+  transition: background-color 0.5s, color 0.5s;
 }
 
-a:hover{
+a:hover {
   background-color: rgba(196, 196, 196, 0.5);
-  transition: 0.5s;
 }
 
-.btn:hover{
+.btn:hover {
   background-color: rgb(117, 39, 148);
   color: white;
-  transition: 0.5s;
+  transition: 0.6s;
 }
 
-.modal-content{
-  border: 2px solid rgba(211, 208, 208, 0.5)!important;
-  background-color: rgb(75, 73, 73, 0.2)!important;
-  box-shadow: 10px 10px 10px 20px rgb(117, 39, 148, 0.5);
+/* Modal */
+.modal-content {
+  border: 2px solid rgba(211, 208, 208, 0.5) !important;
+  background-color: rgba(75, 73, 73, 0.2) !important;
+  box-shadow: 5px 5px 10px 10px rgba(117, 39, 148, 0.5);
   user-select: none;
-  }
-  
-  .dropdown-item:hover{
-  background-color: rgb(117, 39, 148, 0.2)!important;
-  }
-
-  .nav-item{
-    text-align: center;
-  }
-
-@media (max-width: 1024px) {
-  .centered-div {
-      width: 80%;
-      height: auto;
-      padding: 20px;
-      font-size: 18px;
-  }
+  opacity: 0;
+  transform: translateY(+20px);
+  transition: opacity 0.5s ease, transform 0.5s ease;
 }
 
-@media (max-width: 768px) {
-  .centered-div {
-      width: 90%;
-      height: auto;
-      padding: 15px;
-      font-size: 16px;
-  }
+.modal.show .modal-content {
+  opacity: 1;
+  transform: translateY(0);
 }
 
-@media (max-width: 480px) {
-  .centered-div {
-      width: 95%;
-      height: auto;
-      padding: 10px;
-      font-size: 14px;
-  }
+/* Dropdown elemek */
+.dropdown-item {
+  transition: background-color 0.5s ease;
+}
+
+.dropdown-item:hover {
+  background-color: rgba(117, 39, 148, 0.2) !important;
 }

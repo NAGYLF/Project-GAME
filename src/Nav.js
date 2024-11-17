@@ -4,7 +4,7 @@ import './Nav.css'
 
 export default function Nav() {
 
-  const [isAdmin, setIsAdmin] = useState(false);
+  const [isAdmin, setIsAdmin] = useState(true);
   const [isLoggedIn, setIsLoggedIn] = useState(false);
 
   return (
@@ -64,7 +64,7 @@ export default function Nav() {
               </button>
               <ul className="dropdown-menu" aria-labelledby="dropdownMenuButton">
                 {isAdmin ? <li>
-                  <a className="dropdown-item" href="#settingsModal" data-bs-toggle="modal">
+                  <a className="dropdown-item" href="#adminModal" data-bs-toggle="modal">
                     Admin
                   </a>
                 </li> : ""}
@@ -217,40 +217,115 @@ export default function Nav() {
 
       {/* Beállítások Modal */}
       <div
-        className="modal fade"
-        id="settingsModal"
-        tabIndex="-1"
-        aria-labelledby="settingsModalLabel"
-        aria-hidden="true"
-      >
-        <div className="modal-dialog modal-dialog-centered">
-          <div className="modal-content">
-            <div className="modal-header">
-              <h5 className="modal-title" id="settingsModalLabel">Beállítások</h5>
-            </div>
-            <div className="modal-body">
-              <form>
-                <div className="mb-3">
-                  <label htmlFor="newName" className="form-label">Új név</label>
-                  <input type="text" className="form-control" id="newName" placeholder="Új név" />
-                </div>
-                <div className="mb-3">
-                  <label htmlFor="newEmail" className="form-label">Új email</label>
-                  <input type="email" className="form-control" id="newEmail" placeholder="Új email" />
-                </div>
-                <div className="mb-3">
-                  <label htmlFor="newPassword" className="form-label">Új jelszó</label>
-                  <input type="password" className="form-control" id="newPassword" placeholder="Új jelszó" />
-                </div>
-                <div className="d-flex justify-content-end">
-                  <a className="btn btn-primary" data-bs-dismiss="modal">Módosítás</a>
-                  <a className="btn btn-danger ms-2" data-bs-dismiss="modal">Töröl</a>
-                </div>
-              </form>
-            </div>
+  className="modal fade"
+  id="settingsModal"
+  tabIndex="-1"
+  aria-labelledby="settingsModalLabel"
+  aria-hidden="true"
+>
+  <div className="modal-dialog modal-dialog-centered">
+    <div className="modal-content">
+      <div className="modal-header">
+        <h5 className="modal-title" id="settingsModalLabel">Beállítások</h5>
+      </div>
+      <div className="modal-body">
+        <form>
+          <div className="mb-3">
+            <label htmlFor="newName" className="form-label">Új név</label>
+            <input type="text" className="form-control" id="newName" placeholder="Új név" />
+          </div>
+          <div className="mb-3">
+            <label htmlFor="newEmail" className="form-label">Új email</label>
+            <input type="email" className="form-control" id="newEmail" placeholder="Új email" />
+          </div>
+          <div className="mb-3">
+            <label htmlFor="newPassword" className="form-label">Új jelszó</label>
+            <input type="password" className="form-control" id="newPassword" placeholder="Új jelszó" />
+          </div>
+          <div className="d-flex justify-content-end">
+            <a className="btn btn-primary" data-bs-dismiss="modal">Módosítás</a>
+            <a
+              className="btn btn-danger ms-2"
+              data-bs-dismiss="modal"
+              onClick={() => {
+                if (window.confirm("Biztos törölni akarod?")) {
+                  console.log("Törlés megtörtént!");
+                } else {
+                  console.log("Törlés megszakítva.");
+                }
+              }}
+            >
+              Töröl
+            </a>
+          </div>
+        </form>
+      </div>
+    </div>
+  </div>
+</div>
+
+      {/* Admin Modal */}
+<div
+  className="modal fade"
+  id="adminModal"
+  tabIndex="-1"
+  aria-labelledby="adminModalLabel"
+  aria-hidden="true"
+>
+  <div className="modal-dialog modal-dialog-centered">
+    <div className="modal-content">
+      <div className="modal-header">
+        <h5 className="modal-title" id="adminModalLabel">Adminisztrációs Beállítások</h5>
+        <button
+          type="button"
+          className="btn-close"
+          data-bs-dismiss="modal"
+          aria-label="Close"
+        ></button>
+      </div>
+      <div className="modal-body">
+        <form>
+          {/* Debug mód beállítás */}
+          <div className="form-check mb-3">
+            <input
+              className="form-check-input"
+              type="checkbox"
+              id="debugMode"
+            />
+            <label className="form-check-label" htmlFor="debugMode">
+              Debug mód engedélyezése
+            </label>
+          </div>
+
+          {/* Új admin jelszó generálása */}
+              <div className="mb-3">
+                <label htmlFor="newAdminPassword" className="form-label">
+                  Új admin jelszó
+                </label>
+                <input
+                  type="text"
+                  className="form-control"
+                  id="newAdminPassword"
+                  placeholder="Generált jelszó itt fog megjelenni"
+                  readOnly
+                />
+              </div>
+              <button type="button" className="btn btn-secondary">
+                Jelszó generálása
+              </button>
+            </form>
+          </div>
+          <div className="modal-footer">
+            <a
+              className="btn btn-danger"
+              data-bs-dismiss="modal"
+            >
+              Bezárás
+            </a>
           </div>
         </div>
       </div>
+    </div>
     </nav>
   );
 }

@@ -1,120 +1,99 @@
 /*Navbar*/
 .custom-navbar {
-    background: rgba(173, 216, 230, 0.7) url('./img/hatterkep.jfif') no-repeat center center;
-    background-size: cover;
-    background-repeat: no-repeat;
-    color: white;
-  }
-  
-  .nav-link {
-    color: white !important;
-  }
-  
-  .dropdown-menu {
-    background-color: rgba(255, 255, 255, 0.8);
-  }
-  
-  .nav-item {
-    margin-right: 20px;
-  }
-  
-  .d-flex {
-    display: flex;
-    justify-content: flex-end;
-    align-items: center;
-  }
-  
-  .ms-2 {
-    margin-left: 10px;
-  }
-
-  #pic{
-    background-color:rgb(255, 255, 255, 0);
-  }
-
-  #pic img{
-    border-radius: 50%;
-    -webkit-user-drag: none;
-  }
-
-  a{
-    border-radius: 10px;
-    cursor: pointer;
-    transition: 0.5s;
-  }
-
-  a:hover{
-    background-color: rgba(196, 196, 196, 0.5);
-    transition: 0.5s;
-  }
-
-.btn:hover{
-    background-color:white;
-    transition: 0.5s;
-  }
-
-  /*Description*/
-  .centered-div {
-    position: fixed;
-    top: 50%;
-    left: 50%;
-    transform: translate(-50%, -50%);
-    width: 860px;
-    height: 600px;
-    border-radius: 2%;
-    padding: 25px;
-    background-color: rgba(83, 88, 90, 0.4);
-    color: white;
-    font-size: 20px;
-    box-sizing: border-box;
-    display: none;
-    border: 2px solid black;
+  background: rgba(173, 216, 230, 0.7) url('./img/hatterkep.jfif') no-repeat center center;
+  background-size: cover;
+  background-repeat: no-repeat;
+  color: white;
 }
 
+.nav-link {
+  color: white !important;
+}
+
+.dropdown-menu {
+  background-color: rgba(255, 255, 255, 0.8);
+  padding: 0;
+  border-radius: 15px;
+}
+
+.nav-item {
+  margin-right: 20px;
+}
+
+.d-flex {
+  display: flex;
+  justify-content: flex-end;
+  align-items: center;
+}
+
+.ms-2 {
+  margin-left: 10px;
+}
+
+#pic{
+  background-color:rgb(255, 255, 255, 0);
+}
+
+#pic img{
+  border-radius: 50%;
+  -webkit-user-drag: none;
+}
+
+a{
+  border-radius: 10px;
+  cursor: pointer;
+  transition: 0.5s;
+}
+
+a:hover{
+  background-color: rgba(196, 196, 196, 0.5);
+  transition: 0.5s;
+}
+
+.btn:hover{
+  background-color: rgb(117, 39, 148);
+  color: white;
+  transition: 0.5s;
+}
+
+.modal-content{
+  border: 2px solid rgba(211, 208, 208, 0.5)!important;
+  background-color: rgb(75, 73, 73, 0.2)!important;
+  box-shadow: 10px 10px 10px 20px rgb(117, 39, 148, 0.5);
+  user-select: none;
+  }
+  
+  .dropdown-item:hover{
+  background-color: rgb(117, 39, 148, 0.2)!important;
+  }
+
+  .nav-item{
+    text-align: center;
+  }
+
 @media (max-width: 1024px) {
-    .centered-div {
-        width: 80%;
-        height: auto;
-        padding: 20px;
-        font-size: 18px;
-    }
+  .centered-div {
+      width: 80%;
+      height: auto;
+      padding: 20px;
+      font-size: 18px;
+  }
 }
 
 @media (max-width: 768px) {
-    .centered-div {
-        width: 90%;
-        height: auto;
-        padding: 15px;
-        font-size: 16px;
-    }
+  .centered-div {
+      width: 90%;
+      height: auto;
+      padding: 15px;
+      font-size: 16px;
+  }
 }
 
 @media (max-width: 480px) {
-    .centered-div {
-        width: 95%;
-        height: auto;
-        padding: 10px;
-        font-size: 14px;
-    }
+  .centered-div {
+      width: 95%;
+      height: auto;
+      padding: 10px;
+      font-size: 14px;
+  }
 }
-
-.close-btn {
-    position: absolute;
-    top: 5px;
-    right: 5px;
-    font-size: 30px;
-    background: none;
-    border: none;
-    cursor: pointer;
-    color: white;
-}
-
-.close-btn:hover {
-    color: red;
-}
-
-
-
-
-
-

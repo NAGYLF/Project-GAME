@@ -20,6 +20,7 @@ using Weapons;
 using Backpacks;
 using Vests;
 using Armors;
+using UnityEngine.UIElements;
 
 
 namespace PlayerInventoryClass
@@ -210,6 +211,8 @@ namespace ItemHandler
         private Vector3 originalPosition;
         private Vector2 originalSize;
 
+        private float originalRotation;//ezt kivetelesen nem az onMouseDown eljarasban hasznaljuk hanem a placing eljaras azon else agaban amely a CanBePlacing false agan helyezkedik el.
+
         private Transform originalParent;
 
         private Vector2 originalPivot;
@@ -251,18 +254,20 @@ namespace ItemHandler
                 return false;
             }
         }
-        /*
-        public void Rotate(int deg)
+        
+        public void Rotation()
         {
-            switch (deg)
+            if (Input.GetKeyUp(KeyCode.R) && isDragging)
             {
-                case 0:
-
-                default:
-                    break;
+                ActualData.RotateDegree = transform.rotation.eulerAngles.z+90;
+                if (ActualData.RotateDegree == 360f)
+                {
+                    ActualData.RotateDegree = 0f;
+                }
+                transform.rotation = Quaternion.Euler(0, 0, ActualData.RotateDegree);
             }
         }
-        */
+        
         private void ObjectMovement()
         {
             if (isDragging)
@@ -283,6 +288,7 @@ namespace ItemHandler
             originalPivot = transform.GetComponent<RectTransform>().pivot;
             originalAnchorMin = transform.GetComponent<RectTransform>().anchorMin;
             originalAnchorMax = transform.GetComponent<RectTransform>().anchorMax;
+            originalRotation = ActualData.RotateDegree;
             #endregion
 
             #region Set Moveable position
@@ -451,6 +457,11 @@ namespace ItemHandler
                     }
                 }
             }
+            else
+            {
+                ActualData.RotateDegree = originalRotation;
+                SelfVisualisation();
+            }
         }
         private void Start()
         {
@@ -459,6 +470,7 @@ namespace ItemHandler
         private void Update()
         {
             ObjectMovement();
+            Rotation();
         }
         #region Data Synch
         public void DataIn(Item Data, GameObject VirtualChildObject)
@@ -566,11 +578,14 @@ namespace ItemHandler
                 gameObject.transform.SetParent(EquipmentSlot.transform.parent, false);//itemObj parent set
 
                 itemObjectRectTransform.localPosition = new Vector3(EquipmentSlot.localPosition.x, EquipmentSlot.localPosition.y, 0);
+                itemObjectRectTransform.sizeDelta = new Vector2(ActualData.SizeX * Main.DefaultItemSlotSize, ActualData.SizeY * Main.DefaultItemSlotSize);
                 itemObjectRectTransform.anchorMin = EquipmentSlot.anchorMin;
                 itemObjectRectTransform.anchorMax = EquipmentSlot.anchorMax;
                 itemObjectRectTransform.pivot = EquipmentSlot.pivot;
                 itemObjectRectTransform.offsetMin = Vector2.zero;
                 itemObjectRectTransform.offsetMax = Vector2.zero;
+
+                ActualData.RotateDegree = 0;
 
                 float Scale = Mathf.Min(itemObjectRectTransform.rect.height / itemObjectSpriteRedner.size.y, itemObjectRectTransform.rect.width / itemObjectSpriteRedner.size.x);
                 itemObjectSpriteRedner.size = new Vector2(itemObjectSpriteRedner.size.x * Scale, itemObjectSpriteRedner.size.y * Scale);
@@ -626,7 +641,7 @@ namespace ItemHandler
                 itemObjectRectTransform.pivot = new Vector2(0.5f, 0.5f);
                 itemObjectRectTransform.offsetMin = Vector2.zero;
                 itemObjectRectTransform.offsetMax = Vector2.zero;
-                itemObjectRectTransform.sizeDelta = newSize;
+                itemObjectRectTransform.sizeDelta = new Vector2(ActualData.SizeX*Main.DefaultItemSlotSize,ActualData.SizeY*Main.DefaultItemSlotSize);
                 itemObjectRectTransform.localPosition = (Vector3)((maxPos + minPos) / 2f);
 
                 // Új pozíció beállítása úgy, hogy a szülő lefedje az itemSlots összes elemét
@@ -639,7 +654,6 @@ namespace ItemHandler
             {
                 Debug.LogError($"{ActualData.ItemName}: non visualisation");
             }
-
             BoxCollider2D itemObjectBoxCollider2D;
             if (gameObject.GetComponent<BoxCollider2D>() == null)
             {
@@ -651,6 +665,8 @@ namespace ItemHandler
             }
             itemObjectBoxCollider2D.autoTiling = true;
             itemObjectBoxCollider2D.size = itemObjectRectTransform.rect.size;
+
+            transform.rotation = Quaternion.Euler(0, 0, ActualData.RotateDegree);
         }
     }
 
@@ -681,7 +697,7 @@ namespace ItemHandler
         public int SizeX { get; set; }
         public int SizeY { get; set; }
         public string ImgPath { get; set; }
-        //public int Rotated { get; set; }
+        public float RotateDegree { get; set; } = 0f;
         private void CopyProperties(Item source)
         {
             //altalanos adatok

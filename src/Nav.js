@@ -174,7 +174,7 @@ export default function Nav() {
                   <label htmlFor="password" className="form-label">Jelszó</label>
                   <input type="password" className="form-control" id="password" placeholder="Jelszó" />
                 </div>
-                <a onClick={() => setIsLoggedIn(true)} data-bs-dismiss="modal" className="btn btn-primary">Bejelentkezés</a>
+                <a onClick={() => setIsLoggedIn(true)} data-bs-dismiss="modal" className="btn btn-secondary">Bejelentkezés</a>
               </form>
             </div>
           </div>
@@ -208,7 +208,7 @@ export default function Nav() {
                   <label htmlFor="registerPassword" className="form-label">Jelszó</label>
                   <input type="password" className="form-control" id="registerPassword" placeholder="Jelszó" />
                 </div>
-                <a className="btn btn-primary" data-bs-dismiss="modal">Regisztráció</a>
+                <a className="btn btn-secondary" onClick={() => setIsLoggedIn(true)} data-bs-dismiss="modal">Regisztráció</a>
               </form>
             </div>
           </div>
@@ -243,7 +243,7 @@ export default function Nav() {
             <input type="password" className="form-control" id="newPassword" placeholder="Új jelszó" />
           </div>
           <div className="d-flex justify-content-end">
-            <a className="btn btn-primary" data-bs-dismiss="modal">Módosítás</a>
+            <a className="btn btn-secondary" data-bs-dismiss="modal">Módosítás</a>
             <a
               className="btn btn-danger ms-2"
               data-bs-dismiss="modal"

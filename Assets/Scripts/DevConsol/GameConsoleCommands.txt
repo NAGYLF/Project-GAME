@@ -17,6 +17,15 @@ add TestPlayer item TestArmor
 
 
 
+
+remove TestPlayer item TestHandgun
+
+
+
+
+
+
+
 add TestPlayer DevInventory
 
 

@@ -111,6 +111,23 @@ public class DevConsol : MonoBehaviour
                         break;
                 }
                 break;
+            case "remove":
+                switch (Command[1])
+                {
+                    case var _ when Command[1] == Main.name:
+                        switch (Command[2])
+                        {
+                            case "item":
+                                Debug.Log($"{text.GetComponent<TMP_InputField>().text}");
+                                Item item = new Item(Command[3]);
+                                PlayerInventory.playerInventoryData.InventoryRemove(item);
+                                break;
+                        }
+                        break;
+                    default:
+                        break;
+                }
+                break;
             case "Save":
                 playerInventory.equipments = PlayerInventory.playerInventoryData.equipments;
                 break;

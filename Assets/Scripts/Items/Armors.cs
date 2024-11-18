@@ -16,7 +16,7 @@ namespace Armors
                 ItemName = "TestArmor",
                 Description = "Ez egy Admin Armor, statjai a leheto legjobbak",
                 SizeX = 3,
-                SizeY = 4
+                SizeY = 4,
             };
         }
     }

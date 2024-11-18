@@ -7,8 +7,8 @@ using System.Linq;
 using UnityEngine;
 using UnityEngine.UI;
 using static MainData.SupportScripts;
-using static ItemHandler.ItemObject;
 using static PlayerInventoryClass.PlayerInventory;
+using static ItemObject;
 
 public class EquipmentSlot : MonoBehaviour
 {
@@ -101,7 +101,7 @@ public class EquipmentSlot : MonoBehaviour
             Debug.Log($"{PartOfItemData.EquipmentItem.ItemName} EquipmentSlot.cs ------- SetDataRoute --------> ItemObject.cs     (RootItemObject)");
             GameObject itemObject = CreatePrefab("GameElements/ItemObject");
             itemObject.name = PartOfItemData.EquipmentItem.ItemName;
-            itemObject.AddComponent<ItemObject>().SetDataRoute(PartOfItemData.EquipmentItem, gameObject);//item adatok itemobjektumba való adatátvitele//itemobjektum létrehozása
+            itemObject.GetComponent<ItemObject>().SetDataRoute(PartOfItemData.EquipmentItem, gameObject);//item adatok itemobjektumba való adatátvitele//itemobjektum létrehozása
             PartOfItemObject = itemObject;
         }
     }

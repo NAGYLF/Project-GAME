@@ -5,7 +5,7 @@ using System.Collections.Generic;
 using System.Linq;
 using Unity.VisualScripting;
 using UnityEngine;
-using static ItemHandler.ItemObject;
+using static ItemObject;
 
 public class SectorManager : MonoBehaviour
 {

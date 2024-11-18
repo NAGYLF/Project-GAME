@@ -36,7 +36,7 @@ namespace Weapons
                 {
                     // ez ugyan ugy fog kinezni mint a TestWeapon.Set() az az ez is egy páldány lesz
                     //nem kötelelző tartalom
-                }
+                },
             }; 
 
         }
@@ -71,7 +71,7 @@ namespace Weapons
                 {
                     // ez ugyan ugy fog kinezni mint a TestWeapon.Set() az az ez is egy páldány lesz
                     //nem kötelelző tartalom
-                }
+                },
             };
 
         }

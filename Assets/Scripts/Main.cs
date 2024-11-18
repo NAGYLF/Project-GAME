@@ -199,12 +199,13 @@ namespace MainData
     //továbbá eljárásokat melyek bármikor elérhetőknek kell, hogy legyenek pl:Save, Load
     internal static class Main
     {
-        public static int targetFPS = 60;
+        public const int targetFPS = 60;
         private static List<Item> InvetnoryElemetList;
         public static float DefaultHeight = 1080f;
         public static float DefaultWidth = 1920f;
-        public static float DefaultItemSlotSize = 10f;
-        public static float SectorScale = 0.5f;//ez az inventorySlotok scale-je ez befolyásolja egy item meretet is
+        public const float DefaultItemSlotSize = 10f;
+        public const float SectorScale = 0.5f;//ez az inventorySlotok scale-je ez befolyásolja egy item meretet is
+        public const float ItemCounterFontSize = 15f;
         public static void Save()
         {
 

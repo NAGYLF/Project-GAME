@@ -32,7 +32,18 @@ add TestPlayer DevInventory
 add TestPlayer 3xTestWeapon+TestBackPack
 
 
-add TestPlayer DevInventory_2xHandgun
+add TestPlayer DevInventory_2xHandgun_7.62x39FMJx10
+
+
+add TestPlayer _7.62x39FMJx600
+
+
+
+
+
+
+
+
 
 
 Save

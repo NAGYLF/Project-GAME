@@ -75,7 +75,7 @@ public class DevConsol : MonoBehaviour
                                     PlayerInventory.playerInventoryData.InventoryAdd(item_);
                                 }
                                 break;
-                             case "DevInventory_2xHandgun":
+                             case "DevInventory_2xHandgun_7.62x39FMJx10":
                                 Debug.Log($"{text.GetComponent<TMP_InputField>().text}");
                                 Item[] items02 = new Item[]
                                            {
@@ -95,8 +95,22 @@ public class DevConsol : MonoBehaviour
                                     new Item("TestSkin"),
                                     new Item("TestHandgun"),
                                     new Item("TestHandgun"),
+                                    new Item("7.62x39FMJ",10),
                                            };
                                 foreach (Item item_ in items02)
+                                {
+                                    Debug.Log(item_.ItemName);
+                                    Debug.Log($"{PlayerInventory.playerInventoryData == null}");
+                                    PlayerInventory.playerInventoryData.InventoryAdd(item_);
+                                }
+                                break;
+                            case "_7.62x39FMJx600":
+                                Debug.Log($"{text.GetComponent<TMP_InputField>().text}");
+                                Item[] items03 = new Item[]
+                                           {
+                                    new Item("7.62x39FMJ",600),
+                                           };
+                                foreach (Item item_ in items03)
                                 {
                                     Debug.Log(item_.ItemName);
                                     Debug.Log($"{PlayerInventory.playerInventoryData == null}");

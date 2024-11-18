@@ -19,7 +19,7 @@ namespace Backpacks
                 Description = "Ez egy Admin backpack, statjai a legjobbak",
                 SizeX = 2,//az item slotokban elfoglalt szelessege
                 SizeY = 3,//az item slotokban elfoglalt magassaga
-                Container = new Container("GameElements/ItemContainers/Backpacks/TestBackpack")//tárolási képességgel ruházza fel az itemet, mely során a SlotPanel-ben létrjön egy container prefab
+                Container = new Container("GameElements/ItemContainers/Backpacks/TestBackpack"),//tárolási képességgel ruházza fel az itemet, mely során a SlotPanel-ben létrjön egy container prefab
             };
 
         }

@@ -109,7 +109,7 @@ public class ContainerObject : MonoBehaviour
             if (itemObject != null)
             {
                 Debug.Log($"{ActualData.Container.Items[i] == null}     {gameObject == null}    {i}");
-                itemObject.AddComponent<ItemObject>().SetDataRoute(ActualData.Container.Items[i], gameObject);
+                itemObject.GetComponent<ItemObject>().SetDataRoute(ActualData.Container.Items[i], gameObject);
             }
             else
             {

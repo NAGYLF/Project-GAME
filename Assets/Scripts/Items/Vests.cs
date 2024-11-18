@@ -16,7 +16,7 @@ namespace Vests
                 ItemName = "TestVest",//nev azonosito
                 Description = "Ez egy Admin Vest, statjai a leheto legjobbak",
                 SizeX = 3,//az item slotokban elfoglalt szelessege
-                SizeY = 4,//az item slotokban elfoglalt magassaga
+                SizeY = 3,//az item slotokban elfoglalt magassaga
                 Container = new Container("GameElements/ItemContainers/Vests/TestVest")//tárolási képességgel ruházza fel az itemet, mely során a SlotPanel-ben létrjön egy container prefab
             };
 

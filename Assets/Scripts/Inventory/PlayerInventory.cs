@@ -52,11 +52,11 @@ namespace PlayerInventoryClass
             {
                 //1.az equpmentek adatlistáját pédányosítjuk
                 equipmentList = new List<EquipmnetStruct>();
-                Transform transform = Resources.Load<GameObject>("GameElements/Equipment-Inventory").transform;
-                for (int i = 0; i < transform.childCount; i++)
+                PanelEquipments equipmentPanel = Resources.Load<GameObject>("GameElements/Equipment-Inventory").GetComponent<PanelEquipments>();
+                for (int i = 0; i < equipmentPanel.EquipmentsSlots.Length; i++)
                 {
                     //2. az equipment adatlistát feltöltjük az erőre megalkotot prefab adataival, továbbá létrehoz egy ures item példányt
-                    equipmentList.Add(new EquipmnetStruct(transform.GetChild(i).GetComponent<EquipmentSlot>().SlotName, transform.GetChild(i).GetComponent<EquipmentSlot>().SlotType, null));
+                    equipmentList.Add(new EquipmnetStruct(equipmentPanel.EquipmentsSlots[i].GetComponent<EquipmentSlot>().SlotName, equipmentPanel.EquipmentsSlots[i].GetComponent<EquipmentSlot>().SlotType, null));
                 }
             }
         }
@@ -596,15 +596,8 @@ namespace ItemHandler
         #endregion
         private void SelfVisualisation()//ha az item equipment slotban van
         {
-            Rigidbody2D itemObjectRigibody2D;
-            if (gameObject.GetComponent<Rigidbody2D>() == null)
-            {
-                itemObjectRigibody2D = gameObject.AddComponent<Rigidbody2D>();
-            }
-            else
-            {
-                itemObjectRigibody2D = gameObject.GetComponent<Rigidbody2D>();
-            }
+            Rigidbody2D itemObjectRigibody2D = gameObject.GetComponent<Rigidbody2D>();
+            
             itemObjectRigibody2D.mass = 0;
             itemObjectRigibody2D.drag = 0;
             itemObjectRigibody2D.angularDrag = 0;
@@ -612,25 +605,9 @@ namespace ItemHandler
             itemObjectRigibody2D.constraints = RigidbodyConstraints2D.FreezeAll;
             itemObjectRigibody2D.bodyType = RigidbodyType2D.Static;
 
-            RectTransform itemObjectRectTransform;
-            if (gameObject.GetComponent<RectTransform>() == null)
-            {
-                itemObjectRectTransform = gameObject.AddComponent<RectTransform>();
-            }
-            else
-            {
-                itemObjectRectTransform = gameObject.GetComponent<RectTransform>();
-            }
+            RectTransform itemObjectRectTransform = gameObject.GetComponent<RectTransform>();
 
-            SpriteRenderer itemObjectSpriteRedner;
-            if (gameObject.GetComponent<SpriteRenderer>() == null)
-            {
-                itemObjectSpriteRedner = gameObject.AddComponent<SpriteRenderer>();
-            }
-            else
-            {
-                itemObjectSpriteRedner = gameObject.GetComponent<SpriteRenderer>();
-            }
+            SpriteRenderer itemObjectSpriteRedner = gameObject.GetComponent<SpriteRenderer>();
             itemObjectSpriteRedner.sprite = Resources.Load<Sprite>(gameObject.GetComponent<ItemObject>().ActualData.ImgPath);//az itemobjektum megkapja képét
             itemObjectSpriteRedner.drawMode = SpriteDrawMode.Sliced;
 
@@ -718,15 +695,7 @@ namespace ItemHandler
             {
                 Debug.LogError($"{ActualData.ItemName}: non visualisation");
             }
-            BoxCollider2D itemObjectBoxCollider2D;
-            if (gameObject.GetComponent<BoxCollider2D>() == null)
-            {
-                itemObjectBoxCollider2D = gameObject.AddComponent<BoxCollider2D>();
-            }
-            else
-            {
-                itemObjectBoxCollider2D = gameObject.GetComponent<BoxCollider2D>();
-            }
+            BoxCollider2D itemObjectBoxCollider2D = gameObject.GetComponent<BoxCollider2D>();
             itemObjectBoxCollider2D.autoTiling = true;
             itemObjectBoxCollider2D.size = itemObjectRectTransform.rect.size;
 

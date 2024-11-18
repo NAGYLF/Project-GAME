@@ -6,6 +6,7 @@ using System.Collections.Generic;
 using System.Linq;
 using UnityEngine;
 using UnityEngine.UI;
+using static MainData.SupportScripts;
 using static ItemHandler.ItemObject;
 using static PlayerInventoryClass.PlayerInventory;
 
@@ -98,7 +99,8 @@ public class EquipmentSlot : MonoBehaviour
         if (PartOfItemData.EquipmentItem != null)
         {
             Debug.Log($"{PartOfItemData.EquipmentItem.ItemName} EquipmentSlot.cs ------- SetDataRoute --------> ItemObject.cs     (RootItemObject)");
-            GameObject itemObject = new GameObject($"{PartOfItemData.EquipmentItem.ItemName}");
+            GameObject itemObject = CreatePrefab("GameElements/ItemObject");
+            itemObject.name = PartOfItemData.EquipmentItem.ItemName;
             itemObject.AddComponent<ItemObject>().SetDataRoute(PartOfItemData.EquipmentItem, gameObject);//item adatok itemobjektumba való adatátvitele//itemobjektum létrehozása
             PartOfItemObject = itemObject;
         }

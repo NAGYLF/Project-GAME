@@ -7,8 +7,7 @@ using Assets.Scripts;
 using System.Linq;
 using System;
 using static PlayerInventoryVisualBuild.PlayerInventoryVisual;
-using System.Reflection;
-using Unity.VisualScripting;
+using static MainData.SupportScripts;
 
 
 public class ContainerObject : MonoBehaviour
@@ -105,7 +104,8 @@ public class ContainerObject : MonoBehaviour
         for (int i = 0; i < ActualData.Container.Items.Count; i++)
         {
             Debug.Log($"{ActualData.Container.Items[i].ItemName} creating into {ActualData.ItemName}'s container");
-            GameObject itemObject = new GameObject(ActualData.Container.Items[i].ItemName);
+            GameObject itemObject = CreatePrefab("GameElements/ItemObject");
+            itemObject.name = ActualData.Container.Items[i].ItemName;
             if (itemObject != null)
             {
                 Debug.Log($"{ActualData.Container.Items[i] == null}     {gameObject == null}    {i}");

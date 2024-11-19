@@ -10,24 +10,27 @@ public class InGameUI : MonoBehaviour
     [SerializeField] private Vector3 offset;
     [SerializeField] private float damping;
 
-    public Vector2 InGameUISize = new Vector2(192,108);
-
-    public Transform target;
+    public Transform target;//pl player
     public Camera CameraObject;
 
     private Vector3 vel = Vector3.zero;
-
 
     private bool DevConsolOpen = false;
     private GameObject DevConsole;
 
     private void Awake()
     {
-        Main.DefaultHeight = InGameUISize.y;
-        Main.DefaultWidth = InGameUISize.x;
-        gameObject.GetComponent<RectTransform>().sizeDelta = new Vector2(Main.DefaultWidth, Main.DefaultHeight);
-        gameObject.GetComponent<RectTransform>().transform.localPosition = new Vector3(Main.DefaultWidth,Main.DefaultHeight,-8);
-        CameraObject.orthographicSize = gameObject.GetComponent<RectTransform>().sizeDelta.y / 2f;//ha szukseges a camera manualis meretezese
+        float cameraHeight = CameraObject.orthographicSize * 2f;
+        float cameraWidth = cameraHeight * CameraObject.aspect;
+
+        Main.DefaultWidth = cameraWidth;
+        Main.DefaultHeight = cameraHeight;
+
+        // Objektum méretei (a kamera méreteihez igazítva)
+        RectTransform rectTransform = gameObject.GetComponent<RectTransform>();
+        gameObject.GetComponent<RectTransform>().anchoredPosition = Vector2.zero;
+        rectTransform.sizeDelta = new Vector2(cameraWidth, cameraHeight);
+        rectTransform.localPosition = Vector3.zero;
     }
     private void FixedUpdate()
     {
@@ -52,8 +55,6 @@ public class InGameUI : MonoBehaviour
             DevConsolOpen = true;
             DevConsole = CreatePrefab("GameElements/DevConsole");
             DevConsole.transform.SetParent(transform);
-            DevConsole.GetComponent<RectTransform>().transform.localPosition = new Vector3(Main.DefaultWidth, Main.DefaultHeight,0);
-
         }
     }
 }

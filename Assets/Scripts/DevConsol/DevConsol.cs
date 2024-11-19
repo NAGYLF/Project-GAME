@@ -12,10 +12,12 @@ public class DevConsol : MonoBehaviour
     public GameObject text;
 
     private static PlayerInventory playerInventory = new PlayerInventory();
-    //add [playerName] Item [itemName]
+    //add [playerName] item [itemName] [Count]
     private void Start()
     {
-        gameObject.GetComponent<RectTransform>().localPosition = new Vector3(0, 0, gameObject.GetComponent<RectTransform>().localPosition.z);
+        RectTransform rectTransform = gameObject.GetComponent<RectTransform>();
+        rectTransform.localPosition = Vector3.zero;
+        rectTransform.sizeDelta = new Vector2(Main.DefaultWidth,Main.DefaultHeight);
     }
     public void Consol()
     {
@@ -31,6 +33,10 @@ public class DevConsol : MonoBehaviour
                             case "item":
                                 Debug.Log($"{text.GetComponent<TMP_InputField>().text}");
                                 Item item = new Item(Command[3]);
+                                if (Command.Length==5)
+                                {
+                                    item.Quantity = int.Parse(Command[4]);
+                                }
                                 PlayerInventory.playerInventoryData.InventoryAdd(item);
                                 break;
                             case "DevInventory":
@@ -75,7 +81,7 @@ public class DevConsol : MonoBehaviour
                                     PlayerInventory.playerInventoryData.InventoryAdd(item_);
                                 }
                                 break;
-                             case "DevInventory_2xHandgun_7.62x39FMJx10":
+                             case "DevInventory_2xHandgun":
                                 Debug.Log($"{text.GetComponent<TMP_InputField>().text}");
                                 Item[] items02 = new Item[]
                                            {
@@ -95,7 +101,6 @@ public class DevConsol : MonoBehaviour
                                     new Item("TestSkin"),
                                     new Item("TestHandgun"),
                                     new Item("TestHandgun"),
-                                    new Item("7.62x39FMJ",10),
                                            };
                                 foreach (Item item_ in items02)
                                 {

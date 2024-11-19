@@ -30,10 +30,6 @@ using Melees;
 using Ammunition;
 using Assets.Scripts.Inventory;
 
-/*
- képes legyen rotatelni ha ugy elfer az objektum ezzel pedig hozzadni egy containerhez.
- * */
-
 namespace PlayerInventoryClass
 {
     public class PlayerInventory : MonoBehaviour
@@ -104,7 +100,7 @@ namespace PlayerInventoryClass
             //4. ha nincs elmentett inventory akkor az eddig letrehozott ures inventory adatát a fő publikus playerInventoryData változó megkapja
             InventoryUpdate();
         }
-        private void InventoryUpdate()
+        private void InventoryUpdate()//??? szügségtelennek tünik mégis mindenhonnani törlése problémát okoz.
         {
             playerInventoryData = this;
         }
@@ -219,8 +215,8 @@ namespace PlayerInventoryClass
                 {
                     Debug.LogWarning($"item: {item.ItemName} cannot added, probably no space for that");
                 }
-                InventoryUpdate();
             }
+            InventoryUpdate();
         }
         public void InventoryRemove(Item item)//pocitciot és rogatast figyelmen kivul hagy     ,    csak 1 db tavolit el
         {
@@ -233,20 +229,51 @@ namespace PlayerInventoryClass
                 {
                     if (equipments.equipmentList[equpmentIndex].EquipmentItem != null && equipments.equipmentList[equpmentIndex].EquipmentItem.Container != null)//ha az equipmnetnek nincs containerje akkor kihadjuk
                     {
-                        for (int i = 0; i < equipments.equipmentList[equpmentIndex].EquipmentItem.Container.Sectors.Length && !ItemRemoved; i++)
+                        for (int sectorIndex = 0; sectorIndex < equipments.equipmentList[equpmentIndex].EquipmentItem.Container.Sectors.Length && !ItemRemoved; sectorIndex++)
                         {
-                            for (int Row = 0; Row < equipments.equipmentList[equpmentIndex].EquipmentItem.Container.Sectors[i].GetLength(0); Row++)
+                            for (int Row = 0; Row < equipments.equipmentList[equpmentIndex].EquipmentItem.Container.Sectors[sectorIndex].GetLength(0) && !ItemRemoved; Row++)
                             {
-                                for (int Col = 0; Col < equipments.equipmentList[equpmentIndex].EquipmentItem.Container.Sectors[i].GetLength(1); Col++)
+                                for (int Col = 0; Col < equipments.equipmentList[equpmentIndex].EquipmentItem.Container.Sectors[sectorIndex].GetLength(1) && !ItemRemoved; Col++)
                                 {
-                                    if (equipments.equipmentList[equpmentIndex].EquipmentItem.Container.Sectors[i][Row, Col].PartOfItemData != null && equipments.equipmentList[equpmentIndex].EquipmentItem.Container.Sectors[i][Row, Col].PartOfItemData.GetSlotUseId().Contains(equipments.equipmentList[equpmentIndex].EquipmentItem.Container.Sectors[i][Row, Col].name))
+                                    if (equipments.equipmentList[equpmentIndex].EquipmentItem.Container.Sectors[sectorIndex][Row, Col].PartOfItemData != null && equipments.equipmentList[equpmentIndex].EquipmentItem.Container.Sectors[sectorIndex][Row, Col].PartOfItemData.ItemName == item.ItemName)
                                     {
-                                        if (!ItemRemoved)
+                                        equipments.equipmentList[equpmentIndex].EquipmentItem.Container.Sectors[sectorIndex][Row, Col].PartOfItemData.Quantity -= item.Quantity;
+                                        int count = 0;
+                                        if (equipments.equipmentList[equpmentIndex].EquipmentItem.Container.Sectors[sectorIndex][Row, Col].PartOfItemData.Quantity > 0)
                                         {
-                                            equipments.equipmentList[equpmentIndex].EquipmentItem.Container.Items.RemoveAt(equipments.equipmentList[equpmentIndex].EquipmentItem.Container.Items.FindIndex(item => item.SlotUse.Contains(equipments.equipmentList[equpmentIndex].EquipmentItem.Container.Sectors[i][Row, Col].name)));
-                                            ItemRemoved = true;
+                                            ItemRemoved = true;//csak menyiseget törlünk
                                         }
-                                        equipments.equipmentList[equpmentIndex].EquipmentItem.Container.Sectors[i][Row, Col].PartOfItemData = null;
+                                        else if (equipments.equipmentList[equpmentIndex].EquipmentItem.Container.Sectors[sectorIndex][Row, Col].PartOfItemData.Quantity == 0)
+                                        {
+                                            ItemRemoved = true;
+                                            equipments.equipmentList[equpmentIndex].EquipmentItem.Container.Items.RemoveAt(equipments.equipmentList[equpmentIndex].EquipmentItem.Container.Items.FindIndex(item => item.SlotUse.Contains(equipments.equipmentList[equpmentIndex].EquipmentItem.Container.Sectors[sectorIndex][Row, Col].name)));
+                                            
+                                            Item RefItem = equipments.equipmentList[equpmentIndex].EquipmentItem.Container.Sectors[sectorIndex][Row, Col].PartOfItemData;
+
+                                            foreach (ItemSlot itemSlot in equipments.equipmentList[equpmentIndex].EquipmentItem.Container.Sectors[sectorIndex])
+                                            {
+                                                if (RefItem.GetSlotUseId().Contains(itemSlot.name))
+                                                {
+                                                    itemSlot.PartOfItemData = null;
+                                                }
+                                            }
+                                        }
+                                        else
+                                        {
+                                            count = Math.Abs(equipments.equipmentList[equpmentIndex].EquipmentItem.Container.Sectors[sectorIndex][Row, Col].PartOfItemData.Quantity);
+                                            item.Quantity = count;
+                                            equipments.equipmentList[equpmentIndex].EquipmentItem.Container.Items.RemoveAt(equipments.equipmentList[equpmentIndex].EquipmentItem.Container.Items.FindIndex(item => item.SlotUse.Contains(equipments.equipmentList[equpmentIndex].EquipmentItem.Container.Sectors[sectorIndex][Row, Col].name)));
+                                            
+                                            Item RefItem = equipments.equipmentList[equpmentIndex].EquipmentItem.Container.Sectors[sectorIndex][Row, Col].PartOfItemData;
+
+                                            foreach (ItemSlot itemSlot in equipments.equipmentList[equpmentIndex].EquipmentItem.Container.Sectors[sectorIndex])
+                                            {
+                                                if (RefItem.GetSlotUseId().Contains(itemSlot.name))
+                                                {
+                                                    itemSlot.PartOfItemData = null;
+                                                }
+                                            }
+                                        }
                                     }
                                 }
                             }
@@ -257,6 +284,7 @@ namespace PlayerInventoryClass
                 {
                     Debug.LogWarning($"item: {item.ItemName} cannot removed, probably the item doesn't exist");
                 }
+                
             }
             if (!ItemRemoved)
             {
@@ -272,10 +300,7 @@ namespace PlayerInventoryClass
                     }
                 }
             }
-        }
-        public void InventoryRemove(Item item,int count)//pocitciot és rogatast figyelmen kivul hagy
-        {
-
+            InventoryUpdate();
         }
         private bool CanBePlace(ItemSlot[,] slots, int Y, int X, Item item)
         {

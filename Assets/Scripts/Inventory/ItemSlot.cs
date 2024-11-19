@@ -4,9 +4,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using UnityEngine;
-using UnityEngine.SceneManagement;
 using UnityEngine.UI;
-using UnityEngine.Video;
 using ItemHandler;
 
 namespace Assets.Scripts
@@ -22,16 +20,27 @@ namespace Assets.Scripts
         [SerializeField] private string partofitem;
         public GameObject PartOfItemObject;
         public GameObject ActualPartOfItemObject;//ezt vizualizációkor kapja és továbbiakban a vizualizációban lesz fumciója az iteomobjectum azonosításban
+        public bool CoundAddAvaiable = false;
+        public GameObject MergeableObject;
 
         private Color color;
         private void OnCollisionEnter2D(Collision2D collision)
         {
-            if ((PartOfItemObject == null || PartOfItemObject.GetInstanceID() == collision.gameObject.GetInstanceID()) && (SlotType == "" || SlotType.Contains(collision.gameObject.GetComponent<ItemObject>().ActualData.ItemType)))
+            if (PartOfItemObject == null || (PartOfItemObject.GetInstanceID() == collision.gameObject.GetInstanceID()) && (SlotType == "" || SlotType.Contains(collision.gameObject.GetComponent<ItemObject>().ActualData.ItemType)))
             {
                 ActualPartOfItemObject = collision.gameObject;
                 Sector.GetComponent<SectorManager>().activeSlots.Add(gameObject);
                 color = gameObject.GetComponent<Image>().color;
                 gameObject.GetComponent<Image>().color = Color.yellow;
+            }
+            else if (PartOfItemObject != null && PartOfItemObject.GetComponent<ItemObject>().ActualData.ItemName == collision.gameObject.GetComponent<ItemObject>().ActualData.ItemName && PartOfItemObject.GetComponent<ItemObject>().ActualData.Quantity != PartOfItemObject.GetComponent<ItemObject>().ActualData.MaxStackSize)
+            {
+                ActualPartOfItemObject = collision.gameObject;
+                color = gameObject.GetComponent<Image>().color;
+                gameObject.GetComponent<Image>().color = Color.yellow;
+                CoundAddAvaiable = true;
+                MergeableObject = ActualPartOfItemObject;
+                Sector.GetComponent<SectorManager>().activeSlots.Add(gameObject);
             }
             else
             {
@@ -42,11 +51,14 @@ namespace Assets.Scripts
         }
         private void OnCollisionExit2D(Collision2D collision)
         {
-            if (!(PartOfItemObject != null && PartOfItemObject.GetInstanceID() != collision.gameObject.GetInstanceID()))
+            /*if (!(PartOfItemObject != null && PartOfItemObject.GetInstanceID() != collision.gameObject.GetInstanceID()))
             {
-                ActualPartOfItemObject = null;
-                Sector.GetComponent<SectorManager>().activeSlots.Remove(gameObject);
-            }
+                ??? miert lehetett eddig erre szukség ha nélküle is jo ???
+            }*/
+            ActualPartOfItemObject = null;
+            Sector.GetComponent<SectorManager>().activeSlots.Remove(gameObject);
+            CoundAddAvaiable = false;
+            MergeableObject = null;
             gameObject.GetComponent<Image>().color = color;
         }
         private void Update()

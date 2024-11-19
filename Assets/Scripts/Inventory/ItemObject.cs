@@ -73,7 +73,6 @@ public class ItemObject : MonoBehaviour
             transform.rotation = Quaternion.Euler(0, 0, ActualData.RotateDegree);
         }
     }
-
     private void ObjectMovement()
     {
         if (isDragging)
@@ -145,7 +144,7 @@ public class ItemObject : MonoBehaviour
         itemObjectSpriteRedner.size = new Vector2(itemObjectSpriteRedner.size.x * Scale, itemObjectSpriteRedner.size.y * Scale);
         #endregion
 
-        #region unSet Targeting Mode 
+        #region unSet Targeting Mode
         gameObject.GetComponent<Rigidbody2D>().bodyType = RigidbodyType2D.Static;
         transform.GetComponent<BoxCollider2D>().size = transform.GetComponent<RectTransform>().rect.size;
         #endregion
@@ -160,6 +159,25 @@ public class ItemObject : MonoBehaviour
     }
     private void Placing(bool placementCanStart)
     {
+        if (placer.activeItemSlots.Exists(slot=>slot.GetComponent<ItemSlot>() != null && slot.GetComponent<ItemSlot>().CoundAddAvaiable))
+        {
+            GameObject MergeObject = placer.activeItemSlots.Find(slot => slot.GetComponent<ItemSlot>().CoundAddAvaiable).GetComponent<ItemSlot>().PartOfItemObject;
+            int count = MergeObject.GetComponent<ItemObject>().ActualData.Quantity;
+            MergeObject.GetComponent<ItemObject>().ActualData.Quantity += ActualData.Quantity;
+            if (MergeObject.GetComponent<ItemObject>().ActualData.Quantity > MergeObject.GetComponent<ItemObject>().ActualData.MaxStackSize)
+            {
+                MergeObject.GetComponent<ItemObject>().ActualData.Quantity = MergeObject.GetComponent<ItemObject>().ActualData.MaxStackSize;
+                ActualData.Quantity -= (ActualData.Quantity - count);
+                MergeObject.GetComponent<ItemObject>().SelfVisualisation();
+                SelfVisualisation();
+                placementCanStart = false;
+            }
+            else
+            {
+                placementCanStart = false;
+                SelfDestruction();
+            }
+        }
         if (placementCanStart)
         {
             Debug.Log(placer.activeItemSlots.Count);
@@ -281,6 +299,18 @@ public class ItemObject : MonoBehaviour
         Rotation();
     }
     #region Data Synch
+    public void SelfDestruction()//egy gombal hivhatod meg.
+    {
+        if (VirtualParentObject.GetComponent<EquipmentSlot>() != null)
+        {
+            VirtualParentObject.GetComponent<EquipmentSlot>().DataOut(ActualData, gameObject);
+        }
+        else
+        {
+            VirtualParentObject.GetComponent<ContainerObject>().DataOut(ActualData, gameObject);
+        }
+        Destroy(gameObject);
+    }
     public void DataIn(Item Data, GameObject VirtualChildObject)
     {
         ActualData = Data;

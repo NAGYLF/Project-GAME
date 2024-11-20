@@ -23,10 +23,10 @@ public class EquipmentSlot : MonoBehaviour
     public string SlotName;
     
     [SerializeField] private string partofitem;
-    public GameObject ActualPartOfItemObject;//ezt vizualizációkor kapja és továbbiakban a vizualizációban lesz fumciója az iteomobjectum azonosításban
     private Color color;
     public GameObject Title;
 
+    public GameObject ActualPartOfItemObject;//ezt vizualizációkor kapja és továbbiakban a vizualizációban lesz fumciója az iteomobjectum azonosításban
     [HideInInspector] public List<GameObject> activeSlots;
     [HideInInspector] public GameObject PlaceableObject;
     private PlacerStruct placer;
@@ -47,10 +47,6 @@ public class EquipmentSlot : MonoBehaviour
     }
     private void OnCollisionExit2D(Collision2D collision)
     {
-        /*if (!(PartOfItemObject != null && PartOfItemObject.GetInstanceID() != collision.gameObject.GetInstanceID()))
-        {
-      az itemslotjéhoz hasonlóan
-        }*/
         ActualPartOfItemObject = null;
         activeSlots.Remove(gameObject);
         gameObject.GetComponent<Image>().color = color;
@@ -72,7 +68,7 @@ public class EquipmentSlot : MonoBehaviour
             PlaceableObject.GetComponent<ItemObject>().placer = placer;
         }
     }
-    public void DataOut(Item Data, GameObject VirtualChildObject)
+    public void DataOut(Item Data)
     {
         PartOfItemData.EquipmentItem = null;//az actual data a gyökér adatokban modositja az adatokat ezert tovabbi szinkronizaciora nincs szukseg
         PartOfItemObject = null;

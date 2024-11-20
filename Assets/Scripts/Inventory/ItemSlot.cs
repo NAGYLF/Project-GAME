@@ -17,11 +17,10 @@ namespace Assets.Scripts
                                  //ekkor az item ellenorzi, hogy a tergetek egy sectorba tartoznak e.
 
         public Item PartOfItemData;//ezt adatként kaphatja meg
-        [SerializeField] private string partofitem;
+        [SerializeField] private string partofitem;//csak testeléshez kell
         public GameObject PartOfItemObject;
         public GameObject ActualPartOfItemObject;//ezt vizualizációkor kapja és továbbiakban a vizualizációban lesz fumciója az iteomobjectum azonosításban
         public bool CoundAddAvaiable = false;
-        public GameObject MergeableObject;
 
         private Color color;
         private void OnCollisionEnter2D(Collision2D collision)
@@ -39,7 +38,6 @@ namespace Assets.Scripts
                 color = gameObject.GetComponent<Image>().color;
                 gameObject.GetComponent<Image>().color = Color.yellow;
                 CoundAddAvaiable = true;
-                MergeableObject = ActualPartOfItemObject;
                 Sector.GetComponent<SectorManager>().activeSlots.Add(gameObject);
             }
             else
@@ -51,14 +49,9 @@ namespace Assets.Scripts
         }
         private void OnCollisionExit2D(Collision2D collision)
         {
-            /*if (!(PartOfItemObject != null && PartOfItemObject.GetInstanceID() != collision.gameObject.GetInstanceID()))
-            {
-                ??? miert lehetett eddig erre szukség ha nélküle is jo ???
-            }*/
-            ActualPartOfItemObject = null;
             Sector.GetComponent<SectorManager>().activeSlots.Remove(gameObject);
+            ActualPartOfItemObject = null;
             CoundAddAvaiable = false;
-            MergeableObject = null;
             gameObject.GetComponent<Image>().color = color;
         }
         private void Update()

@@ -24,7 +24,7 @@ public class ContainerObject : MonoBehaviour
     {
         DataLoad();
     }
-    public void DataOut(Item Data, GameObject VirtualChildrenObject)
+    public void DataOut(Item Data)
     {
         int index = ActualData.Container.Items.FindIndex(elem => elem.GetSlotUseId() == Data.GetSlotUseId());
         ActualData.Container.Items.RemoveAt(index);
@@ -38,9 +38,24 @@ public class ContainerObject : MonoBehaviour
                 }
             }
         }
-        VirtualParentObject.GetComponent<ItemObject>().DataUpdate(ActualData,gameObject);
+        VirtualParentObject.GetComponent<ItemObject>().DataUpdate(ActualData);
     }
-
+    public void DataIn(Item Data)
+    {
+        Data.SetSlotUseId();
+        ActualData.Container.Items.Add(Data);
+        foreach (ItemSlot[,] sector in ActualData.Container.Sectors)
+        {
+            foreach (ItemSlot itemSlot in sector)
+            {
+                if (Data.GetSlotUseId().Contains(itemSlot.name))
+                {
+                    itemSlot.PartOfItemData = Data;
+                }
+            }
+        }
+        VirtualParentObject.GetComponent<ItemObject>().DataUpdate(ActualData);
+    }
     //a megváltozott itemobjektum szikronizálja uj adatait parentobjektumával ki nem változott meg.
     public void DataUpdate(Item Data, GameObject VirtualChildrenObject)//csak itemobjektum hivhatja meg
     {
@@ -69,23 +84,7 @@ public class ContainerObject : MonoBehaviour
         }
         ActualData.Container.Items[index] = Data;
         VirtualChildrenObject.GetComponent<ItemObject>().ActualData.SetSlotUseId();
-        VirtualParentObject.GetComponent<ItemObject>().DataUpdate(ActualData,gameObject);
-    }
-    public void DataIn(Item Data, GameObject VirtualChildrenObject)
-    {
-        Data.SetSlotUseId();
-        ActualData.Container.Items.Add(Data);
-        foreach (ItemSlot[,] sector in ActualData.Container.Sectors)
-        {
-            foreach (ItemSlot itemSlot in sector)
-            {
-                if (Data.GetSlotUseId().Contains(itemSlot.name))
-                {
-                    itemSlot.PartOfItemData = Data;
-                }
-            }
-        }
-        VirtualParentObject.GetComponent<ItemObject>().DataUpdate(ActualData,gameObject);
+        VirtualParentObject.GetComponent<ItemObject>().DataUpdate(ActualData);
     }
     public void SetDataRoute(Item Data,GameObject VirtualParentObject)
     {

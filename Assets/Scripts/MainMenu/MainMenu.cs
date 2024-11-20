@@ -23,16 +23,12 @@ public class MainMenu : MonoBehaviour
         secondMenu = GameObject.Find("SecondMenu");
         secondMenu.SetActive(false);
 
-
         DatabaseManager manager = new DatabaseManager();
         StartCoroutine(manager.ServerConnection());
-
-
     }
 
     private IEnumerator StartFadeOutScreen(VideoPlayer videoPlayer,GameObject fadeOutScreen)
     {
-
         float startVolume = videoPlayer.GetDirectAudioVolume(0); ; // Kezdõ hangerõ
         float elapsedTime = 0f;
 
@@ -47,8 +43,6 @@ public class MainMenu : MonoBehaviour
         {
             Debug.LogError("Image component not found!");
         }
-
-
 
         while (elapsedTime < fadeDuration)
         {
@@ -66,7 +60,6 @@ public class MainMenu : MonoBehaviour
         videoPlayer.SetDirectAudioVolume(0,0);
         image.color = new Color(0, 0, 0, 255);
         SceneManager.LoadScene("NewGameCutScene");
-
     }
 
     public void NewGameBt()
@@ -75,7 +68,6 @@ public class MainMenu : MonoBehaviour
         {
             VideoPlayer videoPlayer = GameObject.FindWithTag("VideoPlayerMainMenu").GetComponent<VideoPlayer>();
             GameObject fadeOutScreen = GameObject.Find("FadeOutScreen");
-
 
             if (videoPlayer != null)
             {
@@ -93,9 +85,6 @@ public class MainMenu : MonoBehaviour
             Debug.LogError("The New game wasn't started because the user hadn't logined");
             secondMenu.SetActive(true);
         }
-
-
-          
     }
     public void OptionsBt()
     {

@@ -11,18 +11,20 @@ namespace Assets.Scripts
 { 
     public class ItemSlot : MonoBehaviour
     {
-        public string SlotType;//azon tipusok melyeket befogadhat, ha nincs megadva akkor mindent.
-        [HideInInspector] public GameObject Sector;//a saját sectora ezzel végezteti az adatszinkronizációt és a az item elhelyezés azon problemajat,
-                                 //hogyha nem egy szektoron belün, de egyszere anyi itemcontainer kerülne targetba ami eleglenne az item tarolasakor,
-                                 //ekkor az item ellenorzi, hogy a tergetek egy sectorba tartoznak e.
 
-        public Item PartOfItemData;//ezt adatként kaphatja meg
-        [SerializeField] private string partofitem;//csak testeléshez kell
-        public GameObject PartOfItemObject;
+        [HideInInspector] public GameObject Sector;//a saját sectora ezzel végezteti az adatszinkronizációt és a az item elhelyezés azon problemajat,
+                                                   //hogyha nem egy szektoron belün, de egyszere anyi itemcontainer kerülne targetba ami eleglenne az item tarolasakor,
+                                                   //ekkor az item ellenorzi, hogy a tergetek egy sectorba tartoznak e.
+        public string SlotType;//azon tipusok melyeket befogadhat, ha nincs megadva akkor mindent.
+
+        #region  Runtime Instantiated Objects Datas
+        public GameObject PartOfItemObject;//ezen értéket egy itemslot egy item vizualizációjakor kellene hogy kapjon
         public GameObject ActualPartOfItemObject;//ezt vizualizációkor kapja és továbbiakban a vizualizációban lesz fumciója az iteomobjectum azonosításban
         public bool CoundAddAvaiable = false;
-
         private Color color;
+        #endregion
+        //!!!  felesleges bonyolultág megszüntetése (opcionális) a   public Item PartOfItemData;  változó csak viruális adatrendszerben szükséges de létező gameobjektumban nem használatos
+        //még public GameObject PartOfItemObject; ennek ellentéte. ez utóbbi változót egy slot mindig egy item SelfVisualisation eljarasaban kapja meg. !!!
         private void OnCollisionEnter2D(Collision2D collision)
         {
             if (PartOfItemObject == null || (PartOfItemObject.GetInstanceID() == collision.gameObject.GetInstanceID()) && (SlotType == "" || SlotType.Contains(collision.gameObject.GetComponent<ItemObject>().ActualData.ItemType)))
@@ -53,17 +55,6 @@ namespace Assets.Scripts
             ActualPartOfItemObject = null;
             CoundAddAvaiable = false;
             gameObject.GetComponent<Image>().color = color;
-        }
-        private void Update()
-        {
-            if (PartOfItemData != null)
-            {
-                partofitem = PartOfItemData.ItemName;
-            }
-            else
-            {
-                partofitem = "ures";
-            }
         }
     }
 }

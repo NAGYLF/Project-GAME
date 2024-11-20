@@ -18,9 +18,7 @@ public class Player : MonoBehaviour
     {
         moveSpeed = PlayerMovementSpeed;
         Objectrigidbody = GetComponent<Rigidbody2D>();
-        gameObject.AddComponent<PlayerInventory>();
     }
-
     private void Update()
     {
         if (PlayerMovmentOnline)
@@ -34,7 +32,6 @@ public class Player : MonoBehaviour
         {
             Movement();//mozgas
         }
-
     }
     private void Movement()
     {

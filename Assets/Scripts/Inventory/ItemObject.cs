@@ -184,7 +184,7 @@ public class ItemObject : MonoBehaviour
                     }
                 }
             }
-            else if (placer.activeItemSlots.Count == ActualData.SizeY * ActualData.SizeX)//egy specialis objektumlétrehozási folyamat
+            else if (placer.activeItemSlots.Count == ActualData.SizeY * ActualData.SizeX)//egy specialis objektumlétrehozási folyamat ez akkor lép érvénybe ha üres slotba kerül az item
             {
                 Item item = new Item(ActualData.ItemName, SplitedCount.larger);
                 item.SlotUse = new string[placer.activeItemSlots.Count];
@@ -249,7 +249,6 @@ public class ItemObject : MonoBehaviour
                             if (ActualData.SlotUse.Contains(containerObject.SectorManagers[sector].GetComponent<SectorManager>().ItemSlots[slot].GetComponent<ItemSlot>().name))
                             {
                                 containerObject.SectorManagers[sector].GetComponent<SectorManager>().ItemSlots[slot].GetComponent<ItemSlot>().PartOfItemObject = null;
-                                containerObject.SectorManagers[sector].GetComponent<SectorManager>().ItemSlots[slot].GetComponent<ItemSlot>().PartOfItemData = null;
                             }
                         }
                     }
@@ -312,7 +311,6 @@ public class ItemObject : MonoBehaviour
                             {
                                 //ezen uj slot része lesz az itemobjektumnak és annak adatának      illetve hozzáadjuk az itemslot listához
                                 containerObject.SectorManagers[sector].GetComponent<SectorManager>().ItemSlots[slot].GetComponent<ItemSlot>().PartOfItemObject = gameObject;
-                                containerObject.SectorManagers[sector].GetComponent<SectorManager>().ItemSlots[slot].GetComponent<ItemSlot>().PartOfItemData = ActualData;
                                 itemSlots.Add(containerObject.SectorManagers[sector].GetComponent<SectorManager>().ItemSlots[slot]);
                             }
                             //ha ezen iterált slot nem része az aktív slotoknak       de része az item actualdata-jának       az azt jelenti, hogy ez egy régi slot az itemobjektumnak
@@ -320,7 +318,6 @@ public class ItemObject : MonoBehaviour
                             {
                                 //ezt a slotot megfosztjuk az itemobjektumtól és annak adatától
                                 containerObject.SectorManagers[sector].GetComponent<SectorManager>().ItemSlots[slot].GetComponent<ItemSlot>().PartOfItemObject = null;
-                                containerObject.SectorManagers[sector].GetComponent<SectorManager>().ItemSlots[slot].GetComponent<ItemSlot>().PartOfItemData = null;
                             }
                         }
                     }

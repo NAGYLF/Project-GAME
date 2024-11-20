@@ -4,6 +4,8 @@ using System.Collections.Generic;
 using UnityEngine;
 using PlayerInventoryVisualBuild;
 using static MainData.SupportScripts;
+using PlayerInventoryClass;
+using System;
 
 public class InGameUI : MonoBehaviour
 {
@@ -15,11 +17,21 @@ public class InGameUI : MonoBehaviour
 
     private Vector3 vel = Vector3.zero;
 
-    private bool DevConsolOpen = false;
-    private GameObject DevConsole;
-
+    #region UI Metods
+    OpenCloseUI DevConsol;
+    OpenCloseUI PlayerInventory;
+    #endregion
     private void Awake()
     {
+        #region UI Metods Builds
+        DevConsol = new OpenCloseUI(DevConsoleOpen,DevConsoleClose);
+        PlayerInventory = new OpenCloseUI(PlayerInventoryOpen,PlayerInventoryClose);
+        #endregion
+
+        gameObject.AddComponent<PlayerInventory>();
+
+        Application.targetFrameRate = Main.targetFPS;
+
         float cameraHeight = CameraObject.orthographicSize * 2f;
         float cameraWidth = cameraHeight * CameraObject.aspect;
 
@@ -39,22 +51,84 @@ public class InGameUI : MonoBehaviour
 
         transform.position = Vector3.SmoothDamp(transform.position,targetPosition,ref vel,damping);
     }
-    private void Update()
+    #region DevConsole UI parts
+    GameObject DevConsoleObject = null;
+    private void DevConsoleOpen()
     {
-        OpenCloseDevConsole();
+        DevConsoleObject = CreatePrefab("GameElements/DevConsole");
+        DevConsoleObject.transform.SetParent(transform);
     }
-    private void OpenCloseDevConsole()
+    private void DevConsoleClose()
     {
-        if (Input.GetKeyDown(KeyCode.F1) && DevConsolOpen)
+        Destroy(DevConsoleObject);
+    }
+    #endregion
+
+    #region PlayerInventory UI parts
+    private void PlayerInventoryOpen()
+    {
+        gameObject.GetComponent<PlayerInventoryVisual>().OpenInventory();
+    }
+    private void PlayerInventoryClose()
+    {
+        gameObject.GetComponent<PlayerInventoryVisual>().CloseInventory();
+    }
+    #endregion
+    private void OnGUI()
+    {
+        if (Event.current != null && Event.current.type == EventType.KeyDown)
         {
-            DevConsolOpen = false;
-            Destroy(DevConsole);
+            switch (Event.current.keyCode)
+            {
+                case KeyCode.F1:
+                    DevConsol.Action();
+                    break;
+                case KeyCode.Tab:
+                    PlayerInventory.Action();
+                    break;
+                default:
+                    break;
+            }
         }
-        else if (Input.GetKeyDown(KeyCode.F1) && !DevConsolOpen)
+    }
+}
+
+class OpenCloseUI
+{
+    private static List<OpenCloseUI> allInstances = new List<OpenCloseUI>();
+
+    private Action open;
+    private Action close;
+    private bool Status;
+    public void Action()
+    {
+        foreach (var instance in allInstances)
         {
-            DevConsolOpen = true;
-            DevConsole = CreatePrefab("GameElements/DevConsole");
-            DevConsole.transform.SetParent(transform);
+            if (instance == this)
+            {
+                if (Status)
+                {
+                    instance.open.Invoke();
+                    Status = false;
+                }
+                else
+                {
+                    instance.close.Invoke();
+                    Status = true;
+                }
+            }
+            else
+            {
+                instance.close.Invoke();
+                instance.Status = true;
+            }
         }
+    }
+    public OpenCloseUI(Action open, Action close)
+    {
+        this.open = open;
+        this.close = close;
+        this.Status = true;
+        allInstances.Add(this);
     }
 }

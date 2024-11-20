@@ -7,12 +7,19 @@ add TestPlayer item TestHandgun
 add TestPlayer item TestBackpack
 
 
-
-
 add TestPlayer item TestVest
 
 
 add TestPlayer item TestArmor
+
+
+add TestPlayer item 7.62x39FMJ 35
+
+add TestPlayer item 7.62x39FMJ 85
+
+
+remove TestPlayer item TestHandgun
+
 
 
 
@@ -23,3 +30,24 @@ add TestPlayer DevInventory
 
 
 add TestPlayer 3xTestWeapon+TestBackPack
+
+
+add TestPlayer DevInventory_2xHandgun
+
+
+add TestPlayer _7.62x39FMJx600
+
+
+
+
+
+
+
+
+
+
+Save
+
+Clear
+
+Load

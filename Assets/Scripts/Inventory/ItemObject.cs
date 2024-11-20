@@ -134,8 +134,6 @@ public class ItemObject : MonoBehaviour
         isDragging = false;
         #endregion
 
-
-
         Placing(CanBePlace());
     }
     private (int smaller, int larger) SplitInteger(int number)
@@ -215,8 +213,8 @@ public class ItemObject : MonoBehaviour
             MergeObject.GetComponent<ItemObject>().ActualData.Quantity += ActualData.Quantity;
             if (MergeObject.GetComponent<ItemObject>().ActualData.Quantity > MergeObject.GetComponent<ItemObject>().ActualData.MaxStackSize)
             {
+                ActualData.Quantity = MergeObject.GetComponent<ItemObject>().ActualData.Quantity - MergeObject.GetComponent<ItemObject>().ActualData.MaxStackSize;
                 MergeObject.GetComponent<ItemObject>().ActualData.Quantity = MergeObject.GetComponent<ItemObject>().ActualData.MaxStackSize;
-                ActualData.Quantity -= (ActualData.Quantity - count);
                 MergeObject.GetComponent<ItemObject>().SelfVisualisation();
                 SelfVisualisation();
                 placementCanStart = false;

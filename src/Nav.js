@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 import Kep from './img/profilkep.jpg';
+import Arpi from './img/arpi.png'; 
 import './Nav.css'
 
 export default function Nav() {
@@ -136,7 +137,7 @@ export default function Nav() {
                     consectetur magna eu dui ultricies, sed tincidunt tortor consectetur.</p>
                 </div>
                 <div className="col-md-4">
-                  <h1>Veller Árpád</h1>
+                  <h1><img src={Arpi} style={{width: '30px', height: '30px', borderRadius: '50%'}}></img>Veller Árpád</h1>
                   <p>Aenean vel orci et purus faucibus consectetur. Nulla facilisi. Nulla
                     consectetur magna eu dui ultricies, sed tincidunt tortor consectetur.</p>
                 </div>

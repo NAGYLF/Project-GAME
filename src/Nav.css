@@ -37,6 +37,10 @@
   visibility: visible;
 }
 
+.navbar-toggler-icon {
+  background-color: #5d5a5a;
+}
+
 .nav-item {
   margin-right: 20px;
   text-align: center;

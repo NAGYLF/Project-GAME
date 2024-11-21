@@ -15,3 +15,9 @@ html{
     background-image: url('./img/hatterkep1.png');
   }
 }
+
+@media (max-width: 768px) {
+  html background {
+    background-position: center;
+  }
+}

@@ -1,3 +1,9 @@
+
+
+
+#----------------Add Items--------------------#
+
+
 add TestPlayer item TestWeapon
 
 
@@ -10,21 +16,56 @@ add TestPlayer item TestBackpack
 add TestPlayer item TestVest
 
 
-add TestPlayer item TestArmor
+add TestPlayer item TestHelmet
+
+
+add TestPlayer item TestBoots
+
+
+add TestPlayer item TestFingers
+
+
+add TestPlayer item TestHeadset
+
+
+add TestPlayer item TestMask
+
+
+add TestPlayer item TestSkin
+
+
+add TestPlayer item TestPant
+
+
+add TestPlayer item TestMelee
+
+
+#----------------Add ammo--------------------#
 
 
 add TestPlayer item 7.62x39FMJ 35
 
 add TestPlayer item 7.62x39FMJ 85
 
+add TestPlayer item 7.62x39FMJ 60
+
+add TestPlayer item 7.62x39FMJ 113
+
+
+
+
+#----------------Remove Items--------------------#
 
 remove TestPlayer item TestHandgun
 
+remove TestPlayer item 7.62x39FMJ 113
 
 
 
 
 
+
+#----------------Test Dev Commands--------------------#
 
 add TestPlayer DevInventory
 
@@ -38,16 +79,38 @@ add TestPlayer DevInventory_2xHandgun
 add TestPlayer _7.62x39FMJx600
 
 
-
-
-
-
-
-
-
+#----------------Virtual Inventory Commands--------------------#
 
 Save
 
 Clear
 
 Load
+
+
+
+
+#----------------Player Bar Commands--------------------#
+
+TestPlayer Healt 60
+
+
+TestPlayer Healt -60
+
+
+TestPlayer Stamina 60
+
+
+TestPlayer Stamina -60
+
+
+TestPlayer Hunger 60
+
+
+TestPlayer Hunger -60
+
+
+TestPlayer Thirst 60
+
+
+TestPlayer Thirst -60

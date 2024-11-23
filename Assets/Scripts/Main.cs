@@ -14,6 +14,7 @@ using UnityEngine.UI;
 using TMPro;
 using ItemHandler;
 using PlayerInventoryVisualBuild;
+using UnityEngine.SceneManagement;
 
 //test
 namespace MainData
@@ -176,10 +177,6 @@ namespace MainData
                     ProfileBTStyle();
                     Main.logged = true;
                 }
-
-
-
-
             }
             else
             {
@@ -190,7 +187,6 @@ namespace MainData
         {
 
         }
-
     }
     #endregion
 
@@ -252,6 +248,9 @@ namespace MainData
                 return null;
             }
         }
+        public static void SceneChange(string sceneName)
+        {
+            SceneManager.LoadScene(sceneName);
+        }
     }
-
 }

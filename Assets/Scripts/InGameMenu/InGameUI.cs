@@ -6,9 +6,20 @@ using PlayerInventoryVisualBuild;
 using static MainData.SupportScripts;
 using PlayerInventoryClass;
 using System;
+using Unity.VisualScripting;
+using UnityEngine.UI;
 
 public class InGameUI : MonoBehaviour
 {
+    #region UI objects
+    public GameObject InGameMenuObject;
+    public GameObject HealtBar;
+    public GameObject StaminaBar;
+    public GameObject HungerBar;
+    public GameObject ThirstBar;
+    GameObject DevConsoleObject = null;
+    #endregion
+
     [SerializeField] private Vector3 offset;
     [SerializeField] private float damping;
 
@@ -18,14 +29,19 @@ public class InGameUI : MonoBehaviour
     private Vector3 vel = Vector3.zero;
 
     #region UI Metods
-    OpenCloseUI DevConsol;
-    OpenCloseUI PlayerInventory;
+    public static OpenCloseUI DevConsol;
+    public static OpenCloseUI PlayerInventory;
+    public static OpenCloseUI InGameMenu;
     #endregion
     private void Awake()
     {
+        OpenCloseUI.Refress();//mivel statikus a valtoto ezert ami statiku az az alkalmazás egész futása alatt létezik, ezert ha én törlöm ezt a jelenetet és ujra betoltom
+                              //atol meg a regi gameobject refernciával bíró action tipusú változó eljarasai nem törlõdnek csak ujjak addolódnak hozzá. ezert töröljük õket
+
         #region UI Metods Builds
         DevConsol = new OpenCloseUI(DevConsoleOpen,DevConsoleClose);
         PlayerInventory = new OpenCloseUI(PlayerInventoryOpen,PlayerInventoryClose);
+        InGameMenu = new OpenCloseUI(InGameMenuOpen,InGameMenuClose);
         #endregion
 
         gameObject.AddComponent<PlayerInventory>();
@@ -39,23 +55,22 @@ public class InGameUI : MonoBehaviour
         Main.DefaultHeight = cameraHeight;
 
         // Objektum méretei (a kamera méreteihez igazítva)
-        RectTransform rectTransform = gameObject.GetComponent<RectTransform>();
-        gameObject.GetComponent<RectTransform>().anchoredPosition = Vector2.zero;
-        rectTransform.sizeDelta = new Vector2(cameraWidth, cameraHeight);
-        rectTransform.localPosition = Vector3.zero;
+        gameObject.GetComponent<RectTransform>().position = CameraObject.transform.position;
+        gameObject.GetComponent<RectTransform>().sizeDelta = new Vector2(cameraWidth, cameraHeight);
     }
     private void FixedUpdate()
     {
-        Vector3 targetPosition = target.position +offset;
+        Vector3 targetPosition = target.position + offset;
         targetPosition.z = transform.position.z;
 
         transform.position = Vector3.SmoothDamp(transform.position,targetPosition,ref vel,damping);
     }
     #region DevConsole UI parts
-    GameObject DevConsoleObject = null;
     private void DevConsoleOpen()
     {
         DevConsoleObject = CreatePrefab("GameElements/DevConsole");
+        DevConsoleObject.GetComponent<DevConsol>().Player = target.gameObject;
+        DevConsoleObject.GetComponent<DevConsol>().inventory = gameObject;
         DevConsoleObject.transform.SetParent(transform);
     }
     private void DevConsoleClose()
@@ -74,6 +89,17 @@ public class InGameUI : MonoBehaviour
         gameObject.GetComponent<PlayerInventoryVisual>().CloseInventory();
     }
     #endregion
+
+    #region InGameMenu parts
+    private void InGameMenuOpen()
+    {
+        InGameMenuObject.SetActive(true);
+    }
+    private void InGameMenuClose()
+    {
+        InGameMenuObject.SetActive(false);
+    }
+    #endregion
     private void OnGUI()
     {
         if (Event.current != null && Event.current.type == EventType.KeyDown)
@@ -86,14 +112,34 @@ public class InGameUI : MonoBehaviour
                 case KeyCode.Tab:
                     PlayerInventory.Action();
                     break;
+                case KeyCode.Escape:
+                    InGameMenu.Action();
+                    break;
                 default:
                     break;
             }
         }
     }
+
+    public void SetHealtBar(float count)
+    {
+        HealtBar.GetComponent<Slider>().value = count;
+    }
+    public void SetStaminatBar(float count)
+    {
+        StaminaBar.GetComponent<Slider>().value = count;
+    }
+    public void SetHungerBar(float count)
+    {
+        HungerBar.GetComponent<Slider>().value = count;
+    }
+    public void SetThirstBar(float count)
+    {
+        ThirstBar.GetComponent<Slider>().value = count;
+    }
 }
 
-class OpenCloseUI
+public class OpenCloseUI
 {
     private static List<OpenCloseUI> allInstances = new List<OpenCloseUI>();
 
@@ -123,6 +169,10 @@ class OpenCloseUI
                 instance.Status = true;
             }
         }
+    }
+    public static void Refress()
+    {
+        allInstances.Clear();
     }
     public OpenCloseUI(Action open, Action close)
     {

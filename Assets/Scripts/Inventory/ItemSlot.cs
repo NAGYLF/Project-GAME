@@ -47,7 +47,6 @@ namespace Assets.Scripts
                 color = gameObject.GetComponent<Image>().color;
                 gameObject.GetComponent<Image>().color = Color.red;
             }
-
         }
         private void OnCollisionExit2D(Collision2D collision)
         {

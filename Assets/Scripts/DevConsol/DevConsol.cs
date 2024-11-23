@@ -7,11 +7,14 @@ using PlayerInventoryVisualBuild;
 using ItemHandler;
 using PlayerInventoryClass;
 using UnityEditor;
+using Newtonsoft.Json.Linq;
+using System;
 public class DevConsol : MonoBehaviour
 {
     public GameObject text;
-
-    private static PlayerInventory playerInventory = new PlayerInventory();
+    [HideInInspector] private PlayerInventory playerInventory;
+    [HideInInspector] public GameObject inventory;
+    [HideInInspector] public GameObject Player;
     //add [playerName] item [itemName] [Count]
     private void Start()
     {
@@ -37,7 +40,7 @@ public class DevConsol : MonoBehaviour
                                 {
                                     item.Quantity = int.Parse(Command[4]);
                                 }
-                                PlayerInventory.playerInventoryData.InventoryAdd(item);
+                                inventory.GetComponent<PlayerInventory>().InventoryAdd(item);
                                 break;
                             case "DevInventory":
                                 Debug.Log($"{text.GetComponent<TMP_InputField>().text}");
@@ -62,7 +65,7 @@ public class DevConsol : MonoBehaviour
                                 {
                                     //Debug.Log(item_.ItemName);
                                     //Debug.Log($"{PlayerInventory.playerInventoryData==null}");
-                                    PlayerInventory.playerInventoryData.InventoryAdd(item_);
+                                    inventory.GetComponent<PlayerInventory>().InventoryAdd(item_);
                                 }
                                 break;
                             case "3xTestWeapon+TestBackPack":
@@ -77,11 +80,11 @@ public class DevConsol : MonoBehaviour
                                 foreach (Item item_ in items01)
                                 {
                                     Debug.Log(item_.ItemName);
-                                    Debug.Log($"{PlayerInventory.playerInventoryData == null}");
-                                    PlayerInventory.playerInventoryData.InventoryAdd(item_);
+                                    Debug.Log($"{inventory.GetComponent<PlayerInventory>() == null}");
+                                    inventory.GetComponent<PlayerInventory>().InventoryAdd(item_);
                                 }
                                 break;
-                             case "DevInventory_2xHandgun":
+                            case "DevInventory_2xHandgun":
                                 Debug.Log($"{text.GetComponent<TMP_InputField>().text}");
                                 Item[] items02 = new Item[]
                                            {
@@ -105,8 +108,8 @@ public class DevConsol : MonoBehaviour
                                 foreach (Item item_ in items02)
                                 {
                                     Debug.Log(item_.ItemName);
-                                    Debug.Log($"{PlayerInventory.playerInventoryData == null}");
-                                    PlayerInventory.playerInventoryData.InventoryAdd(item_);
+                                    Debug.Log($"{inventory.GetComponent<PlayerInventory>() == null}");
+                                    inventory.GetComponent<PlayerInventory>().InventoryAdd(item_);
                                 }
                                 break;
                             case "_7.62x39FMJx600":
@@ -118,8 +121,8 @@ public class DevConsol : MonoBehaviour
                                 foreach (Item item_ in items03)
                                 {
                                     Debug.Log(item_.ItemName);
-                                    Debug.Log($"{PlayerInventory.playerInventoryData == null}");
-                                    PlayerInventory.playerInventoryData.InventoryAdd(item_);
+                                    Debug.Log($"{inventory.GetComponent<PlayerInventory>() == null}");
+                                    inventory.GetComponent<PlayerInventory>().InventoryAdd(item_);
                                 }
                                 break;
                             default:
@@ -139,7 +142,11 @@ public class DevConsol : MonoBehaviour
                             case "item":
                                 Debug.Log($"{text.GetComponent<TMP_InputField>().text}");
                                 Item item = new Item(Command[3]);
-                                PlayerInventory.playerInventoryData.InventoryRemove(item);
+                                if (Command.Length > 4)
+                                {
+                                    item.Quantity = int.Parse(Command[4]);
+                                }
+                                inventory.GetComponent<PlayerInventory>().InventoryRemove(item);
                                 break;
                         }
                         break;
@@ -148,13 +155,71 @@ public class DevConsol : MonoBehaviour
                 }
                 break;
             case "Save":
-                playerInventory.equipments = PlayerInventory.playerInventoryData.equipments;
+                Debug.Log($"{text.GetComponent<TMP_InputField>().text}");
+                playerInventory.equipments = inventory.GetComponent<PlayerInventory>().equipments;
                 break;
             case "Clear":
-                PlayerInventory.playerInventoryData.equipments = new PlayerInventory.Equipmnets();
+                Debug.Log($"{text.GetComponent<TMP_InputField>().text}");
+                inventory.GetComponent<PlayerInventory>().equipments = new PlayerInventory.Equipmnets();
                 break;
             case "Load":
-                PlayerInventory.playerInventoryData.equipments = playerInventory.equipments;
+                Debug.Log($"{text.GetComponent<TMP_InputField>().text}");
+                inventory.GetComponent<PlayerInventory>().equipments = playerInventory.equipments;
+                break;
+            case var _ when Command[0] == Main.name:
+                switch (Command[1])
+                {
+                    case "Healt":
+                        Debug.Log($"{text.GetComponent<TMP_InputField>().text}");
+                        float value = float.Parse(Command[2]);
+                        if (value > 0)
+                        {
+                            Player.GetComponent<Player>().HealtUp(value);
+                        }
+                        else if (value < 0)
+                        {
+                            Player.GetComponent<Player>().HealtDown(Math.Abs(value));
+                        }
+                        break;
+                    case "Stamina":
+                        Debug.Log($"{text.GetComponent<TMP_InputField>().text}");
+                        float value1 = float.Parse(Command[2]);
+                        if (value1 > 0)
+                        {
+                            Player.GetComponent<Player>().StaminaUp(value1);
+                        }
+                        else if (value1 < 0)
+                        {
+                            Player.GetComponent<Player>().StaminaDown(Math.Abs(value1));
+                        }
+                        break;
+                    case "Hunger":
+                        Debug.Log($"{text.GetComponent<TMP_InputField>().text}");
+                        float value2 = float.Parse(Command[2]);
+                        if (value2 > 0)
+                        {
+                            Player.GetComponent<Player>().HungerUp(value2);
+                        }
+                        else if (value2 < 0)
+                        {
+                            Player.GetComponent<Player>().HungerDown(Math.Abs(value2));
+                        }
+                        break;
+                    case "Thirst":
+                        Debug.Log($"{text.GetComponent<TMP_InputField>().text}");
+                        float value3 = float.Parse(Command[2]);
+                        if (value3 > 0)
+                        {
+                            Player.GetComponent<Player>().ThirstUp(value3);
+                        }
+                        else if (value3 < 0)
+                        {
+                            Player.GetComponent<Player>().ThirstDown(Math.Abs(value3));
+                        }
+                        break;
+                    default:
+                        break;
+                }
                 break;
             default:
                 break;

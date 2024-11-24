@@ -14,6 +14,7 @@ using UnityEngine.UI;
 using TMPro;
 using ItemHandler;
 using PlayerInventoryVisualBuild;
+using UnityEngine.SceneManagement;
 
 //test
 namespace MainData
@@ -176,10 +177,6 @@ namespace MainData
                     ProfileBTStyle();
                     Main.logged = true;
                 }
-
-
-
-
             }
             else
             {
@@ -190,7 +187,6 @@ namespace MainData
         {
 
         }
-
     }
     #endregion
 
@@ -201,8 +197,8 @@ namespace MainData
     {
         public const int targetFPS = 60;
         private static List<Item> InvetnoryElemetList;
-        public static float DefaultHeight = 1080f;
-        public static float DefaultWidth = 1920f;
+        public static float DefaultHeight = 0f;//az InGameUI allija be
+        public static float DefaultWidth = 0f;//az InGameUI allija be
         public const float DefaultItemSlotSize = 10f;
         public const float SectorScale = 0.5f;//ez az inventorySlotok scale-je ez befolyásolja egy item meretet is
         public const float ItemCounterFontSize = 15f;
@@ -252,6 +248,9 @@ namespace MainData
                 return null;
             }
         }
+        public static void SceneChange(string sceneName)
+        {
+            SceneManager.LoadScene(sceneName);
+        }
     }
-
 }

@@ -8,6 +8,8 @@ using System.Linq;
 using static MainData.SupportScripts;
 using static PlayerInventoryVisualBuild.PlayerInventoryVisual;
 using TMPro;
+using System;
+using Unity.VisualScripting;
 
 public class ItemObject : MonoBehaviour
 {
@@ -22,7 +24,7 @@ public class ItemObject : MonoBehaviour
     private Vector2 originalAnchorMin;
     private Vector2 originalAnchorMax;
     private float originalRotation;//ezt kivetelesen nem az onMouseDown eljarasban hasznaljuk hanem a placing eljaras azon else agaban amely a CanBePlacing false agan helyezkedik el.
-    List<GameObject> itemSlots { get; set; }
+    List<GameObject> itemSlots { get; set; }//az itemlsotok pillanatnyi eltarolasara van szükség
 
     private bool isDragging = false;
     public PlacerStruct placer { private get; set; }
@@ -58,30 +60,6 @@ public class ItemObject : MonoBehaviour
         else
         {
             return false;
-        }
-    }
-
-    public void Rotation()
-    {
-        if (Input.GetKeyUp(KeyCode.R) && isDragging)
-        {
-            ActualData.RotateDegree = transform.rotation.eulerAngles.z + 90;
-            if (ActualData.RotateDegree == 360f)
-            {
-                ActualData.RotateDegree = 0f;
-            }
-            transform.rotation = Quaternion.Euler(0, 0, ActualData.RotateDegree);
-        }
-    }
-
-    private void ObjectMovement()
-    {
-        if (isDragging)
-        {
-            // Az egér pozíciójának lekérése a világkoordináta rendszerben
-            Vector3 mousePosition = Camera.main.ScreenToWorldPoint(Input.mousePosition);
-            // Az objektum új pozíciójának beállítása (csak az X és Y, hogy a Z tengely ne változzon)
-            transform.position = new Vector3(mousePosition.x, mousePosition.y, transform.position.z);
         }
     }
     private void OnMouseDown()
@@ -145,7 +123,7 @@ public class ItemObject : MonoBehaviour
         itemObjectSpriteRedner.size = new Vector2(itemObjectSpriteRedner.size.x * Scale, itemObjectSpriteRedner.size.y * Scale);
         #endregion
 
-        #region unSet Targeting Mode 
+        #region unSet Targeting Mode
         gameObject.GetComponent<Rigidbody2D>().bodyType = RigidbodyType2D.Static;
         transform.GetComponent<BoxCollider2D>().size = transform.GetComponent<RectTransform>().rect.size;
         #endregion
@@ -158,8 +136,97 @@ public class ItemObject : MonoBehaviour
 
         Placing(CanBePlace());
     }
+    private (int smaller, int larger) SplitInteger(int number)
+    {
+        int half = number / 2;
+        if (number % 2 == 0)
+        {
+            return (half, half);
+        }
+        else
+        {
+            return (half, half + 1);
+        }
+    }
     private void Placing(bool placementCanStart)
     {
+        if (Input.GetKey(KeyCode.LeftControl) && placer.activeItemSlots.FindAll(slot=> ActualData.GetSlotUseId().Contains(slot.name)).Count != ActualData.SlotUse.Length)//split
+        {
+            (int smaller, int larger) SplitedCount = SplitInteger(ActualData.Quantity);
+
+            if (placer.activeItemSlots.Exists(slot => slot.GetComponent<ItemSlot>() != null && slot.GetComponent<ItemSlot>().CoundAddAvaiable))//split and megre
+            {
+                GameObject MergeObject = placer.activeItemSlots.Find(slot => slot.GetComponent<ItemSlot>().CoundAddAvaiable).GetComponent<ItemSlot>().PartOfItemObject;
+                MergeObject.GetComponent<ItemObject>().ActualData.Quantity += SplitedCount.larger;
+                ActualData.Quantity = SplitedCount.smaller;
+                if (MergeObject.GetComponent<ItemObject>().ActualData.Quantity > MergeObject.GetComponent<ItemObject>().ActualData.MaxStackSize)//ha a split több mint a maximalis stacksize
+                {
+                    ActualData.Quantity += (MergeObject.GetComponent<ItemObject>().ActualData.Quantity - MergeObject.GetComponent<ItemObject>().ActualData.MaxStackSize);
+                    MergeObject.GetComponent<ItemObject>().ActualData.Quantity = MergeObject.GetComponent<ItemObject>().ActualData.MaxStackSize;
+                    MergeObject.GetComponent<ItemObject>().SelfVisualisation();
+                    SelfVisualisation();
+                    placementCanStart = false;
+                }
+                else//ha nem több a split mint a maximális stacksize
+                {
+                    ActualData.Quantity = SplitedCount.smaller;
+                    MergeObject.GetComponent<ItemObject>().SelfVisualisation();
+                    placementCanStart = false;
+                    if (ActualData.Quantity<1)
+                    {
+                        SelfDestruction();
+                    }
+                    else
+                    {
+                        SelfVisualisation();
+                    }
+                }
+            }
+            else if (placer.activeItemSlots.Count == ActualData.SizeY * ActualData.SizeX)//egy specialis objektumlétrehozási folyamat ez akkor lép érvénybe ha üres slotba kerül az item
+            {
+                Item item = new Item(ActualData.ItemName, SplitedCount.larger);
+                item.SlotUse = new string[placer.activeItemSlots.Count];
+                for (int i = 0; i < item.SlotUse.Length; i++)
+                {
+                    item.SlotUse[i] = placer.activeItemSlots[i].name;
+                }
+                GameObject itemObject = CreatePrefab("GameElements/ItemObject");
+                itemObject.name = ActualData.ItemName;
+                itemObject.GetComponent<ItemObject>().SelfBuild(item , placer.NewVirtualParentObject);
+                ActualData.Quantity = SplitedCount.smaller;
+                placementCanStart = false;
+                if (ActualData.Quantity < 1)
+                {
+                    SelfDestruction();
+                }
+                else
+                {
+                    SelfVisualisation();
+                }
+            }
+        }
+        #region Item Merge
+        else if (placer.activeItemSlots.Exists(slot=>slot.GetComponent<ItemSlot>() != null && slot.GetComponent<ItemSlot>().CoundAddAvaiable))//csak containerekben mukodik
+        {
+            GameObject MergeObject = placer.activeItemSlots.Find(slot => slot.GetComponent<ItemSlot>().CoundAddAvaiable).GetComponent<ItemSlot>().PartOfItemObject;
+            int count = MergeObject.GetComponent<ItemObject>().ActualData.Quantity;
+            MergeObject.GetComponent<ItemObject>().ActualData.Quantity += ActualData.Quantity;
+            if (MergeObject.GetComponent<ItemObject>().ActualData.Quantity > MergeObject.GetComponent<ItemObject>().ActualData.MaxStackSize)
+            {
+                ActualData.Quantity = MergeObject.GetComponent<ItemObject>().ActualData.Quantity - MergeObject.GetComponent<ItemObject>().ActualData.MaxStackSize;
+                MergeObject.GetComponent<ItemObject>().ActualData.Quantity = MergeObject.GetComponent<ItemObject>().ActualData.MaxStackSize;
+                MergeObject.GetComponent<ItemObject>().SelfVisualisation();
+                SelfVisualisation();
+                placementCanStart = false;
+            }
+            else
+            {
+                MergeObject.GetComponent<ItemObject>().SelfVisualisation();
+                placementCanStart = false;
+                SelfDestruction();
+            }
+        }
+        #endregion
         if (placementCanStart)
         {
             Debug.Log(placer.activeItemSlots.Count);
@@ -167,11 +234,11 @@ public class ItemObject : MonoBehaviour
             {
                 if (VirtualParentObject.GetComponent<EquipmentSlot>() != null)
                 {
-                    VirtualParentObject.GetComponent<EquipmentSlot>().DataOut(ActualData, gameObject);
+                    VirtualParentObject.GetComponent<EquipmentSlot>().DataOut(ActualData);
                 }
                 else
                 {
-                    VirtualParentObject.GetComponent<ContainerObject>().DataOut(ActualData, gameObject);
+                    VirtualParentObject.GetComponent<ContainerObject>().DataOut(ActualData);
                     ContainerObject containerObject = VirtualParentObject.GetComponent<ContainerObject>();
                     for (int sector = 0; sector < containerObject.SectorManagers.Length; sector++)
                     {
@@ -180,7 +247,6 @@ public class ItemObject : MonoBehaviour
                             if (ActualData.SlotUse.Contains(containerObject.SectorManagers[sector].GetComponent<SectorManager>().ItemSlots[slot].GetComponent<ItemSlot>().name))
                             {
                                 containerObject.SectorManagers[sector].GetComponent<SectorManager>().ItemSlots[slot].GetComponent<ItemSlot>().PartOfItemObject = null;
-                                containerObject.SectorManagers[sector].GetComponent<SectorManager>().ItemSlots[slot].GetComponent<ItemSlot>().PartOfItemData = null;
                             }
                         }
                     }
@@ -213,7 +279,7 @@ public class ItemObject : MonoBehaviour
                     {
                         ActualData.SlotUse[i] = itemSlots[i].name;
                     }
-                    VirtualParentObject.GetComponent<ContainerObject>().DataIn(ActualData, gameObject);
+                    VirtualParentObject.GetComponent<ContainerObject>().DataIn(ActualData);
                     SelfVisualisation();
                 }
             }
@@ -243,7 +309,6 @@ public class ItemObject : MonoBehaviour
                             {
                                 //ezen uj slot része lesz az itemobjektumnak és annak adatának      illetve hozzáadjuk az itemslot listához
                                 containerObject.SectorManagers[sector].GetComponent<SectorManager>().ItemSlots[slot].GetComponent<ItemSlot>().PartOfItemObject = gameObject;
-                                containerObject.SectorManagers[sector].GetComponent<SectorManager>().ItemSlots[slot].GetComponent<ItemSlot>().PartOfItemData = ActualData;
                                 itemSlots.Add(containerObject.SectorManagers[sector].GetComponent<SectorManager>().ItemSlots[slot]);
                             }
                             //ha ezen iterált slot nem része az aktív slotoknak       de része az item actualdata-jának       az azt jelenti, hogy ez egy régi slot az itemobjektumnak
@@ -251,7 +316,6 @@ public class ItemObject : MonoBehaviour
                             {
                                 //ezt a slotot megfosztjuk az itemobjektumtól és annak adatától
                                 containerObject.SectorManagers[sector].GetComponent<SectorManager>().ItemSlots[slot].GetComponent<ItemSlot>().PartOfItemObject = null;
-                                containerObject.SectorManagers[sector].GetComponent<SectorManager>().ItemSlots[slot].GetComponent<ItemSlot>().PartOfItemData = null;
                             }
                         }
                     }
@@ -280,7 +344,54 @@ public class ItemObject : MonoBehaviour
         ObjectMovement();
         Rotation();
     }
+    private void Rotation()
+    {
+        if (Input.GetKeyUp(KeyCode.R) && isDragging)
+        {
+            ActualData.RotateDegree = transform.rotation.eulerAngles.z + 90;
+            if (ActualData.RotateDegree == 360f)
+            {
+                ActualData.RotateDegree = 0f;
+            }
+            transform.rotation = Quaternion.Euler(0, 0, ActualData.RotateDegree);
+        }
+    }
+    private void ObjectMovement()
+    {
+        if (isDragging)
+        {
+            // Az egér pozíciójának lekérése a világkoordináta rendszerben
+            Vector3 mousePosition = Camera.main.ScreenToWorldPoint(Input.mousePosition);
+            // Az objektum új pozíciójának beállítása (csak az X és Y, hogy a Z tengely ne változzon)
+            transform.position = new Vector3(mousePosition.x, mousePosition.y, transform.position.z);
+        }
+    }
     #region Data Synch
+    public void SelfDestruction()//egy gombal hivhatod meg.
+    {
+        if (VirtualParentObject.GetComponent<EquipmentSlot>() != null)
+        {
+            VirtualParentObject.GetComponent<EquipmentSlot>().DataOut(ActualData);
+        }
+        else
+        {
+            VirtualParentObject.GetComponent<ContainerObject>().DataOut(ActualData);
+        }
+        Destroy(gameObject);
+    }
+    public void SelfBuild(Item Data, GameObject VirtualParentObject)
+    {
+        ActualData = Data;
+        this.VirtualParentObject = VirtualParentObject;
+        if (VirtualParentObject.GetComponent<EquipmentSlot>() != null)
+        {
+            VirtualParentObject.GetComponent<EquipmentSlot>().DataIn(ActualData,gameObject);
+        }
+        else
+        {
+            VirtualParentObject.GetComponent<ContainerObject>().DataIn(ActualData);
+        }
+    }
     public void DataIn(Item Data, GameObject VirtualChildObject)
     {
         ActualData = Data;
@@ -307,7 +418,7 @@ public class ItemObject : MonoBehaviour
             VirtualParentObject.GetComponent<ContainerObject>().DataUpdate(ActualData, gameObject);
         }
     }
-    public void DataUpdate(Item Data, GameObject VirtualChildObject)
+    public void DataUpdate(Item Data)
     {
         ActualData = Data;
         SelfVisualisation();
@@ -335,7 +446,7 @@ public class ItemObject : MonoBehaviour
             GameObject containerObject = CreatePrefab(ActualData.Container.PrefabPath);
             containerObject.GetComponent<ContainerObject>().SetDataRoute(ActualData, gameObject);
         }
-        DataUpdate(ActualData, gameObject);
+        DataUpdate(ActualData);
     }
     #endregion
     private void SelfVisualisation()//ha az item equipment slotban van

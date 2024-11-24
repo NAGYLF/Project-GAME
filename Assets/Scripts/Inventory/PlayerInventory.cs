@@ -30,15 +30,11 @@ using Melees;
 using Ammunition;
 using Assets.Scripts.Inventory;
 
-/*
- képes legyen rotatelni ha ugy elfer az objektum ezzel pedig hozzadni egy containerhez.
- * */
-
 namespace PlayerInventoryClass
 {
     public class PlayerInventory : MonoBehaviour
     {
-        public static PlayerInventory playerInventoryData;//a player mindenhol elerheto inventoryja ez a gyökér mely referencia ként össze van kötve a playerInventoryVisual.cs - vel
+        public PlayerInventory playerInventoryData;//a player mindenhol elerheto inventoryja ez a gyökér mely referencia ként össze van kötve a playerInventoryVisual.cs - vel
         //a playerinventoryVisual equipmentenként osztja szét a root adatokat, így ezen adat az equipmetekig tart, utána az itemek egymás shyncronizálásáért felelnek 
 
         public Equipmnets equipments;//ez lényegében az inventory class adatai mivel a playerInventory többi része ezen változó kiszolgálásáért, mogosításáért felel vagy adatelérési antennaként (playerInventoryData) fumcionál
@@ -104,7 +100,7 @@ namespace PlayerInventoryClass
             //4. ha nincs elmentett inventory akkor az eddig letrehozott ures inventory adatát a fő publikus playerInventoryData változó megkapja
             InventoryUpdate();
         }
-        private void InventoryUpdate()
+        private void InventoryUpdate()//??? szügségtelennek tünik mégis mindenhonnani törlése problémát okoz.
         {
             playerInventoryData = this;
         }
@@ -172,17 +168,17 @@ namespace PlayerInventoryClass
                                     {
                                         if (equipments.equipmentList[equpmentIndex].EquipmentItem.Container.Sectors[sectorIndex][Y, X].PartOfItemData == null && CanBePlace(equipments.equipmentList[equpmentIndex].EquipmentItem.Container.Sectors[sectorIndex], Y, X, item))//ha a slot nem tagja egy itemnek sem akkor target
                                         {
-                                            Debug.Log($"AZ item elfér {equipments.equipmentList[equpmentIndex].EquipmentItem.Container.Sectors[sectorIndex][Y, X].name} --> kiindulasi pont:");
+                                            Debug.Log($"AZ item elfér {equipments.equipmentList[equpmentIndex].EquipmentItem.Container.Sectors[sectorIndex][Y, X].SlotName} --> kiindulasi pont:");
                                             int index = 0;
                                             item.SlotUse = new string[item.SizeX * item.SizeY];
-                                            List<ItemSlot> itemSlots = new List<ItemSlot>();
+                                            List<ItemSlotData> itemSlots = new List<ItemSlotData>();
                                             for (int y = Y; y < Y + item.SizeY; y++)
                                             {
                                                 for (int x = X; x < X + item.SizeX; x++)
                                                 {
-                                                    Debug.Log($"Y:{y}/{Y + item.SizeY} X:{x}/{X + item.SizeX}  {equipments.equipmentList[equpmentIndex].EquipmentItem.Container.Sectors[sectorIndex][y, x].name} part of item: {equipments.equipmentList[equpmentIndex].EquipmentItem.Container.Sectors[sectorIndex][y, x].PartOfItemData != null}" );
+                                                    Debug.Log($"Y:{y}/{Y + item.SizeY} X:{x}/{X + item.SizeX}  {equipments.equipmentList[equpmentIndex].EquipmentItem.Container.Sectors[sectorIndex][y, x].SlotName} part of item: {equipments.equipmentList[equpmentIndex].EquipmentItem.Container.Sectors[sectorIndex][y, x].PartOfItemData != null}" );
                                                     itemSlots.Add(equipments.equipmentList[equpmentIndex].EquipmentItem.Container.Sectors[sectorIndex][y, x]);
-                                                    item.SlotUse[index] = equipments.equipmentList[equpmentIndex].EquipmentItem.Container.Sectors[sectorIndex][y, x].name;//ez alapjan azonositunk egy itemslotot
+                                                    item.SlotUse[index] = equipments.equipmentList[equpmentIndex].EquipmentItem.Container.Sectors[sectorIndex][y, x].SlotName;//ez alapjan azonositunk egy itemslotot
                                                     index++;
                                                 }
                                             }
@@ -197,9 +193,9 @@ namespace PlayerInventoryClass
                                                 ItemAdded = true;
                                             }
                                             item.SetSlotUseId();
-                                            foreach (ItemSlot itemSlot in equipments.equipmentList[equpmentIndex].EquipmentItem.Container.Sectors[sectorIndex])
+                                            foreach (ItemSlotData itemSlot in equipments.equipmentList[equpmentIndex].EquipmentItem.Container.Sectors[sectorIndex])
                                             {
-                                                if (itemSlots.Exists(slot => slot.name == itemSlot.name))
+                                                if (itemSlots.Exists(slot => slot.SlotName == itemSlot.SlotName))
                                                 {
                                                     itemSlot.PartOfItemData = item;
                                                 }
@@ -219,8 +215,8 @@ namespace PlayerInventoryClass
                 {
                     Debug.LogWarning($"item: {item.ItemName} cannot added, probably no space for that");
                 }
-                InventoryUpdate();
             }
+            InventoryUpdate();
         }
         public void InventoryRemove(Item item)//pocitciot és rogatast figyelmen kivul hagy     ,    csak 1 db tavolit el
         {
@@ -233,20 +229,51 @@ namespace PlayerInventoryClass
                 {
                     if (equipments.equipmentList[equpmentIndex].EquipmentItem != null && equipments.equipmentList[equpmentIndex].EquipmentItem.Container != null)//ha az equipmnetnek nincs containerje akkor kihadjuk
                     {
-                        for (int i = 0; i < equipments.equipmentList[equpmentIndex].EquipmentItem.Container.Sectors.Length && !ItemRemoved; i++)
+                        for (int sectorIndex = 0; sectorIndex < equipments.equipmentList[equpmentIndex].EquipmentItem.Container.Sectors.Length && !ItemRemoved; sectorIndex++)
                         {
-                            for (int Row = 0; Row < equipments.equipmentList[equpmentIndex].EquipmentItem.Container.Sectors[i].GetLength(0); Row++)
+                            for (int Row = 0; Row < equipments.equipmentList[equpmentIndex].EquipmentItem.Container.Sectors[sectorIndex].GetLength(0) && !ItemRemoved; Row++)
                             {
-                                for (int Col = 0; Col < equipments.equipmentList[equpmentIndex].EquipmentItem.Container.Sectors[i].GetLength(1); Col++)
+                                for (int Col = 0; Col < equipments.equipmentList[equpmentIndex].EquipmentItem.Container.Sectors[sectorIndex].GetLength(1) && !ItemRemoved; Col++)
                                 {
-                                    if (equipments.equipmentList[equpmentIndex].EquipmentItem.Container.Sectors[i][Row, Col].PartOfItemData != null && equipments.equipmentList[equpmentIndex].EquipmentItem.Container.Sectors[i][Row, Col].PartOfItemData.GetSlotUseId().Contains(equipments.equipmentList[equpmentIndex].EquipmentItem.Container.Sectors[i][Row, Col].name))
+                                    if (equipments.equipmentList[equpmentIndex].EquipmentItem.Container.Sectors[sectorIndex][Row, Col].PartOfItemData != null && equipments.equipmentList[equpmentIndex].EquipmentItem.Container.Sectors[sectorIndex][Row, Col].PartOfItemData.ItemName == item.ItemName)
                                     {
-                                        if (!ItemRemoved)
+                                        equipments.equipmentList[equpmentIndex].EquipmentItem.Container.Sectors[sectorIndex][Row, Col].PartOfItemData.Quantity -= item.Quantity;
+                                        int count = 0;
+                                        if (equipments.equipmentList[equpmentIndex].EquipmentItem.Container.Sectors[sectorIndex][Row, Col].PartOfItemData.Quantity > 0)
                                         {
-                                            equipments.equipmentList[equpmentIndex].EquipmentItem.Container.Items.RemoveAt(equipments.equipmentList[equpmentIndex].EquipmentItem.Container.Items.FindIndex(item => item.SlotUse.Contains(equipments.equipmentList[equpmentIndex].EquipmentItem.Container.Sectors[i][Row, Col].name)));
-                                            ItemRemoved = true;
+                                            ItemRemoved = true;//csak menyiseget törlünk
                                         }
-                                        equipments.equipmentList[equpmentIndex].EquipmentItem.Container.Sectors[i][Row, Col].PartOfItemData = null;
+                                        else if (equipments.equipmentList[equpmentIndex].EquipmentItem.Container.Sectors[sectorIndex][Row, Col].PartOfItemData.Quantity == 0)
+                                        {
+                                            ItemRemoved = true;
+                                            equipments.equipmentList[equpmentIndex].EquipmentItem.Container.Items.RemoveAt(equipments.equipmentList[equpmentIndex].EquipmentItem.Container.Items.FindIndex(item => item.SlotUse.Contains(equipments.equipmentList[equpmentIndex].EquipmentItem.Container.Sectors[sectorIndex][Row, Col].SlotName)));
+                                            
+                                            Item RefItem = equipments.equipmentList[equpmentIndex].EquipmentItem.Container.Sectors[sectorIndex][Row, Col].PartOfItemData;
+
+                                            foreach (ItemSlotData itemSlot in equipments.equipmentList[equpmentIndex].EquipmentItem.Container.Sectors[sectorIndex])
+                                            {
+                                                if (RefItem.GetSlotUseId().Contains(itemSlot.SlotName))
+                                                {
+                                                    itemSlot.PartOfItemData = null;
+                                                }
+                                            }
+                                        }
+                                        else
+                                        {
+                                            count = Math.Abs(equipments.equipmentList[equpmentIndex].EquipmentItem.Container.Sectors[sectorIndex][Row, Col].PartOfItemData.Quantity);
+                                            item.Quantity = count;
+                                            equipments.equipmentList[equpmentIndex].EquipmentItem.Container.Items.RemoveAt(equipments.equipmentList[equpmentIndex].EquipmentItem.Container.Items.FindIndex(item => item.SlotUse.Contains(equipments.equipmentList[equpmentIndex].EquipmentItem.Container.Sectors[sectorIndex][Row, Col].SlotName)));
+                                            
+                                            Item RefItem = equipments.equipmentList[equpmentIndex].EquipmentItem.Container.Sectors[sectorIndex][Row, Col].PartOfItemData;
+
+                                            foreach (ItemSlotData itemSlot in equipments.equipmentList[equpmentIndex].EquipmentItem.Container.Sectors[sectorIndex])
+                                            {
+                                                if (RefItem.GetSlotUseId().Contains(itemSlot.SlotName))
+                                                {
+                                                    itemSlot.PartOfItemData = null;
+                                                }
+                                            }
+                                        }
                                     }
                                 }
                             }
@@ -257,6 +284,7 @@ namespace PlayerInventoryClass
                 {
                     Debug.LogWarning($"item: {item.ItemName} cannot removed, probably the item doesn't exist");
                 }
+                
             }
             if (!ItemRemoved)
             {
@@ -272,12 +300,9 @@ namespace PlayerInventoryClass
                     }
                 }
             }
+            InventoryUpdate();
         }
-        public void InventoryRemove(Item item,int count)//pocitciot és rogatast figyelmen kivul hagy
-        {
-
-        }
-        private bool CanBePlace(ItemSlot[,] slots, int Y, int X, Item item)
+        private bool CanBePlace(ItemSlotData[,] slots, int Y, int X, Item item)
         {
             if (X + item.SizeX <= slots.GetLength(1) && Y + item.SizeY <= slots.GetLength(0))
             {
@@ -302,6 +327,12 @@ namespace PlayerInventoryClass
 
 namespace ItemHandler
 {
+    public class ItemSlotData
+    {
+        public string SlotName;
+        public string SlotType;
+        public Item PartOfItemData;
+    }
     public class Item : NonGeneralItemProperties
     {
         //general
@@ -422,23 +453,25 @@ namespace ItemHandler
         //a kostructora az igy megkapott prefabPath-ből lekerdezi a Sectorokat
         public List<Item> Items {  get; set; }
         public string PrefabPath;
-        public ItemSlot[][,] Sectors { get; set; }
+        public ItemSlotData[][,] Sectors { get; set; }
         public Container(string prefabPath)
         {
             PrefabPath = prefabPath;
             Items = new List<Item>();
             GameObject[] sectors = Resources.Load(prefabPath).GetComponent<ContainerObject>().SectorManagers;
-            Sectors = new ItemSlot[sectors.Length][,];
+            Sectors = new ItemSlotData[sectors.Length][,];
             for (int i = 0; i < Sectors.Length; i++)
             {
                 int index = 0;
-                Sectors[i] = new ItemSlot[sectors[i].GetComponent<SectorManager>().row, sectors[i].GetComponent<SectorManager>().columb];
+                Sectors[i] = new ItemSlotData[sectors[i].GetComponent<SectorManager>().row, sectors[i].GetComponent<SectorManager>().columb];
                 for (int row = 0; row < Sectors[i].GetLength(0); row++)
                 {
                     for (int col = 0; col < Sectors[i].GetLength(1); col++)
                     {
-                        Debug.Log($"index: {index} {sectors[i].GetComponent<SectorManager>().ItemSlots[index].GetComponent<ItemSlot>().name}     R{row}   C{col}");
-                        Sectors[i][row, col] = sectors[i].GetComponent<SectorManager>().ItemSlots[index].GetComponent<ItemSlot>();
+                        Sectors[i][row, col] = new ItemSlotData();
+                        Sectors[i][row, col].SlotType = sectors[i].GetComponent<SectorManager>().ItemSlots[index].GetComponent<ItemSlot>().SlotType;
+                        Sectors[i][row, col].SlotName = sectors[i].GetComponent<SectorManager>().ItemSlots[index].GetComponent<ItemSlot>().name;
+                        Sectors[i][row, col].PartOfItemData = null;
                         index++;
                     }
                 }
@@ -469,8 +502,6 @@ namespace PlayerInventoryVisualBuild
 {
     public class PlayerInventoryVisual : MonoBehaviour
     {
-        private bool InventoryOpen = false;
-
         [HideInInspector] public static GameObject InventoryObject;//az invenory fő objektumának tárolásáért fele
 
         private PlayerInventory playerInventory;
@@ -478,30 +509,17 @@ namespace PlayerInventoryVisualBuild
         [HideInInspector] public static GameObject EquipmentsObject;//az inventory 3 alsóbrendűbb objektumának egyike
         [HideInInspector] public static GameObject SlotObject;//az inventory 3 alsóbrendűbb objektumának egyike
         [HideInInspector] public static GameObject LootObject;//az inventory 3 alsóbrendűbb objektumának egyike
-        private void Update()
-        {
-            //6. ebben az update metódusban az inventory be és ki kapcsolasat figyeli
-            OpenCloseInventory();
-        }
         public void SetDataRoute(ref PlayerInventory playerInventory)
         {
             this.playerInventory = playerInventory;
         }
-        public void OpenCloseInventory()//ez az inventoryt epiti fel
+        public void CloseInventory()
         {
-            if (Input.GetKeyDown(KeyCode.Tab))
-            {
-                if (InventoryOpen)
-                {
-                    InventoryOpen = false;
-                    Destroy(InventoryObject);
-                }
-                else
-                {
-                    InventoryOpen = true;
-                    EquipmentInitialisation();
-                }
-            }
+            Destroy(InventoryObject);
+        }
+        public void OpenInventory()//ez az inventoryt epiti fel
+        {
+            EquipmentInitialisation();
         }
         private void EquipmentInitialisation()//7. ha az inventory megnyitódik akkor az inventory adatai felépítik az inventoryt
         {

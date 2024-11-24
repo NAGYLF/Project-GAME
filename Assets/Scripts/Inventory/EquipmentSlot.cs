@@ -9,22 +9,24 @@ using UnityEngine.UI;
 using static MainData.SupportScripts;
 using static PlayerInventoryClass.PlayerInventory;
 using static ItemObject;
+using TMPro;
 
 public class EquipmentSlot : MonoBehaviour
 {
     #region DataSynch
     public EquipmnetStruct PartOfItemData;//ezek alapján vizualizálja es szinkronizálja az itemeket
     public GameObject PartOfItemObject;
-    private GameObject Inventory;
+    private GameObject Inventory;//a tényleges inventory-t tartalmazó Gameobject
     #endregion
 
     public string SlotType;//azon tipusok melyeket befogadhat, ha nincs megadva akkor mindent.
     public string SlotName;
     
     [SerializeField] private string partofitem;
-    public GameObject ActualPartOfItemObject;//ezt vizualizációkor kapja és továbbiakban a vizualizációban lesz fumciója az iteomobjectum azonosításban
     private Color color;
+    public GameObject Title;
 
+    public GameObject ActualPartOfItemObject;//ezt vizualizációkor kapja és továbbiakban a vizualizációban lesz fumciója az iteomobjectum azonosításban
     [HideInInspector] public List<GameObject> activeSlots;
     [HideInInspector] public GameObject PlaceableObject;
     private PlacerStruct placer;
@@ -45,11 +47,8 @@ public class EquipmentSlot : MonoBehaviour
     }
     private void OnCollisionExit2D(Collision2D collision)
     {
-        if (!(PartOfItemObject != null && PartOfItemObject.GetInstanceID() != collision.gameObject.GetInstanceID()))
-        {
-            ActualPartOfItemObject = null;
-            activeSlots.Remove(gameObject);
-        }
+        ActualPartOfItemObject = null;
+        activeSlots.Remove(gameObject);
         gameObject.GetComponent<Image>().color = color;
     }
     private void Awake()
@@ -57,6 +56,7 @@ public class EquipmentSlot : MonoBehaviour
         SlotName = gameObject.name;
         activeSlots = new List<GameObject>();
         placer.activeItemSlots = new List<GameObject>();
+        Title.GetComponent<TextMeshPro>().text = SlotType;
     }
     private void Update()
     {
@@ -68,7 +68,7 @@ public class EquipmentSlot : MonoBehaviour
             PlaceableObject.GetComponent<ItemObject>().placer = placer;
         }
     }
-    public void DataOut(Item Data, GameObject VirtualChildObject)
+    public void DataOut(Item Data)
     {
         PartOfItemData.EquipmentItem = null;//az actual data a gyökér adatokban modositja az adatokat ezert tovabbi szinkronizaciora nincs szukseg
         PartOfItemObject = null;

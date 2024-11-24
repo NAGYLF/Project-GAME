@@ -11,7 +11,7 @@ GameObject:
   - component: {fileID: 2886138213242758288}
   - component: {fileID: 1406304015034825690}
   - component: {fileID: 4208901580101796118}
-  m_Layer: 0
+  m_Layer: 5
   m_Name: EquipmentTitle
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -146,7 +146,7 @@ GameObject:
   - component: {fileID: 8469065981803071633}
   - component: {fileID: 8469065981803071635}
   - component: {fileID: 8469065981803071634}
-  m_Layer: 0
+  m_Layer: 5
   m_Name: SlotsContains
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -222,7 +222,7 @@ GameObject:
   - component: {fileID: 8469065982034487113}
   - component: {fileID: 8469065982034487115}
   - component: {fileID: 8469065982034487114}
-  m_Layer: 0
+  m_Layer: 5
   m_Name: ContainerPanel
   m_TagString: Untagged
   m_Icon: {fileID: 0}

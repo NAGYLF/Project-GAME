@@ -206,7 +206,7 @@ public class ItemObject : MonoBehaviour
             }
         }
         #region Item Merge
-        else if (placer.activeItemSlots.Exists(slot=>slot.GetComponent<ItemSlot>() != null && slot.GetComponent<ItemSlot>().CoundAddAvaiable))//csak containerekben mukodik
+        else if (placer.activeItemSlots.Exists(slot=>slot.GetComponent<ItemSlot>() != null && slot.GetComponent<ItemSlot>().CoundAddAvaiable))//csak containerekben mukodik          hiba toretent itt
         {
             GameObject MergeObject = placer.activeItemSlots.Find(slot => slot.GetComponent<ItemSlot>().CoundAddAvaiable).GetComponent<ItemSlot>().PartOfItemObject;
             int count = MergeObject.GetComponent<ItemObject>().ActualData.Quantity;

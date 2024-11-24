@@ -11,6 +11,8 @@ using UnityEngine.UI;
 
 public class InGameUI : MonoBehaviour
 {
+    List<GameObject> InteractivObjects;
+
     #region UI objects
     public GameObject InGameMenuObject;
     public GameObject HealtBar;
@@ -35,6 +37,8 @@ public class InGameUI : MonoBehaviour
     #endregion
     private void Awake()
     {
+        InteractivObjects = new List<GameObject>();
+
         OpenCloseUI.Refress();//mivel statikus a valtoto ezert ami statiku az az alkalmazás egész futása alatt létezik, ezert ha én törlöm ezt a jelenetet és ujra betoltom
                               //atol meg a regi gameobject refernciával bíró action tipusú változó eljarasai nem törlõdnek csak ujjak addolódnak hozzá. ezert töröljük õket
 
@@ -136,6 +140,10 @@ public class InGameUI : MonoBehaviour
     public void SetThirstBar(float count)
     {
         ThirstBar.GetComponent<Slider>().value = count;
+    }
+    public void RefreshInteractiveObjectList()
+    {
+
     }
 }
 

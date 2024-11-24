@@ -63,6 +63,9 @@
 
 #pic img {
   border-radius: 50%;
+}
+
+img{
   -webkit-user-drag: none;
 }
 
@@ -95,6 +98,17 @@ a:hover {
 .modal.show .modal-content {
   opacity: 1;
   transform: translateY(0);
+}
+
+.modal p{
+  font-size: 18px;
+}
+
+.modal h2{
+  background-color: rgb(255, 255, 255, 0.15);
+  text-shadow: 3px 3px black;
+  padding: 1px;
+  border-radius: 5px;
 }
 
 /* Dropdown elemek */

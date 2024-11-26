@@ -12,4 +12,7 @@ public class Interact : MonoBehaviour
     public string Description;
     public string ActionMode;
     public Action Action;
+
+   
 }
+

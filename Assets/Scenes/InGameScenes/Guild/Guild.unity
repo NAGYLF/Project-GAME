@@ -1003,9 +1003,17 @@ PrefabInstance:
     m_TransformParent: {fileID: 903902354}
     m_Modifications:
     - target: {fileID: 1730488807, guid: 8b3d9052fc1731344bc23bb343136841, type: 3}
+      propertyPath: Player
+      value: 
+      objectReference: {fileID: 2048521016}
+    - target: {fileID: 1730488807, guid: 8b3d9052fc1731344bc23bb343136841, type: 3}
       propertyPath: target
       value: 
       objectReference: {fileID: 2048521015}
+    - target: {fileID: 1730488807, guid: 8b3d9052fc1731344bc23bb343136841, type: 3}
+      propertyPath: PlayerObject
+      value: 
+      objectReference: {fileID: 2048521016}
     - target: {fileID: 586048519737888617, guid: 8b3d9052fc1731344bc23bb343136841, type: 3}
       propertyPath: m_Pivot.x
       value: 0.5

@@ -118,6 +118,6 @@ public class ContainerObject : MonoBehaviour
         RectTransform containerRectTranform = gameObject.GetComponent<RectTransform>();
         RectTransform SlotPanelObject = slotObject.GetComponent<RectTransform>();
         containerRectTranform.sizeDelta = new Vector2(SlotPanelObject.sizeDelta.x, containerRectTranform.sizeDelta.y * (SlotPanelObject.sizeDelta.x / containerRectTranform.sizeDelta.x));
-        gameObject.transform.SetParent(slotObject.GetComponent<PanelSlots>().Tartget.transform, false);
+        gameObject.transform.SetParent(slotObject.GetComponent<PanelSlots>().Content.transform, false);
     }
 }

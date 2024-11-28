@@ -9,6 +9,6 @@ using UnityEngine.UI;
 
 public class PanelSlots : MonoBehaviour
 {
-    public GameObject Tartget;//ahova az itemcontainerek kerulni fognak
-    public GameObject Scrollbar;
+    public GameObject Content;//ahova az itemcontainerek kerulni fognak
+    public GameObject ScrollPanel;
 }

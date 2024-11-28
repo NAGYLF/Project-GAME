@@ -15,9 +15,9 @@ TagManager:
   - UI
   - InGameMenu
   - 
+  - Item
   - 
-  - 
-  - 
+  - Windows
   - 
   - 
   - 
@@ -51,4 +51,10 @@ TagManager:
     locked: 0
   - name: Inventory
     uniqueID: 1214542165
+    locked: 0
+  - name: InventoryItem
+    uniqueID: 2827886323
+    locked: 0
+  - name: InventoryWindows
+    uniqueID: 1860340889
     locked: 0

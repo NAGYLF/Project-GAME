@@ -10,10 +10,12 @@ using static PlayerInventoryVisualBuild.PlayerInventoryVisual;
 using TMPro;
 using System;
 using Unity.VisualScripting;
+using UnityEngine.EventSystems;
 
-public class ItemObject : MonoBehaviour
+public class ItemObject : MonoBehaviour, IPointerDownHandler, IPointerUpHandler
 {
     public GameObject Counter;
+    private GameObject Window;
     public Item ActualData { get; private set; }
     private GameObject VirtualParentObject;//azon objektum melynek a friss adatszinkronizációért felel
 
@@ -62,79 +64,94 @@ public class ItemObject : MonoBehaviour
             return false;
         }
     }
-    private void OnMouseDown()
+    public void OnPointerDown(PointerEventData eventData)
     {
-        // Ekkor indul a mozgatás, ha rákattintunk az objektumra
-        #region Save Original Object Datas
-        originalPosition = transform.position;
-        originalSize = transform.GetComponent<RectTransform>().sizeDelta;
-        originalParent = transform.parent;
-        originalPivot = transform.GetComponent<RectTransform>().pivot;
-        originalAnchorMin = transform.GetComponent<RectTransform>().anchorMin;
-        originalAnchorMax = transform.GetComponent<RectTransform>().anchorMax;
-        originalRotation = ActualData.RotateDegree;
-        #endregion
+        if (eventData.button == PointerEventData.InputButton.Right)
+        {
+            GameObject itemWindow = CreatePrefab("GameElements/ItemWindow");
+            itemWindow.GetComponent<ItemWindow>().itemObject = gameObject;
+            itemWindow.GetComponent<ItemWindow>().parentObject = InventoryObject;
+            itemWindow.GetComponent<ItemWindow>().positioning();
+            Window = itemWindow;
+        }
+        else if (eventData.button == PointerEventData.InputButton.Left)
+        {
+            if (Window != null) Destroy(Window);
+            // Ekkor indul a mozgatás, ha rákattintunk az objektumra
+            #region Save Original Object Datas
+            originalPosition = transform.position;
+            originalSize = transform.GetComponent<RectTransform>().sizeDelta;
+            originalParent = transform.parent;
+            originalPivot = transform.GetComponent<RectTransform>().pivot;
+            originalAnchorMin = transform.GetComponent<RectTransform>().anchorMin;
+            originalAnchorMax = transform.GetComponent<RectTransform>().anchorMax;
+            originalRotation = ActualData.RotateDegree;
+            #endregion
 
-        #region Set Moveable position
-        transform.SetParent(InventoryObject.transform, false);
-        transform.GetComponent<RectTransform>().pivot = new Vector2(0.5f, 0.5f);
-        transform.GetComponent<RectTransform>().anchorMin = new Vector2(0.5f, 0.5f);
-        transform.GetComponent<RectTransform>().anchorMax = new Vector2(0.5f, 0.5f);
-        transform.GetComponent<RectTransform>().sizeDelta = new Vector2(ActualData.SizeX * Main.SectorScale * Main.DefaultItemSlotSize, ActualData.SizeY * Main.SectorScale * Main.DefaultItemSlotSize);
-        #endregion
+            #region Set Moveable position
+            transform.SetParent(InventoryObject.transform, false);
+            transform.GetComponent<RectTransform>().pivot = new Vector2(0.5f, 0.5f);
+            transform.GetComponent<RectTransform>().anchorMin = new Vector2(0.5f, 0.5f);
+            transform.GetComponent<RectTransform>().anchorMax = new Vector2(0.5f, 0.5f);
+            transform.GetComponent<RectTransform>().sizeDelta = new Vector2(ActualData.SizeX * Main.SectorScale * Main.DefaultItemSlotSize, ActualData.SizeY * Main.SectorScale * Main.DefaultItemSlotSize);
+            #endregion
 
-        #region Set Sprite
-        RectTransform itemObjectRectTransform = gameObject.GetComponent<RectTransform>();
-        SpriteRenderer itemObjectSpriteRedner = gameObject.GetComponent<SpriteRenderer>();
-        float Scale = Mathf.Min(itemObjectRectTransform.rect.height / itemObjectSpriteRedner.size.y, itemObjectRectTransform.rect.width / itemObjectSpriteRedner.size.x);
-        itemObjectSpriteRedner.size = new Vector2(itemObjectSpriteRedner.size.x * Scale, itemObjectSpriteRedner.size.y * Scale);
-        #endregion
+            #region Set Sprite
+            RectTransform itemObjectRectTransform = gameObject.GetComponent<RectTransform>();
+            SpriteRenderer itemObjectSpriteRedner = gameObject.GetComponent<SpriteRenderer>();
+            float Scale = Mathf.Min(itemObjectRectTransform.rect.height / itemObjectSpriteRedner.size.y, itemObjectRectTransform.rect.width / itemObjectSpriteRedner.size.x);
+            itemObjectSpriteRedner.size = new Vector2(itemObjectSpriteRedner.size.x * Scale, itemObjectSpriteRedner.size.y * Scale);
+            #endregion
 
-        #region Set Targeting Mode 
-        gameObject.GetComponent<Rigidbody2D>().bodyType = RigidbodyType2D.Dynamic;
-        transform.GetComponent<BoxCollider2D>().size = transform.GetComponent<RectTransform>().rect.size;
-        #endregion
+            #region Set Targeting Mode 
+            gameObject.GetComponent<Rigidbody2D>().bodyType = RigidbodyType2D.Dynamic;
+            transform.GetComponent<BoxCollider2D>().size = transform.GetComponent<RectTransform>().rect.size;
+            #endregion
 
-        #region Set Dragable mod
-        SlotObject.GetComponent<PanelSlots>().Scrollbar.GetComponent<ScrollRect>().enabled = false;
-        Counter.GetComponent<TextMeshPro>().fontSize = Main.ItemCounterFontSize;
-        isDragging = true;
-        #endregion
+            #region Set Dragable mod
+            SlotObject.GetComponent<PanelSlots>().ScrollPanel.GetComponent<ScrollRect>().enabled = false;
+            Counter.GetComponent<TextMeshPro>().fontSize = Main.ItemCounterFontSize;
+            isDragging = true;
+            #endregion
+        }
     }
-    private void OnMouseUp()
+    public void OnPointerUp(PointerEventData eventData)
     {
-        // Mozgatás leállítása, amikor elengedjük az egeret
-        #region unSet Moveable position
-        transform.SetParent(originalParent, false);
-        #endregion
+        if (isDragging)
+        {
+            // Mozgatás leállítása, amikor elengedjük az egeret
+            #region unSet Moveable position
+            transform.SetParent(originalParent, false);
+            #endregion
 
-        #region Load Original Object Datas
-        transform.GetComponent<RectTransform>().pivot = originalPivot;
-        transform.GetComponent<RectTransform>().anchorMin = originalAnchorMin;
-        transform.GetComponent<RectTransform>().anchorMax = originalAnchorMax;
-        transform.position = originalPosition;
-        transform.GetComponent<RectTransform>().sizeDelta = originalSize;
-        #endregion
+            #region Load Original Object Datas
+            transform.GetComponent<RectTransform>().pivot = originalPivot;
+            transform.GetComponent<RectTransform>().anchorMin = originalAnchorMin;
+            transform.GetComponent<RectTransform>().anchorMax = originalAnchorMax;
+            transform.position = originalPosition;
+            transform.GetComponent<RectTransform>().sizeDelta = originalSize;
+            #endregion
 
-        #region Set Sprite
-        RectTransform itemObjectRectTransform = gameObject.GetComponent<RectTransform>();
-        SpriteRenderer itemObjectSpriteRedner = gameObject.GetComponent<SpriteRenderer>();
-        float Scale = Mathf.Min(itemObjectRectTransform.rect.height / itemObjectSpriteRedner.size.y, itemObjectRectTransform.rect.width / itemObjectSpriteRedner.size.x);
-        itemObjectSpriteRedner.size = new Vector2(itemObjectSpriteRedner.size.x * Scale, itemObjectSpriteRedner.size.y * Scale);
-        #endregion
+            #region Set Sprite
+            RectTransform itemObjectRectTransform = gameObject.GetComponent<RectTransform>();
+            SpriteRenderer itemObjectSpriteRedner = gameObject.GetComponent<SpriteRenderer>();
+            float Scale = Mathf.Min(itemObjectRectTransform.rect.height / itemObjectSpriteRedner.size.y, itemObjectRectTransform.rect.width / itemObjectSpriteRedner.size.x);
+            itemObjectSpriteRedner.size = new Vector2(itemObjectSpriteRedner.size.x * Scale, itemObjectSpriteRedner.size.y * Scale);
+            #endregion
 
-        #region unSet Targeting Mode
-        gameObject.GetComponent<Rigidbody2D>().bodyType = RigidbodyType2D.Static;
-        transform.GetComponent<BoxCollider2D>().size = transform.GetComponent<RectTransform>().rect.size;
-        #endregion
+            #region unSet Targeting Mode
+            gameObject.GetComponent<Rigidbody2D>().bodyType = RigidbodyType2D.Static;
+            transform.GetComponent<BoxCollider2D>().size = transform.GetComponent<RectTransform>().rect.size;
+            #endregion
 
-        #region unSet Dragable mod
-        SlotObject.GetComponent<PanelSlots>().Scrollbar.GetComponent<ScrollRect>().enabled = true;
-        Counter.GetComponent<TextMeshPro>().fontSize = Main.ItemCounterFontSize / Main.SectorScale;
-        isDragging = false;
-        #endregion
+            #region unSet Dragable mod
+            SlotObject.GetComponent<PanelSlots>().ScrollPanel.GetComponent<ScrollRect>().enabled = true;
+            Counter.GetComponent<TextMeshPro>().fontSize = Main.ItemCounterFontSize / Main.SectorScale;
+            isDragging = false;
+            #endregion
 
-        Placing(CanBePlace());
+            Placing(CanBePlace());
+        } 
     }
     private (int smaller, int larger) SplitInteger(int number)
     {
@@ -206,7 +223,7 @@ public class ItemObject : MonoBehaviour
             }
         }
         #region Item Merge
-        else if (placer.activeItemSlots.Exists(slot=>slot.GetComponent<ItemSlot>() != null && slot.GetComponent<ItemSlot>().CoundAddAvaiable))//csak containerekben mukodik          hiba toretent itt
+        else if (placer.activeItemSlots !=null && placer.activeItemSlots.Exists(slot=>slot.GetComponent<ItemSlot>() != null && slot.GetComponent<ItemSlot>().CoundAddAvaiable))//csak containerekben mukodik
         {
             GameObject MergeObject = placer.activeItemSlots.Find(slot => slot.GetComponent<ItemSlot>().CoundAddAvaiable).GetComponent<ItemSlot>().PartOfItemObject;
             int count = MergeObject.GetComponent<ItemObject>().ActualData.Quantity;

@@ -11,7 +11,7 @@ public class Player : MonoBehaviour
 
     public GameObject InGameUI;
 
-    public static bool PlayerMovmentOnline = true;
+    public bool PlayerMovmentOnline = true;
     [HideInInspector] private float PlayerMovementSpeed = 50f;//default speed
     [HideInInspector] private float PlayerMovementSpeedMax = 100f;//sprint speed
     [SerializeField] private float moveSpeed;//actual speeed

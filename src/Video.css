@@ -1,0 +1,23 @@
+#video {
+    height: 45vh;
+    width: 80vh;
+    justify-content: center;
+    align-items: center;
+    border-radius: 10px;
+    display: flex;
+    margin: 0 auto;
+}
+
+@media (max-width: 768px) {
+    #video {
+        height: 30vh;
+        width: 40vh;
+    }
+}
+
+@media (max-width: 420px) {
+    #video {
+        height: 30vh;
+        width: 50vh;
+    }
+}

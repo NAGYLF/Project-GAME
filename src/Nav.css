@@ -87,7 +87,7 @@ a:hover {
 /* Modal */
 .modal-content {
   border: 2px solid rgba(211, 208, 208, 0.5) !important;
-  background-color: rgba(75, 73, 73, 0.4) !important;
+  background-color: rgba(75, 73, 73, 0.8) !important;
   box-shadow: 5px 5px 10px 10px rgba(19, 18, 18, 0.5);
   user-select: none;
   opacity: 0;

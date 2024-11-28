@@ -7,8 +7,6 @@ using System.Runtime.CompilerServices;
 using UnityEngine;
 public class Player : MonoBehaviour
 {
-
-
     public GameObject InGameUI;
 
     public bool PlayerMovmentOnline = true;
@@ -54,36 +52,36 @@ public class Player : MonoBehaviour
         float moveHorizontal = Input.GetAxis("Horizontal");//a mozgasi inputok horizontalisan ertekuk 1 tol -1 ig
         float moveVertical = Input.GetAxis("Vertical");//a mozgasi inputok vertikalisan ertekuk 1 tol -1 ig
 
-        // Mozg·s vektor
+        // Mozg√°s vektor
         //ugyebar matekbol tanultuk a vektorokat, na itt is az van:
-        //itt jelenleg az tortenik, hogy a new vektor2 az ezt a c# scriptet tartalmazÛ objektumbÛl kiindulva mutat egy m·sik pozÌciÛra(ı a movement) a koordin·ta-rendszerben.
-        //szoval lenyegeben ı a tervezett cÈl pozitcio ahova mozogni fog
+        //itt jelenleg az tortenik, hogy a new vektor2 az ezt a c# scriptet tartalmaz√≥ objektumb√≥l kiindulva mutat egy m√°sik poz√≠ci√≥ra(≈ë a movement) a koordin√°ta-rendszerben.
+        //szoval lenyegeben ≈ë a tervezett c√©l pozitcio ahova mozogni fog
         Vector2 movement = new Vector2(moveHorizontal, moveVertical);
         
         //az van, ha van egy negyzet akkor annak atloja hosszabb minha a negyzet jobb oldalan haladnank, ezert ha a karakter atlosan menne akkor lenyegeben gyorsabb lenne.
         //ezt azzal kerulom el, hogy normalizalom a vektort az az csupan erteket 1 re teszem, ezzel a vektor iranya nem valtozik, csak a hossza.
-        if (movement.magnitude>1)// a magnitute az a cÈlirany Ès az objektum kˆzˆtti tavolsag
+        if (movement.magnitude>1)// a magnitute az a c√©lirany √©s az objektum k√∂z√∂tti tavolsag
         {
             movement = movement.normalized;
         }
         //a mozgas lenyegeben ugy mukodik, hogy az unity altal biztositva van egy fizikai komponenes, ez enyit tesz, hogy a mozgasat amit 1 fps az az frame per second alatt tenne meg
-        //ı lebontja anyi utvonal darabkara, hogy azt a jelenlegi fps alatt tegye meg ezzel finom lezs a mozgasa
+        //≈ë lebontja anyi utvonal darabkara, hogy azt a jelenlegi fps alatt tegye meg ezzel finom lezs a mozgasa
         //kb ugy mint egy video ha 3 fps ed van akkor szaggat mint a kurvaelet, ha meg van 200 akkor meg nagyob finoman mozog.
-        //itt igy erteheto hogy az tortenik, hogy a movement az az az utvonal iranyat Ès annak iranyat felszorzom a sebeseggel tovabba hozza adom a fizikai komponenshez ami azt lebontja Ès vegre is hajtja.
+        //itt igy erteheto hogy az tortenik, hogy a movement az az az utvonal iranyat √©s annak iranyat felszorzom a sebeseggel tovabba hozza adom a fizikai komponenshez ami azt lebontja √©s vegre is hajtja.
         if (movement.magnitude > 0)
         {
             Objectrigidbody.velocity = movement * moveSpeed;
         }
-        else// mivel a magnitude az az a cÈlir·ny Ès az objektum kˆzˆtti tavolsag maximum 1 lehet (az elobbiekbol adodoan), de csak akkor ha van bevitt WASD.
-            //Ès az a helyzet, hogy meg igy is eszreveheto, hogy ha elengeded a WASD valamelyiket akkor a karakte rmeg egy kicsit megy, na ez azert van mert a fizikai komponens vegrehajtja a pozitcionalast,
-            //de az utan is folytatja ha meg nem felyezte be, hogy te elengedted a WASD-t ezert ekkor meg kell allitani azzal, hogy 0 lesz Ès kesz.
+        else// mivel a magnitude az az a c√©lir√°ny √©s az objektum k√∂z√∂tti tavolsag maximum 1 lehet (az elobbiekbol adodoan), de csak akkor ha van bevitt WASD.
+            //√©s az a helyzet, hogy meg igy is eszreveheto, hogy ha elengeded a WASD valamelyiket akkor a karakte rmeg egy kicsit megy, na ez azert van mert a fizikai komponens vegrehajtja a pozitcionalast,
+            //de az utan is folytatja ha meg nem felyezte be, hogy te elengedted a WASD-t ezert ekkor meg kell allitani azzal, hogy 0 lesz √©s kesz.
         {
-            // Azonnali meg·ll·s
+            // Azonnali meg√°ll√°s
             Objectrigidbody.velocity = Vector2.zero;
         }
 
 
-        // Ellenırizz¸k, hogy a j·tÈkos sprintel-e
+        // Ellen≈ërizz√ºk, hogy a j√°t√©kos sprintel-e
         if (!isSprinting && Input.GetKey(KeyCode.LeftShift) || Input.GetKey(KeyCode.RightShift))
         {
             moveSpeed = PlayerMovementSpeedMax;
@@ -98,8 +96,8 @@ public class Player : MonoBehaviour
 
     private void PlayerAnimation(float moveHorizontal)
     {
-        //A SpriteRenderer a Unityben egy komponens, amely lehetıvÈ teszi a 2D grafikai elemek (spritek) megjelenÌtÈsÈt a j·tÈkban. Ez a komponens felelıs azÈrt, hogy a spritet a megfelelı helyen Ès mÈretben jelenÌtse meg a kÈpernyın.
-        //itt csak anyi a feladata, hogy ha a fegyver (ami a CharacterHand c# scriptet tartalmazza) flip ertekeit lekerje Ès amerre a fegyver nez arra nezzen a karaker.
+        //A SpriteRenderer a Unityben egy komponens, amely lehet≈ëv√© teszi a 2D grafikai elemek (spritek) megjelen√≠t√©s√©t a j√°t√©kban. Ez a komponens felel≈ës az√©rt, hogy a spritet a megfelel≈ë helyen √©s m√©retben jelen√≠tse meg a k√©perny≈ën.
+        //itt csak anyi a feladata, hogy ha a fegyver (ami a CharacterHand c# scriptet tartalmazza) flip ertekeit lekerje √©s amerre a fegyver nez arra nezzen a karaker.
         SpriteRenderer spriteRenderer = gameObject.GetComponent<SpriteRenderer>();
 
         Transform child = transform.GetChild(0);

@@ -44,8 +44,8 @@ public class InGameUI : MonoBehaviour
     {
         IntecativeObjects = new List<GameObject>();
 
-        OpenCloseUI.Refress();//mivel statikus a valtoto ezert ami statiku az az alkalmazás egész futása alatt létezik, ezert ha én törlöm ezt a jelenetet és ujra betoltom
-                              //atol meg a regi gameobject refernciával bíró action tipusú változó eljarasai nem törlõdnek csak ujjak addolódnak hozzá. ezert töröljük õket
+        OpenCloseUI.Refress();//mivel statikus a valtoto ezert ami statiku az az alkalmazÃ¡s egÃ©sz futÃ¡sa alatt lÃ©tezik, ezert ha Ã©n tÃ¶rlÃ¶m ezt a jelenetet Ã©s ujra betoltom
+                              //atol meg a regi gameobject refernciÃ¡val bÃ­rÃ³ action tipusÃº vÃ¡ltozÃ³ eljarasai nem tÃ¶rlÃµdnek csak ujjak addolÃ³dnak hozzÃ¡. ezert tÃ¶rÃ¶ljÃ¼k Ãµket
 
         #region UI Metods Builds
         DevConsol = new OpenCloseUI(DevConsoleOpen,DevConsoleClose);
@@ -63,7 +63,7 @@ public class InGameUI : MonoBehaviour
         Main.DefaultWidth = cameraWidth;
         Main.DefaultHeight = cameraHeight;
 
-        // Objektum méretei (a kamera méreteihez igazítva)
+        // Objektum mÃ©retei (a kamera mÃ©reteihez igazÃ­tva)
         gameObject.GetComponent<RectTransform>().position = CameraObject.transform.position;
         gameObject.GetComponent<RectTransform>().sizeDelta = new Vector2(cameraWidth, cameraHeight);
     }

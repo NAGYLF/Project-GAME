@@ -17,7 +17,7 @@ public class ItemObject : MonoBehaviour, IPointerDownHandler, IPointerUpHandler
     public GameObject Counter;
     private GameObject Window;
     public Item ActualData { get; private set; }
-    private GameObject VirtualParentObject;//azon objektum melynek a friss adatszinkroniz·ciÛÈrt felel
+    private GameObject VirtualParentObject;//azon objektum melynek a friss adatszinkroniz√°ci√≥√©rt felel
 
     private Transform originalParent;
     private Vector3 originalPosition;
@@ -26,7 +26,7 @@ public class ItemObject : MonoBehaviour, IPointerDownHandler, IPointerUpHandler
     private Vector2 originalAnchorMin;
     private Vector2 originalAnchorMax;
     private float originalRotation;//ezt kivetelesen nem az onMouseDown eljarasban hasznaljuk hanem a placing eljaras azon else agaban amely a CanBePlacing false agan helyezkedik el.
-    List<GameObject> itemSlots { get; set; }//az itemlsotok pillanatnyi eltarolasara van sz¸ksÈg
+    List<GameObject> itemSlots { get; set; }//az itemlsotok pillanatnyi eltarolasara van sz√ºks√©g
 
     private bool isDragging = false;
     public PlacerStruct placer { private get; set; }
@@ -37,7 +37,7 @@ public class ItemObject : MonoBehaviour, IPointerDownHandler, IPointerUpHandler
     }
     private bool CanBePlace()
     {
-        //az itemslotok szama egynelo az item meretevel Ès mindegyik slot ugyan abban a sectorban van     vagy a placer aktiv slotjaiban egy elem van ami egy equipmentslot
+        //az itemslotok szama egynelo az item meretevel √©s mindegyik slot ugyan abban a sectorban van     vagy a placer aktiv slotjaiban egy elem van ami egy equipmentslot
         //Debug.Log(placer.activeItemSlots.First().name);
         if (placer.activeItemSlots != null && placer.activeItemSlots.Count == 1 && placer.activeItemSlots.First().name.Contains("EquipmentSlot"))
         {
@@ -77,7 +77,7 @@ public class ItemObject : MonoBehaviour, IPointerDownHandler, IPointerUpHandler
         else if (eventData.button == PointerEventData.InputButton.Left)
         {
             if (Window != null) Destroy(Window);
-            // Ekkor indul a mozgat·s, ha r·kattintunk az objektumra
+            // Ekkor indul a mozgat√°s, ha r√°kattintunk az objektumra
             #region Save Original Object Datas
             originalPosition = transform.position;
             originalSize = transform.GetComponent<RectTransform>().sizeDelta;
@@ -119,7 +119,7 @@ public class ItemObject : MonoBehaviour, IPointerDownHandler, IPointerUpHandler
     {
         if (isDragging)
         {
-            // Mozgat·s le·llÌt·sa, amikor elengedj¸k az egeret
+            // Mozgat√°s le√°ll√≠t√°sa, amikor elengedj√ºk az egeret
             #region unSet Moveable position
             transform.SetParent(originalParent, false);
             #endregion
@@ -176,7 +176,7 @@ public class ItemObject : MonoBehaviour, IPointerDownHandler, IPointerUpHandler
                 GameObject MergeObject = placer.activeItemSlots.Find(slot => slot.GetComponent<ItemSlot>().CoundAddAvaiable).GetComponent<ItemSlot>().PartOfItemObject;
                 MergeObject.GetComponent<ItemObject>().ActualData.Quantity += SplitedCount.larger;
                 ActualData.Quantity = SplitedCount.smaller;
-                if (MergeObject.GetComponent<ItemObject>().ActualData.Quantity > MergeObject.GetComponent<ItemObject>().ActualData.MaxStackSize)//ha a split tˆbb mint a maximalis stacksize
+                if (MergeObject.GetComponent<ItemObject>().ActualData.Quantity > MergeObject.GetComponent<ItemObject>().ActualData.MaxStackSize)//ha a split t√∂bb mint a maximalis stacksize
                 {
                     ActualData.Quantity += (MergeObject.GetComponent<ItemObject>().ActualData.Quantity - MergeObject.GetComponent<ItemObject>().ActualData.MaxStackSize);
                     MergeObject.GetComponent<ItemObject>().ActualData.Quantity = MergeObject.GetComponent<ItemObject>().ActualData.MaxStackSize;
@@ -184,7 +184,7 @@ public class ItemObject : MonoBehaviour, IPointerDownHandler, IPointerUpHandler
                     SelfVisualisation();
                     placementCanStart = false;
                 }
-                else//ha nem tˆbb a split mint a maxim·lis stacksize
+                else//ha nem t√∂bb a split mint a maxim√°lis stacksize
                 {
                     ActualData.Quantity = SplitedCount.smaller;
                     MergeObject.GetComponent<ItemObject>().SelfVisualisation();
@@ -199,7 +199,7 @@ public class ItemObject : MonoBehaviour, IPointerDownHandler, IPointerUpHandler
                     }
                 }
             }
-            else if (placer.activeItemSlots.Count == ActualData.SizeY * ActualData.SizeX)//egy specialis objektumlÈtrehoz·si folyamat ez akkor lÈp ÈrvÈnybe ha ¸res slotba ker¸l az item
+            else if (placer.activeItemSlots.Count == ActualData.SizeY * ActualData.SizeX)//egy specialis objektuml√©trehoz√°si folyamat ez akkor l√©p √©rv√©nybe ha √ºres slotba ker√ºl az item
             {
                 Item item = new Item(ActualData.ItemName, SplitedCount.larger);
                 item.SlotUse = new string[placer.activeItemSlots.Count];
@@ -247,7 +247,7 @@ public class ItemObject : MonoBehaviour, IPointerDownHandler, IPointerUpHandler
         if (placementCanStart)
         {
             Debug.Log(placer.activeItemSlots.Count);
-            if (VirtualParentObject.GetInstanceID() != placer.NewVirtualParentObject.GetInstanceID())//˙j VPO (VirtualParentObject)
+            if (VirtualParentObject.GetInstanceID() != placer.NewVirtualParentObject.GetInstanceID())//√∫j VPO (VirtualParentObject)
             {
                 if (VirtualParentObject.GetComponent<EquipmentSlot>() != null)
                 {
@@ -315,23 +315,23 @@ public class ItemObject : MonoBehaviour, IPointerDownHandler, IPointerUpHandler
                     {
                         for (int slot = 0; slot < containerObject.SectorManagers[sector].GetComponent<SectorManager>().ItemSlots.Length; slot++)
                         {
-                            //ha az aktiv slotok k¸z¸l az egyik az iter·lt slot      Ès ezt a slotot tartalmazza mÈg ez az item actualdataja is.    az azt jelenti, hogy ezen slot ugyan ugy az itemobjektum rÈsze maradt
+                            //ha az aktiv slotok k√ºz√ºl az egyik az iter√°lt slot      √©s ezt a slotot tartalmazza m√©g ez az item actualdataja is.    az azt jelenti, hogy ezen slot ugyan ugy az itemobjektum r√©sze maradt
                             if (placer.activeItemSlots.Contains(containerObject.SectorManagers[sector].GetComponent<SectorManager>().ItemSlots[slot]) && ActualData.SlotUse.Contains(containerObject.SectorManagers[sector].GetComponent<SectorManager>().ItemSlots[slot].GetComponent<ItemSlot>().name))
                             {
-                                //ezert hozzadjuk az itemSlots list·hoz az itemslot objektumot
+                                //ezert hozzadjuk az itemSlots list√°hoz az itemslot objektumot
                                 itemSlots.Add(containerObject.SectorManagers[sector].GetComponent<SectorManager>().ItemSlots[slot]);
                             }
-                            //ha az aktiv slotok k¸z¸l az egyik az iter·lt slot      de ezt nem tartalmazza az item actualdataja        az azt jelenti, hogy ezen itemslot egy uj rÈsze lett az itemobjektumnak
+                            //ha az aktiv slotok k√ºz√ºl az egyik az iter√°lt slot      de ezt nem tartalmazza az item actualdataja        az azt jelenti, hogy ezen itemslot egy uj r√©sze lett az itemobjektumnak
                             else if (placer.activeItemSlots.Contains(containerObject.SectorManagers[sector].GetComponent<SectorManager>().ItemSlots[slot]) && !ActualData.SlotUse.Contains(containerObject.SectorManagers[sector].GetComponent<SectorManager>().ItemSlots[slot].GetComponent<ItemSlot>().name))
                             {
-                                //ezen uj slot rÈsze lesz az itemobjektumnak Ès annak adat·nak      illetve hozz·adjuk az itemslot list·hoz
+                                //ezen uj slot r√©sze lesz az itemobjektumnak √©s annak adat√°nak      illetve hozz√°adjuk az itemslot list√°hoz
                                 containerObject.SectorManagers[sector].GetComponent<SectorManager>().ItemSlots[slot].GetComponent<ItemSlot>().PartOfItemObject = gameObject;
                                 itemSlots.Add(containerObject.SectorManagers[sector].GetComponent<SectorManager>().ItemSlots[slot]);
                             }
-                            //ha ezen iter·lt slot nem rÈsze az aktÌv slotoknak       de rÈsze az item actualdata-j·nak       az azt jelenti, hogy ez egy rÈgi slot az itemobjektumnak
+                            //ha ezen iter√°lt slot nem r√©sze az akt√≠v slotoknak       de r√©sze az item actualdata-j√°nak       az azt jelenti, hogy ez egy r√©gi slot az itemobjektumnak
                             else if (!placer.activeItemSlots.Contains(containerObject.SectorManagers[sector].GetComponent<SectorManager>().ItemSlots[slot]) && ActualData.SlotUse.Contains(containerObject.SectorManagers[sector].GetComponent<SectorManager>().ItemSlots[slot].GetComponent<ItemSlot>().name))
                             {
-                                //ezt a slotot megfosztjuk az itemobjektumtÛl Ès annak adat·tÛl
+                                //ezt a slotot megfosztjuk az itemobjektumt√≥l √©s annak adat√°t√≥l
                                 containerObject.SectorManagers[sector].GetComponent<SectorManager>().ItemSlots[slot].GetComponent<ItemSlot>().PartOfItemObject = null;
                             }
                         }
@@ -377,9 +377,9 @@ public class ItemObject : MonoBehaviour, IPointerDownHandler, IPointerUpHandler
     {
         if (isDragging)
         {
-            // Az egÈr pozÌciÛj·nak lekÈrÈse a vil·gkoordin·ta rendszerben
+            // Az eg√©r poz√≠ci√≥j√°nak lek√©r√©se a vil√°gkoordin√°ta rendszerben
             Vector3 mousePosition = Camera.main.ScreenToWorldPoint(Input.mousePosition);
-            // Az objektum ˙j pozÌciÛj·nak be·llÌt·sa (csak az X Ès Y, hogy a Z tengely ne v·ltozzon)
+            // Az objektum √∫j poz√≠ci√≥j√°nak be√°ll√≠t√°sa (csak az X √©s Y, hogy a Z tengely ne v√°ltozzon)
             transform.position = new Vector3(mousePosition.x, mousePosition.y, transform.position.z);
         }
     }
@@ -456,7 +456,7 @@ public class ItemObject : MonoBehaviour, IPointerDownHandler, IPointerUpHandler
     public void DataLoad()
     {
         itemSlots = new List<GameObject>();
-        if (ActualData.Container != null)//11. ha az item adatai tartalmaznak containert akkor az lÈtrejˆn
+        if (ActualData.Container != null)//11. ha az item adatai tartalmaznak containert akkor az l√©trej√∂n
         {
             //--> ContainerObject.cs
             Debug.LogWarning($"{ActualData.ItemName} ItemObject ------- ref --------> ContainerObject.cs");
@@ -489,7 +489,7 @@ public class ItemObject : MonoBehaviour, IPointerDownHandler, IPointerUpHandler
         RectTransform itemObjectRectTransform = gameObject.GetComponent<RectTransform>();
 
         SpriteRenderer itemObjectSpriteRedner = gameObject.GetComponent<SpriteRenderer>();
-        itemObjectSpriteRedner.sprite = Resources.Load<Sprite>(gameObject.GetComponent<ItemObject>().ActualData.ImgPath);//az itemobjektum megkapja kÈpÈt
+        itemObjectSpriteRedner.sprite = Resources.Load<Sprite>(gameObject.GetComponent<ItemObject>().ActualData.ImgPath);//az itemobjektum megkapja k√©p√©t
         itemObjectSpriteRedner.drawMode = SpriteDrawMode.Sliced;
 
         if (VirtualParentObject.GetComponent<EquipmentSlot>() != null)
@@ -538,28 +538,28 @@ public class ItemObject : MonoBehaviour, IPointerDownHandler, IPointerUpHandler
             {
                 ActualData.SlotUse[i] = itemSlots[i].name;
             }
-            // AlapÈrtelmezett kezdıÈrtÈkek (Èrtelmesen kisz·mÌtva)
+            // Alap√©rtelmezett kezd√µ√©rt√©kek (√©rtelmesen kisz√°m√≠tva)
             Vector2 minPos = new Vector2(float.MaxValue, float.MaxValue);
             Vector2 maxPos = new Vector2(float.MinValue, float.MinValue);
 
-            // VÈgigmegy az ˆsszes itemSlot-on Ès kisz·mÌtja a minim·lis Ès maxim·lis pozÌciÛkat
+            // V√©gigmegy az √∂sszes itemSlot-on √©s kisz√°m√≠tja a minim√°lis √©s maxim√°lis poz√≠ci√≥kat
             foreach (GameObject itemSlot in itemSlots)
             {
-                // Az itemSlot helyi pozÌciÛja a gameObject sz¸lıhˆz kÈpest
+                // Az itemSlot helyi poz√≠ci√≥ja a gameObject sz√ºl√µh√∂z k√©pest
                 Vector3 slotLocalPos = itemSlot.GetComponent<RectTransform>().localPosition;
                 Vector2 slotMin = slotLocalPos - (Vector3)itemSlot.GetComponent<RectTransform>().sizeDelta / 2;
                 Vector2 slotMax = slotLocalPos + (Vector3)itemSlot.GetComponent<RectTransform>().sizeDelta / 2;
 
-                // Be·llÌtja a minim·lis Ès maxim·lis pontokat az ˆsszes itemSlot lefedÈsÈre
+                // Be√°ll√≠tja a minim√°lis √©s maxim√°lis pontokat az √∂sszes itemSlot lefed√©s√©re
                 minPos = Vector2.Min(minPos, slotMin);
                 maxPos = Vector2.Max(maxPos, slotMax);
             }
 
-            // MÈret kisz·mÌt·sa Ès a sz¸lı objektum mÈretÈnek be·llÌt·sa
+            // M√©ret kisz√°m√≠t√°sa √©s a sz√ºl√µ objektum m√©ret√©nek be√°ll√≠t√°sa
             Vector2 newSize = maxPos - minPos;
 
             gameObject.transform.SetParent(itemSlots.First().transform.parent, false);
-            // A sz¸lı objektum pivotj·t kˆzÈpre ·llÌtja a pontos igazÌt·shoz
+            // A sz√ºl√µ objektum pivotj√°t k√∂z√©pre √°ll√≠tja a pontos igaz√≠t√°shoz
             itemObjectRectTransform.anchorMin = new Vector2(0.5f, 0.5f);
             itemObjectRectTransform.anchorMax = new Vector2(0.5f, 0.5f);
             itemObjectRectTransform.pivot = new Vector2(0.5f, 0.5f);
@@ -568,7 +568,7 @@ public class ItemObject : MonoBehaviour, IPointerDownHandler, IPointerUpHandler
             itemObjectRectTransform.sizeDelta = new Vector2(ActualData.SizeX * Main.DefaultItemSlotSize, ActualData.SizeY * Main.DefaultItemSlotSize);
             itemObjectRectTransform.localPosition = (Vector3)((maxPos + minPos) / 2f);
 
-            // ⁄j pozÌciÛ be·llÌt·sa ˙gy, hogy a sz¸lı lefedje az itemSlots ˆsszes elemÈt
+            // √öj poz√≠ci√≥ be√°ll√≠t√°sa √∫gy, hogy a sz√ºl√µ lefedje az itemSlots √∂sszes elem√©t
 
             float Scale = Mathf.Min(itemObjectRectTransform.rect.height / itemObjectSpriteRedner.size.y, itemObjectRectTransform.rect.width / itemObjectSpriteRedner.size.x);
             itemObjectSpriteRedner.size = new Vector2(itemObjectSpriteRedner.size.x * Scale, itemObjectSpriteRedner.size.y * Scale);

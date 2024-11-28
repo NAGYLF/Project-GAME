@@ -396,9 +396,17 @@ PrefabInstance:
     m_TransformParent: {fileID: 903902354}
     m_Modifications:
     - target: {fileID: 1730488807, guid: 8b3d9052fc1731344bc23bb343136841, type: 3}
+      propertyPath: Player
+      value: 
+      objectReference: {fileID: 2048521016}
+    - target: {fileID: 1730488807, guid: 8b3d9052fc1731344bc23bb343136841, type: 3}
       propertyPath: target
       value: 
       objectReference: {fileID: 2048521015}
+    - target: {fileID: 1730488807, guid: 8b3d9052fc1731344bc23bb343136841, type: 3}
+      propertyPath: PlayerObject
+      value: 
+      objectReference: {fileID: 2048521016}
     - target: {fileID: 586048519737888617, guid: 8b3d9052fc1731344bc23bb343136841, type: 3}
       propertyPath: m_Pivot.x
       value: 0.5
@@ -487,6 +495,14 @@ PrefabInstance:
       propertyPath: m_Name
       value: InGameUI
       objectReference: {fileID: 0}
+    - target: {fileID: 3684504856005101763, guid: 8b3d9052fc1731344bc23bb343136841, type: 3}
+      propertyPath: m_LocalPosition.z
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 7216447378450939632, guid: 8b3d9052fc1731344bc23bb343136841, type: 3}
+      propertyPath: m_SizeDelta.y
+      value: 0
+      objectReference: {fileID: 0}
     m_RemovedComponents: []
   m_SourcePrefab: {fileID: 100100000, guid: 8b3d9052fc1731344bc23bb343136841, type: 3}
 --- !u!224 &1730488804 stripped
@@ -563,5 +579,10 @@ PrefabInstance:
 --- !u!4 &2048521015 stripped
 Transform:
   m_CorrespondingSourceObject: {fileID: 519393534644049869, guid: 4e062f40804f76440adb017283c3a68e, type: 3}
+  m_PrefabInstance: {fileID: 2048521014}
+  m_PrefabAsset: {fileID: 0}
+--- !u!1 &2048521016 stripped
+GameObject:
+  m_CorrespondingSourceObject: {fileID: 519393534644049871, guid: 4e062f40804f76440adb017283c3a68e, type: 3}
   m_PrefabInstance: {fileID: 2048521014}
   m_PrefabAsset: {fileID: 0}

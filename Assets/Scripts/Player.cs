@@ -7,9 +7,11 @@ using System.Runtime.CompilerServices;
 using UnityEngine;
 public class Player : MonoBehaviour
 {
-    [SerializeField] public GameObject InGameUI;
 
-    public static bool PlayerMovmentOnline = true;
+
+    public GameObject InGameUI;
+
+    public bool PlayerMovmentOnline = true;
     [HideInInspector] private float PlayerMovementSpeed = 50f;//default speed
     [HideInInspector] private float PlayerMovementSpeedMax = 100f;//sprint speed
     [SerializeField] private float moveSpeed;//actual speeed

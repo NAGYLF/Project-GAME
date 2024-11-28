@@ -6,27 +6,34 @@ using PlayerInventoryVisualBuild;
 using static MainData.SupportScripts;
 using PlayerInventoryClass;
 using System;
-using Unity.VisualScripting;
 using UnityEngine.UI;
 
 public class InGameUI : MonoBehaviour
 {
-    #region UI objects
-    public GameObject InGameMenuObject;
-    public GameObject HealtBar;
-    public GameObject StaminaBar;
-    public GameObject HungerBar;
-    public GameObject ThirstBar;
-    GameObject DevConsoleObject = null;
+    public List<GameObject> IntecativeObjects;
+
+    #region UI Inspectors objects
+    [SerializeField] public GameObject PlayerObject;
+    [SerializeField] public Camera CameraObject;
+    [SerializeField] public GameObject IntecativeObjectSelectorBox;
+    [SerializeField] public GameObject InGameMenuObject;
+    [SerializeField] public GameObject MessageBar;
+    [SerializeField] public GameObject HealtBar;
+    [SerializeField] public GameObject StaminaBar;
+    [SerializeField] public GameObject HungerBar;
+    [SerializeField] public GameObject ThirstBar;
     #endregion
 
+    #region UI Other Variables
+    GameObject DevConsoleObject = null;
+    public GameObject SelectedObject = null;
+    #endregion
+
+    #region UI Following Player Variables
     [SerializeField] private Vector3 offset;
     [SerializeField] private float damping;
-
-    public Transform target;//pl player
-    public Camera CameraObject;
-
     private Vector3 vel = Vector3.zero;
+    #endregion
 
     #region UI Metods
     public static OpenCloseUI DevConsol;
@@ -35,6 +42,8 @@ public class InGameUI : MonoBehaviour
     #endregion
     private void Awake()
     {
+        IntecativeObjects = new List<GameObject>();
+
         OpenCloseUI.Refress();//mivel statikus a valtoto ezert ami statiku az az alkalmazás egész futása alatt létezik, ezert ha én törlöm ezt a jelenetet és ujra betoltom
                               //atol meg a regi gameobject refernciával bíró action tipusú változó eljarasai nem törlõdnek csak ujjak addolódnak hozzá. ezert töröljük õket
 
@@ -60,7 +69,7 @@ public class InGameUI : MonoBehaviour
     }
     private void FixedUpdate()
     {
-        Vector3 targetPosition = target.position + offset;
+        Vector3 targetPosition = PlayerObject.transform.position + offset;
         targetPosition.z = transform.position.z;
 
         transform.position = Vector3.SmoothDamp(transform.position,targetPosition,ref vel,damping);
@@ -69,7 +78,7 @@ public class InGameUI : MonoBehaviour
     private void DevConsoleOpen()
     {
         DevConsoleObject = CreatePrefab("GameElements/DevConsole");
-        DevConsoleObject.GetComponent<DevConsol>().Player = target.gameObject;
+        DevConsoleObject.GetComponent<DevConsol>().Player = PlayerObject;
         DevConsoleObject.GetComponent<DevConsol>().inventory = gameObject;
         DevConsoleObject.transform.SetParent(transform);
     }
@@ -82,10 +91,12 @@ public class InGameUI : MonoBehaviour
     #region PlayerInventory UI parts
     private void PlayerInventoryOpen()
     {
+        IntecativeObjectSelectorBox.SetActive(false);
         gameObject.GetComponent<PlayerInventoryVisual>().OpenInventory();
     }
     private void PlayerInventoryClose()
     {
+        IntecativeObjectSelectorBox.SetActive(true);
         gameObject.GetComponent<PlayerInventoryVisual>().CloseInventory();
     }
     #endregion
@@ -93,10 +104,12 @@ public class InGameUI : MonoBehaviour
     #region InGameMenu parts
     private void InGameMenuOpen()
     {
+        IntecativeObjectSelectorBox.SetActive(false);
         InGameMenuObject.SetActive(true);
     }
     private void InGameMenuClose()
     {
+        IntecativeObjectSelectorBox.SetActive(true);
         InGameMenuObject.SetActive(false);
     }
     #endregion
@@ -114,6 +127,19 @@ public class InGameUI : MonoBehaviour
                     break;
                 case KeyCode.Escape:
                     InGameMenu.Action();
+                    break;
+                case KeyCode.X:
+                    IntecativeObjectSelectorBox.GetComponent<InteractiveObjectSelector>().Selection(1);
+                    break;
+                case KeyCode.Y:
+                    IntecativeObjectSelectorBox.GetComponent<InteractiveObjectSelector>().Selection(-1);
+                    break;
+                case KeyCode.F:
+                    if (SelectedObject!=null)
+                    {
+                        SelectedObject.GetComponent<Interact>().Opened = true;
+                        SelectedObject.GetComponent<Interact>().Action.DynamicInvoke(gameObject);
+                    }
                     break;
                 default:
                     break;
@@ -137,14 +163,19 @@ public class InGameUI : MonoBehaviour
     {
         ThirstBar.GetComponent<Slider>().value = count;
     }
+    public void RefreshInteractiveObjectList()
+    {
+        IntecativeObjectSelectorBox.GetComponent<InteractiveObjectSelector>().selectableObjects = IntecativeObjects;
+        IntecativeObjectSelectorBox.GetComponent<InteractiveObjectSelector>().RefressSelector();
+    }
 }
 
 public class OpenCloseUI
 {
-    private static List<OpenCloseUI> allInstances = new List<OpenCloseUI>();
+    private static readonly List<OpenCloseUI> allInstances = new();
 
-    private Action open;
-    private Action close;
+    private readonly Action open;
+    private readonly Action close;
     private bool Status;
     public void Action()
     {
@@ -165,8 +196,11 @@ public class OpenCloseUI
             }
             else
             {
-                instance.close.Invoke();
-                instance.Status = true;
+                if (!instance.Status)
+                {
+                    instance.close.Invoke();
+                    instance.Status = true;
+                }
             }
         }
     }

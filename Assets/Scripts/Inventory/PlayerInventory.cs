@@ -345,7 +345,15 @@ namespace ItemHandler
         public string ImgPath { get; set; }
         public float RotateDegree { get; set; } = 0f;
         public string[] SlotUse { get; set; }
+
         private string SlotUseId;//ezt az azonositot a localis containeren belul használjuk a container listában lévő item adatok megkülönbözetésére
+
+        //action (Műveletek)
+        public bool Drop { get; set; } = true;
+        public bool Remove { get; set; } = true;
+        public bool Unload { get; set; } = true;
+        public bool Modification { get; set; } = true;
+        public bool Open { get; set; } = true;
         public string GetSlotUseId()
         {
             Debug.Log($"Get {ItemName} : slotuse id = {SlotUseId}");
@@ -531,6 +539,8 @@ namespace PlayerInventoryVisualBuild
                 InventoryObject.transform.SetParent(UI.transform, false);
 
                 InventoryObject.AddComponent<RectTransform>().localPosition = new Vector3(0, 0, UI.transform.position.z);
+
+                InventoryObject.GetComponent<RectTransform>().sizeDelta = UI.GetComponent<RectTransform>().sizeDelta;
             }
             else
             {

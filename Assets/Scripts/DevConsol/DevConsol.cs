@@ -12,7 +12,7 @@ using System;
 public class DevConsol : MonoBehaviour
 {
     public GameObject text;
-    [HideInInspector] private PlayerInventory playerInventory;
+    [HideInInspector] private static PlayerInventory.Equipmnets equipments;
     [HideInInspector] public GameObject inventory;
     [HideInInspector] public GameObject Player;
     //add [playerName] item [itemName] [Count]
@@ -156,7 +156,7 @@ public class DevConsol : MonoBehaviour
                 break;
             case "Save":
                 Debug.Log($"{text.GetComponent<TMP_InputField>().text}");
-                playerInventory.equipments = inventory.GetComponent<PlayerInventory>().equipments;
+                equipments = inventory.GetComponent<PlayerInventory>().equipments;
                 break;
             case "Clear":
                 Debug.Log($"{text.GetComponent<TMP_InputField>().text}");
@@ -164,7 +164,7 @@ public class DevConsol : MonoBehaviour
                 break;
             case "Load":
                 Debug.Log($"{text.GetComponent<TMP_InputField>().text}");
-                inventory.GetComponent<PlayerInventory>().equipments = playerInventory.equipments;
+                inventory.GetComponent<PlayerInventory>().equipments = equipments;
                 break;
             case var _ when Command[0] == Main.name:
                 switch (Command[1])
@@ -224,5 +224,6 @@ public class DevConsol : MonoBehaviour
             default:
                 break;
         }
+        text.GetComponent<TMP_InputField>().text = "";
     }
 }

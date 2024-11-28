@@ -13,7 +13,7 @@ public class MainMenu : MonoBehaviour
 {
     public static float fadeDuration = 1.5f;
     public static GameObject secondMenu;
-
+    DatabaseManager manager;
     void Start()
     {
         //Aplication Start
@@ -23,7 +23,7 @@ public class MainMenu : MonoBehaviour
         secondMenu = GameObject.Find("SecondMenu");
         secondMenu.SetActive(false);
 
-        DatabaseManager manager = new DatabaseManager();
+        manager = new DatabaseManager();
         StartCoroutine(manager.ServerConnection());
     }
 

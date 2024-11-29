@@ -330,6 +330,8 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   IntecativeObjects: []
+  PlayerObject: {fileID: 0}
+  CameraObject: {fileID: 586048521022323093}
   IntecativeObjectSelectorBox: {fileID: 9094537026093962980}
   InGameMenuObject: {fileID: 6799558611518873860}
   MessageBar: {fileID: 1686217565265206856}
@@ -337,10 +339,9 @@ MonoBehaviour:
   StaminaBar: {fileID: 779858363610698873}
   HungerBar: {fileID: 7884527260312320654}
   ThirstBar: {fileID: 459203081579040192}
+  SelectedObject: {fileID: 0}
   offset: {x: 0, y: 0, z: 0}
   damping: 0.05
-  target: {fileID: 0}
-  CameraObject: {fileID: 586048521022323093}
 --- !u!1 &586048521022323081
 GameObject:
   m_ObjectHideFlags: 0
@@ -409,7 +410,7 @@ Camera:
   far clip plane: 10
   field of view: 60
   orthographic: 1
-  orthographic size: 65
+  orthographic size: 120
   m_Depth: -1
   m_CullingMask:
     serializedVersion: 2
@@ -2813,6 +2814,10 @@ PrefabInstance:
   m_Modification:
     m_TransformParent: {fileID: 586048519737888617}
     m_Modifications:
+    - target: {fileID: 5459578242264624657, guid: 3082e1cdfe53efe44a9bed0f38db2652, type: 3}
+      propertyPath: m_SortingLayer
+      value: 0
+      objectReference: {fileID: 0}
     - target: {fileID: 5879113417785937706, guid: 3082e1cdfe53efe44a9bed0f38db2652, type: 3}
       propertyPath: m_Name
       value: MessageBar

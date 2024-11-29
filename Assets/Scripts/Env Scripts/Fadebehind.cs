@@ -28,6 +28,7 @@ public class Fadebehind : MonoBehaviour
             // Ellenõrizzük, hogy a játékos a fa mögött van-e
             if (player.position.y > transform.position.y)
             {
+                spriteRenderer.sortingOrder = 11;
                 // A játékos mögött van, tegyük átlátszóvá a fát
                 spriteRenderer.color = new Color(originalColor.r, originalColor.g, originalColor.b, transparentAlpha);
             }
@@ -41,6 +42,7 @@ public class Fadebehind : MonoBehaviour
         {
             // Ha a játékos nincs a közelben, állítsuk vissza az eredeti színt
             spriteRenderer.color = originalColor;
+            spriteRenderer.sortingOrder = 0;
         }
     }
 }

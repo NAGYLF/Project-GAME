@@ -10,7 +10,7 @@ TagManager:
   - Default
   - TransparentFX
   - Ignore Raycast
-  - 
+  - Player
   - Water
   - UI
   - InGameMenu
@@ -42,6 +42,9 @@ TagManager:
   m_SortingLayers:
   - name: BackGround
     uniqueID: 2961911533
+    locked: 0
+  - name: MapEnviromentObjects
+    uniqueID: 202653477
     locked: 0
   - name: Player
     uniqueID: 1909509017

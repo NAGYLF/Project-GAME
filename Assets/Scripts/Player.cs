@@ -1,4 +1,3 @@
-using PlayerInventoryVisualBuild;
 using PlayerInventoryClass;
 using MainData;
 using System.Collections;

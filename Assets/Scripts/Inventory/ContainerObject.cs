@@ -6,8 +6,10 @@ using MainData;
 using Assets.Scripts;
 using System.Linq;
 using System;
-using static PlayerInventoryVisualBuild.PlayerInventoryVisual;
+using static PlayerInventoryClass.PlayerInventory;
 using static MainData.SupportScripts;
+using NaturalInventorys;
+using Assets.Scripts.Inventory;
 
 
 public class ContainerObject : MonoBehaviour
@@ -55,7 +57,14 @@ public class ContainerObject : MonoBehaviour
                 }
             }
         }
-        VirtualParentObject.GetComponent<ItemObject>().DataUpdate(ActualData);//ezen változásokat továbbítja Saját VPO-jának
+        if (VirtualParentObject.GetComponent<ItemObject>() != null)
+        {
+            VirtualParentObject.GetComponent<ItemObject>().DataUpdate(ActualData);
+        }
+        else if (VirtualParentObject.GetComponent<SimpleInventory>())
+        {
+            VirtualParentObject.GetComponent<SimpleInventory>().DataUpdate(ActualData);
+        }
     }
     public void DataIn(Item Data)//(a sender objectum mindig itemObjectum) Ezen eljárás céla, hogy ezen VPO-ba hozzáadja a VCO adatait
     {
@@ -71,7 +80,14 @@ public class ContainerObject : MonoBehaviour
                 }
             }
         }
-        VirtualParentObject.GetComponent<ItemObject>().DataUpdate(ActualData);
+        if (VirtualParentObject.GetComponent<ItemObject>() != null)
+        {
+            VirtualParentObject.GetComponent<ItemObject>().DataUpdate(ActualData);
+        }
+        else if (VirtualParentObject.GetComponent<SimpleInventory>())
+        {
+            VirtualParentObject.GetComponent<SimpleInventory>().DataUpdate(ActualData);
+        }
     }
     //a megváltozott itemobjektum szikronizálja uj adatait parentobjektumával ki nem változott meg.
     public void DataUpdate(Item Data, GameObject SenderObject)//(a sender objectum mindig itemObjectum) Ezen eljárás céla, hogy ezen VPO-ban módosítsa a VCO adatait.
@@ -101,7 +117,15 @@ public class ContainerObject : MonoBehaviour
         }
         ActualData.Container.Items[index] = Data;
         SenderObject.GetComponent<ItemObject>().ActualData.SetSlotUseId();
-        VirtualParentObject.GetComponent<ItemObject>().DataUpdate(ActualData);
+
+        if (VirtualParentObject.GetComponent<ItemObject>() != null)
+        {
+            VirtualParentObject.GetComponent<ItemObject>().DataUpdate(ActualData);
+        }
+        else if (VirtualParentObject.GetComponent<SimpleInventory>())
+        {
+            VirtualParentObject.GetComponent<SimpleInventory>().DataUpdate(ActualData);
+        }
     }
     #endregion
     #region VPO (VirtualParentObjet) Synch -- Into --> This VCO (VirtualChildrenObject)
@@ -113,11 +137,22 @@ public class ContainerObject : MonoBehaviour
     }
     #endregion
     private void SelfVisualisation()
-    {
-        GameObject slotObject = SlotObject;
-        RectTransform containerRectTranform = gameObject.GetComponent<RectTransform>();
-        RectTransform SlotPanelObject = slotObject.GetComponent<RectTransform>();
-        containerRectTranform.sizeDelta = new Vector2(SlotPanelObject.sizeDelta.x, containerRectTranform.sizeDelta.y * (SlotPanelObject.sizeDelta.x / containerRectTranform.sizeDelta.x));
-        gameObject.transform.SetParent(slotObject.GetComponent<PanelSlots>().Content.transform, false);
+    {    
+        if (VirtualParentObject.GetComponent<ItemObject>().VirtualParentObject.GetComponent<EquipmentSlot>() != null)
+        {
+            GameObject slotObject = PlayerInventoryClass.PlayerInventory.SlotPanelObject;
+            RectTransform containerRectTranform = gameObject.GetComponent<RectTransform>();
+            RectTransform SlotPanelObject = slotObject.GetComponent<RectTransform>();
+            containerRectTranform.sizeDelta = new Vector2(SlotPanelObject.sizeDelta.x, containerRectTranform.sizeDelta.y * (SlotPanelObject.sizeDelta.x / containerRectTranform.sizeDelta.x));
+            gameObject.transform.SetParent(slotObject.GetComponent<PanelSlots>().Content.transform, false);
+        }
+        else if (VirtualParentObject.GetComponent<ItemObject>().VirtualParentObject.GetComponent<SimpleInventory>() != null)
+        {
+            GameObject lootObject = LootPanelObject;
+            RectTransform containerRectTranform = gameObject.GetComponent<RectTransform>();
+            RectTransform lootPanelObject = lootObject.GetComponent<RectTransform>();
+            containerRectTranform.sizeDelta = new Vector2(lootPanelObject.sizeDelta.x, containerRectTranform.sizeDelta.y * (lootPanelObject.sizeDelta.x / containerRectTranform.sizeDelta.x));
+            gameObject.transform.SetParent(lootObject.GetComponent<PanelLoot>().Content.transform, false);
+        }
     }
 }

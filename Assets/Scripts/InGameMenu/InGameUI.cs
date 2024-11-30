@@ -2,9 +2,8 @@ using MainData;
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
-using PlayerInventoryVisualBuild;
-using static MainData.SupportScripts;
 using PlayerInventoryClass;
+using static MainData.SupportScripts;
 using System;
 using UnityEngine.UI;
 
@@ -17,6 +16,7 @@ public class InGameUI : MonoBehaviour
     [SerializeField] public Camera CameraObject;
     [SerializeField] public GameObject IntecativeObjectSelectorBox;
     [SerializeField] public GameObject InGameMenuObject;
+    [SerializeField] public GameObject PlayerInventoryObject;
     [SerializeField] public GameObject MessageBar;
     [SerializeField] public GameObject HealtBar;
     [SerializeField] public GameObject StaminaBar;
@@ -26,7 +26,7 @@ public class InGameUI : MonoBehaviour
 
     #region UI Other Variables
     GameObject DevConsoleObject = null;
-    public GameObject SelectedObject = null;
+    [HideInInspector] public GameObject SelectedObject;
     #endregion
 
     #region UI Following Player Variables
@@ -53,8 +53,6 @@ public class InGameUI : MonoBehaviour
         InGameMenu = new OpenCloseUI(InGameMenuOpen,InGameMenuClose);
         #endregion
 
-        gameObject.AddComponent<PlayerInventory>();
-
         Application.targetFrameRate = Main.targetFPS;
 
         float cameraHeight = CameraObject.orthographicSize * 2f;
@@ -79,7 +77,7 @@ public class InGameUI : MonoBehaviour
     {
         DevConsoleObject = CreatePrefab("GameElements/DevConsole");
         DevConsoleObject.GetComponent<DevConsol>().Player = PlayerObject;
-        DevConsoleObject.GetComponent<DevConsol>().inventory = gameObject;
+        DevConsoleObject.GetComponent<DevConsol>().inventory = PlayerInventoryObject;
         DevConsoleObject.transform.SetParent(transform);
     }
     private void DevConsoleClose()
@@ -92,12 +90,13 @@ public class InGameUI : MonoBehaviour
     private void PlayerInventoryOpen()
     {
         IntecativeObjectSelectorBox.SetActive(false);
-        gameObject.GetComponent<PlayerInventoryVisual>().OpenInventory();
+        PlayerInventoryObject.GetComponent<PlayerInventory>().OpenInventory();
     }
     private void PlayerInventoryClose()
     {
+        PlayerInventoryObject.GetComponent<PlayerInventory>().LootableObject = null;
         IntecativeObjectSelectorBox.SetActive(true);
-        gameObject.GetComponent<PlayerInventoryVisual>().CloseInventory();
+        PlayerInventoryObject.GetComponent<PlayerInventory>().CloseInventory();
     }
     #endregion
 
@@ -137,8 +136,7 @@ public class InGameUI : MonoBehaviour
                 case KeyCode.F:
                     if (SelectedObject!=null)
                     {
-                        SelectedObject.GetComponent<Interact>().Opened = true;
-                        SelectedObject.GetComponent<Interact>().Action.DynamicInvoke(gameObject);
+                        Metodes(SelectedObject.GetComponent<Interact>().ActionMode);
                     }
                     break;
                 default:
@@ -163,10 +161,24 @@ public class InGameUI : MonoBehaviour
     {
         ThirstBar.GetComponent<Slider>().value = count;
     }
-    public void RefreshInteractiveObjectList()
+    private void Metodes(string ActionMode)
     {
-        IntecativeObjectSelectorBox.GetComponent<InteractiveObjectSelector>().selectableObjects = IntecativeObjects;
-        IntecativeObjectSelectorBox.GetComponent<InteractiveObjectSelector>().RefressSelector();
+        switch (ActionMode)
+        {
+            case "OpenSimpleInventory" :
+                OpenSimpleInventory();
+                break;
+            default:
+                break;
+        }
+    }
+
+    private void OpenSimpleInventory()
+    {
+        SelectedObject.GetComponent<Interact>().Opened = true;
+        PlayerInventoryObject.GetComponent<PlayerInventory>().LootableObject = SelectedObject;
+        PlayerInventory.Action();
+        PlayerInventoryObject.GetComponent<PlayerInventory>().LootCreate();
     }
 }
 

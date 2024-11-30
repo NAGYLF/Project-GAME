@@ -6,7 +6,7 @@ using UnityEngine;
 using ItemHandler;
 using System.Linq;
 using static MainData.SupportScripts;
-using static PlayerInventoryVisualBuild.PlayerInventoryVisual;
+using static PlayerInventoryClass.PlayerInventory;
 using TMPro;
 using System;
 using Unity.VisualScripting;
@@ -16,8 +16,9 @@ public class ItemObject : MonoBehaviour, IPointerDownHandler, IPointerUpHandler
 {
     public GameObject Counter;
     private GameObject Window;
+    private GameObject Container = null;
     public Item ActualData { get; private set; }
-    private GameObject VirtualParentObject;//azon objektum melynek a friss adatszinkronizációért felel
+    public GameObject VirtualParentObject;//azon objektum melynek a friss adatszinkronizációért felel
 
     private Transform originalParent;
     private Vector3 originalPosition;
@@ -70,7 +71,7 @@ public class ItemObject : MonoBehaviour, IPointerDownHandler, IPointerUpHandler
         {
             GameObject itemWindow = CreatePrefab("GameElements/ItemWindow");
             itemWindow.GetComponent<ItemWindow>().itemObject = gameObject;
-            itemWindow.GetComponent<ItemWindow>().parentObject = InventoryObject;
+            itemWindow.GetComponent<ItemWindow>().parentObject = InventoryObjectRef;
             itemWindow.GetComponent<ItemWindow>().positioning();
             Window = itemWindow;
         }
@@ -89,7 +90,7 @@ public class ItemObject : MonoBehaviour, IPointerDownHandler, IPointerUpHandler
             #endregion
 
             #region Set Moveable position
-            transform.SetParent(InventoryObject.transform, false);
+            transform.SetParent(InventoryObjectRef.transform, false);
             transform.GetComponent<RectTransform>().pivot = new Vector2(0.5f, 0.5f);
             transform.GetComponent<RectTransform>().anchorMin = new Vector2(0.5f, 0.5f);
             transform.GetComponent<RectTransform>().anchorMax = new Vector2(0.5f, 0.5f);
@@ -109,9 +110,10 @@ public class ItemObject : MonoBehaviour, IPointerDownHandler, IPointerUpHandler
             #endregion
 
             #region Set Dragable mod
-            SlotObject.GetComponent<PanelSlots>().ScrollPanel.GetComponent<ScrollRect>().enabled = false;
+            SlotPanelObject.GetComponent<PanelSlots>().ScrollPanel.GetComponent<ScrollRect>().enabled = false;
             Counter.GetComponent<TextMeshPro>().fontSize = Main.ItemCounterFontSize;
             isDragging = true;
+            DestroyContainer();
             #endregion
         }
     }
@@ -145,12 +147,12 @@ public class ItemObject : MonoBehaviour, IPointerDownHandler, IPointerUpHandler
             #endregion
 
             #region unSet Dragable mod
-            SlotObject.GetComponent<PanelSlots>().ScrollPanel.GetComponent<ScrollRect>().enabled = true;
+            SlotPanelObject.GetComponent<PanelSlots>().ScrollPanel.GetComponent<ScrollRect>().enabled = true;
             Counter.GetComponent<TextMeshPro>().fontSize = Main.ItemCounterFontSize / Main.SectorScale;
             isDragging = false;
-            #endregion
-
             Placing(CanBePlace());
+            BuildContainer();
+            #endregion
         } 
     }
     private (int smaller, int larger) SplitInteger(int number)
@@ -394,6 +396,7 @@ public class ItemObject : MonoBehaviour, IPointerDownHandler, IPointerUpHandler
         {
             VirtualParentObject.GetComponent<ContainerObject>().DataOut(ActualData);
         }
+        DestroyContainer();
         Destroy(gameObject);
     }
     public void SelfBuild(Item Data, GameObject VirtualParentObject)
@@ -409,7 +412,7 @@ public class ItemObject : MonoBehaviour, IPointerDownHandler, IPointerUpHandler
             VirtualParentObject.GetComponent<ContainerObject>().DataIn(ActualData);
         }
     }
-    public void DataIn(Item Data, GameObject VirtualChildObject)
+    public void DataIn(Item Data)
     {
         ActualData = Data;
         SelfVisualisation();
@@ -422,7 +425,7 @@ public class ItemObject : MonoBehaviour, IPointerDownHandler, IPointerUpHandler
             VirtualParentObject.GetComponent<ContainerObject>().DataUpdate(ActualData, gameObject);
         }
     }
-    public void DataOut(Item Data, GameObject VirtualChildObject)
+    public void DataOut(Item Data)
     {
         ActualData = Data;
         SelfVisualisation();
@@ -456,14 +459,38 @@ public class ItemObject : MonoBehaviour, IPointerDownHandler, IPointerUpHandler
     public void DataLoad()
     {
         itemSlots = new List<GameObject>();
-        if (ActualData.Container != null)//11. ha az item adatai tartalmaznak containert akkor az létrejön
+        BuildContainer();
+        DataUpdate(ActualData);
+    }
+    public void BuildContainer()
+    {
+        if (VirtualParentObject.GetComponent<EquipmentSlot>()!=null && ActualData.Container != null && Container == null)//11. ha az item adatai tartalmaznak containert akkor az létrejön
         {
             //--> ContainerObject.cs
             Debug.LogWarning($"{ActualData.ItemName} ItemObject ------- ref --------> ContainerObject.cs");
             GameObject containerObject = CreatePrefab(ActualData.Container.PrefabPath);
             containerObject.GetComponent<ContainerObject>().SetDataRoute(ActualData, gameObject);
+            Container = containerObject;
         }
-        DataUpdate(ActualData);
+    }
+    public void DestroyContainer()
+    {
+        if (Container != null)//11. ha az item adatai tartalmaznak containert akkor az létrejön
+        {
+            foreach (GameObject sectors in Container.GetComponent<ContainerObject>().SectorManagers)
+            {
+                for (int i = 0; i < sectors.GetComponent<SectorManager>().transform.childCount; i++)
+                {
+                    if (sectors.GetComponent<SectorManager>().transform.GetChild(i).GetComponent<ItemObject>()!=null)
+                    {
+                        sectors.GetComponent<SectorManager>().transform.GetChild(i).GetComponent<ItemObject>().DestroyContainer();
+                    }
+                }
+            }
+            
+            Destroy(Container);
+            Container = null;
+        }
     }
     #endregion
     private void SelfVisualisation()//ha az item equipment slotban van

@@ -43,7 +43,8 @@ namespace PlayerInventoryClass
 
         [HideInInspector] public Equipmnets equipments;//ez lényegében az inventory class adatai mivel a playerInventory többi része ezen változó kiszolgálásáért, mogosításáért felel vagy adatelérési antennaként (playerInventoryData) fumcionál
 
-        [HideInInspector] public GameObject LootableObject;
+        [HideInInspector] public GameObject LootableObject;//ezt kapja mint adat
+        private GameObject LootContainer;//ezt készíti el az adatokból mint objectum
 
         public class Equipmnets
         {
@@ -341,10 +342,6 @@ namespace PlayerInventoryClass
             float[] aranyok = Aranyszamitas(new float[] { 6, 5, 6 }, Main.DefaultWidth);
 
             EquipmentsPanelObject = CreatePrefab("GameElements/Equipment-Inventory");
-            if (EquipmentsPanelObject == null)
-            {
-                Debug.LogError("faszomsat");
-            }
             EquipmentsPanelObject.transform.SetParent(gameObject.transform);
             EquipmentsPanelObject.GetComponent<RectTransform>().sizeDelta = new Vector2(aranyok[0], Main.DefaultHeight);
             EquipmentsPanelObject.GetComponent<RectTransform>().localPosition = new Vector3((aranyok[0] + aranyok[1] / 2) * -1, 0, 0);
@@ -371,13 +368,24 @@ namespace PlayerInventoryClass
                 }
                 panelEquipments.EquipmentsSlots[i].GetComponent<EquipmentSlot>().SetRootDataRoute(playerInventoryData.equipments.equipmentList[i], gameObject);
             }
+        }
+        public void LootCreate()
+        {
             if (LootableObject != null)
             {
                 if (LootableObject.GetComponent<SimpleInventory>() != null)
                 {
-                    GameObject containerObject = CreatePrefab(LootableObject.GetComponent<SimpleInventory>().PrefabPath);
-                    containerObject.GetComponent<ContainerObject>().SetDataRoute(LootableObject.GetComponent<SimpleInventory>().MainData, LootableObject);
+                    Debug.Log("Player inventory ban " + LootableObject.GetComponent<Interact>().Title);
+                    LootContainer = CreatePrefab(LootableObject.GetComponent<SimpleInventory>().PrefabPath);
+                    LootContainer.GetComponent<ContainerObject>().SetDataRoute(LootableObject.GetComponent<SimpleInventory>().MainData, LootableObject);
                 }
+            }
+        }
+        public void LootDelete()
+        {
+            if (LootContainer != null)
+            {
+                Destroy(LootContainer);
             }
         }
     }

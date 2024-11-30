@@ -15,6 +15,15 @@ namespace NaturalInventorys
         [HideInInspector] public Item MainData;//az obejctumon lévõ másik script végzi a kezdeti feltöltest
         [SerializeField] public string PrefabPath;//container prefab path
         private GameObject Container;
+        public void Test()
+        {
+            MainData = new Item();
+            MainData.Container = new Container(PrefabPath);
+        }
+        public void Start()
+        {
+            Test();
+        }
         public void DataUpdate(Item Data)
         {
             MainData = Data;

@@ -1,15 +1,33 @@
+using PlayerInventoryClass;
 using System;
 using System.Collections;
 using System.Collections.Generic;
+using System.Drawing;
 using UnityEngine;
 
 public class Interact : MonoBehaviour
 {
-    public GameObject player;
-    public GameObject InGameUI;
+    [HideInInspector] public GameObject player;
+    [HideInInspector] public GameObject InGameUI;
     public bool Opened = false;
-    public string Title;
-    public string Description;
-    public string ActionMode;
-    public Action Action;
+    public string Title;//inpectorban kell megadni !!!
+    public string Description;//inpectorban kell megadni !!!
+    public string ActionMode;//inpectorban kell megadni !!!
+
+    void OnTriggerEnter2D(Collider2D collider)
+    {
+        if (collider.gameObject.GetComponent<Player>())
+        {
+            collider.gameObject.GetComponent<Player>().InGameUI.GetComponent<InGameUI>().IntecativeObjectSelectorBox.GetComponent<InteractiveObjectSelector>().AddInteractObject(gameObject);
+        }
+    }
+    void OnTriggerExit2D(Collider2D collider)
+    {
+        if (collider.gameObject.GetComponent<Player>())
+        {
+            collider.gameObject.GetComponent<Player>().InGameUI.GetComponent<InGameUI>().IntecativeObjectSelectorBox.GetComponent<InteractiveObjectSelector>().RemoveInteractObject(gameObject);
+            collider.gameObject.GetComponent<Player>().InGameUI.GetComponent<InGameUI>().PlayerInventoryObject.GetComponent<PlayerInventory>().LootDelete();
+            collider.gameObject.GetComponent<Player>().InGameUI.GetComponent<InGameUI>().PlayerInventoryObject.GetComponent<PlayerInventory>().LootableObject = null;
+        }
+    }
 }

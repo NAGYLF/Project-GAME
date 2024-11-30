@@ -18,15 +18,6 @@ public class InteractiveObjectSelector : MonoBehaviour
     {
         options = new List<GameObject>();
         selectableObjects = new List<GameObject>();
-
-        /*for (int i = 0; i < 9; i++)
-        {
-            GameObject gameObject = new GameObject("asd");
-            gameObject.name = $"Test{i}";
-            gameObject.AddComponent<Interact>().Title = "Test"+ i.ToString();
-            selectableObjects.Add(gameObject);
-        }
-        RefressSelector();*/
     }
     public void RefressSelector()
     {
@@ -44,6 +35,7 @@ public class InteractiveObjectSelector : MonoBehaviour
             option.transform.SetParent(Content.transform,false);
             options.Add(option);
         }
+        Selection();
     }
     public void Selection(int nextSelection = 0)
     {
@@ -74,5 +66,16 @@ public class InteractiveObjectSelector : MonoBehaviour
             }
         }
         ScrollPanel.GetComponent<ScrollRect>().verticalNormalizedPosition = 1.0f - (float)selectedIndex / (options.Count - 1);
+    }
+
+    public void AddInteractObject(GameObject gameObject)
+    {
+        selectableObjects.Add(gameObject);
+        RefressSelector();
+    }
+    public void RemoveInteractObject(GameObject gameObject)
+    {
+        selectableObjects.Remove(gameObject);
+        RefressSelector();
     }
 }

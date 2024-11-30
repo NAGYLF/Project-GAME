@@ -133,12 +133,12 @@ public class ContainerObject : MonoBehaviour
     {
         ActualData = Data;
         this.VirtualParentObject = VirtualParentObject;
-        Debug.LogWarning($"{Data.ItemName} ------- ref -------- At = ContainerObject.cs");
+        //Debug.LogWarning($"{Data.ItemName} ------- ref -------- At = ContainerObject.cs");
     }
     #endregion
     private void SelfVisualisation()
-    {    
-        if (VirtualParentObject.GetComponent<ItemObject>().VirtualParentObject.GetComponent<EquipmentSlot>() != null)
+    {
+        if (VirtualParentObject.GetComponent<ItemObject>() && VirtualParentObject.GetComponent<ItemObject>().VirtualParentObject.GetComponent<EquipmentSlot>())
         {
             GameObject slotObject = PlayerInventoryClass.PlayerInventory.SlotPanelObject;
             RectTransform containerRectTranform = gameObject.GetComponent<RectTransform>();
@@ -146,7 +146,7 @@ public class ContainerObject : MonoBehaviour
             containerRectTranform.sizeDelta = new Vector2(SlotPanelObject.sizeDelta.x, containerRectTranform.sizeDelta.y * (SlotPanelObject.sizeDelta.x / containerRectTranform.sizeDelta.x));
             gameObject.transform.SetParent(slotObject.GetComponent<PanelSlots>().Content.transform, false);
         }
-        else if (VirtualParentObject.GetComponent<ItemObject>().VirtualParentObject.GetComponent<SimpleInventory>() != null)
+        else if (VirtualParentObject.GetComponent<SimpleInventory>())
         {
             GameObject lootObject = LootPanelObject;
             RectTransform containerRectTranform = gameObject.GetComponent<RectTransform>();

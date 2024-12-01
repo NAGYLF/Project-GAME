@@ -4,6 +4,7 @@ using System.Collections;
 using System.Collections.Generic;
 using System.Drawing;
 using UnityEngine;
+using UI;
 
 public class Interact : MonoBehaviour
 {
@@ -26,8 +27,10 @@ public class Interact : MonoBehaviour
         if (collider.gameObject.GetComponent<Player>())
         {
             collider.gameObject.GetComponent<Player>().InGameUI.GetComponent<InGameUI>().IntecativeObjectSelectorBox.GetComponent<InteractiveObjectSelector>().RemoveInteractObject(gameObject);
-            collider.gameObject.GetComponent<Player>().InGameUI.GetComponent<InGameUI>().PlayerInventoryObject.GetComponent<PlayerInventory>().LootDelete();
-            collider.gameObject.GetComponent<Player>().InGameUI.GetComponent<InGameUI>().PlayerInventoryObject.GetComponent<PlayerInventory>().LootableObject = null;
+            if (!UI.InGameUI.PlayerInventory.Status)
+            {
+                UI.InGameUI.PlayerInventory.Action();
+            }
         }
     }
 }

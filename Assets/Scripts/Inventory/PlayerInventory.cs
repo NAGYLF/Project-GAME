@@ -329,9 +329,10 @@ namespace PlayerInventoryClass
 
         public void CloseInventory()
         {
-            Destroy(EquipmentsPanelObject);
-            Destroy(SlotPanelObject);
-            Destroy(LootPanelObject);
+            for (int i = InventoryObjectRef.transform.childCount - 1; i >= 0; i--)
+            {
+                Destroy(InventoryObjectRef.transform.GetChild(i).gameObject);
+            }
         }
         public void OpenInventory()
         {

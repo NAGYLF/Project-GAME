@@ -2,6 +2,7 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 using static MainData.SupportScripts;
+using UI;
 
 public class InGameMenu : MonoBehaviour
 {

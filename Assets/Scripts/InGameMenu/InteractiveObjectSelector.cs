@@ -14,6 +14,7 @@ public class InteractiveObjectSelector : MonoBehaviour
     private int selectedIndex = 0;
     public List<GameObject> selectableObjects;
     private List<GameObject> options;
+    public GameObject SelectedObject;
     private void Awake()
     {
         options = new List<GameObject>();
@@ -56,7 +57,7 @@ public class InteractiveObjectSelector : MonoBehaviour
                 {
                     options[i].transform.GetChild(1).GetComponent<TextMeshProUGUI>().color = Color.black;
                     options[i].transform.GetChild(0).GetComponent<Image>().color = Color.white;
-                    InGameUI.GetComponent<InGameUI>().SelectedObject = selectableObjects[i];
+                    SelectedObject = selectableObjects[i];
                 }
                 else
                 {

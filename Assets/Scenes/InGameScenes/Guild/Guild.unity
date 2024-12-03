@@ -1111,6 +1111,10 @@ PrefabInstance:
       propertyPath: m_SortingOrder
       value: 1
       objectReference: {fileID: 0}
+    - target: {fileID: 75190596, guid: 4d88a2fc35c69d847badf61024af15a0, type: 3}
+      propertyPath: Opened
+      value: 0
+      objectReference: {fileID: 0}
     - target: {fileID: 3648330693519813615, guid: 4d88a2fc35c69d847badf61024af15a0, type: 3}
       propertyPath: m_RootOrder
       value: 3

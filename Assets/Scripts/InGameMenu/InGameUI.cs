@@ -113,6 +113,15 @@ public class InGameUI : MonoBehaviour
         InGameMenuObject.SetActive(false);
     }
     #endregion
+
+
+    public GameObject mapImage; // A térkép képe (UI Image)
+    private bool isMapVisible = false;
+    public Transform player; // A játékos Transform-ja
+
+    //public GameObject IntecativeObjectSelectorBox;
+    //public GameObject SelectedObject;
+
     private void OnGUI()
     {
         if (Event.current != null && Event.current.type == EventType.KeyDown)
@@ -141,10 +150,27 @@ public class InGameUI : MonoBehaviour
                         SelectedObject.GetComponent<Interact>().Action.DynamicInvoke(gameObject);
                     }
                     break;
+                case KeyCode.M: // Térkép megjelenítése/eltüntetése
+                    ToggleMap();
+                    break;
                 default:
                     break;
             }
         }
+    }
+    private void Update()
+    {
+        if (isMapVisible)
+        {
+            // A térkép pozíciójának követése a játékos pozíciójával
+            mapImage.transform.position = player.position;
+        }
+    }
+
+    private void ToggleMap()
+    {
+        isMapVisible = !isMapVisible; // Láthatóság váltása
+        mapImage.SetActive(isMapVisible); // Térkép megjelenítése/elrejtése
     }
 
     public void SetHealtBar(float count)

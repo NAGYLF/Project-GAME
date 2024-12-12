@@ -3,7 +3,18 @@ guid: 256321afcea02604682e5276720873d0
 MonoImporter:
   externalObjects: {}
   serializedVersion: 2
-  defaultReferences: []
+  defaultReferences:
+  - PlayerObject: {instanceID: 0}
+  - CameraObject: {instanceID: 0}
+  - IntecativeObjectSelectorBox: {instanceID: 0}
+  - InGameMenuObject: {instanceID: 0}
+  - MessageBar: {instanceID: 0}
+  - HealtBar: {instanceID: 0}
+  - StaminaBar: {instanceID: 0}
+  - HungerBar: {instanceID: 0}
+  - ThirstBar: {instanceID: 0}
+  - SelectedObject: {instanceID: 0}
+  - mapImage: {instanceID: 0}
   executionOrder: 0
   icon: {instanceID: 0}
   userData: 

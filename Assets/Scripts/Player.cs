@@ -1,10 +1,10 @@
-using PlayerInventoryVisualBuild;
 using PlayerInventoryClass;
 using MainData;
 using System.Collections;
 using System.Collections.Generic;
 using System.Runtime.CompilerServices;
 using UnityEngine;
+using UI;
 public class Player : MonoBehaviour
 {
     public GameObject InGameUI;

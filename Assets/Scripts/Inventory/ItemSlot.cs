@@ -23,8 +23,6 @@ namespace Assets.Scripts
         public bool CoundAddAvaiable = false;
         private Color color;
         #endregion
-        //!!!  felesleges bonyolultág megszüntetése (opcionális) a   public Item PartOfItemData;  változó csak viruális adatrendszerben szükséges de létező gameobjektumban nem használatos
-        //még public GameObject PartOfItemObject; ennek ellentéte. ez utóbbi változót egy slot mindig egy item SelfVisualisation eljarasaban kapja meg. !!!
         private void OnCollisionEnter2D(Collision2D collision)
         {
             if (PartOfItemObject == null || (PartOfItemObject.GetInstanceID() == collision.gameObject.GetInstanceID()) && (SlotType == "" || SlotType.Contains(collision.gameObject.GetComponent<ItemObject>().ActualData.ItemType)))

@@ -11,6 +11,8 @@ GameObject:
   - component: {fileID: 3648330693519813615}
   - component: {fileID: -8335206500993291504}
   - component: {fileID: 2136398650703765688}
+  - component: {fileID: 6302315047770221399}
+  - component: {fileID: 75190596}
   m_Layer: 0
   m_Name: Teststorage
   m_TagString: Untagged
@@ -27,7 +29,7 @@ Transform:
   m_GameObject: {fileID: 4242704339970717484}
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
   m_LocalPosition: {x: 0, y: 0, z: 0}
-  m_LocalScale: {x: 2.973437, y: 3.670407, z: 1}
+  m_LocalScale: {x: 2.936269, y: 3.670407, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []
   m_Father: {fileID: 0}
@@ -71,9 +73,9 @@ SpriteRenderer:
   m_AutoUVMaxDistance: 0.5
   m_AutoUVMaxAngle: 89
   m_LightmapParameters: {fileID: 0}
-  m_SortingLayerID: 0
-  m_SortingLayer: 0
-  m_SortingOrder: 0
+  m_SortingLayerID: 202653477
+  m_SortingLayer: -2
+  m_SortingOrder: 1
   m_Sprite: {fileID: 21300000, guid: 0b10766550312a8478b2fe791cef4602, type: 3}
   m_Color: {r: 1, g: 1, b: 1, a: 1}
   m_FlipX: 0
@@ -111,3 +113,34 @@ BoxCollider2D:
   serializedVersion: 2
   m_Size: {x: 4, y: 2}
   m_EdgeRadius: 0
+--- !u!114 &6302315047770221399
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 4242704339970717484}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 3a821f5d68b427b4caea0e4cd103d642, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  PrefabPath: GameElements/ItemContainers/Chests/TestChest
+--- !u!114 &75190596
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 4242704339970717484}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: e885a1e8d1226864bb096b4b136102ea, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  player: {fileID: 0}
+  InGameUI: {fileID: 0}
+  Opened: 0
+  Title: TestChest
+  Description: Ez egy Test Lada
+  ActionMode: OpenSimpleInventory

@@ -1,64 +1,36 @@
+using PlayerInventoryClass;
 using System;
 using System.Collections;
 using System.Collections.Generic;
+using System.Drawing;
 using UnityEngine;
+using UI;
 
 public class Interact : MonoBehaviour
 {
-    public GameObject player; // A Player GameObject, amit az Inspectorban kell beállítani
+    [HideInInspector] public GameObject player;
+    [HideInInspector] public GameObject InGameUI;
     public bool Opened = false;
-    public string Title;
-    public string Description;
-    public string ActionMode;
-    public Action Action;
+    public string Title;//inpectorban kell megadni !!!
+    public string Description;//inpectorban kell megadni !!!
+    public string ActionMode;//inpectorban kell megadni !!!
 
-    private InGameUI inGameUIScript; // Az InGameUI script referencia
-
-    void Start()
+    void OnTriggerEnter2D(Collider2D collider)
     {
-        if (player != null)
+        if (collider.gameObject.GetComponent<Player>())
         {
-            // A Player script elérése
-            Player playerScript = player.GetComponent<Player>();
-            if (playerScript != null)
-            {
-                // Ellenõrizd, hogy van-e már InGameUI példány a jelenetben
-                GameObject inGameUIInstance = GameObject.Find("InGameUI");
-
-                // Ha megtaláltuk az InGameUI-t
-                if (inGameUIInstance != null)
-                {
-                    // Az InGameUI script elérése a prefab GameObjectbõl
-                    inGameUIScript = inGameUIInstance.GetComponent<InGameUI>();
-
-                    // Ha van script, elérhetjük az IntecativeObjects listát
-                    if (inGameUIScript != null)
-                    {
-                        // Az IntecativeObjects lista elérése
-                        var interactiveObjects = inGameUIScript.IntecativeObjects;
-                        Debug.Log($"Interaktív objektumok száma: {interactiveObjects.Count}");
-
-                        // További mûveletek itt, ha szeretnéd manipulálni a listát
-                    }
-                    else
-                    {
-                        Debug.LogWarning("Az InGameUI prefab nem tartalmaz InGameUI scriptet!");
-                    }
-                }
-                else
-                {
-                    Debug.LogWarning("Nem találtuk az InGameUI GameObjectet a jelenetben!");
-                }
-            }
-            else
-            {
-                Debug.LogWarning("A Player GameObject nem tartalmaz Player scriptet!");
-            }
+            collider.gameObject.GetComponent<Player>().InGameUI.GetComponent<InGameUI>().IntecativeObjectSelectorBox.GetComponent<InteractiveObjectSelector>().AddInteractObject(gameObject);
         }
-        else
+    }
+    void OnTriggerExit2D(Collider2D collider)
+    {
+        if (collider.gameObject.GetComponent<Player>())
         {
-            Debug.LogWarning("A Player GameObject nincs beállítva!");
+            collider.gameObject.GetComponent<Player>().InGameUI.GetComponent<InGameUI>().IntecativeObjectSelectorBox.GetComponent<InteractiveObjectSelector>().RemoveInteractObject(gameObject);
+            if (!UI.InGameUI.PlayerInventory.Status)
+            {
+                UI.InGameUI.PlayerInventory.Action();
+            }
         }
     }
 }
-

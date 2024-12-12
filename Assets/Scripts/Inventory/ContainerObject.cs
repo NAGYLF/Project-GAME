@@ -10,6 +10,7 @@ using static PlayerInventoryClass.PlayerInventory;
 using static MainData.SupportScripts;
 using NaturalInventorys;
 using Assets.Scripts.Inventory;
+using static ItemObject;
 
 
 public class ContainerObject : MonoBehaviour
@@ -20,17 +21,75 @@ public class ContainerObject : MonoBehaviour
     #endregion
 
     #region Personal variables
-    public GameObject[] SectorManagers;//a sectormanagers tartalmazza listaba helyezve a sectorokat a sectorok pedig tartlamazzak az itemslotokat azok oszlop és sorszamat
+    private int activeSlotsCount = 0;
+    public List<DataGrid> Sectors;//ez egy mátrox lista amely tartalmazza az összes itemSlot Objectumot
+    public GameObject[] SectorObjects;//ez egy gamObject lista amely tatalmmazza az összes sectort méretezési és itemObject elérésének szándékából
     #endregion
+
+    #region Active Slot Handler variables
+    //Ezen változók szükségesek ahoz, hogy egy itemet helyezni tudjunk slotokból slotokba
+    [HideInInspector] public List<GameObject> activeSlots;
+    [HideInInspector] public GameObject PlaceableObject;
+    private PlacerStruct placer;
+    #endregion
+
+    [Serializable]
+    public class DataGrid
+    {
+        public int rowNumber;       // Mátrix sorainak száma
+        public int columnNumber;    // Mátrix oszlopainak száma
+        public List<RowData> col; // Mátrix adatai
+    }
+
+    [Serializable]
+    public class RowData
+    {
+        public List<GameObject> row; // Egyetlen sor adatai
+    }
+    private IEnumerator Targeting()
+    {
+        if (activeSlots.Count > 0)
+        {
+            PlaceableObject = activeSlots.First().GetComponent<ItemSlot>().ActualPartOfItemObject;
+            if (activeSlots.Count == PlaceableObject.GetComponent<ItemObject>().ActualData.SizeX * PlaceableObject.GetComponent<ItemObject>().ActualData.SizeY)
+            {
+                placer.activeItemSlots = activeSlots;
+                placer.NewVirtualParentObject = gameObject;
+                PlaceableObject.GetComponent<ItemObject>().placer = placer;
+            }
+        }
+        yield return null;
+    }
+    private void Update()
+    {
+        if (activeSlots.Count != activeSlotsCount)
+        {
+            StartCoroutine(Targeting());
+        }
+    }
+    private void Awake()
+    {
+        for (int sector = 0; sector < Sectors.Count; sector++)
+        {
+            for (int col = 0; col < Sectors[sector].columnNumber; col++)
+            {
+                for (int row = 0; row < Sectors[sector].rowNumber; row++)
+                {
+                    Sectors[sector].col[col].row[row].GetComponent<ItemSlot>().ParentObject = gameObject;
+                }
+            }
+        }
+        activeSlots = new List<GameObject>();
+        placer.activeItemSlots = new List<GameObject>();
+    }
     private void Start()
     {
         DataLoad();
     }
     public void DataLoad()//az objecktum létrehozásának elsõ pillanatában töltõdik be
     {
-        foreach (GameObject sector in SectorManagers)//beallitjuk a méretarányt
+        foreach (GameObject sector in SectorObjects)//beallitjuk a méretarányt
         {
-            sector.GetComponent<SectorManager>().Container = gameObject;
             sector.GetComponent<RectTransform>().localScale *= Main.SectorScale;
         }
         SelfVisualisation();//vizualizájuk

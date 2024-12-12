@@ -11,6 +11,7 @@ using TMPro;
 using System;
 using Unity.VisualScripting;
 using UnityEngine.EventSystems;
+using UnityEngine.UIElements;
 
 public class ItemObject : MonoBehaviour, IPointerDownHandler, IPointerUpHandler
 {
@@ -48,7 +49,7 @@ public class ItemObject : MonoBehaviour, IPointerDownHandler, IPointerUpHandler
             }
             return true;
         }
-        else if (placer.activeItemSlots != null && placer.activeItemSlots.Count == ActualData.SizeX * ActualData.SizeY && placer.activeItemSlots.Count == placer.activeItemSlots.FindAll(elem => elem.GetComponent<ItemSlot>().Sector == placer.activeItemSlots.First().GetComponent<ItemSlot>().Sector).Count)
+        else if (placer.activeItemSlots != null && placer.activeItemSlots.Count == ActualData.SizeX * ActualData.SizeY && placer.activeItemSlots.Count == placer.activeItemSlots.FindAll(elem => elem.GetComponent<ItemSlot>().ParentObject == placer.activeItemSlots.First().GetComponent<ItemSlot>().ParentObject).Count)
         {
             for (int i = 0; i < placer.activeItemSlots.Count; i++)
             {
@@ -259,13 +260,16 @@ public class ItemObject : MonoBehaviour, IPointerDownHandler, IPointerUpHandler
                 {
                     VirtualParentObject.GetComponent<ContainerObject>().DataOut(ActualData);
                     ContainerObject containerObject = VirtualParentObject.GetComponent<ContainerObject>();
-                    for (int sector = 0; sector < containerObject.SectorManagers.Length; sector++)
+                    for (int sector = 0; sector < containerObject.Sectors.Count; sector++)
                     {
-                        for (int slot = 0; slot < containerObject.SectorManagers[sector].GetComponent<SectorManager>().ItemSlots.Length; slot++)
+                        for (int col = 0; col < containerObject.Sectors[sector].columnNumber; col++)
                         {
-                            if (ActualData.SlotUse.Contains(containerObject.SectorManagers[sector].GetComponent<SectorManager>().ItemSlots[slot].GetComponent<ItemSlot>().name))
+                            for (int row = 0; row < containerObject.Sectors[sector].rowNumber; row++)
                             {
-                                containerObject.SectorManagers[sector].GetComponent<SectorManager>().ItemSlots[slot].GetComponent<ItemSlot>().PartOfItemObject = null;
+                                if (ActualData.SlotUse.Contains(containerObject.Sectors[sector].col[col].row[row].GetComponent<ItemSlot>().name))
+                                {
+                                    containerObject.Sectors[sector].col[col].row[row].GetComponent<ItemSlot>().PartOfItemObject = null;
+                                }
                             }
                         }
                     }
@@ -281,14 +285,17 @@ public class ItemObject : MonoBehaviour, IPointerDownHandler, IPointerUpHandler
                 {
                     ContainerObject containerObject = VirtualParentObject.GetComponent<ContainerObject>();
                     itemSlots.Clear();
-                    for (int sector = 0; sector < containerObject.SectorManagers.Length; sector++)
+                    for (int sector = 0; sector < containerObject.Sectors.Count; sector++)
                     {
-                        for (int slot = 0; slot < containerObject.SectorManagers[sector].GetComponent<SectorManager>().ItemSlots.Length; slot++)
+                        for (int col = 0; col < containerObject.Sectors[sector].columnNumber; col++)
                         {
-                            if (placer.activeItemSlots.Contains(containerObject.SectorManagers[sector].GetComponent<SectorManager>().ItemSlots[slot]))
+                            for (int row = 0; row < containerObject.Sectors[sector].rowNumber; row++)
                             {
-                                containerObject.SectorManagers[sector].GetComponent<SectorManager>().ItemSlots[slot].GetComponent<ItemSlot>().PartOfItemObject = gameObject;
-                                itemSlots.Add(containerObject.SectorManagers[sector].GetComponent<SectorManager>().ItemSlots[slot]);
+                                if (placer.activeItemSlots.Contains(containerObject.Sectors[sector].col[col].row[row]))
+                                {
+                                    containerObject.Sectors[sector].col[col].row[row].GetComponent<ItemSlot>().PartOfItemObject = gameObject;
+                                    itemSlots.Add(containerObject.Sectors[sector].col[col].row[row]);
+                                }
                             }
                         }
                     }
@@ -313,28 +320,31 @@ public class ItemObject : MonoBehaviour, IPointerDownHandler, IPointerUpHandler
                 {
                     ContainerObject containerObject = VirtualParentObject.GetComponent<ContainerObject>();
                     itemSlots.Clear();
-                    for (int sector = 0; sector < containerObject.SectorManagers.Length; sector++)
+                    for (int sector = 0; sector < containerObject.Sectors.Count; sector++)
                     {
-                        for (int slot = 0; slot < containerObject.SectorManagers[sector].GetComponent<SectorManager>().ItemSlots.Length; slot++)
+                        for (int col = 0; col < containerObject.Sectors[sector].columnNumber; col++)
                         {
-                            //ha az aktiv slotok küzül az egyik az iterált slot      és ezt a slotot tartalmazza még ez az item actualdataja is.    az azt jelenti, hogy ezen slot ugyan ugy az itemobjektum része maradt
-                            if (placer.activeItemSlots.Contains(containerObject.SectorManagers[sector].GetComponent<SectorManager>().ItemSlots[slot]) && ActualData.SlotUse.Contains(containerObject.SectorManagers[sector].GetComponent<SectorManager>().ItemSlots[slot].GetComponent<ItemSlot>().name))
+                            for (int row = 0; row < containerObject.Sectors[sector].rowNumber; row++)
                             {
-                                //ezert hozzadjuk az itemSlots listához az itemslot objektumot
-                                itemSlots.Add(containerObject.SectorManagers[sector].GetComponent<SectorManager>().ItemSlots[slot]);
-                            }
-                            //ha az aktiv slotok küzül az egyik az iterált slot      de ezt nem tartalmazza az item actualdataja        az azt jelenti, hogy ezen itemslot egy uj része lett az itemobjektumnak
-                            else if (placer.activeItemSlots.Contains(containerObject.SectorManagers[sector].GetComponent<SectorManager>().ItemSlots[slot]) && !ActualData.SlotUse.Contains(containerObject.SectorManagers[sector].GetComponent<SectorManager>().ItemSlots[slot].GetComponent<ItemSlot>().name))
-                            {
-                                //ezen uj slot része lesz az itemobjektumnak és annak adatának      illetve hozzáadjuk az itemslot listához
-                                containerObject.SectorManagers[sector].GetComponent<SectorManager>().ItemSlots[slot].GetComponent<ItemSlot>().PartOfItemObject = gameObject;
-                                itemSlots.Add(containerObject.SectorManagers[sector].GetComponent<SectorManager>().ItemSlots[slot]);
-                            }
-                            //ha ezen iterált slot nem része az aktív slotoknak       de része az item actualdata-jának       az azt jelenti, hogy ez egy régi slot az itemobjektumnak
-                            else if (!placer.activeItemSlots.Contains(containerObject.SectorManagers[sector].GetComponent<SectorManager>().ItemSlots[slot]) && ActualData.SlotUse.Contains(containerObject.SectorManagers[sector].GetComponent<SectorManager>().ItemSlots[slot].GetComponent<ItemSlot>().name))
-                            {
-                                //ezt a slotot megfosztjuk az itemobjektumtól és annak adatától
-                                containerObject.SectorManagers[sector].GetComponent<SectorManager>().ItemSlots[slot].GetComponent<ItemSlot>().PartOfItemObject = null;
+                                //ha az aktiv slotok küzül az egyik az iterált slot      és ezt a slotot tartalmazza még ez az item actualdataja is.    az azt jelenti, hogy ezen slot ugyan ugy az itemobjektum része maradt
+                                if (placer.activeItemSlots.Contains(containerObject.Sectors[sector].col[col].row[row]) && ActualData.SlotUse.Contains(containerObject.Sectors[sector].col[col].row[row].GetComponent<ItemSlot>().name))
+                                {
+                                    //ezert hozzadjuk az itemSlots listához az itemslot objektumot
+                                    itemSlots.Add(containerObject.Sectors[sector].col[col].row[row]);
+                                }
+                                //ha az aktiv slotok küzül az egyik az iterált slot      de ezt nem tartalmazza az item actualdataja        az azt jelenti, hogy ezen itemslot egy uj része lett az itemobjektumnak
+                                else if (placer.activeItemSlots.Contains(containerObject.Sectors[sector].col[col].row[row]) && !ActualData.SlotUse.Contains(containerObject.Sectors[sector].col[col].row[row].GetComponent<ItemSlot>().name))
+                                {
+                                    //ezen uj slot része lesz az itemobjektumnak és annak adatának      illetve hozzáadjuk az itemslot listához
+                                    containerObject.Sectors[sector].col[col].row[row].GetComponent<ItemSlot>().PartOfItemObject = gameObject;
+                                    itemSlots.Add(containerObject.Sectors[sector].col[col].row[row]);
+                                }
+                                //ha ezen iterált slot nem része az aktív slotoknak       de része az item actualdata-jának       az azt jelenti, hogy ez egy régi slot az itemobjektumnak
+                                else if (!placer.activeItemSlots.Contains(containerObject.Sectors[sector].col[col].row[row]) && ActualData.SlotUse.Contains(containerObject.Sectors[sector].col[col].row[row].GetComponent<ItemSlot>().name))
+                                {
+                                    //ezt a slotot megfosztjuk az itemobjektumtól és annak adatától
+                                    containerObject.Sectors[sector].col[col].row[row].GetComponent<ItemSlot>().PartOfItemObject = null;
+                                }
                             }
                         }
                     }
@@ -477,17 +487,19 @@ public class ItemObject : MonoBehaviour, IPointerDownHandler, IPointerUpHandler
     {
         if (Container != null)//11. ha az item adatai tartalmaznak containert akkor az létrejön
         {
-            foreach (GameObject sectors in Container.GetComponent<ContainerObject>().SectorManagers)
+            for (int sector = 0; sector < Container.GetComponent<ContainerObject>().Sectors.Count; sector++)
             {
-                for (int i = 0; i < sectors.GetComponent<SectorManager>().transform.childCount; i++)
+                for (int col = 0; col < Container.GetComponent<ContainerObject>().Sectors[sector].columnNumber; col++)
                 {
-                    if (sectors.GetComponent<SectorManager>().transform.GetChild(i).GetComponent<ItemObject>()!=null)
+                    for (int row = 0; row < Container.GetComponent<ContainerObject>().Sectors[sector].rowNumber; row++)
                     {
-                        sectors.GetComponent<SectorManager>().transform.GetChild(i).GetComponent<ItemObject>().DestroyContainer();
+                        if (Container.GetComponent<ContainerObject>().Sectors[sector].col[col].row[row].GetComponent<ItemObject>() != null)
+                        {
+                            Container.GetComponent<ContainerObject>().Sectors[sector].col[col].row[row].GetComponent<ItemObject>().DestroyContainer();
+                        }
                     }
                 }
             }
-            
             Destroy(Container);
             Container = null;
         }
@@ -549,14 +561,17 @@ public class ItemObject : MonoBehaviour, IPointerDownHandler, IPointerUpHandler
             Debug.Log($"{ActualData.ItemName}: Slot visualisation     {gameObject.GetComponent<RectTransform>().localPosition}");
             ContainerObject containerObject = VirtualParentObject.GetComponent<ContainerObject>();
             itemSlots.Clear();
-            for (int sector = 0; sector < containerObject.SectorManagers.Length; sector++)
+            for (int sector = 0; sector < containerObject.Sectors.Count; sector++)
             {
-                for (int slot = 0; slot < containerObject.SectorManagers[sector].GetComponent<SectorManager>().ItemSlots.Length; slot++)
+                for (int col = 0; col < containerObject.Sectors[sector].columnNumber; col++)
                 {
-                    if (ActualData.SlotUse.Contains(containerObject.SectorManagers[sector].GetComponent<SectorManager>().ItemSlots[slot].GetComponent<ItemSlot>().name))
+                    for (int row = 0; row < containerObject.Sectors[sector].rowNumber; row++)
                     {
-                        itemSlots.Add(containerObject.SectorManagers[sector].GetComponent<SectorManager>().ItemSlots[slot]);
-                        containerObject.SectorManagers[sector].GetComponent<SectorManager>().ItemSlots[slot].GetComponent<ItemSlot>().PartOfItemObject = gameObject;
+                        if (ActualData.SlotUse.Contains(containerObject.Sectors[sector].col[col].row[row].GetComponent<ItemSlot>().name))
+                        {
+                            itemSlots.Add(containerObject.Sectors[sector].col[col].row[row]);
+                            containerObject.Sectors[sector].col[col].row[row].GetComponent<ItemSlot>().PartOfItemObject = gameObject;
+                        }
                     }
                 }
             }

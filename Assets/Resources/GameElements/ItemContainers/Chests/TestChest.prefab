@@ -9,8 +9,7 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 6441871286871217373}
-  - component: {fileID: 9070205719661371957}
-  m_Layer: 0
+  m_Layer: 5
   m_Name: Sector01
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -85,72 +84,6 @@ RectTransform:
   m_AnchoredPosition: {x: 0, y: 0}
   m_SizeDelta: {x: 100, y: 66}
   m_Pivot: {x: 0.5, y: 0.5}
---- !u!114 &9070205719661371957
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 1876995832767998583}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 76a71bda2f858e644b7ee2b34751b146, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  Container: {fileID: 0}
-  ItemSlots:
-  - {fileID: 1675723568217373480}
-  - {fileID: 6734667962123921525}
-  - {fileID: 7194504473491934689}
-  - {fileID: 7865183971295917466}
-  - {fileID: 5992972007939038358}
-  - {fileID: 3684444068687106013}
-  - {fileID: 179053020237725126}
-  - {fileID: 2139214415489547237}
-  - {fileID: 3209492646159703246}
-  - {fileID: 693637025174870599}
-  - {fileID: 8689119390753573066}
-  - {fileID: 3233837849855490702}
-  - {fileID: 3317620656030415387}
-  - {fileID: 2259877725994243174}
-  - {fileID: 2827941314598314035}
-  - {fileID: 1176038432653344720}
-  - {fileID: 7126353102005856937}
-  - {fileID: 5027640779233780476}
-  - {fileID: 8271766311088794438}
-  - {fileID: 4164085233007483524}
-  - {fileID: 3758010318816781006}
-  - {fileID: 2450640175478833974}
-  - {fileID: 7615913653186644353}
-  - {fileID: 6688593312097321988}
-  - {fileID: 1277644354327532292}
-  - {fileID: 2782368294013977149}
-  - {fileID: 114979112856163478}
-  - {fileID: 1453244418035492541}
-  - {fileID: 8165443188605386367}
-  - {fileID: 2166840379723704543}
-  - {fileID: 4299073421031873733}
-  - {fileID: 4287786693653928910}
-  - {fileID: 4901824714699971292}
-  - {fileID: 6402337422804589695}
-  - {fileID: 8611517436246156571}
-  - {fileID: 2171889096512111177}
-  - {fileID: 2555056395269476799}
-  - {fileID: 2614368637669280336}
-  - {fileID: 3414691362441379903}
-  - {fileID: 2353484411666617571}
-  - {fileID: 425500677414936859}
-  - {fileID: 4149291958912613987}
-  - {fileID: 3984078685944120969}
-  - {fileID: 5739238498985703366}
-  - {fileID: 2813171140032403247}
-  - {fileID: 5800886970716762960}
-  - {fileID: 6639284165097934263}
-  - {fileID: 6340612133044845326}
-  row: 6
-  columb: 8
-  activeSlots: []
-  PlaceableObject: {fileID: 0}
 --- !u!1 &4235046333258255672
 GameObject:
   m_ObjectHideFlags: 0
@@ -161,7 +94,7 @@ GameObject:
   m_Component:
   - component: {fileID: 9126015875045773701}
   - component: {fileID: 7522203636299722315}
-  m_Layer: 0
+  m_Layer: 5
   m_Name: TestChest
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -201,8 +134,68 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: aeea70c81313af54398a70ee0402a0a3, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  SectorManagers:
+  Sectors:
+  - rowNumber: 8
+    columnNumber: 6
+    col:
+    - row:
+      - {fileID: 1675723568217373480}
+      - {fileID: 6734667962123921525}
+      - {fileID: 7194504473491934689}
+      - {fileID: 7865183971295917466}
+      - {fileID: 5992972007939038358}
+      - {fileID: 3684444068687106013}
+      - {fileID: 179053020237725126}
+      - {fileID: 2139214415489547237}
+    - row:
+      - {fileID: 3209492646159703246}
+      - {fileID: 693637025174870599}
+      - {fileID: 8689119390753573066}
+      - {fileID: 3233837849855490702}
+      - {fileID: 3317620656030415387}
+      - {fileID: 2259877725994243174}
+      - {fileID: 2827941314598314035}
+      - {fileID: 1176038432653344720}
+    - row:
+      - {fileID: 7126353102005856937}
+      - {fileID: 5027640779233780476}
+      - {fileID: 8271766311088794438}
+      - {fileID: 4164085233007483524}
+      - {fileID: 3758010318816781006}
+      - {fileID: 2450640175478833974}
+      - {fileID: 7615913653186644353}
+      - {fileID: 6688593312097321988}
+    - row:
+      - {fileID: 1277644354327532292}
+      - {fileID: 2782368294013977149}
+      - {fileID: 114979112856163478}
+      - {fileID: 1453244418035492541}
+      - {fileID: 8165443188605386367}
+      - {fileID: 2166840379723704543}
+      - {fileID: 4299073421031873733}
+      - {fileID: 4287786693653928910}
+    - row:
+      - {fileID: 4901824714699971292}
+      - {fileID: 6402337422804589695}
+      - {fileID: 8611517436246156571}
+      - {fileID: 2171889096512111177}
+      - {fileID: 2555056395269476799}
+      - {fileID: 2614368637669280336}
+      - {fileID: 3414691362441379903}
+      - {fileID: 2353484411666617571}
+    - row:
+      - {fileID: 425500677414936859}
+      - {fileID: 4149291958912613987}
+      - {fileID: 3984078685944120969}
+      - {fileID: 5739238498985703366}
+      - {fileID: 2813171140032403247}
+      - {fileID: 5800886970716762960}
+      - {fileID: 6639284165097934263}
+      - {fileID: 6340612133044845326}
+  SectorObjects:
   - {fileID: 1876995832767998583}
+  activeSlots: []
+  PlaceableObject: {fileID: 0}
 --- !u!1001 &378093667051102023
 PrefabInstance:
   m_ObjectHideFlags: 0

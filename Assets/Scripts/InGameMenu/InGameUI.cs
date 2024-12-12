@@ -141,7 +141,7 @@ namespace UI
         }
         #endregion
 
-        #region MapMenu parts
+        #region WorldMapMenu parts
         private void OpenMap()
         {
             WorldMapObject.SetActive(true);

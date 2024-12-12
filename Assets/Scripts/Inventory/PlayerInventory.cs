@@ -535,20 +535,20 @@ namespace ItemHandler
         {
             PrefabPath = prefabPath;
             Items = new List<Item>();
-            GameObject[] sectors = Resources.Load(prefabPath).GetComponent<ContainerObject>().SectorManagers;
-            Sectors = new ItemSlotData[sectors.Length][,];
-            for (int i = 0; i < Sectors.Length; i++)
+            List<ContainerObject.DataGrid> DataGrid = Resources.Load(prefabPath).GetComponent<ContainerObject>().Sectors;
+            Sectors = new ItemSlotData[DataGrid.Count][,];
+            for (int sector = 0; sector < Sectors.Length; sector++)
             {
                 int index = 0;
-                Sectors[i] = new ItemSlotData[sectors[i].GetComponent<SectorManager>().row, sectors[i].GetComponent<SectorManager>().columb];
-                for (int row = 0; row < Sectors[i].GetLength(0); row++)
+                Sectors[sector] = new ItemSlotData[DataGrid[sector].columnNumber, DataGrid[sector].rowNumber];
+                for (int col = 0; col < Sectors[sector].GetLength(0); col++)
                 {
-                    for (int col = 0; col < Sectors[i].GetLength(1); col++)
+                    for (int row = 0; row < Sectors[sector].GetLength(1); row++)
                     {
-                        Sectors[i][row, col] = new ItemSlotData();
-                        Sectors[i][row, col].SlotType = sectors[i].GetComponent<SectorManager>().ItemSlots[index].GetComponent<ItemSlot>().SlotType;
-                        Sectors[i][row, col].SlotName = sectors[i].GetComponent<SectorManager>().ItemSlots[index].GetComponent<ItemSlot>().name;
-                        Sectors[i][row, col].PartOfItemData = null;
+                        Sectors[sector][col, row] = new ItemSlotData();
+                        Sectors[sector][col, row].SlotType = DataGrid[sector].col[col].row[row].GetComponent<ItemSlot>().SlotType;
+                        Sectors[sector][col, row].SlotName = DataGrid[sector].col[col].row[row].GetComponent<ItemSlot>().name;
+                        Sectors[sector][col, row].PartOfItemData = null;
                         index++;
                     }
                 }

@@ -25,6 +25,7 @@ namespace UI
         [SerializeField] public GameObject StaminaBar;
         [SerializeField] public GameObject HungerBar;
         [SerializeField] public GameObject ThirstBar;
+        [SerializeField] public GameObject WorldMapObject;
         #endregion
 
         #region HOTBar Elements
@@ -56,6 +57,7 @@ namespace UI
         public static OpenCloseUI DevConsol;
         public static OpenCloseUI PlayerInventory;
         public static OpenCloseUI InGameMenu;
+        public static OpenCloseUI WorldMap;
         #endregion
         private void Awake()
         {
@@ -68,6 +70,7 @@ namespace UI
             DevConsol = new OpenCloseUI(DevConsoleOpen, DevConsoleClose);
             PlayerInventory = new OpenCloseUI(PlayerInventoryOpen, PlayerInventoryClose);
             InGameMenu = new OpenCloseUI(InGameMenuOpen, InGameMenuClose);
+            WorldMap = new OpenCloseUI(OpenMap,CloseMap);
             #endregion
 
             Application.targetFrameRate = Main.targetFPS;
@@ -78,34 +81,11 @@ namespace UI
             Main.DefaultWidth = cameraWidth;
             Main.DefaultHeight = cameraHeight;
 
-    #region InGameMenu parts
-    private void InGameMenuOpen()
-    {
-        IntecativeObjectSelectorBox.SetActive(false);
-        InGameMenuObject.SetActive(true);
-    }
-    private void InGameMenuClose()
-    {
-        IntecativeObjectSelectorBox.SetActive(true);
-        InGameMenuObject.SetActive(false);
-    }
-    #endregion
-
-
-    public GameObject mapImage; // A térkép képe (UI Image)
-    private bool isMapVisible = false;
-    public Transform player; // A játékos Transform-ja
-
-    //public GameObject IntecativeObjectSelectorBox;
-    //public GameObject SelectedObject;
-
-    private void OnGUI()
-    {
-        if (Event.current != null && Event.current.type == EventType.KeyDown)
             // Objektum méretei (a kamera méreteihez igazítva)
             gameObject.GetComponent<RectTransform>().position = CameraObject.transform.position;
             gameObject.GetComponent<RectTransform>().sizeDelta = new Vector2(cameraWidth, cameraHeight);
         }
+
         private void FixedUpdate()
         {
             Vector3 targetPosition = PlayerObject.transform.position + offset;
@@ -160,6 +140,19 @@ namespace UI
             OpenHUD();
         }
         #endregion
+
+        #region MapMenu parts
+        private void OpenMap()
+        {
+            WorldMapObject.SetActive(true);
+            CloseHUD();
+        }
+        private void CloseMap()
+        {
+            WorldMapObject.SetActive(false);
+            OpenHUD();
+        }
+        #endregion
         private void OnGUI()
         {
             if (Event.current != null && Event.current.type == EventType.KeyDown)
@@ -187,6 +180,9 @@ namespace UI
                         {
                             Metodes(SelectedObject.GetComponent<Interact>().ActionMode);
                         }
+                        break;
+                    case KeyCode.M:
+                        WorldMap.Action();
                         break;
                     case KeyCode.Alpha1:
                         break;
@@ -238,28 +234,10 @@ namespace UI
                 case "OpenSimpleInventory":
                     OpenSimpleInventory();
                     break;
-                case KeyCode.M: // Térkép megjelenítése/eltüntetése
-                    ToggleMap();
-                    break;
                 default:
                     break;
             }
         }
-    }
-    private void Update()
-    {
-        if (isMapVisible)
-        {
-            // A térkép pozíciójának követése a játékos pozíciójával
-            mapImage.transform.position = player.position;
-        }
-    }
-
-    private void ToggleMap()
-    {
-        isMapVisible = !isMapVisible; // Láthatóság váltása
-        mapImage.SetActive(isMapVisible); // Térkép megjelenítése/elrejtése
-    }
         private void OpenSimpleInventory()
         {
             SelectedObject.GetComponent<Interact>().Opened = true;
@@ -280,6 +258,7 @@ namespace UI
         }
         #endregion
     }
+
 
     public class OpenCloseUI
     {

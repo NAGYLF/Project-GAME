@@ -76,7 +76,6 @@ namespace Weapons
 
         }
     }
-
     public class AK103 : Item
     {
         public Item Set()
@@ -89,7 +88,6 @@ namespace Weapons
                 Description = "Ez egy Admin fegyver, statjai a leheto legjobbak",
                 SizeX = 4,//az item slotokban elfoglalt szelessege
                 SizeY = 2,//az item slotokban elfoglalt magassaga
-
                 DefaultMagasineSize = 30,//alap tár kapacitás
                 Spread = 1,//a spread minusz értéke és plusz erteke közötti random generált szögben indul ki a lövedék, az az ha ez 0 akkor minden lövedék pontos, ezt a recoil befolyasolja
                 Rpm = 500,//lovés percenként
@@ -108,7 +106,6 @@ namespace Weapons
                     //nem kötelelző tartalom
                 },
             };
-
         }
     }
 }

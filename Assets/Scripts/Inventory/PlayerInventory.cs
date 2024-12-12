@@ -469,8 +469,8 @@ namespace ItemHandler
             Item completedItem = name switch
             {
                 "TestWeapon" => new TestWeapon().Set(),
-                "AK103" => new AK103().Set(),
                 "TestHandgun" => new TestHandgun().Set(),
+                "AK103" => new AK103().Set(),
                 "TestBackpack" => new TestBackpack().Set(),
                 "TestVest" => new TestVest().Set(),
                 "TestArmor" => new TestArmor().Set(),

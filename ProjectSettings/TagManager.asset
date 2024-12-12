@@ -6,11 +6,13 @@ TagManager:
   tags:
   - VideoPlayerMainMenu
   - InGameUI
+  - InteractiveEnviroment
+  - Enviroment
   layers:
   - Default
   - TransparentFX
   - Ignore Raycast
-  - Player
+  - Enviroment
   - Water
   - UI
   - InGameMenu

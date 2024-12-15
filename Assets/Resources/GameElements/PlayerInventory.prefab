@@ -49,5 +49,22 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 07818e5373097c74abbf7c60702d10b9, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  InventoryObject: {fileID: 6883841258543048749}
   playerInventoryData: {fileID: 0}
+  LootableObject: {fileID: 0}
+  EquipmentSlots:
+  - {fileID: 0}
+  - {fileID: 0}
+  - {fileID: 0}
+  - {fileID: 0}
+  - {fileID: 0}
+  - {fileID: 0}
+  - {fileID: 0}
+  - {fileID: 0}
+  - {fileID: 0}
+  - {fileID: 0}
+  - {fileID: 0}
+  - {fileID: 0}
+  - {fileID: 0}
+  - {fileID: 0}
+  activeSlots: []
+  PlaceableObject: {fileID: 0}

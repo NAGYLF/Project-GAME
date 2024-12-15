@@ -11,7 +11,7 @@ using TMPro;
 using System;
 using Unity.VisualScripting;
 using UnityEngine.EventSystems;
-using UnityEngine.UIElements;
+using PlayerInventoryClass;
 
 public class ItemObject : MonoBehaviour, IPointerDownHandler, IPointerUpHandler
 {
@@ -41,9 +41,9 @@ public class ItemObject : MonoBehaviour, IPointerDownHandler, IPointerUpHandler
     {
         //az itemslotok szama egynelo az item meretevel és mindegyik slot ugyan abban a sectorban van     vagy a placer aktiv slotjaiban egy elem van ami egy equipmentslot
         //Debug.Log(placer.activeItemSlots.First().name);
-        if (placer.activeItemSlots != null && placer.activeItemSlots.Count == 1 && placer.activeItemSlots.First().name.Contains("EquipmentSlot"))
+        if (placer.activeItemSlots != null && placer.activeItemSlots.Count == 1 && placer.activeItemSlots.First().GetComponent<ItemSlot>().IsEquipment)
         {
-            if (placer.activeItemSlots.First().GetComponent<EquipmentSlot>().PartOfItemObject != null && placer.activeItemSlots.First().GetComponent<EquipmentSlot>().PartOfItemObject.GetInstanceID() != gameObject.GetInstanceID())
+            if (placer.activeItemSlots.First().GetComponent<ItemSlot>().PartOfItemObject != null && placer.activeItemSlots.First().GetComponent<ItemSlot>().PartOfItemObject.GetInstanceID() != gameObject.GetInstanceID())
             {
                 return false;
             }
@@ -174,9 +174,9 @@ public class ItemObject : MonoBehaviour, IPointerDownHandler, IPointerUpHandler
         {
             (int smaller, int larger) SplitedCount = SplitInteger(ActualData.Quantity);
 
-            if (placer.activeItemSlots.Exists(slot => slot.GetComponent<ItemSlot>() != null && slot.GetComponent<ItemSlot>().CoundAddAvaiable))//split and megre
+            if (placer.activeItemSlots.Exists(slot => slot.GetComponent<ItemSlot>() != null && slot.GetComponent<ItemSlot>().CountAddAvaiable))//split and megre
             {
-                GameObject MergeObject = placer.activeItemSlots.Find(slot => slot.GetComponent<ItemSlot>().CoundAddAvaiable).GetComponent<ItemSlot>().PartOfItemObject;
+                GameObject MergeObject = placer.activeItemSlots.Find(slot => slot.GetComponent<ItemSlot>().CountAddAvaiable).GetComponent<ItemSlot>().PartOfItemObject;
                 MergeObject.GetComponent<ItemObject>().ActualData.Quantity += SplitedCount.larger;
                 ActualData.Quantity = SplitedCount.smaller;
                 if (MergeObject.GetComponent<ItemObject>().ActualData.Quantity > MergeObject.GetComponent<ItemObject>().ActualData.MaxStackSize)//ha a split több mint a maximalis stacksize
@@ -226,9 +226,10 @@ public class ItemObject : MonoBehaviour, IPointerDownHandler, IPointerUpHandler
             }
         }
         #region Item Merge
-        else if (placer.activeItemSlots !=null && placer.activeItemSlots.Exists(slot=>slot.GetComponent<ItemSlot>() != null && slot.GetComponent<ItemSlot>().CoundAddAvaiable))//csak containerekben mukodik
+        //nem bizots hogy equipment tipusu itemslotokkal mukodik
+        else if (placer.activeItemSlots !=null && placer.activeItemSlots.Exists(slot=>slot.GetComponent<ItemSlot>() != null && slot.GetComponent<ItemSlot>().CountAddAvaiable))//csak containerekben mukodik
         {
-            GameObject MergeObject = placer.activeItemSlots.Find(slot => slot.GetComponent<ItemSlot>().CoundAddAvaiable).GetComponent<ItemSlot>().PartOfItemObject;
+            GameObject MergeObject = placer.activeItemSlots.Find(slot => slot.GetComponent<ItemSlot>().CountAddAvaiable).GetComponent<ItemSlot>().PartOfItemObject;
             int count = MergeObject.GetComponent<ItemObject>().ActualData.Quantity;
             MergeObject.GetComponent<ItemObject>().ActualData.Quantity += ActualData.Quantity;
             if (MergeObject.GetComponent<ItemObject>().ActualData.Quantity > MergeObject.GetComponent<ItemObject>().ActualData.MaxStackSize)
@@ -252,9 +253,17 @@ public class ItemObject : MonoBehaviour, IPointerDownHandler, IPointerUpHandler
             Debug.Log(placer.activeItemSlots.Count);
             if (VirtualParentObject.GetInstanceID() != placer.NewVirtualParentObject.GetInstanceID())//új VPO (VirtualParentObject)
             {
-                if (VirtualParentObject.GetComponent<EquipmentSlot>() != null)
+                if (VirtualParentObject.GetComponent<PlayerInventory>() != null)
                 {
-                    VirtualParentObject.GetComponent<EquipmentSlot>().DataOut(ActualData);
+                    VirtualParentObject.GetComponent<PlayerInventory>().DataOut(ActualData);
+                    PlayerInventory playerInventory = VirtualParentObject.GetComponent<PlayerInventory>();
+                    for (int sector = 0; sector < playerInventory.EquipmentSlots.Count; sector++)
+                    {
+                        if (ActualData.SlotUse.Contains(playerInventory.EquipmentSlots[sector].GetComponent<ItemSlot>().name))
+                        {
+                            playerInventory.EquipmentSlots[sector].GetComponent<ItemSlot>().PartOfItemObject = null;
+                        }
+                    }
                 }
                 else
                 {
@@ -275,10 +284,24 @@ public class ItemObject : MonoBehaviour, IPointerDownHandler, IPointerUpHandler
                     }
                 }
                 VirtualParentObject = placer.NewVirtualParentObject;
-                if (VirtualParentObject.GetComponent<EquipmentSlot>() != null)
+                if (VirtualParentObject.GetComponent<PlayerInventory>() != null)
                 {
-                    ActualData.SlotUse = new string[] { VirtualParentObject.GetComponent<EquipmentSlot>().SlotName };
-                    VirtualParentObject.GetComponent<EquipmentSlot>().DataIn(ActualData, gameObject);
+                    PlayerInventory playerInventory = VirtualParentObject.GetComponent<PlayerInventory>();
+                    itemSlots.Clear();
+                    for (int sector = 0; sector < playerInventory.EquipmentSlots.Count; sector++)
+                    {
+                        if (placer.activeItemSlots.Contains(playerInventory.EquipmentSlots[sector]))
+                        {
+                            playerInventory.EquipmentSlots[sector].GetComponent<ItemSlot>().PartOfItemObject = gameObject;
+                            itemSlots.Add(playerInventory.EquipmentSlots[sector]);
+                        }
+                    }
+                    ActualData.SlotUse = new string[itemSlots.Count];
+                    for (int i = 0; i < ActualData.SlotUse.Length; i++)
+                    {
+                        ActualData.SlotUse[i] = itemSlots[i].name;
+                    }
+                    VirtualParentObject.GetComponent<PlayerInventory>().DataIn(ActualData,gameObject);
                     SelfVisualisation();
                 }
                 else
@@ -311,9 +334,29 @@ public class ItemObject : MonoBehaviour, IPointerDownHandler, IPointerUpHandler
             }
             else
             {
-                if (VirtualParentObject.GetComponent<EquipmentSlot>() != null)
+                if (VirtualParentObject.GetComponent<PlayerInventory>() != null)
                 {
-                    VirtualParentObject.GetComponent<EquipmentSlot>().DataUpdate(ActualData, gameObject);
+                    PlayerInventory playerInventory = VirtualParentObject.GetComponent<PlayerInventory>();
+                    itemSlots.Clear();
+                    for (int sector = 0; sector < playerInventory.EquipmentSlots.Count; sector++)
+                    {
+                        if (placer.activeItemSlots.Contains(playerInventory.EquipmentSlots[sector]))
+                        {
+                            playerInventory.EquipmentSlots[sector].GetComponent<ItemSlot>().PartOfItemObject = gameObject;
+                            itemSlots.Add(playerInventory.EquipmentSlots[sector]);
+                        }
+                        else if (!placer.activeItemSlots.Contains(playerInventory.EquipmentSlots[sector]) && ActualData.SlotUse.Contains(playerInventory.EquipmentSlots[sector].GetComponent<ItemSlot>().name))
+                        {
+                            //ezt a slotot megfosztjuk az itemobjektumtól és annak adatától
+                            playerInventory.EquipmentSlots[sector].GetComponent<ItemSlot>().PartOfItemObject = null;
+                        }
+                    }
+                    ActualData.SlotUse = new string[itemSlots.Count];
+                    for (int i = 0; i < ActualData.SlotUse.Length; i++)
+                    {
+                        ActualData.SlotUse[i] = itemSlots[i].name;
+                    }
+                    VirtualParentObject.GetComponent<PlayerInventory>().DataIn(ActualData, gameObject);
                     SelfVisualisation();
                 }
                 else
@@ -398,9 +441,9 @@ public class ItemObject : MonoBehaviour, IPointerDownHandler, IPointerUpHandler
     #region Data Synch
     public void SelfDestruction()//egy gombal hivhatod meg.
     {
-        if (VirtualParentObject.GetComponent<EquipmentSlot>() != null)
+        if (VirtualParentObject.GetComponent<PlayerInventory>() != null)
         {
-            VirtualParentObject.GetComponent<EquipmentSlot>().DataOut(ActualData);
+            VirtualParentObject.GetComponent<PlayerInventory>().DataOut(ActualData);
         }
         else
         {
@@ -413,9 +456,9 @@ public class ItemObject : MonoBehaviour, IPointerDownHandler, IPointerUpHandler
     {
         ActualData = Data;
         this.VirtualParentObject = VirtualParentObject;
-        if (VirtualParentObject.GetComponent<EquipmentSlot>() != null)
+        if (VirtualParentObject.GetComponent<PlayerInventory>() != null)
         {
-            VirtualParentObject.GetComponent<EquipmentSlot>().DataIn(ActualData,gameObject);
+            VirtualParentObject.GetComponent<PlayerInventory>().DataIn(ActualData,gameObject);
         }
         else
         {
@@ -426,9 +469,9 @@ public class ItemObject : MonoBehaviour, IPointerDownHandler, IPointerUpHandler
     {
         ActualData = Data;
         SelfVisualisation();
-        if (VirtualParentObject.GetComponent<EquipmentSlot>() != null)
+        if (VirtualParentObject.GetComponent<PlayerInventory>() != null)
         {
-            VirtualParentObject.GetComponent<EquipmentSlot>().DataUpdate(ActualData, gameObject);
+            VirtualParentObject.GetComponent<PlayerInventory>().DataUpdate(ActualData, gameObject);
         }
         else
         {
@@ -439,9 +482,9 @@ public class ItemObject : MonoBehaviour, IPointerDownHandler, IPointerUpHandler
     {
         ActualData = Data;
         SelfVisualisation();
-        if (VirtualParentObject.GetComponent<EquipmentSlot>() != null)
+        if (VirtualParentObject.GetComponent<PlayerInventory>() != null)
         {
-            VirtualParentObject.GetComponent<EquipmentSlot>().DataUpdate(ActualData, gameObject);
+            VirtualParentObject.GetComponent<PlayerInventory>().DataUpdate(ActualData, gameObject);
         }
         else
         {
@@ -452,9 +495,9 @@ public class ItemObject : MonoBehaviour, IPointerDownHandler, IPointerUpHandler
     {
         ActualData = Data;
         SelfVisualisation();
-        if (VirtualParentObject.GetComponent<EquipmentSlot>() != null)
+        if (VirtualParentObject.GetComponent<PlayerInventory>() != null)
         {
-            VirtualParentObject.GetComponent<EquipmentSlot>().DataUpdate(ActualData, gameObject);
+            VirtualParentObject.GetComponent<PlayerInventory>().DataUpdate(ActualData, gameObject);
         }
         else
         {
@@ -474,7 +517,7 @@ public class ItemObject : MonoBehaviour, IPointerDownHandler, IPointerUpHandler
     }
     public void BuildContainer()
     {
-        if (VirtualParentObject.GetComponent<EquipmentSlot>()!=null && ActualData.Container != null && Container == null)//11. ha az item adatai tartalmaznak containert akkor az létrejön
+        if (VirtualParentObject.GetComponent<PlayerInventory>()!=null && ActualData.Container != null && Container == null)//11. ha az item adatai tartalmaznak containert akkor az létrejön
         {
             //--> ContainerObject.cs
             Debug.LogWarning($"{ActualData.ItemName} ItemObject ------- ref --------> ContainerObject.cs");
@@ -531,28 +574,60 @@ public class ItemObject : MonoBehaviour, IPointerDownHandler, IPointerUpHandler
         itemObjectSpriteRedner.sprite = Resources.Load<Sprite>(gameObject.GetComponent<ItemObject>().ActualData.ImgPath);//az itemobjektum megkapja képét
         itemObjectSpriteRedner.drawMode = SpriteDrawMode.Sliced;
 
-        if (VirtualParentObject.GetComponent<EquipmentSlot>() != null)
+        if (VirtualParentObject.GetComponent<PlayerInventory>() != null)
         {
             Debug.Log($"{ActualData.ItemName}: Equipment visualisation");
-            RectTransform EquipmentSlot = VirtualParentObject.GetComponent<RectTransform>();
+            PlayerInventory playerInventory = VirtualParentObject.GetComponent<PlayerInventory>();
+            itemSlots.Clear();
+            for (int slot = 0; slot < playerInventory.EquipmentSlots.Count; slot++)
+            {
+                if (ActualData.SlotUse.Contains(playerInventory.EquipmentSlots[slot].GetComponent<ItemSlot>().name))
+                {
+                    itemSlots.Add(playerInventory.EquipmentSlots[slot]);
+                    playerInventory.EquipmentSlots[slot].GetComponent<ItemSlot>().PartOfItemObject = gameObject;
+                }
+            }
+            ActualData.SlotUse = new string[itemSlots.Count];
+            for (int i = 0; i < ActualData.SlotUse.Length; i++)
+            {
+                ActualData.SlotUse[i] = itemSlots[i].name;
+            }
+            // Alapértelmezett kezdõértékek (értelmesen kiszámítva)
+            Vector2 minPos = new Vector2(float.MaxValue, float.MaxValue);
+            Vector2 maxPos = new Vector2(float.MinValue, float.MinValue);
 
-            gameObject.transform.SetParent(EquipmentSlot.transform.parent, false);//itemObj parent set
+            // Végigmegy az összes itemSlot-on és kiszámítja a minimális és maximális pozíciókat
+            foreach (GameObject itemSlot in itemSlots)
+            {
+                // Az itemSlot helyi pozíciója a gameObject szülõhöz képest
+                Vector3 slotLocalPos = itemSlot.GetComponent<RectTransform>().localPosition;
+                Vector2 slotMin = slotLocalPos - (Vector3)itemSlot.GetComponent<RectTransform>().sizeDelta / 2;
+                Vector2 slotMax = slotLocalPos + (Vector3)itemSlot.GetComponent<RectTransform>().sizeDelta / 2;
 
-            itemObjectRectTransform.localPosition = new Vector3(EquipmentSlot.localPosition.x, EquipmentSlot.localPosition.y, 0);
-            itemObjectRectTransform.sizeDelta = new Vector2(ActualData.SizeX * Main.DefaultItemSlotSize, ActualData.SizeY * Main.DefaultItemSlotSize);
-            itemObjectRectTransform.anchorMin = EquipmentSlot.anchorMin;
-            itemObjectRectTransform.anchorMax = EquipmentSlot.anchorMax;
-            itemObjectRectTransform.pivot = EquipmentSlot.pivot;
-            itemObjectRectTransform.offsetMin = Vector2.zero;
-            itemObjectRectTransform.offsetMax = Vector2.zero;
+                // Beállítja a minimális és maximális pontokat az összes itemSlot lefedésére
+                minPos = Vector2.Min(minPos, slotMin);
+                maxPos = Vector2.Max(maxPos, slotMax);
+            }
+
+            // Méret kiszámítása és a szülõ objektum méretének beállítása
+            Vector2 newSize = maxPos - minPos;
+
+            gameObject.transform.SetParent(itemSlots.First().transform.parent, false);
 
             ActualData.RotateDegree = 0;
 
+            itemObjectRectTransform.anchorMin = new Vector2(0.5f, 0.5f);
+            itemObjectRectTransform.anchorMax = new Vector2(0.5f, 0.5f);
+            itemObjectRectTransform.pivot = new Vector2(0.5f, 0.5f);
+            itemObjectRectTransform.offsetMin = Vector2.zero;
+            itemObjectRectTransform.offsetMax = Vector2.zero;
+            itemObjectRectTransform.sizeDelta = itemSlots.First().GetComponent<RectTransform>().rect.size;
+            itemObjectRectTransform.localPosition = (Vector3)((maxPos + minPos) / 2f);
+
+            // Új pozíció beállítása úgy, hogy a szülõ lefedje az itemSlots összes elemét
+
             float Scale = Mathf.Min(itemObjectRectTransform.rect.height / itemObjectSpriteRedner.size.y, itemObjectRectTransform.rect.width / itemObjectSpriteRedner.size.x);
             itemObjectSpriteRedner.size = new Vector2(itemObjectSpriteRedner.size.x * Scale, itemObjectSpriteRedner.size.y * Scale);
-
-            ActualData.SlotUse = new string[] { VirtualParentObject.name };
-            VirtualParentObject.GetComponent<EquipmentSlot>().PartOfItemObject = gameObject;
 
             Counter.GetComponent<TextMeshPro>().fontSize = Main.ItemCounterFontSize;
         }
@@ -626,5 +701,7 @@ public class ItemObject : MonoBehaviour, IPointerDownHandler, IPointerUpHandler
         itemObjectBoxCollider2D.size = itemObjectRectTransform.rect.size;
 
         transform.rotation = Quaternion.Euler(0, 0, ActualData.RotateDegree);
+
+        SlotPanelObject.GetComponent<PanelSlots>().ReFresh();
     }
 }

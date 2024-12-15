@@ -11,6 +11,7 @@ using static MainData.SupportScripts;
 using NaturalInventorys;
 using Assets.Scripts.Inventory;
 using static ItemObject;
+using PlayerInventoryClass;
 
 
 public class ContainerObject : MonoBehaviour
@@ -24,6 +25,18 @@ public class ContainerObject : MonoBehaviour
     private int activeSlotsCount = 0;
     public List<DataGrid> Sectors;//ez egy mátrox lista amely tartalmazza az összes itemSlot Objectumot
     public GameObject[] SectorObjects;//ez egy gamObject lista amely tatalmmazza az összes sectort méretezési és itemObject elérésének szándékából
+    [Serializable]
+    public class DataGrid
+    {
+        public int rowNumber;
+        public int columnNumber;
+        public List<RowData> col;
+    }
+    [Serializable]
+    public class RowData
+    {
+        public List<GameObject> row;
+    }
     #endregion
 
     #region Active Slot Handler variables
@@ -33,19 +46,8 @@ public class ContainerObject : MonoBehaviour
     private PlacerStruct placer;
     #endregion
 
-    [Serializable]
-    public class DataGrid
-    {
-        public int rowNumber;       // Mátrix sorainak száma
-        public int columnNumber;    // Mátrix oszlopainak száma
-        public List<RowData> col; // Mátrix adatai
-    }
-
-    [Serializable]
-    public class RowData
-    {
-        public List<GameObject> row; // Egyetlen sor adatai
-    }
+    #region Active Slot Handler
+    //Ezen eljárások szükségesek ahoz, hogy egy itemet helyezni tudjunk slotokból slotokba
     private IEnumerator Targeting()
     {
         if (activeSlots.Count > 0)
@@ -82,6 +84,7 @@ public class ContainerObject : MonoBehaviour
         activeSlots = new List<GameObject>();
         placer.activeItemSlots = new List<GameObject>();
     }
+    #endregion
     private void Start()
     {
         DataLoad();
@@ -104,8 +107,7 @@ public class ContainerObject : MonoBehaviour
     #region VCO (VirtualChilderObjet) Synch -- Into --> This VPO (VirtualParentObject)
     public void DataOut(Item Data)//(a sender objectum mindig itemObjectum) Ezen eljaras célja, hogy ezen VPO-ból törölje a VCO adatait
     {
-        int index = ActualData.Container.Items.FindIndex(elem => elem.GetSlotUseId() == Data.GetSlotUseId());
-        ActualData.Container.Items.RemoveAt(index);
+        ActualData.Container.Items.RemoveAt(ActualData.Container.Items.FindIndex(elem => elem.GetSlotUseId() == Data.GetSlotUseId()));
         foreach (ItemSlotData[,] sector in ActualData.Container.Sectors)
         {
             foreach (ItemSlotData itemSlot in sector)
@@ -128,7 +130,15 @@ public class ContainerObject : MonoBehaviour
     public void DataIn(Item Data)//(a sender objectum mindig itemObjectum) Ezen eljárás céla, hogy ezen VPO-ba hozzáadja a VCO adatait
     {
         Data.SetSlotUseId();
-        ActualData.Container.Items.Add(Data);
+        Item item = ActualData.Container.Items.Where(item => item.LowestSlotUseNumber > Data.LowestSlotUseNumber).OrderBy(item => item.LowestSlotUseNumber).FirstOrDefault();
+        if (item != null)
+        {
+            ActualData.Container.Items.Insert(ActualData.Container.Items.IndexOf(item), Data);
+        }
+        else
+        {
+            ActualData.Container.Items.Add(Data);
+        }
         foreach (ItemSlotData[,] sector in ActualData.Container.Sectors)
         {
             foreach (ItemSlotData itemSlot in sector)
@@ -151,8 +161,7 @@ public class ContainerObject : MonoBehaviour
     //a megváltozott itemobjektum szikronizálja uj adatait parentobjektumával ki nem változott meg.
     public void DataUpdate(Item Data, GameObject SenderObject)//(a sender objectum mindig itemObjectum) Ezen eljárás céla, hogy ezen VPO-ban módosítsa a VCO adatait.
     {
-        //az itemobejtum adatának idexét egy itemslot id-ból kapja meg 
-        int index = ActualData.Container.Items.FindIndex(elem => elem.GetSlotUseId() == Data.GetSlotUseId());
+        ActualData.Container.Items.RemoveAt(ActualData.Container.Items.FindIndex(elem => elem.GetSlotUseId() == Data.GetSlotUseId()));
         foreach (ItemSlotData[,] sector in ActualData.Container.Sectors)
         {
             foreach (ItemSlotData itemSlot in sector)
@@ -174,7 +183,15 @@ public class ContainerObject : MonoBehaviour
                 }
             }
         }
-        ActualData.Container.Items[index] = Data;
+        Item item = ActualData.Container.Items.Where(item => item.LowestSlotUseNumber > Data.LowestSlotUseNumber).OrderBy(item => item.LowestSlotUseNumber).FirstOrDefault();
+        if (item != null)
+        {
+            ActualData.Container.Items.Insert(ActualData.Container.Items.IndexOf(item), Data);
+        }
+        else
+        {
+            ActualData.Container.Items.Add(Data);
+        }
         SenderObject.GetComponent<ItemObject>().ActualData.SetSlotUseId();
 
         if (VirtualParentObject.GetComponent<ItemObject>() != null)
@@ -197,9 +214,9 @@ public class ContainerObject : MonoBehaviour
     #endregion
     private void SelfVisualisation()
     {
-        if (VirtualParentObject.GetComponent<ItemObject>() && VirtualParentObject.GetComponent<ItemObject>().VirtualParentObject.GetComponent<EquipmentSlot>())
+        if (VirtualParentObject.GetComponent<ItemObject>() && VirtualParentObject.GetComponent<ItemObject>().VirtualParentObject.GetComponent<PlayerInventory>())
         {
-            GameObject slotObject = PlayerInventoryClass.PlayerInventory.SlotPanelObject;
+            GameObject slotObject = PlayerInventory.SlotPanelObject;
             RectTransform containerRectTranform = gameObject.GetComponent<RectTransform>();
             RectTransform SlotPanelObject = slotObject.GetComponent<RectTransform>();
             containerRectTranform.sizeDelta = new Vector2(SlotPanelObject.sizeDelta.x, containerRectTranform.sizeDelta.y * (SlotPanelObject.sizeDelta.x / containerRectTranform.sizeDelta.x));

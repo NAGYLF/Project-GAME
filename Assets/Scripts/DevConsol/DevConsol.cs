@@ -11,7 +11,7 @@ using System;
 public class DevConsol : MonoBehaviour
 {
     public GameObject text;
-    [HideInInspector] private static PlayerInventory.Equipmnets equipments;
+    [HideInInspector] private static List<ItemSlotData> equipments;
     [HideInInspector] public GameObject inventory;
     [HideInInspector] public GameObject Player;
     //add [playerName] item [itemName] [Count]
@@ -159,7 +159,7 @@ public class DevConsol : MonoBehaviour
                 break;
             case "Clear":
                 Debug.Log($"{text.GetComponent<TMP_InputField>().text}");
-                inventory.GetComponent<PlayerInventory>().equipments = new PlayerInventory.Equipmnets();
+                inventory.GetComponent<PlayerInventory>().equipments = new List<ItemSlotData>();
                 break;
             case "Load":
                 Debug.Log($"{text.GetComponent<TMP_InputField>().text}");

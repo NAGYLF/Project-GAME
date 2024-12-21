@@ -1,48 +1,42 @@
-using Assets.Scripts.Inventory;
 using ItemHandler;
 using MainData;
 using System;
 using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
-using Unity.VisualScripting;
 using UnityEngine;
 
 namespace NaturalInventorys
 {
     public class SimpleInventory : MonoBehaviour
     {
-        [HideInInspector] public Item MainData;//az obejctumon lévõ másik script végzi a kezdeti feltöltest
         [SerializeField] public string PrefabPath;//container prefab path
-        private GameObject Container;
-        public void Test()
+
+        [HideInInspector] public Item Root;// ez lényegében az inventory adatait tartlamazza
+        public void Awake()
         {
-            MainData = new Item();
-            MainData.Container = new Container(PrefabPath);
-        }
-        public void Start()
-        {
-            Test();
-        }
-        public void DataUpdate(Item Data)
-        {
-            MainData = Data;
+            Root = new Item();
+            Root.ItemName = "Root";
+            Root.lvl = -1;
+            Root.IsRoot = true;
+            Root.IsLoot = true;
+            Root.Container = new Container(PrefabPath);
         }
         public void InventoryAdd(Item item)
         {
             bool ItemAdded = false;
             if (!ItemAdded)//container gyorsitott item hozzadas mely nem ad uj elemet hanem csak quanity-t novel
             {
-                for (int j = 0; j < MainData.Container.Items.Count && !ItemAdded; j++)
+                for (int j = 0; j < Root.Container.Items.Count && !ItemAdded; j++)
                 {
-                    if (MainData.Container.Items[j].ItemName == item.ItemName && MainData.Container.Items[j].Quantity != MainData.Container.Items[j].MaxStackSize)
+                    if (Root.Container.Items[j].ItemName == item.ItemName && Root.Container.Items[j].Quantity != Root.Container.Items[j].MaxStackSize)
                     {
-                        int originalCount = MainData.Container.Items[j].Quantity;
-                        MainData.Container.Items[j].Quantity += item.Quantity;
-                        if (MainData.Container.Items[j].Quantity > MainData.Container.Items[j].MaxStackSize)
+                        int originalCount = Root.Container.Items[j].Quantity;
+                        Root.Container.Items[j].Quantity += item.Quantity;
+                        if (Root.Container.Items[j].Quantity > Root.Container.Items[j].MaxStackSize)
                         {
-                            item.Quantity -= (MainData.Container.Items[j].MaxStackSize - originalCount);
-                            MainData.Container.Items[j].Quantity = MainData.Container.Items[j].MaxStackSize;
+                            item.Quantity -= (Root.Container.Items[j].MaxStackSize - originalCount);
+                            Root.Container.Items[j].Quantity = Root.Container.Items[j].MaxStackSize;
                         }
                         else
                         {
@@ -53,25 +47,25 @@ namespace NaturalInventorys
             }
             if (!ItemAdded)//container
             {
-                for (int sectorIndex = 0; sectorIndex < MainData.Container.Sectors.Length && !ItemAdded; sectorIndex++)//mivel a szector 2D array-okat tartalmaz ezert a sectorokon az az ezen 2D arrayokon iteralunk vegig
+                for (int sectorIndex = 0; sectorIndex < Root.Container.Sectors.Length && !ItemAdded; sectorIndex++)//mivel a szector 2D array-okat tartalmaz ezert a sectorokon az az ezen 2D arrayokon iteralunk vegig
                 {
-                    if (MainData.Container.Sectors[sectorIndex].GetLength(1) >= item.SizeX && MainData.Container.Sectors[sectorIndex].GetLength(0) >= item.SizeY)//egy gyors ellenörzést végzünk, hogy az itemunk a feltetelezett teljesen ures sectorba belefér e, ha nem kihadjuk
+                    if (Root.Container.Sectors[sectorIndex].GetLength(1) >= item.SizeX && Root.Container.Sectors[sectorIndex].GetLength(0) >= item.SizeY)//egy gyors ellenörzést végzünk, hogy az itemunk a feltetelezett teljesen ures sectorba belefér e, ha nem kihadjuk
                     {
-                        for (int Y = 0; Y < MainData.Container.Sectors[sectorIndex].GetLength(0) && !ItemAdded; Y++)//vegig iterálunk a sorokon
+                        for (int Y = 0; Y < Root.Container.Sectors[sectorIndex].GetLength(0) && !ItemAdded; Y++)//vegig iterálunk a sorokon
                         {
-                            for (int X = 0; X < MainData.Container.Sectors[sectorIndex].GetLength(1) && !ItemAdded; X++)//a sorokon belul az oszlopokon
+                            for (int X = 0; X < Root.Container.Sectors[sectorIndex].GetLength(1) && !ItemAdded; X++)//a sorokon belul az oszlopokon
                             {
-                                if (MainData.Container.Sectors[sectorIndex][Y, X].PartOfItemData == null && CanBePlace(MainData.Container.Sectors[sectorIndex], Y, X, item))//ha a slot nem tagja egy itemnek sem akkor target
+                                if (Root.Container.Sectors[sectorIndex][Y, X].PartOfItemData == null && CanBePlace(Root.Container.Sectors[sectorIndex], Y, X, item))//ha a slot nem tagja egy itemnek sem akkor target
                                 {
                                     int index = 0;
-                                    item.SlotUse = new string[item.SizeX * item.SizeY];
+                                    item.SlotUse = new List<string>();
                                     List<ItemSlotData> itemSlots = new List<ItemSlotData>();
                                     for (int y = Y; y < Y + item.SizeY; y++)
                                     {
                                         for (int x = X; x < X + item.SizeX; x++)
                                         {
-                                            itemSlots.Add(MainData.Container.Sectors[sectorIndex][y, x]);
-                                            item.SlotUse[index] = MainData.Container.Sectors[sectorIndex][y, x].SlotName;//ez alapjan azonositunk egy itemslotot
+                                            itemSlots.Add(Root.Container.Sectors[sectorIndex][y, x]);
+                                            item.SlotUse[index] = Root.Container.Sectors[sectorIndex][y, x].SlotName;//ez alapjan azonositunk egy itemslotot
                                             index++;
                                         }
                                     }
@@ -85,15 +79,14 @@ namespace NaturalInventorys
                                     {
                                         ItemAdded = true;
                                     }
-                                    item.SetSlotUseId();
-                                    foreach (ItemSlotData itemSlot in MainData.Container.Sectors[sectorIndex])
+                                    foreach (ItemSlotData itemSlot in Root.Container.Sectors[sectorIndex])
                                     {
                                         if (itemSlots.Exists(slot => slot.SlotName == itemSlot.SlotName))
                                         {
                                             itemSlot.PartOfItemData = item;
                                         }
                                     }
-                                    MainData.Container.Items.Add(item);
+                                    Root.Container.Items.Add(item);
                                     item = new Item(item.ItemName, count);
                                 }
                             }
@@ -113,49 +106,43 @@ namespace NaturalInventorys
             bool ItemRemoved = false;
             if (!ItemRemoved)//container
             {
-                for (int sectorIndex = 0; sectorIndex < MainData.Container.Sectors.Length && !ItemRemoved; sectorIndex++)
+                for (int sectorIndex = 0; sectorIndex < Root.Container.Sectors.Length && !ItemRemoved; sectorIndex++)
                 {
-                    for (int Row = 0; Row < MainData.Container.Sectors[sectorIndex].GetLength(0) && !ItemRemoved; Row++)
+                    for (int Row = 0; Row < Root.Container.Sectors[sectorIndex].GetLength(0) && !ItemRemoved; Row++)
                     {
-                        for (int Col = 0; Col < MainData.Container.Sectors[sectorIndex].GetLength(1) && !ItemRemoved; Col++)
+                        for (int Col = 0; Col < Root.Container.Sectors[sectorIndex].GetLength(1) && !ItemRemoved; Col++)
                         {
-                            if (MainData.Container.Sectors[sectorIndex][Row, Col].PartOfItemData != null && MainData.Container.Sectors[sectorIndex][Row, Col].PartOfItemData.ItemName == item.ItemName)
+                            if (Root.Container.Sectors[sectorIndex][Row, Col].PartOfItemData != null && Root.Container.Sectors[sectorIndex][Row, Col].PartOfItemData.ItemName == item.ItemName)
                             {
-                                MainData.Container.Sectors[sectorIndex][Row, Col].PartOfItemData.Quantity -= item.Quantity;
+                                Root.Container.Sectors[sectorIndex][Row, Col].PartOfItemData.Quantity -= item.Quantity;
                                 int count = 0;
-                                if (MainData.Container.Sectors[sectorIndex][Row, Col].PartOfItemData.Quantity > 0)
+                                if (Root.Container.Sectors[sectorIndex][Row, Col].PartOfItemData.Quantity > 0)
                                 {
                                     ItemRemoved = true;//csak menyiseget törlünk
                                 }
-                                else if (MainData.Container.Sectors[sectorIndex][Row, Col].PartOfItemData.Quantity == 0)
+                                else if (Root.Container.Sectors[sectorIndex][Row, Col].PartOfItemData.Quantity == 0)
                                 {
                                     ItemRemoved = true;
-                                    MainData.Container.Items.RemoveAt(MainData.Container.Items.FindIndex(item => item.SlotUse.Contains(MainData.Container.Sectors[sectorIndex][Row, Col].SlotName)));
+                                    Root.Container.Items.RemoveAt(Root.Container.Items.FindIndex(item => item.SlotUse.Contains(Root.Container.Sectors[sectorIndex][Row, Col].SlotName)));
 
-                                    Item RefItem = MainData.Container.Sectors[sectorIndex][Row, Col].PartOfItemData;
+                                    Item RefItem = Root.Container.Sectors[sectorIndex][Row, Col].PartOfItemData;
 
-                                    foreach (ItemSlotData itemSlot in MainData.Container.Sectors[sectorIndex])
+                                    foreach (ItemSlotData itemSlot in Root.Container.Sectors[sectorIndex])
                                     {
-                                        if (RefItem.GetSlotUseId().Contains(itemSlot.SlotName))
-                                        {
-                                            itemSlot.PartOfItemData = null;
-                                        }
+                      
                                     }
                                 }
                                 else
                                 {
-                                    count = Math.Abs(MainData.Container.Sectors[sectorIndex][Row, Col].PartOfItemData.Quantity);
+                                    count = Math.Abs(Root.Container.Sectors[sectorIndex][Row, Col].PartOfItemData.Quantity);
                                     item.Quantity = count;
-                                    MainData.Container.Items.RemoveAt(MainData.Container.Items.FindIndex(item => item.SlotUse.Contains(MainData.Container.Sectors[sectorIndex][Row, Col].SlotName)));
+                                    Root.Container.Items.RemoveAt(Root.Container.Items.FindIndex(item => item.SlotUse.Contains(Root.Container.Sectors[sectorIndex][Row, Col].SlotName)));
 
-                                    Item RefItem = MainData.Container.Sectors[sectorIndex][Row, Col].PartOfItemData;
+                                    Item RefItem = Root.Container.Sectors[sectorIndex][Row, Col].PartOfItemData;
 
-                                    foreach (ItemSlotData itemSlot in MainData.Container.Sectors[sectorIndex])
+                                    foreach (ItemSlotData itemSlot in Root.Container.Sectors[sectorIndex])
                                     {
-                                        if (RefItem.GetSlotUseId().Contains(itemSlot.SlotName))
-                                        {
-                                            itemSlot.PartOfItemData = null;
-                                        }
+                      
                                     }
                                 }
                             }

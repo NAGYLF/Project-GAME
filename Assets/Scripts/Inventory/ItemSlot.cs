@@ -6,13 +6,18 @@ using System.Threading.Tasks;
 using UnityEngine;
 using UnityEngine.UI;
 using ItemHandler;
+using PlayerInventoryClass;
+using TMPro;
 
 namespace Assets.Scripts
 { 
     public class ItemSlot : MonoBehaviour
     {
+        #region Equipment variables
+        public bool IsEquipment = false;
+        #endregion
 
-        [HideInInspector] public GameObject Sector;//a saját sectora ezzel végezteti az adatszinkronizációt és a az item elhelyezés azon problemajat,
+        [HideInInspector] public GameObject ParentObject;//a saját sectora ezzel végezteti az adatszinkronizációt és a az item elhelyezés azon problemajat,
                                                    //hogyha nem egy szektoron belün, de egyszere anyi itemcontainer kerülne targetba ami eleglenne az item tarolasakor,
                                                    //ekkor az item ellenorzi, hogy a tergetek egy sectorba tartoznak e.
         public string SlotType;//azon tipusok melyeket befogadhat, ha nincs megadva akkor mindent.
@@ -20,15 +25,16 @@ namespace Assets.Scripts
         #region  Runtime Instantiated Objects Datas
         public GameObject PartOfItemObject;//ezen értéket egy itemslot egy item vizualizációjakor kellene hogy kapjon
         public GameObject ActualPartOfItemObject;//ezt vizualizációkor kapja és továbbiakban a vizualizációban lesz fumciója az iteomobjectum azonosításban
-        public bool CoundAddAvaiable = false;
+        public bool CountAddAvaiable = false;
         private Color color;
+        public GameObject Title;
         #endregion
         private void OnCollisionEnter2D(Collision2D collision)
         {
-            if (PartOfItemObject == null || (PartOfItemObject.GetInstanceID() == collision.gameObject.GetInstanceID()) && (SlotType == "" || SlotType.Contains(collision.gameObject.GetComponent<ItemObject>().ActualData.ItemType)))
+            if ((PartOfItemObject == null || (PartOfItemObject.GetInstanceID() == collision.gameObject.GetInstanceID())) && (SlotType == "" || SlotType.Contains(collision.gameObject.GetComponent<ItemObject>().ActualData.ItemType)))
             {
                 ActualPartOfItemObject = collision.gameObject;
-                Sector.GetComponent<SectorManager>().activeSlots.Add(gameObject);
+                ParentObject.GetComponent<ContainerObject>().activeSlots.Add(gameObject);
                 color = gameObject.GetComponent<Image>().color;
                 gameObject.GetComponent<Image>().color = Color.yellow;
             }
@@ -37,8 +43,8 @@ namespace Assets.Scripts
                 ActualPartOfItemObject = collision.gameObject;
                 color = gameObject.GetComponent<Image>().color;
                 gameObject.GetComponent<Image>().color = Color.yellow;
-                CoundAddAvaiable = true;
-                Sector.GetComponent<SectorManager>().activeSlots.Add(gameObject);
+                CountAddAvaiable = true;
+                ParentObject.GetComponent<ContainerObject>().activeSlots.Add(gameObject);
             }
             else
             {
@@ -48,10 +54,14 @@ namespace Assets.Scripts
         }
         private void OnCollisionExit2D(Collision2D collision)
         {
-            Sector.GetComponent<SectorManager>().activeSlots.Remove(gameObject);
+            ParentObject.GetComponent<ContainerObject>().activeSlots.Remove(gameObject);
             ActualPartOfItemObject = null;
-            CoundAddAvaiable = false;
+            CountAddAvaiable = false;
             gameObject.GetComponent<Image>().color = color;
+        }
+        private void Awake()
+        {
+            Title.GetComponent<TextMeshPro>().text = SlotType;
         }
     }
 }

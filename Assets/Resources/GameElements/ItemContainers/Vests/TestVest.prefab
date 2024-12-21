@@ -10,7 +10,7 @@ GameObject:
   m_Component:
   - component: {fileID: 2394504217555576526}
   - component: {fileID: 8737091786257718452}
-  m_Layer: 0
+  m_Layer: 5
   m_Name: TestVest
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -50,9 +50,38 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: aeea70c81313af54398a70ee0402a0a3, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  SectorManagers:
+  Sectors:
+  - rowNumber: 5
+    columnNumber: 2
+    col:
+    - row:
+      - {fileID: 6595084521253739957}
+      - {fileID: 3371051842265815919}
+      - {fileID: 7636518762406145629}
+      - {fileID: 4610682675132735474}
+      - {fileID: 5088640119829542059}
+    - row:
+      - {fileID: 7655372341476996100}
+      - {fileID: 5448163345361076290}
+      - {fileID: 8011619530985185355}
+      - {fileID: 2418743763850233941}
+      - {fileID: 1527025179101064467}
+  - rowNumber: 7
+    columnNumber: 1
+    col:
+    - row:
+      - {fileID: 3976399128320052454}
+      - {fileID: 2873730400898751294}
+      - {fileID: 6048962844245343937}
+      - {fileID: 1982540539543783802}
+      - {fileID: 8809402919111945244}
+      - {fileID: 7246103498530699032}
+      - {fileID: 5031256637917156886}
+  SectorObjects:
   - {fileID: 3008624404832752138}
   - {fileID: 3571044685359639320}
+  activeSlots: []
+  PlaceableObject: {fileID: 0}
 --- !u!1 &3008624404832752138
 GameObject:
   m_ObjectHideFlags: 0
@@ -62,8 +91,7 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 3567067932720000526}
-  - component: {fileID: 4256775105555889850}
-  m_Layer: 0
+  m_Layer: 5
   m_Name: Sector01
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -100,34 +128,6 @@ RectTransform:
   m_AnchoredPosition: {x: 0, y: 0}
   m_SizeDelta: {x: 0, y: 0}
   m_Pivot: {x: 0.5, y: 0.5}
---- !u!114 &4256775105555889850
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 3008624404832752138}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 76a71bda2f858e644b7ee2b34751b146, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  Container: {fileID: 0}
-  ItemSlots:
-  - {fileID: 6595084521253739957}
-  - {fileID: 3371051842265815919}
-  - {fileID: 7636518762406145629}
-  - {fileID: 4610682675132735474}
-  - {fileID: 5088640119829542059}
-  - {fileID: 7655372341476996100}
-  - {fileID: 5448163345361076290}
-  - {fileID: 8011619530985185355}
-  - {fileID: 2418743763850233941}
-  - {fileID: 1527025179101064467}
-  row: 2
-  columb: 5
-  activeSlots: []
-  PlaceableObject: {fileID: 0}
 --- !u!1 &3571044685359639320
 GameObject:
   m_ObjectHideFlags: 0
@@ -137,8 +137,7 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 4774123355493466423}
-  - component: {fileID: 2449425597505100770}
-  m_Layer: 0
+  m_Layer: 5
   m_Name: Sector02
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -172,31 +171,6 @@ RectTransform:
   m_AnchoredPosition: {x: 0, y: 0}
   m_SizeDelta: {x: 0, y: 0}
   m_Pivot: {x: 0.5, y: 0.5}
---- !u!114 &2449425597505100770
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 3571044685359639320}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 76a71bda2f858e644b7ee2b34751b146, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  Container: {fileID: 0}
-  ItemSlots:
-  - {fileID: 3976399128320052454}
-  - {fileID: 2873730400898751294}
-  - {fileID: 6048962844245343937}
-  - {fileID: 1982540539543783802}
-  - {fileID: 8809402919111945244}
-  - {fileID: 7246103498530699032}
-  - {fileID: 5031256637917156886}
-  row: 1
-  columb: 7
-  activeSlots: []
-  PlaceableObject: {fileID: 0}
 --- !u!1001 &240399785107701462
 PrefabInstance:
   m_ObjectHideFlags: 0

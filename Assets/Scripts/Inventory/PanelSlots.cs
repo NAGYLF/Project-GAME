@@ -5,11 +5,13 @@ using ItemHandler;
 using System.Linq;
 using System;
 using Assets.Scripts;
+using PlayerInventoryClass;
 
 public class PanelSlots : MonoBehaviour
 {
     public GameObject Content;//ahova az itemcontainerek kerulni fognak
     public GameObject ScrollPanel;
+    public GameObject PlayerInventoryObject;
     public void ReFresh()
     {
         var children = new List<Transform>();
@@ -25,8 +27,8 @@ public class PanelSlots : MonoBehaviour
                 var childSlotTypeA = children[j].GetComponent<ContainerObject>().ActualData.ItemType;
                 var childSlotTypeB = children[j + 1].GetComponent<ContainerObject>().ActualData.ItemType;
 
-                int indexA = Array.FindIndex(PlayerInventoryClass.PlayerInventory.EquipmentsPanelObject.GetComponent<PanelEquipments>().EquipmentsSlots, slot => slot.GetComponent<ItemSlot>().SlotType == childSlotTypeA);
-                int indexB = Array.FindIndex(PlayerInventoryClass.PlayerInventory.EquipmentsPanelObject.GetComponent<PanelEquipments>().EquipmentsSlots, slot => slot.GetComponent<ItemSlot>().SlotType == childSlotTypeB);
+                int indexA = Array.FindIndex(PlayerInventoryObject.GetComponent<PlayerInventory>().EquipmentsPanelObject.GetComponent<PanelEquipments>().EquipmentsSlots, slot => slot.GetComponent<ItemSlot>().SlotType == childSlotTypeA);
+                int indexB = Array.FindIndex(PlayerInventoryObject.GetComponent<PlayerInventory>().EquipmentsPanelObject.GetComponent<PanelEquipments>().EquipmentsSlots, slot => slot.GetComponent<ItemSlot>().SlotType == childSlotTypeB);
 
                 if (indexA > indexB)
                 {

@@ -8,7 +8,6 @@ using UnityEngine.UI;
 using ItemHandler;
 using PlayerInventoryClass;
 using TMPro;
-using static PlayerInventoryClass.PlayerInventory;
 
 namespace Assets.Scripts
 { 
@@ -35,14 +34,7 @@ namespace Assets.Scripts
             if ((PartOfItemObject == null || (PartOfItemObject.GetInstanceID() == collision.gameObject.GetInstanceID())) && (SlotType == "" || SlotType.Contains(collision.gameObject.GetComponent<ItemObject>().ActualData.ItemType)))
             {
                 ActualPartOfItemObject = collision.gameObject;
-                if (ParentObject.GetComponent<ContainerObject>())
-                {
-                    ParentObject.GetComponent<ContainerObject>().activeSlots.Add(gameObject);
-                }
-                else
-                {
-                    ParentObject.GetComponent<PlayerInventory>().activeSlots.Add(gameObject);
-                }
+                ParentObject.GetComponent<ContainerObject>().activeSlots.Add(gameObject);
                 color = gameObject.GetComponent<Image>().color;
                 gameObject.GetComponent<Image>().color = Color.yellow;
             }
@@ -52,14 +44,7 @@ namespace Assets.Scripts
                 color = gameObject.GetComponent<Image>().color;
                 gameObject.GetComponent<Image>().color = Color.yellow;
                 CountAddAvaiable = true;
-                if (ParentObject.GetComponent<ContainerObject>())
-                {
-                    ParentObject.GetComponent<ContainerObject>().activeSlots.Add(gameObject);
-                }
-                else
-                {
-                    ParentObject.GetComponent<PlayerInventory>().activeSlots.Add(gameObject);
-                }
+                ParentObject.GetComponent<ContainerObject>().activeSlots.Add(gameObject);
             }
             else
             {
@@ -69,14 +54,7 @@ namespace Assets.Scripts
         }
         private void OnCollisionExit2D(Collision2D collision)
         {
-            if (ParentObject.GetComponent<ContainerObject>())
-            {
-                ParentObject.GetComponent<ContainerObject>().activeSlots.Remove(gameObject);
-            }
-            else
-            {
-                ParentObject.GetComponent<PlayerInventory>().activeSlots.Remove(gameObject);
-            }
+            ParentObject.GetComponent<ContainerObject>().activeSlots.Remove(gameObject);
             ActualPartOfItemObject = null;
             CountAddAvaiable = false;
             gameObject.GetComponent<Image>().color = color;

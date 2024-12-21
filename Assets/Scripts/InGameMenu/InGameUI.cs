@@ -242,8 +242,9 @@ namespace UI
         {
             SelectedObject.GetComponent<Interact>().Opened = true;
             PlayerInventoryObject.GetComponent<PlayerInventory>().LootableObject = SelectedObject;
-            PlayerInventoryObject.GetComponent<PlayerInventory>().LootCreate();
             PlayerInventory.Action();
+            PlayerInventoryObject.GetComponent<PlayerInventory>().LootCreate();
+
         }
         #endregion
 

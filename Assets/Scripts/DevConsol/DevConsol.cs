@@ -8,10 +8,11 @@ using PlayerInventoryClass;
 using UnityEditor;
 using Newtonsoft.Json.Linq;
 using System;
+using System.Linq;
 public class DevConsol : MonoBehaviour
 {
     public GameObject text;
-    [HideInInspector] private static List<ItemSlotData> equipments;
+    [HideInInspector] private static Item RootData;
     [HideInInspector] public GameObject inventory;
     [HideInInspector] public GameObject Player;
     //add [playerName] item [itemName] [Count]
@@ -62,8 +63,6 @@ public class DevConsol : MonoBehaviour
                                 };
                                 foreach (Item item_ in items00)
                                 {
-                                    //Debug.Log(item_.ItemName);
-                                    //Debug.Log($"{PlayerInventory.playerInventoryData==null}");
                                     inventory.GetComponent<PlayerInventory>().InventoryAdd(item_);
                                 }
                                 break;
@@ -78,8 +77,6 @@ public class DevConsol : MonoBehaviour
                                 };
                                 foreach (Item item_ in items01)
                                 {
-                                    Debug.Log(item_.ItemName);
-                                    Debug.Log($"{inventory.GetComponent<PlayerInventory>() == null}");
                                     inventory.GetComponent<PlayerInventory>().InventoryAdd(item_);
                                 }
                                 break;
@@ -106,8 +103,6 @@ public class DevConsol : MonoBehaviour
                                            };
                                 foreach (Item item_ in items02)
                                 {
-                                    Debug.Log(item_.ItemName);
-                                    Debug.Log($"{inventory.GetComponent<PlayerInventory>() == null}");
                                     inventory.GetComponent<PlayerInventory>().InventoryAdd(item_);
                                 }
                                 break;
@@ -119,8 +114,6 @@ public class DevConsol : MonoBehaviour
                                            };
                                 foreach (Item item_ in items03)
                                 {
-                                    Debug.Log(item_.ItemName);
-                                    Debug.Log($"{inventory.GetComponent<PlayerInventory>() == null}");
                                     inventory.GetComponent<PlayerInventory>().InventoryAdd(item_);
                                 }
                                 break;
@@ -155,15 +148,16 @@ public class DevConsol : MonoBehaviour
                 break;
             case "Save":
                 Debug.Log($"{text.GetComponent<TMP_InputField>().text}");
-                equipments = inventory.GetComponent<PlayerInventory>().equipments;
+                RootData = inventory.GetComponent<PlayerInventory>().levelManager.Items.FirstOrDefault(item=>item.lvl==-1);
                 break;
             case "Clear":
                 Debug.Log($"{text.GetComponent<TMP_InputField>().text}");
-                inventory.GetComponent<PlayerInventory>().equipments = new List<ItemSlotData>();
+                inventory.GetComponent<PlayerInventory>().levelManager.Items.Clear();
                 break;
             case "Load":
                 Debug.Log($"{text.GetComponent<TMP_InputField>().text}");
-                inventory.GetComponent<PlayerInventory>().equipments = equipments;
+                Item root = inventory.GetComponent<PlayerInventory>().levelManager.Items.FirstOrDefault(item => item.lvl == -1);
+                root = RootData;
                 break;
             case var _ when Command[0] == Main.name:
                 switch (Command[1])

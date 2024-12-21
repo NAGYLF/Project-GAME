@@ -958,6 +958,10 @@ PrefabInstance:
       propertyPath: m_Name
       value: InGameUI
       objectReference: {fileID: 0}
+    - target: {fileID: 594623920097088215, guid: 8b3d9052fc1731344bc23bb343136841, type: 3}
+      propertyPath: m_AnchoredPosition.y
+      value: -50
+      objectReference: {fileID: 0}
     - target: {fileID: 2028355595623103165, guid: 8b3d9052fc1731344bc23bb343136841, type: 3}
       propertyPath: m_AnchorMax.x
       value: 0
@@ -974,6 +978,10 @@ PrefabInstance:
       propertyPath: m_AnchorMax.y
       value: 0
       objectReference: {fileID: 0}
+    - target: {fileID: 2622632751923927406, guid: 8b3d9052fc1731344bc23bb343136841, type: 3}
+      propertyPath: SectorObjects.Array.size
+      value: 0
+      objectReference: {fileID: 0}
     - target: {fileID: 3186912066378939008, guid: 8b3d9052fc1731344bc23bb343136841, type: 3}
       propertyPath: m_AnchorMax.x
       value: 0
@@ -981,10 +989,18 @@ PrefabInstance:
     - target: {fileID: 3186912066378939008, guid: 8b3d9052fc1731344bc23bb343136841, type: 3}
       propertyPath: m_AnchorMax.y
       value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 3906807955528713754, guid: 8b3d9052fc1731344bc23bb343136841, type: 3}
+      propertyPath: m_AnchoredPosition.y
+      value: -49
       objectReference: {fileID: 0}
     - target: {fileID: 4100600147931730381, guid: 8b3d9052fc1731344bc23bb343136841, type: 3}
       propertyPath: m_Layer
       value: 5
+      objectReference: {fileID: 0}
+    - target: {fileID: 4100600147931730381, guid: 8b3d9052fc1731344bc23bb343136841, type: 3}
+      propertyPath: m_IsActive
+      value: 1
       objectReference: {fileID: 0}
     - target: {fileID: 5306844693249942750, guid: 8b3d9052fc1731344bc23bb343136841, type: 3}
       propertyPath: m_AnchoredPosition.y

@@ -26,6 +26,7 @@ namespace UI
         [SerializeField] public GameObject HungerBar;
         [SerializeField] public GameObject ThirstBar;
         [SerializeField] public GameObject WorldMapObject;
+        [SerializeField] public GameObject QuestLogObject;
         #endregion
 
         #region HOTBar Elements
@@ -58,6 +59,7 @@ namespace UI
         public static OpenCloseUI PlayerInventory;
         public static OpenCloseUI InGameMenu;
         public static OpenCloseUI WorldMap;
+        public static OpenCloseUI QuestLog;
         #endregion
         private void Awake()
         {
@@ -71,6 +73,7 @@ namespace UI
             PlayerInventory = new OpenCloseUI(PlayerInventoryOpen, PlayerInventoryClose);
             InGameMenu = new OpenCloseUI(InGameMenuOpen, InGameMenuClose);
             WorldMap = new OpenCloseUI(OpenMap,CloseMap);
+            QuestLog = new OpenCloseUI(OpenQuest, CloseQuest);
             #endregion
 
             Application.targetFrameRate = Main.targetFPS;
@@ -153,6 +156,18 @@ namespace UI
             OpenHUD();
         }
         #endregion
+        #region QuestLog parts
+        private void OpenQuest()
+        {
+            QuestLogObject.SetActive(true);
+            CloseHUD();
+        }
+        private void CloseQuest()
+        {
+            QuestLogObject.SetActive(false);
+            OpenHUD();
+        }
+        #endregion
         private void OnGUI()
         {
             if (Event.current != null && Event.current.type == EventType.KeyDown)
@@ -184,7 +199,8 @@ namespace UI
                     case KeyCode.M:
                         WorldMap.Action();
                         break;
-                    case KeyCode.Alpha1:
+                    case KeyCode.Q:
+                        QuestLog.Action();
                         break;
                     case KeyCode.Alpha2:
                         break;

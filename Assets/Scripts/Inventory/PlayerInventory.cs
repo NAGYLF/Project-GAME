@@ -8,7 +8,6 @@ using static MainData.SupportScripts;
 using ItemHandler;
 using Assets.Scripts.Inventory;
 using NaturalInventorys;
-using Unity.VisualScripting;
 
 namespace PlayerInventoryClass
 {

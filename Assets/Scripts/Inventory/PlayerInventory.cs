@@ -28,6 +28,7 @@ using Melees;
 using Ammunition;
 using Assets.Scripts.Inventory;
 using NaturalInventorys;
+using Cash;
 
 
 namespace PlayerInventoryClass

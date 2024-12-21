@@ -13,13 +13,14 @@ namespace Cash
         {
             return new Item()
             {
-                ImgPath = "Textures/ItemTextures/Cash/dollar_1",//az item képe
+                ImgPath = "Textures/ItemTextures/Cash/Dollar_1",//az item képe
                 ItemType = "Cash",//typus azonosito
                 ItemName = "Dollar_1",//nev azonosito
                 Description = "Ez itt 1 Amerikai dollár",
                 SizeX = 1,//az item slotokban elfoglalt szelessege
                 SizeY = 1,//az item slotokban elfoglalt magassaga
                 MaxStackSize = 100000,
+                Value = 1,
                 
 
 

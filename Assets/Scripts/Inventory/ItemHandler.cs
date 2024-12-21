@@ -13,12 +13,12 @@ using Skins;
 using Vests;
 using Weapons;
 using System;
+using Cash;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text.RegularExpressions;
 using Unity.VisualScripting;
 using UnityEngine;
-using System.Xml.Linq;
 
 namespace ItemHandler
 {
@@ -69,6 +69,7 @@ namespace ItemHandler
         public string ItemName { get; set; }
         public string Description { get; set; }
         public int Quantity { get; set; }
+        public int Value { get; set; }
         public int SizeX { get; set; }
         public int SizeY { get; set; }
         public string ImgPath { get; set; }
@@ -121,21 +122,52 @@ namespace ItemHandler
         {
             Item completedItem = name switch
             {
-                "TestWeapon" => new TestWeapon().Set(),
-                "TestHandgun" => new TestHandgun().Set(),
-                "AK103" => new AK103().Set(),
+                //backpacks
                 "TestBackpack" => new TestBackpack().Set(),
+
+                //vests
                 "TestVest" => new TestVest().Set(),
+
+                //armors
                 "TestArmor" => new TestArmor().Set(),
+
+                //helmets
                 "TestHelmet" => new TestHelmet().Set(),
+
+                //gloves
                 "TestFingers" => new TestFingers().Set(),
+
+                //boots
                 "TestBoots" => new TestBoots().Set(),
+
+                //masks
                 "TestMask" => new TestMask().Set(),
+
+                //headsets
                 "TestHeadset" => new TestHeadset().Set(),
+
+                //torso
                 "TestSkin" => new TestSkin().Set(),
+
+                //Pants
                 "TestPant" => new TestPant().Set(),
+
+                //Main Weapons
+                "TestWeapon" => new TestWeapon().Set(),
+                "AK103" => new AK103().Set(),
+
+                //secondary weapons
+                "TestHandgun" => new TestHandgun().Set(),
+
+                //Melees
                 "TestMelee" => new TestMelee().Set(),
+
+                //Ammunitons
                 "7.62x39FMJ" => new Ammunition762x39FMJ().Set(),
+
+                //money
+                "Dollar_1" => new Dollar_1().Set(),
+
                 _ => throw new ArgumentException($"Invalid type {name}")
             };
             completedItem.Quantity = count;

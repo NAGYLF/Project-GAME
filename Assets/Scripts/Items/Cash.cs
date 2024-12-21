@@ -1,8 +1,3 @@
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using ItemHandler;
 
 namespace Cash
@@ -21,14 +16,7 @@ namespace Cash
                 SizeY = 1,//az item slotokban elfoglalt magassaga
                 MaxStackSize = 100000,
                 Value = 1,
-                
-
-
             };
-
         }
     }
-
-    
-    
 }

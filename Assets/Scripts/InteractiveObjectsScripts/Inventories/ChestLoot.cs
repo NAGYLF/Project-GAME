@@ -37,8 +37,6 @@ public class ChestLoot : MonoBehaviour
         new LootItem("TestBoots", 2f),
         new LootItem("7.62x39FMJ", 5f)
     };
-
-    [System.Serializable]
     public class LootItem
     {
         public string Name;
@@ -65,7 +63,7 @@ public class ChestLoot : MonoBehaviour
 
     private void GenerateLoot(int itemCount)
     {
-        List<LootItem> lootPool = new List<LootItem>();
+        List<LootItem> lootPool;
 
         switch (lootData.ToLower())
         {
@@ -94,9 +92,8 @@ public class ChestLoot : MonoBehaviour
             LootItem randomItem = GetRandomItem(lootPool);
             if (randomItem != null)
             {
-                Item itemInstance = new Item(randomItem.Name);
-                itemInstance.SetItem(randomItem.Name, UnityEngine.Random.Range(1, 10));
-                Debug.Log($"Generated item: {itemInstance.ItemName} with spawn rate: {randomItem.SpawnRate}");
+                Debug.Log($"Generated item: {randomItem.Name} with spawn rate: {randomItem.SpawnRate}");
+                Item itemInstance = new Item(randomItem.Name, UnityEngine.Random.Range(1, 10));
                 SpawnItem(itemInstance);
             }
         }

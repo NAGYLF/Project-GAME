@@ -125,6 +125,8 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 3a821f5d68b427b4caea0e4cd103d642, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  PaletteName: weapons
+  Fullness: 0.5
   PrefabPath: GameElements/ItemContainers/Chests/TestChest
 --- !u!114 &75190596
 MonoBehaviour:

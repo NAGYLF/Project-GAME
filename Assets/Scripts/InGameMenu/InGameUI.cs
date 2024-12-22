@@ -29,8 +29,8 @@ namespace UI
         [SerializeField] public GameObject QuestLogObject;
         #endregion
 
-        #region HOTBar Elements
-        public Item HotKey0;
+        #region HOT - Bar Elements
+        public Item HotKey0;//Ez egy mindig üres elem
         public Item Main1;
         public Item Main2;
         public Item Secondary;

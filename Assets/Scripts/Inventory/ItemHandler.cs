@@ -19,6 +19,8 @@ using System.Linq;
 using System.Text.RegularExpressions;
 using Unity.VisualScripting;
 using UnityEngine;
+using NaturalInventorys;
+using Newtonsoft.Json.Linq;
 
 namespace ItemHandler
 {
@@ -62,7 +64,7 @@ namespace ItemHandler
         public bool IsEquipment { set; get; } = false;
         public bool IsLoot { set; get; } = false;
         public bool IsSlot { set; get; } = false;
-        public bool IsRoot { set; get; } = false;   
+        public bool IsRoot { set; get; } = false;
 
         //general variables
         public string ItemType { get; set; }
@@ -245,5 +247,65 @@ namespace ItemHandler
     public class Accessors
     {
 
+    }
+    public static class LootRandomizer
+    {
+        private static readonly List<LootItem> Weapons = new List<LootItem>
+        {
+            new LootItem("TestHandgun",5f),
+            new LootItem("TestWeapon",5f),
+            new LootItem("AK103", 1f),
+            new LootItem("TestMelee",5f)
+        };
+        private struct LootItem
+        {
+            public string Name;
+            public float SpawnRate;
+
+            public LootItem(string name, float spawnRate)
+            {
+                Name = name;
+                SpawnRate = spawnRate;
+            }
+        }
+        private static List<string> GenerateLoot(string PaletteName)
+        {
+            List<string> list = new List<string>();
+            switch (PaletteName)
+            {
+                case "weapons":
+
+                    foreach (LootItem item in Weapons)
+                    {
+                        for (int i = 0; i < item.SpawnRate; i++)
+                        {
+                            list.Add(item.Name);
+                        }
+                    }
+                    return list;
+                default:
+                    return list;
+            }
+        }
+        public static void FillSimpleInvenotry(SimpleInventory simpleInventory,string PaletteName,float Fullness)
+        {
+            float MaxSlotNumber = 0;
+            foreach (ItemSlotData[,] row in simpleInventory.Root.Container.Sectors)
+            {
+                foreach (ItemSlotData slot in row)
+                {
+                    MaxSlotNumber++;
+                }
+            }
+            float ActualSlotNumber = 0;
+            Math.Round(MaxSlotNumber*=Fullness,0);
+            List<string> WeightedList = GenerateLoot(PaletteName);
+            while (MaxSlotNumber > ActualSlotNumber)
+            {
+                Item item = new Item(WeightedList[UnityEngine.Random.Range(0, WeightedList.Count)]);
+                ActualSlotNumber += item.SizeX*item.SizeY;
+                simpleInventory.InventoryAdd(item);
+            }
+        }
     }
 }

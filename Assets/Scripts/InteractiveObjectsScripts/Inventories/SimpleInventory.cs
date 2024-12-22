@@ -10,6 +10,9 @@ namespace NaturalInventorys
 {
     public class SimpleInventory : MonoBehaviour
     {
+        [SerializeField] public string PaletteName;
+        [SerializeField] public float Fullness;
+
         [SerializeField] public string PrefabPath;//container prefab path
 
         [HideInInspector] public Item Root;// ez lényegében az inventory adatait tartlamazza
@@ -21,42 +24,30 @@ namespace NaturalInventorys
             Root.IsRoot = true;
             Root.IsLoot = true;
             Root.Container = new Container(PrefabPath);
+            LootRandomizer.FillSimpleInvenotry(GetComponent<SimpleInventory>(),PaletteName,Fullness);
+            Debug.LogWarning(Root.Container.Items.Count);
         }
         public void InventoryAdd(Item item)
         {
             bool ItemAdded = false;
-            if (!ItemAdded)//container gyorsitott item hozzadas mely nem ad uj elemet hanem csak quanity-t novel
-            {
-                for (int j = 0; j < Root.Container.Items.Count && !ItemAdded; j++)
-                {
-                    if (Root.Container.Items[j].ItemName == item.ItemName && Root.Container.Items[j].Quantity != Root.Container.Items[j].MaxStackSize)
-                    {
-                        int originalCount = Root.Container.Items[j].Quantity;
-                        Root.Container.Items[j].Quantity += item.Quantity;
-                        if (Root.Container.Items[j].Quantity > Root.Container.Items[j].MaxStackSize)
-                        {
-                            item.Quantity -= (Root.Container.Items[j].MaxStackSize - originalCount);
-                            Root.Container.Items[j].Quantity = Root.Container.Items[j].MaxStackSize;
-                        }
-                        else
-                        {
-                            ItemAdded = true;
-                        }
-                    }
-                }
-            }
             if (!ItemAdded)//container
             {
+                Debug.Log("0");
                 for (int sectorIndex = 0; sectorIndex < Root.Container.Sectors.Length && !ItemAdded; sectorIndex++)//mivel a szector 2D array-okat tartalmaz ezert a sectorokon az az ezen 2D arrayokon iteralunk vegig
                 {
+                    Debug.Log("1");
                     if (Root.Container.Sectors[sectorIndex].GetLength(1) >= item.SizeX && Root.Container.Sectors[sectorIndex].GetLength(0) >= item.SizeY)//egy gyors ellenörzést végzünk, hogy az itemunk a feltetelezett teljesen ures sectorba belefér e, ha nem kihadjuk
                     {
+                        Debug.Log("2");
                         for (int Y = 0; Y < Root.Container.Sectors[sectorIndex].GetLength(0) && !ItemAdded; Y++)//vegig iterálunk a sorokon
                         {
+                            Debug.Log("3");
                             for (int X = 0; X < Root.Container.Sectors[sectorIndex].GetLength(1) && !ItemAdded; X++)//a sorokon belul az oszlopokon
                             {
+                                Debug.Log("4");
                                 if (Root.Container.Sectors[sectorIndex][Y, X].PartOfItemData == null && CanBePlace(Root.Container.Sectors[sectorIndex], Y, X, item))//ha a slot nem tagja egy itemnek sem akkor target
                                 {
+                                    Debug.Log("5");
                                     int index = 0;
                                     item.SlotUse = new List<string>();
                                     List<ItemSlotData> itemSlots = new List<ItemSlotData>();
@@ -65,7 +56,7 @@ namespace NaturalInventorys
                                         for (int x = X; x < X + item.SizeX; x++)
                                         {
                                             itemSlots.Add(Root.Container.Sectors[sectorIndex][y, x]);
-                                            item.SlotUse[index] = Root.Container.Sectors[sectorIndex][y, x].SlotName;//ez alapjan azonositunk egy itemslotot
+                                            item.SlotUse.Add(Root.Container.Sectors[sectorIndex][y, x].SlotName);//ez alapjan azonositunk egy itemslotot
                                             index++;
                                         }
                                     }
@@ -87,7 +78,7 @@ namespace NaturalInventorys
                                         }
                                     }
                                     Root.Container.Items.Add(item);
-                                    item = new Item(item.ItemName, count);
+                                    Debug.LogWarning($"item: {item.ItemName} added in simple inventory");
                                 }
                             }
                         }
@@ -129,7 +120,7 @@ namespace NaturalInventorys
 
                                     foreach (ItemSlotData itemSlot in Root.Container.Sectors[sectorIndex])
                                     {
-                      
+
                                     }
                                 }
                                 else

@@ -2,21 +2,23 @@ using System.Collections;
 using System.Collections.Generic;
 using Unity.VisualScripting;
 using UnityEngine;
+using ItemHandler;
+using UI;
 
 public class CharacterHand : MonoBehaviour
 {
-    public static bool Flipped = false;
-    // Start is called before the first frame update
-    void Start()
-    {
-        
-    }
-
+    [HideInInspector] public Item SelectedItem;
     // Update is called once per frame
     void Update()
     {
         RotateObject();
         FlipObject();
+        HadHUDRefresh();
+
+    }
+    private void HadHUDRefresh()
+    {
+        //a slected item adatait jeleniti meg
     }
 
     private void RotateObject()
@@ -46,12 +48,14 @@ public class CharacterHand : MonoBehaviour
         if (angle > 90 && angle < 270)
         {
             spriteRenderer.flipY = true; // Flippeljük az Y tengely mentén
-            Flipped = true;
+            int sortingLayer = InGameUI.Player.GetComponent<SpriteRenderer>().sortingOrder;
+            spriteRenderer.sortingOrder = --sortingLayer;
         }
         else
         {
             spriteRenderer.flipY = false; // Eredeti állapot
-            Flipped=false;
+            int sortingLayer = InGameUI.Player.GetComponent<SpriteRenderer>().sortingOrder;
+            spriteRenderer.sortingOrder = ++sortingLayer;
         }
     }
 

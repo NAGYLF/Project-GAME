@@ -8,6 +8,7 @@ using static MainData.SupportScripts;
 using ItemHandler;
 using Assets.Scripts.Inventory;
 using NaturalInventorys;
+using static ItemHandler.InventorySystem;
 
 namespace PlayerInventoryClass
 {
@@ -61,6 +62,7 @@ namespace PlayerInventoryClass
                 RootData.ItemName = "Root";
                 RootData.lvl = -1;
                 RootData.IsRoot = true;
+                RootData.IsEquipmentRoot = true;
                 RootData.Container = new Container("GameElements/PlayerInventory");
                 RootData.ContainerObject = gameObject;
                 RootData.SectorDataGrid = gameObject.GetComponent<ContainerObject>().Sectors;
@@ -127,37 +129,10 @@ namespace PlayerInventoryClass
                             {
                                 if ((itemsOfLvl[itemIndex].Container.Sectors[sectorIndex][Y, X].SlotType.Contains(Data.ItemType) || itemsOfLvl[itemIndex].Container.Sectors[sectorIndex][Y, X].SlotType == "") && itemsOfLvl[itemIndex].Container.Sectors[sectorIndex][Y, X].PartOfItemData == null && (CanBePlace(itemsOfLvl[itemIndex].Container.Sectors[sectorIndex], Y, X, Data) || itemsOfLvl[itemIndex].IsRoot))//ha a slot nem tagja egy itemnek sem akkor target
                                 {
-                                    List<ItemSlotData> itemSlots = new();
-                                    if (itemsOfLvl[itemIndex].IsRoot)
-                                    {
-                                        itemSlots.Add(itemsOfLvl[itemIndex].Container.Sectors[sectorIndex][Y, X]);
-                                        Data.SlotUse.Add(itemsOfLvl[itemIndex].Container.Sectors[sectorIndex][Y, X].SlotName);//ez alapjan azonositunk egy itemslotot
-                                    }
-                                    else
-                                    {
-                                        for (int y = Y; y < Y + Data.SizeY; y++)
-                                        {
-                                            for (int x = X; x < X + Data.SizeX; x++)
-                                            {
-                                                itemSlots.Add(itemsOfLvl[itemIndex].Container.Sectors[sectorIndex][y, x]);
-                                                Data.SlotUse.Add(itemsOfLvl[itemIndex].Container.Sectors[sectorIndex][y, x].SlotName);//ez alapjan azonositunk egy itemslotot
-                                            }
-                                        }
-                                    }
-                                    Data.SetSlotUse();
-                                    Data.ParentItem = itemsOfLvl[itemIndex];
-                                    Data.lvl = itemsOfLvl[itemIndex].lvl;
-                                    Data.lvl++;
-                                    levelManager.Items.Add(Data);
-                                    levelManager.SetMaxLVL_And_Sort();
-                                    foreach (ItemSlotData itemSlot in itemsOfLvl[itemIndex].Container.Sectors[sectorIndex])
-                                    {
-                                        if (itemSlots.Exists(slot => slot.SlotName == itemSlot.SlotName))
-                                        {
-                                            itemSlot.PartOfItemData = Data;
-                                        }
-                                    }
-                                    itemsOfLvl[itemIndex].Container.Items.Add(Data);
+                                    SetSlotUseBySector(Y,X, sectorIndex,itemsOfLvl[itemIndex],Data);
+                                    SetNewDataParent(itemsOfLvl[itemIndex],Data);
+                                    DataAdd(itemsOfLvl[itemIndex],Data);
+                                    DataAddToLevelManager(Data);
                                     Debug.Log($"Item Added in container");
                                     int count = 0;
                                     if (Data.Quantity > Data.MaxStackSize)
@@ -196,38 +171,11 @@ namespace PlayerInventoryClass
                             {
                                 if ((itemsOfLvl[itemIndex].Container.Sectors[sectorIndex][Y, X].SlotType.Contains(Data.ItemType) || itemsOfLvl[itemIndex].Container.Sectors[sectorIndex][Y, X].SlotType == "") && itemsOfLvl[itemIndex].Container.Sectors[sectorIndex][Y, X].PartOfItemData == null && (CanBePlace(itemsOfLvl[itemIndex].Container.Sectors[sectorIndex], Y, X, Data) || itemsOfLvl[itemIndex].IsRoot))//ha a slot nem tagja egy itemnek sem akkor target
                                 {
-                                    List<ItemSlotData> itemSlots = new();
-                                    if (itemsOfLvl[itemIndex].IsRoot)
-                                    {
-                                        itemSlots.Add(itemsOfLvl[itemIndex].Container.Sectors[sectorIndex][Y, X]);
-                                        Data.SlotUse.Add(itemsOfLvl[itemIndex].Container.Sectors[sectorIndex][Y, X].SlotName);//ez alapjan azonositunk egy itemslotot
-                                    }
-                                    else
-                                    {
-                                        for (int y = Y; y < Y + Data.SizeY; y++)
-                                        {
-                                            for (int x = X; x < X + Data.SizeX; x++)
-                                            {
-                                                itemSlots.Add(itemsOfLvl[itemIndex].Container.Sectors[sectorIndex][y, x]);
-                                                Data.SlotUse.Add(itemsOfLvl[itemIndex].Container.Sectors[sectorIndex][y, x].SlotName);//ez alapjan azonositunk egy itemslotot
-                                            }
-                                        }
-                                    }
-                                    Data.SetSlotUse();
-                                    Data.ParentItem = itemsOfLvl[itemIndex];
-                                    Data.lvl = itemsOfLvl[itemIndex].lvl;
-                                    Data.lvl++;
+                                    SetSlotUseBySector(Y, X, sectorIndex, itemsOfLvl[itemIndex], Data);
+                                    SetNewDataParent(itemsOfLvl[itemIndex], Data);
+                                    DataAdd(itemsOfLvl[itemIndex], Data);
+                                    DataAddToLevelManager(Data);
                                     (Data.SizeX, Data.SizeY) = (Data.SizeY, Data.SizeX);
-                                    levelManager.Items.Add(Data);
-                                    levelManager.SetMaxLVL_And_Sort();
-                                    foreach (ItemSlotData itemSlot in itemsOfLvl[itemIndex].Container.Sectors[sectorIndex])
-                                    {
-                                        if (itemSlots.Exists(slot => slot.SlotName == itemSlot.SlotName))
-                                        {
-                                            itemSlot.PartOfItemData = Data;
-                                        }
-                                    }
-                                    itemsOfLvl[itemIndex].Container.Items.Add(Data);
                                     Debug.Log($"Item Added in container");
                                     int count = 0;
                                     if (Data.Quantity > Data.MaxStackSize)
@@ -300,39 +248,18 @@ namespace PlayerInventoryClass
                     else if (itemsOfLvl[itemIndex].Quantity == 0)
                     {
                         ItemRemoved = true;
-                        levelManager.Items.Remove(itemsOfLvl[itemIndex]);
-                        itemsOfLvl[itemIndex].ParentItem.Container.Items.Remove(itemsOfLvl[itemIndex]);
-                        foreach (ItemSlotData[,] sector in itemsOfLvl[itemIndex].ParentItem.Container.Sectors)
-                        {
-                            foreach (ItemSlotData itemSlot in sector)
-                            {
-                                if (itemsOfLvl[itemIndex].SlotUse.Contains(itemSlot.SlotName))
-                                {
-                                    itemSlot.PartOfItemData = null;
-                                }
-                            }
-                        }
+                        DataRemoveFromLevelManager(Data);
+                        DataRemove(itemsOfLvl[itemIndex].ParentItem, itemsOfLvl[itemIndex]);
                     }
                     else
                     {
                         count = Math.Abs(itemsOfLvl[itemIndex].Quantity);
                         Data.Quantity = count;
-                        levelManager.Items.Remove(itemsOfLvl[itemIndex]);
-                        itemsOfLvl[itemIndex].ParentItem.Container.Items.Remove(itemsOfLvl[itemIndex]);
-                        foreach (ItemSlotData[,] sector in itemsOfLvl[itemIndex].ParentItem.Container.Sectors)
-                        {
-                            foreach (ItemSlotData itemSlot in sector)
-                            {
-                                if (itemsOfLvl[itemIndex].SlotUse.Contains(itemSlot.SlotName))
-                                {
-                                    itemSlot.PartOfItemData = null;
-                                }
-                            }
-                        }
+                        DataRemoveFromLevelManager(Data);
+                        DataRemove(itemsOfLvl[itemIndex].ParentItem, itemsOfLvl[itemIndex]);
                     }
                 }
             }
-            levelManager.SetMaxLVL_And_Sort();
             return ItemRemoved;
         }
 

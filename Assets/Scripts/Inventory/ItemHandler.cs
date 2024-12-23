@@ -21,6 +21,8 @@ using Unity.VisualScripting;
 using UnityEngine;
 using NaturalInventorys;
 using Newtonsoft.Json.Linq;
+using PlayerInventoryClass;
+using static PlayerInventoryClass.PlayerInventory;
 
 namespace ItemHandler
 {
@@ -65,6 +67,7 @@ namespace ItemHandler
         public bool IsLoot { set; get; } = false;
         public bool IsSlot { set; get; } = false;
         public bool IsRoot { set; get; } = false;
+        public bool IsEquipmentRoot { set; get; } = false;
 
         //general variables
         public string ItemType { get; set; }
@@ -100,10 +103,16 @@ namespace ItemHandler
             ItemName = source.ItemName;//ez alapján hozza létre egy item saját magát
             Description = source.Description;
             Quantity = source.Quantity;
-            SlotUse = source.SlotUse;// ez a jelenleg elfoglalt helye, ezt a betolteskor hasznaljuk, hogy tudjuk mit hova raktunk el.
-            ImgPath = source.ImgPath;
+            Value = source.Value;
             SizeX = source.SizeX;
             SizeY = source.SizeY;
+            ImgPath = source.ImgPath;
+            //Action
+            Drop = source.Drop;
+            Remove = source.Remove;
+            Unload = source.Unload;
+            Modification = source.Modification;
+            Open = source.Open;
             //tartalom
             Container = source.Container;//tartalom
             //fegyver adatok
@@ -253,24 +262,29 @@ namespace ItemHandler
         private static readonly List<LootItem> Weapons = new List<LootItem>
         {
             new LootItem("TestHandgun",5f),
-            new LootItem("TestWeapon",5f),
+            new LootItem("TestWeapon",3f),
             new LootItem("AK103", 1f),
-            new LootItem("TestMelee",5f)
+            new LootItem("TestMelee",2f),
+            new LootItem("7.62x39FMJ",2f,0.1f,0.5f)//jelentese, hogy 10% és 50% staksize ban spawnolhat.
         };
         private struct LootItem
         {
             public string Name;
             public float SpawnRate;
+            public float MinStack;
+            public float MaxStack;
 
-            public LootItem(string name, float spawnRate)
+            public LootItem(string Name, float SpawnRate = 0,float MinStack = 1f,float MaxStack = 1f)
             {
-                Name = name;
-                SpawnRate = spawnRate;
+                this.Name = Name;
+                this.SpawnRate = SpawnRate;
+                this.MinStack = MinStack;
+                this.MaxStack = MaxStack;
             }
         }
-        private static List<string> GenerateLoot(string PaletteName)
+        private static List<LootItem> GenerateLoot(string PaletteName)
         {
-            List<string> list = new List<string>();
+            List<LootItem> list = new List<LootItem>();
             switch (PaletteName)
             {
                 case "weapons":
@@ -279,7 +293,7 @@ namespace ItemHandler
                     {
                         for (int i = 0; i < item.SpawnRate; i++)
                         {
-                            list.Add(item.Name);
+                            list.Add(item);
                         }
                     }
                     return list;
@@ -299,12 +313,124 @@ namespace ItemHandler
             }
             float ActualSlotNumber = 0;
             Math.Round(MaxSlotNumber*=Fullness,0);
-            List<string> WeightedList = GenerateLoot(PaletteName);
+            List<LootItem> WeightedList = GenerateLoot(PaletteName);
             while (MaxSlotNumber > ActualSlotNumber)
             {
-                Item item = new Item(WeightedList[UnityEngine.Random.Range(0, WeightedList.Count)]);
+                LootItem LootItem = WeightedList[UnityEngine.Random.Range(0, WeightedList.Count)];
+                Item item = new Item(LootItem.Name);
+                if (item.MaxStackSize>1)
+                {
+                    item = new Item(LootItem.Name,UnityEngine.Random.Range(Mathf.RoundToInt(item.MaxStackSize*LootItem.MinStack), Mathf.RoundToInt(item.MaxStackSize * LootItem.MaxStack)));
+                }
                 ActualSlotNumber += item.SizeX*item.SizeY;
                 simpleInventory.InventoryAdd(item);
+            }
+        }
+    }
+
+    public static class InventorySystem
+    {
+        public static void DataRemoveFromLevelManager(Item Data)
+        {
+            InventoryObjectRef.GetComponent<PlayerInventory>().levelManager.Items.Remove(Data);
+            InventoryObjectRef.GetComponent<PlayerInventory>().levelManager.SetMaxLVL_And_Sort();
+        }
+        public static void DataAddToLevelManager(Item Data)
+        {
+            InventoryObjectRef.GetComponent<PlayerInventory>().levelManager.Items.Add(Data);
+            InventoryObjectRef.GetComponent<PlayerInventory>().levelManager.SetMaxLVL_And_Sort();
+        }
+        public static void SetNewDataParent(Item SetTo,Item Data)
+        {
+            Data.ParentItem = SetTo;
+        }
+        public static void SetSlotUseByPlacer(List<GameObject> Placer, Item Data)// 0.
+        {
+            Data.SlotUse.Clear();
+            for (int i = 0; i < Placer.Count; i++)
+            {
+                Data.SlotUse.Add(Placer[i].name);
+            }
+            Data.SetSlotUse();
+        }
+        public static void SetSlotUseBySector(int Y,int X,int sectorIndex, Item AddTo,Item Data)
+        {
+            if (AddTo.IsEquipmentRoot)
+            {
+                Data.SlotUse.Add(AddTo.Container.Sectors[sectorIndex][Y, X].SlotName);//ez alapjan azonositunk egy itemslotot
+            }
+            else
+            {
+                for (int y = Y; y < Y + Data.SizeY; y++)
+                {
+                    for (int x = X; x < X + Data.SizeX; x++)
+                    {
+                        Data.SlotUse.Add(AddTo.Container.Sectors[sectorIndex][y, x].SlotName);//ez alapjan azonositunk egy itemslotot
+                    }
+                }
+            }
+            Data.SetSlotUse();
+        }
+        public static void DataAdd(Item AddTo, Item Data)// 1.
+        {
+            foreach (ItemSlotData[,] sector in AddTo.Container.Sectors)
+            {
+                foreach (ItemSlotData slot in sector)
+                {
+                    if (Data.SlotUse.Contains(slot.SlotName))
+                    {
+                        slot.PartOfItemData = Data;
+                    }
+                }
+            }
+            AddTo.Container.Items.Add(Data);
+            int lvl = AddTo.lvl;
+            Data.lvl = ++lvl;
+        }
+        public static void LiveDataAdd(Item AddTo,Item Data)// 2.
+        {
+            foreach (DataGrid dataGrid in AddTo.SectorDataGrid)
+            {
+                foreach (RowData rowData in dataGrid.col)
+                {
+                    foreach (GameObject slot in rowData.row)
+                    {
+                        if (Data.SlotUse.Contains(slot.name))
+                        {
+                            slot.GetComponent<ItemSlot>().PartOfItemObject = Data.SelfGameobject;
+                        }
+                    }
+                }
+            }
+        }
+        public static void DataRemove(Item RemoveFrom, Item Data)// 1.
+        {
+            foreach (ItemSlotData[,] sector in RemoveFrom.Container.Sectors)
+            {
+                foreach (ItemSlotData slot in sector)
+                {
+                    if (Data.SlotUse.Contains(slot.SlotName))
+                    {
+                        slot.PartOfItemData = null;
+                    }
+                }
+            }
+            RemoveFrom.Container.Items.Remove(Data);
+        }
+        public static void LiveDataRemove(Item RemoveFrom, Item Data)// 2.
+        {
+            foreach (DataGrid dataGrid in RemoveFrom.SectorDataGrid)
+            {
+                foreach (RowData rowData in dataGrid.col)
+                {
+                    foreach (GameObject slot in rowData.row)
+                    {
+                        if (Data.SlotUse.Contains(slot.name))
+                        {
+                            slot.GetComponent<ItemSlot>().PartOfItemObject = null;
+                        }
+                    }
+                }
             }
         }
     }

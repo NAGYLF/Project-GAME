@@ -8,8 +8,6 @@ using UI;
 
 public class Interact : MonoBehaviour
 {
-    [HideInInspector] public GameObject player;
-    [HideInInspector] public GameObject InGameUI;
     public bool Opened = false;
     public string Title;//inpectorban kell megadni !!!
     public string Description;//inpectorban kell megadni !!!
@@ -19,17 +17,17 @@ public class Interact : MonoBehaviour
     {
         if (collider.gameObject.GetComponent<Player>())
         {
-            collider.gameObject.GetComponent<Player>().InGameUI.GetComponent<InGameUI>().IntecativeObjectSelectorBox.GetComponent<InteractiveObjectSelector>().AddInteractObject(gameObject);
+            InGameUI.IntecativeObjectSelectorBox.GetComponent<InteractiveObjectSelector>().AddInteractObject(gameObject);
         }
     }
     void OnTriggerExit2D(Collider2D collider)
     {
         if (collider.gameObject.GetComponent<Player>())
         {
-            collider.gameObject.GetComponent<Player>().InGameUI.GetComponent<InGameUI>().IntecativeObjectSelectorBox.GetComponent<InteractiveObjectSelector>().RemoveInteractObject(gameObject);
-            if (!UI.InGameUI.PlayerInventory.Status)
+            InGameUI.IntecativeObjectSelectorBox.GetComponent<InteractiveObjectSelector>().RemoveInteractObject(gameObject);
+            if (!UI.InGameUI.PlayerInventoryOpenClose.Status)
             {
-                UI.InGameUI.PlayerInventory.Action();
+                UI.InGameUI.PlayerInventoryOpenClose.Action();
             }
         }
     }

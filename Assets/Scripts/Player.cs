@@ -1,19 +1,15 @@
-using PlayerInventoryClass;
-using MainData;
-using System.Collections;
-using System.Collections.Generic;
-using System.Runtime.CompilerServices;
 using UnityEngine;
 using UI;
+using ItemHandler;
 public class Player : MonoBehaviour
 {
-    public GameObject InGameUI;
+    [SerializeField] public GameObject Hand;
 
-    public bool PlayerMovmentOnline = true;
+    [HideInInspector] public bool PlayerMovmentOnline = true;
     [HideInInspector] private float PlayerMovementSpeed = 50f;//default speed
     [HideInInspector] private float PlayerMovementSpeedMax = 100f;//sprint speed
-    [SerializeField] private float moveSpeed;//actual speeed
-    private bool isSprinting = false;
+    [HideInInspector] private float moveSpeed;//actual speeed
+    [HideInInspector] private bool isSprinting = false;
 
     private const float MaxHealt = 100f;
     private float Healt = 100f;
@@ -112,7 +108,6 @@ public class Player : MonoBehaviour
             spriteRenderer.flipX = false;
         }
     }
-
     public void HealtUp(float count)
     {
         if (count+Healt>MaxHealt)
@@ -120,7 +115,7 @@ public class Player : MonoBehaviour
             count = MaxHealt - Healt;
         }
         Healt += count;
-        InGameUI.GetComponent<InGameUI>().SetHealtBar(Healt);
+        InGameUI.InGameUI_.GetComponent<InGameUI>().SetHealtBar(Healt);
     }
     public void HealtDown(float count)
     {
@@ -129,7 +124,7 @@ public class Player : MonoBehaviour
             count -= count - Healt;
         }
         Healt -= count;
-        InGameUI.GetComponent<InGameUI>().SetHealtBar(Healt);
+        InGameUI.InGameUI_.GetComponent<InGameUI>().SetHealtBar(Healt);
     }
 
     public void StaminaUp(float count)
@@ -139,7 +134,7 @@ public class Player : MonoBehaviour
             count = MaxStamina - Stamina;
         }
         Stamina += count;
-        InGameUI.GetComponent<InGameUI>().SetStaminatBar(Stamina);
+        InGameUI.InGameUI_.GetComponent<InGameUI>().SetStaminatBar(Stamina);
     }
     public void StaminaDown(float count)
     {
@@ -148,7 +143,7 @@ public class Player : MonoBehaviour
             count -= count - Stamina;
         }
         Stamina -= count;
-        InGameUI.GetComponent<InGameUI>().SetStaminatBar(Stamina);
+        InGameUI.InGameUI_.GetComponent<InGameUI>().SetStaminatBar(Stamina);
     }
 
     public void HungerUp(float count)
@@ -158,7 +153,7 @@ public class Player : MonoBehaviour
             count = MaxHunger - Hunger;
         }
         Hunger += count;
-        InGameUI.GetComponent<InGameUI>().SetHungerBar(Hunger);
+        InGameUI.InGameUI_.GetComponent<InGameUI>().SetHungerBar(Hunger);
     }
     public void HungerDown(float count)
     {
@@ -167,7 +162,7 @@ public class Player : MonoBehaviour
             count -= count - Hunger;
         }
         Hunger -= count;
-        InGameUI.GetComponent<InGameUI>().SetHungerBar(Hunger);
+        InGameUI.InGameUI_.GetComponent<InGameUI>().SetHungerBar(Hunger);
     }
 
     public void ThirstUp(float count)
@@ -177,7 +172,7 @@ public class Player : MonoBehaviour
             count = MaxThirst - Thirst;
         }
         Thirst += count;
-        InGameUI.GetComponent<InGameUI>().SetThirstBar(Thirst);
+        InGameUI.InGameUI_.GetComponent<InGameUI>().SetThirstBar(Thirst);
     }
     public void ThirstDown(float count)
     {
@@ -186,6 +181,6 @@ public class Player : MonoBehaviour
             count -= count - Thirst;
         }
         Thirst -= count;
-        InGameUI.GetComponent<InGameUI>().SetThirstBar(Thirst);
+        InGameUI.InGameUI_.GetComponent<InGameUI>().SetThirstBar(Thirst);
     }
 }

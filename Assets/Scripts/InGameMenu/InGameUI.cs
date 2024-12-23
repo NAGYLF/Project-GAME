@@ -1,12 +1,9 @@
 using MainData;
-using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 using PlayerInventoryClass;
-using static MainData.SupportScripts;
 using System;
 using UnityEngine.UI;
-using NaturalInventorys;
 using ItemHandler;
 
 namespace UI
@@ -14,36 +11,195 @@ namespace UI
     public class InGameUI : MonoBehaviour
     {
         #region UI/HUD Inspector objects
-        [SerializeField] public GameObject HUD;
-        [SerializeField] public GameObject PlayerObject;
-        [SerializeField] public Camera CameraObject;
-        [SerializeField] public GameObject IntecativeObjectSelectorBox;
-        [SerializeField] public GameObject InGameMenuObject;
-        [SerializeField] public GameObject PlayerInventoryObject;
-        [SerializeField] public GameObject MessageBar;
-        [SerializeField] public GameObject HealtBar;
-        [SerializeField] public GameObject StaminaBar;
-        [SerializeField] public GameObject HungerBar;
-        [SerializeField] public GameObject ThirstBar;
+        public static GameObject InGameUI_;
+        [SerializeField] private GameObject InGameUIObject;
+
+        public static GameObject HUD;
+        [SerializeField] private GameObject HUDObject;
+
+        public static GameObject Player;
+        [SerializeField] private GameObject PlayerObject;
+
+        public static GameObject Camera;
+        [SerializeField] private GameObject CameraObject;
+
+        public static GameObject IntecativeObjectSelectorBox;
+        [SerializeField] private GameObject IntecativeObjectSelectorBoxObject;
+
+        public static GameObject InGameMenu;
+        [SerializeField] private GameObject InGameMenuObject;
+
+        public static GameObject PlayerInventory;
+        [SerializeField] private GameObject PlayerInventoryObject;
+
+        public static GameObject MessageBar;
+        [SerializeField] private GameObject MessageBarObject;
+
+        public static GameObject HealtBar;
+        [SerializeField] private GameObject HealtBarObject;
+
+        public static GameObject StaminaBar;
+        [SerializeField] private GameObject StaminaBarObject;
+
+        public static GameObject HungerBar;
+        [SerializeField] public GameObject HungerBarObject;
+
+        public static GameObject ThirstBar;
+        [SerializeField] public GameObject ThirstBarObject;
+
+        public static GameObject WorldMap;
         [SerializeField] public GameObject WorldMapObject;
+
+        public static GameObject QuestLog;
         [SerializeField] public GameObject QuestLogObject;
+
+        public static GameObject DevConsole;
+        [SerializeField] public GameObject DevConsoleObject;
         #endregion
 
         #region HOT - Bar Elements
-        public Item HotKey0;//Ez egy mindig üres elem
-        public Item Main1;
-        public Item Main2;
-        public Item Secondary;
-        public Item Melee;
-        public Item HotKey5;
-        public Item HotKey6;
-        public Item HotKey7;
-        public Item HotKey8;
-        public Item HotKey9;
+        public static Item HotKey0;//Ez egy mindig üres elem
+        public static Item HotKey1;//ez a main1
+        public static Item HotKey2;//ez a main2
+        public static Item HotKey3;//ez a secondary
+        public static Item HotKey4;//ez a melee
+        public static Item HotKey5;
+        public static Item HotKey6;
+        public static Item HotKey7;
+        public static Item HotKey8;
+        public static Item HotKey9;
+
+        public static void SetHotKey1(Item item)
+        {
+            if (HotKey1 == Player.GetComponent<Player>().Hand.GetComponent<CharacterHand>().SelectedItem)
+            {
+                HotKey1 = item;
+                Player.GetComponent<Player>().Hand.GetComponent<CharacterHand>().SelectedItem = HotKey1;
+            }
+            else
+            {
+                HotKey1 = item;
+            }
+        }
+        public static void SetHotKey2(Item item)
+        {
+            if (HotKey2 == Player.GetComponent<Player>().Hand.GetComponent<CharacterHand>().SelectedItem)
+            {
+                HotKey2 = item;
+                Player.GetComponent<Player>().Hand.GetComponent<CharacterHand>().SelectedItem = HotKey2;
+            }
+            else
+            {
+                HotKey2 = item;
+            }
+        }
+        public static void SetHotKey3(Item item)
+        {
+            if (HotKey3 == Player.GetComponent<Player>().Hand.GetComponent<CharacterHand>().SelectedItem)
+            {
+                HotKey3 = item;
+                Player.GetComponent<Player>().Hand.GetComponent<CharacterHand>().SelectedItem = HotKey3;
+            }
+            else
+            {
+                HotKey3 = item;
+            }
+        }
+        public static void SetHotKey4(Item item)
+        {
+            if (HotKey4 == Player.GetComponent<Player>().Hand.GetComponent<CharacterHand>().SelectedItem)
+            {
+                HotKey4 = item;
+                Player.GetComponent<Player>().Hand.GetComponent<CharacterHand>().SelectedItem = HotKey4;
+            }
+            else
+            {
+                HotKey4 = item;
+            }
+        }
+        public static void SetHotKey5(Item item)
+        {
+            if (HotKey5 == Player.GetComponent<Player>().Hand.GetComponent<CharacterHand>().SelectedItem)
+            {
+                HotKey5 = item;
+                Player.GetComponent<Player>().Hand.GetComponent<CharacterHand>().SelectedItem = HotKey5;
+            }
+            else
+            {
+                HotKey5 = item;
+            }
+        }
+        public static void SetHotKey6(Item item)
+        {
+            if (HotKey6 == Player.GetComponent<Player>().Hand.GetComponent<CharacterHand>().SelectedItem)
+            {
+                HotKey6 = item;
+                Player.GetComponent<Player>().Hand.GetComponent<CharacterHand>().SelectedItem = HotKey6;
+            }
+            else
+            {
+                HotKey6 = item;
+            }
+        }
+        public static void SetHotKey7(Item item)
+        {
+            if (HotKey7 == Player.GetComponent<Player>().Hand.GetComponent<CharacterHand>().SelectedItem)
+            {
+                HotKey7 = item;
+                Player.GetComponent<Player>().Hand.GetComponent<CharacterHand>().SelectedItem = HotKey7;
+                Player.GetComponent<Player>().Hand.GetComponent<CharacterHand>().SelectedItem = HotKey7;
+            }
+            else
+            {
+                HotKey7 = item;
+            }
+        }
+        public static void SetHotKey8(Item item)
+        {
+            if (HotKey8 == Player.GetComponent<Player>().Hand.GetComponent<CharacterHand>().SelectedItem)
+            {
+                HotKey8 = item;
+                Player.GetComponent<Player>().Hand.GetComponent<CharacterHand>().SelectedItem = HotKey8;
+            }
+            else
+            {
+                HotKey8 = item;
+            }
+        }
+        public static void SetHotKey9(Item item)
+        {
+            if (HotKey9 == Player.GetComponent<Player>().Hand.GetComponent<CharacterHand>().SelectedItem)
+            {
+                HotKey9 = item;
+                Player.GetComponent<Player>().Hand.GetComponent<CharacterHand>().SelectedItem = HotKey9;
+            }
+            else
+            {
+                HotKey9 = item;
+            }
+        }
+        #endregion
+
+        #region Inform Bars
+        public void SetHealtBar(float count)
+        {
+            HealtBar.GetComponent<Slider>().value = count;
+        }
+        public void SetStaminatBar(float count)
+        {
+            StaminaBar.GetComponent<Slider>().value = count;
+        }
+        public void SetHungerBar(float count)
+        {
+            HungerBar.GetComponent<Slider>().value = count;
+        }
+        public void SetThirstBar(float count)
+        {
+            ThirstBar.GetComponent<Slider>().value = count;
+        }
         #endregion
 
         #region UI Other Variables
-        GameObject DevConsoleObject = null;
         [HideInInspector] public GameObject SelectedObject;
         public List<GameObject> IntecativeObjects;
         #endregion
@@ -55,11 +211,11 @@ namespace UI
         #endregion
 
         #region UI Metods
-        public static OpenCloseUI DevConsol;
-        public static OpenCloseUI PlayerInventory;
-        public static OpenCloseUI InGameMenu;
-        public static OpenCloseUI WorldMap;
-        public static OpenCloseUI QuestLog;
+        public static OpenCloseUI DevConsolOpenClose;
+        public static OpenCloseUI PlayerInventoryOpenClose;
+        public static OpenCloseUI InGameMenuOpenClose;
+        public static OpenCloseUI WorldMapOpenClose;
+        public static OpenCloseUI QuestLogOpenClose;
         #endregion
         private void Awake()
         {
@@ -69,17 +225,34 @@ namespace UI
                                   //atol meg a regi gameobject refernciával bíró action tipusú változó eljarasai nem törlõdnek csak ujjak addolódnak hozzá. ezert töröljük õket
 
             #region UI Metods Builds
-            DevConsol = new OpenCloseUI(DevConsoleOpen, DevConsoleClose);
-            PlayerInventory = new OpenCloseUI(PlayerInventoryOpen, PlayerInventoryClose);
-            InGameMenu = new OpenCloseUI(InGameMenuOpen, InGameMenuClose);
-            WorldMap = new OpenCloseUI(OpenMap,CloseMap);
-            QuestLog = new OpenCloseUI(OpenQuest, CloseQuest);
+            DevConsolOpenClose = new OpenCloseUI(DevConsoleOpen, DevConsoleClose);
+            PlayerInventoryOpenClose = new OpenCloseUI(PlayerInventoryOpen, PlayerInventoryClose);
+            InGameMenuOpenClose = new OpenCloseUI(InGameMenuOpen, InGameMenuClose);
+            WorldMapOpenClose = new OpenCloseUI(OpenMap,CloseMap);
+            QuestLogOpenClose = new OpenCloseUI(OpenQuest, CloseQuest);
+            #endregion
+
+            #region GameObject Set
+            HUD = HUDObject;
+            Player = PlayerObject;
+            Camera = CameraObject;
+            IntecativeObjectSelectorBox = IntecativeObjectSelectorBoxObject;
+            InGameMenu = InGameMenuObject;
+            PlayerInventory = PlayerInventoryObject;
+            MessageBar = MessageBarObject;
+            HealtBar = HealtBarObject;
+            StaminaBar = StaminaBarObject;
+            HungerBar = HungerBarObject;
+            ThirstBar = ThirstBarObject;
+            WorldMap = WorldMapObject;
+            QuestLog = QuestLogObject;
+            DevConsole = DevConsoleObject;
             #endregion
 
             Application.targetFrameRate = Main.targetFPS;
 
-            float cameraHeight = CameraObject.orthographicSize * 2f;
-            float cameraWidth = cameraHeight * CameraObject.aspect;
+            float cameraHeight = Camera.GetComponent<Camera>().orthographicSize * 2f;
+            float cameraWidth = cameraHeight * Camera.GetComponent<Camera>().aspect;
 
             Main.DefaultWidth = cameraWidth;
             Main.DefaultHeight = cameraHeight;
@@ -99,15 +272,12 @@ namespace UI
         #region DevConsole UI parts
         private void DevConsoleOpen()
         {
-            DevConsoleObject = CreatePrefab("GameElements/DevConsole");
-            DevConsoleObject.GetComponent<DevConsol>().Player = PlayerObject;
-            DevConsoleObject.GetComponent<DevConsol>().inventory = PlayerInventoryObject;
-            DevConsoleObject.transform.SetParent(transform);
+            DevConsole.SetActive(true);
             CloseHUD();
         }
         private void DevConsoleClose()
         {
-            Destroy(DevConsoleObject);
+            DevConsole.SetActive(false);
             OpenHUD();
         }
         #endregion
@@ -156,6 +326,7 @@ namespace UI
             OpenHUD();
         }
         #endregion
+
         #region QuestLog parts
         private void OpenQuest()
         {
@@ -175,13 +346,13 @@ namespace UI
                 switch (Event.current.keyCode)
                 {
                     case KeyCode.F1:
-                        DevConsol.Action();
+                        DevConsolOpenClose.Action();
                         break;
                     case KeyCode.Tab:
-                        PlayerInventory.Action();
+                        PlayerInventoryOpenClose.Action();
                         break;
                     case KeyCode.Escape:
-                        InGameMenu.Action();
+                        InGameMenuOpenClose.Action();
                         break;
                     case KeyCode.X:
                         IntecativeObjectSelectorBox.GetComponent<InteractiveObjectSelector>().Selection(1);
@@ -197,50 +368,70 @@ namespace UI
                         }
                         break;
                     case KeyCode.M:
-                        WorldMap.Action();
+                        WorldMapOpenClose.Action();
                         break;
                     case KeyCode.Q:
-                        QuestLog.Action();
+                        QuestLogOpenClose.Action();
+                        break;
+                    case KeyCode.Alpha1:
+                        if (HUD)
+                        {
+                            Player.GetComponent<Player>().Hand.GetComponent<CharacterHand>().SelectedItem = HotKey1;
+                        }
                         break;
                     case KeyCode.Alpha2:
+                        if (HUD)
+                        {
+                            Player.GetComponent<Player>().Hand.GetComponent<CharacterHand>().SelectedItem = HotKey2;
+                        }
                         break;
                     case KeyCode.Alpha3:
+                        if (HUD)
+                        {
+                            Player.GetComponent<Player>().Hand.GetComponent<CharacterHand>().SelectedItem = HotKey3;
+                        }
                         break;
                     case KeyCode.Alpha4:
+                        if (HUD)
+                        {
+                            Player.GetComponent<Player>().Hand.GetComponent<CharacterHand>().SelectedItem = HotKey4;
+                        }
                         break;
                     case KeyCode.Alpha5:
+                        if (HUD)
+                        {
+                            Player.GetComponent<Player>().Hand.GetComponent<CharacterHand>().SelectedItem = HotKey5;
+                        }
                         break;
                     case KeyCode.Alpha6:
+                        if (HUD)
+                        {
+                            Player.GetComponent<Player>().Hand.GetComponent<CharacterHand>().SelectedItem = HotKey6;
+                        }
                         break;
                     case KeyCode.Alpha7:
+                        if (HUD)
+                        {
+                            Player.GetComponent<Player>().Hand.GetComponent<CharacterHand>().SelectedItem = HotKey7;
+                        }
                         break;
                     case KeyCode.Alpha8:
+                        if (HUD)
+                        {
+                            Player.GetComponent<Player>().Hand.GetComponent<CharacterHand>().SelectedItem = HotKey8;
+                        }
                         break;
                     case KeyCode.Alpha9:
+                        if (HUD)
+                        {
+                            Player.GetComponent<Player>().Hand.GetComponent<CharacterHand>().SelectedItem = HotKey9;
+                        }
                         break;
                     default:
                         break;
                 }
             }
         }
-        #region Inform Bars
-        public void SetHealtBar(float count)
-        {
-            HealtBar.GetComponent<Slider>().value = count;
-        }
-        public void SetStaminatBar(float count)
-        {
-            StaminaBar.GetComponent<Slider>().value = count;
-        }
-        public void SetHungerBar(float count)
-        {
-            HungerBar.GetComponent<Slider>().value = count;
-        }
-        public void SetThirstBar(float count)
-        {
-            ThirstBar.GetComponent<Slider>().value = count;
-        }
-        #endregion
 
         #region Interactions
         private void Metodes(string ActionMode)
@@ -258,7 +449,7 @@ namespace UI
         {
             SelectedObject.GetComponent<Interact>().Opened = true;
             PlayerInventoryObject.GetComponent<PlayerInventory>().LootableObject = SelectedObject;
-            PlayerInventory.Action();
+            PlayerInventoryOpenClose.Action();
             PlayerInventoryObject.GetComponent<PlayerInventory>().LootCreate();
 
         }
@@ -286,30 +477,27 @@ namespace UI
         public bool Status;
         public void Action()
         {
+            allInstances.Remove(this);
             foreach (var instance in allInstances)
             {
-                if (instance == this)
+                if (!instance.Status)
                 {
-                    if (Status)
-                    {
-                        instance.open.Invoke();
-                        Status = false;
-                    }
-                    else
-                    {
-                        instance.close.Invoke();
-                        Status = true;
-                    }
-                }
-                else
-                {
-                    if (!instance.Status)
-                    {
-                        instance.close.Invoke();
-                        instance.Status = true;
-                    }
+                    instance.close.Invoke();
+                    instance.Status = true;
                 }
             }
+            allInstances.Add(this);
+            if (Status)
+            {
+                open.Invoke();
+                Status = false;
+            }
+            else
+            {
+                close.Invoke();
+                Status = true;
+            }
+
         }
         public static void Refress()
         {

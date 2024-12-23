@@ -204,42 +204,12 @@ public class ItemObject : MonoBehaviour, IPointerDownHandler, IPointerUpHandler
                 item.ParentItem = placer.NewParentData;
                 itemObject.GetComponent<ItemObject>().SetDataRoute(item, item.ParentItem);
 
-                item.ParentItem.Container.Items.Add(item);
-                InventoryObjectRef.GetComponent<PlayerInventory>().levelManager.Items.Add(item);
-                InventoryObjectRef.GetComponent<PlayerInventory>().levelManager.SetMaxLVL_And_Sort();
+                InventorySystem.SetSlotUseByPlacer(placer.activeItemSlots,ActualData);
 
-                foreach (ItemSlotData[,] sector in item.ParentItem.Container.Sectors)
-                {
-                    foreach (ItemSlotData slot in sector)
-                    {
-                        if (placer.activeItemSlots.Exists(slotObj => slotObj.name == slot.SlotName))
-                        {
-                            slot.PartOfItemData = item;
-                        }
-                    }
-                }
+                InventorySystem.DataAdd(ActualData.ParentItem,ActualData);
+                InventorySystem.LiveDataAdd(ActualData.ParentItem, ActualData);
 
-                itemSlots.Clear();
-                foreach (DataGrid dataGrid in item.ParentItem.SectorDataGrid)
-                {
-                    foreach (RowData rowData in dataGrid.col)
-                    {
-                        foreach (GameObject slot in rowData.row)
-                        {
-                            if (placer.activeItemSlots.Contains(slot))
-                            {
-                                itemSlots.Add(slot);
-                                slot.GetComponent<ItemSlot>().PartOfItemObject = itemObject;
-                            }
-                        }
-                    }
-                }
-
-                item.SlotUse.Clear();
-                for (int i = 0; i < itemSlots.Count; i++)
-                {
-                    item.SlotUse.Add(itemSlots[i].name);
-                }
+                InventorySystem.DataAddToLevelManager(ActualData);
 
                 ActualData.Quantity = SplitedCount.smaller;
                 placementCanStart = false;
@@ -278,82 +248,15 @@ public class ItemObject : MonoBehaviour, IPointerDownHandler, IPointerUpHandler
         #endregion
         if (placementCanStart)
         {
-            //adatokbol valo törles
-            ActualData.ParentItem.Container.Items.Remove(ActualData);
+            InventorySystem.DataRemove(ActualData.ParentItem,ActualData);
+            InventorySystem.LiveDataRemove(ActualData.ParentItem,ActualData);
 
-            //adat sectorokbol valo torles
-            foreach (ItemSlotData[,] sector in ActualData.ParentItem.Container.Sectors)
-            {
-                foreach (ItemSlotData slot in sector)
-                {
-                    if (slot.PartOfItemData == ActualData)
-                    {
-                        slot.PartOfItemData = null;
-                    }
-                }
-            }
+            InventorySystem.SetNewDataParent(placer.NewParentData,ActualData);
 
-            //gameobjectumokbol való törles
-            foreach (DataGrid dataGrid in ActualData.ParentItem.SectorDataGrid)
-            {
-                foreach (RowData rowData in dataGrid.col)
-                {
-                    foreach (GameObject slot in rowData.row)
-                    {
-                        if (ActualData.SlotUse.Contains(slot.GetComponent<ItemSlot>().name))
-                        {
-                            slot.GetComponent<ItemSlot>().PartOfItemObject = null;
-                        }
-                    }
-                }
-            }
-            //megvaltozik a parent
-            ActualData.ParentItem = placer.NewParentData;
+            InventorySystem.SetSlotUseByPlacer(placer.activeItemSlots,ActualData);
+            InventorySystem.DataAdd(ActualData.ParentItem,ActualData);
+            InventorySystem.LiveDataAdd(ActualData.ParentItem, ActualData);
 
-            //beallitjuk a megfelelo lvl erteket az ActualData-nak
-            int lvl = ActualData.ParentItem.lvl;
-            ActualData.lvl = ++lvl;
-
-            //hozzadjuk az uj parenthez
-            ActualData.ParentItem.Container.Items.Add(ActualData);
-
-            //sector adatokhoz hozzadjuk
-            foreach (ItemSlotData[,] sector in ActualData.ParentItem.Container.Sectors)
-            {
-                foreach (ItemSlotData slot in sector)
-                {
-                    if (placer.activeItemSlots.Exists(slotObj=>slotObj.name == slot.SlotName))
-                    {
-                        slot.PartOfItemData = ActualData;
-                    }
-                }
-            }
-
-            //hozzadjuk az uj parent gameobject slotjaihoz
-            itemSlots.Clear();
-            foreach (DataGrid dataGrid in ActualData.ParentItem.SectorDataGrid)
-            {
-                foreach (RowData rowData in dataGrid.col)
-                {
-                    foreach (GameObject slot in rowData.row)
-                    {
-                        if (placer.activeItemSlots.Contains(slot))
-                        {
-                            itemSlots.Add(slot);
-                            slot.GetComponent<ItemSlot>().PartOfItemObject = gameObject;
-                        }
-                    }
-                }
-            }
-
-            //slotuse adatát ujraepitjuk az azonosito használhatósága érdekében
-            ActualData.SlotUse.Clear();
-            for (int i = 0; i < itemSlots.Count; i++)
-            {
-                ActualData.SlotUse.Add(itemSlots[i].name);
-            }
-
-            //frisiitjuk a kinezetet ezzel kepernyon valo pozitciojat és meretet
             SelfVisualisation();
         }
         else
@@ -460,34 +363,8 @@ public class ItemObject : MonoBehaviour, IPointerDownHandler, IPointerUpHandler
     #region Data Synch
     public void SelfDestruction()//egy gombal hivhatod meg.
     {
-        //adatokbol valo törles
-        ActualData.ParentItem.Container.Items.Remove(ActualData);
-
-        ItemSlotData[][,] sectors = ActualData.ParentItem.Container.Sectors;
-        foreach (ItemSlotData[,] sector in sectors)
-        {
-            foreach (ItemSlotData slot in sector)
-            {
-                if (slot.PartOfItemData == ActualData)
-                {
-                    slot.PartOfItemData = null;
-                }
-            }
-        }
-        //gameobjectumokbol való törles
-        foreach (DataGrid dataGrid in ActualData.ParentItem.SectorDataGrid)
-        {
-            foreach (RowData rowData in dataGrid.col)
-            {
-                foreach (GameObject slot in rowData.row)
-                {
-                    if (ActualData.SlotUse.Contains(slot.GetComponent<ItemSlot>().name))
-                    {
-                        slot.GetComponent<ItemSlot>().PartOfItemObject = null;
-                    }
-                }
-            }
-        }
+        InventorySystem.DataRemove(ActualData.ParentItem,ActualData);
+        InventorySystem.LiveDataRemove(ActualData.ParentItem,ActualData);
         DestroyContainer();
         Destroy(gameObject);
     }
@@ -541,11 +418,11 @@ public class ItemObject : MonoBehaviour, IPointerDownHandler, IPointerUpHandler
                     if (ActualData.SlotUse.Contains(slot.name))
                     {
                         itemSlots.Add(slot);
-                        slot.GetComponent<ItemSlot>().PartOfItemObject = gameObject;
                     }
                 }
             }
         }
+
         // Végigiterálunk az összes objektumon
         foreach (GameObject rect in itemSlots)
         {

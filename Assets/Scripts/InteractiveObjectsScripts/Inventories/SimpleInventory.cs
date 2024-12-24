@@ -16,7 +16,7 @@ namespace NaturalInventorys
         {
             Root = new Item();
             Root.ItemName = "Root";
-            Root.lvl = -1;
+            Root.Lvl = -1;
             Root.IsRoot = true;
             Root.IsLoot = true;
             Root.Container = new Container(PrefabPath);

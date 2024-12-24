@@ -41,7 +41,7 @@ public class ContainerObject : MonoBehaviour
             PlaceableObject = activeSlots.First().GetComponent<ItemSlot>().ActualPartOfItemObject;
             if ((activeSlots.First().GetComponent<ItemSlot>().IsEquipment && activeSlots.Count == 1) || (activeSlots.Count == PlaceableObject.GetComponent<ItemObject>().ActualData.SizeX * PlaceableObject.GetComponent<ItemObject>().ActualData.SizeY))
             {
-                placer.activeItemSlots = activeSlots;
+                placer.ActiveItemSlots = activeSlots;
                 placer.NewParentData = ActualData;
                 PlaceableObject.GetComponent<ItemObject>().placer = placer;
             }
@@ -68,7 +68,7 @@ public class ContainerObject : MonoBehaviour
             }
         }
         activeSlots = new List<GameObject>();
-        placer.activeItemSlots = new List<GameObject>();
+        placer.ActiveItemSlots = new List<GameObject>();
     }
     #endregion
     private void Start()

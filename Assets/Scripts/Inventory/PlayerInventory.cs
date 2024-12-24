@@ -32,8 +32,8 @@ namespace PlayerInventoryClass
             public int MaxLVL { get; private set; }
             public void SetMaxLVL_And_Sort()
             {
-                MaxLVL = Items.Max(item => item.lvl);
-                Items = Items.OrderBy(item => item.lvl).ThenBy(item => item.LowestSlotUseNumber + ((item.ParentItem == null ? -1 : Items.IndexOf(item.ParentItem)) * 10000)).ToList();
+                MaxLVL = Items.Max(item => item.Lvl);
+                Items = Items.OrderBy(item => item.Lvl).ThenBy(item => item.LowestSlotUseNumber + ((item.ParentItem == null ? -1 : Items.IndexOf(item.ParentItem)) * 10000)).ToList();
             }
             public LevelManager()
             {
@@ -61,9 +61,10 @@ namespace PlayerInventoryClass
             {
                 Item RootData = new Item();
                 RootData.ItemName = "Root";
-                RootData.lvl = -1;
+                RootData.Lvl = -1;
                 RootData.IsRoot = true;
                 RootData.IsEquipmentRoot = true;
+                RootData.IsInPlayerInventory = true;
                 RootData.Container = new Container("GameElements/PlayerInventory");
                 RootData.ContainerObject = gameObject;
                 RootData.SectorDataGrid = gameObject.GetComponent<ContainerObject>().Sectors;
@@ -94,7 +95,7 @@ namespace PlayerInventoryClass
         private bool AddingByCount(int lvl, Item Data)
         {
             bool ItemAdded = false;
-            List<Item> itemsOfLvl = levelManager.Items.Where(Item => Item.lvl == lvl).ToList();
+            List<Item> itemsOfLvl = levelManager.Items.Where(Item => Item.Lvl == lvl).ToList();
             for (int itemIndex = 0; itemIndex < itemsOfLvl.Count && !ItemAdded; itemIndex++)
             {
                 if (itemsOfLvl[itemIndex].ItemName == Data.ItemName && itemsOfLvl[itemIndex].Quantity != itemsOfLvl[itemIndex].MaxStackSize)
@@ -117,7 +118,7 @@ namespace PlayerInventoryClass
         private (bool, int) AddingByNewItem(int lvl, Item Data)
         {
             bool ItemAdded = false;
-            List<Item> itemsOfLvl = levelManager.Items.Where(Item => Item.lvl == lvl && Item.Container != null).ToList();
+            List<Item> itemsOfLvl = levelManager.Items.Where(Item => Item.Lvl == lvl && Item.Container != null).ToList();
             for (int itemIndex = 0; itemIndex < itemsOfLvl.Count && !ItemAdded; itemIndex++)
             {
                 for (int sectorIndex = 0; sectorIndex < itemsOfLvl[itemIndex].Container.Sectors.Length && !ItemAdded; sectorIndex++)//mivel a szector 2D array-okat tartalmaz ezert a sectorokon az az ezen 2D arrayokon iteralunk vegig
@@ -133,7 +134,6 @@ namespace PlayerInventoryClass
                                     SetSlotUseBySector(Y,X, sectorIndex,itemsOfLvl[itemIndex],Data);
                                     SetNewDataParent(itemsOfLvl[itemIndex],Data);
                                     DataAdd(itemsOfLvl[itemIndex],Data);
-                                    DataAddToPlayerInventory(Data);
                                     Debug.Log($"Item Added in container");
                                     int count = 0;
                                     if (Data.Quantity > Data.MaxStackSize)
@@ -159,7 +159,7 @@ namespace PlayerInventoryClass
             bool ItemAdded = false;
             Data.RotateDegree = 90;
             (Data.SizeX, Data.SizeY) = (Data.SizeY, Data.SizeX);
-            List<Item> itemsOfLvl = levelManager.Items.Where(Item => Item.lvl == lvl && Item.Container != null).ToList();
+            List<Item> itemsOfLvl = levelManager.Items.Where(Item => Item.Lvl == lvl && Item.Container != null).ToList();
             for (int itemIndex = 0; itemIndex < itemsOfLvl.Count && !ItemAdded; itemIndex++)
             {
                 for (int sectorIndex = 0; sectorIndex < itemsOfLvl[itemIndex].Container.Sectors.Length && !ItemAdded; sectorIndex++)//mivel a szector 2D array-okat tartalmaz ezert a sectorokon az az ezen 2D arrayokon iteralunk vegig
@@ -175,7 +175,6 @@ namespace PlayerInventoryClass
                                     SetSlotUseBySector(Y, X, sectorIndex, itemsOfLvl[itemIndex], Data);
                                     SetNewDataParent(itemsOfLvl[itemIndex], Data);
                                     DataAdd(itemsOfLvl[itemIndex], Data);
-                                    DataAddToPlayerInventory(Data);
                                     (Data.SizeX, Data.SizeY) = (Data.SizeY, Data.SizeX);
                                     Debug.Log($"Item Added in container");
                                     int count = 0;
@@ -235,7 +234,7 @@ namespace PlayerInventoryClass
         private bool Removing(int lvl,Item Data)
         {
             bool ItemRemoved = false;
-            List<Item> itemsOfLvl = levelManager.Items.Where(Item => Item.lvl == lvl).ToList();
+            List<Item> itemsOfLvl = levelManager.Items.Where(Item => Item.Lvl == lvl).ToList();
             for (int itemIndex = 0; itemIndex < itemsOfLvl.Count && !ItemRemoved; itemIndex++)
             {
                 if (itemsOfLvl[itemIndex].ItemName == Data.ItemName && (itemsOfLvl[itemIndex].Container == null || itemsOfLvl[itemIndex].Container.Items.Count == 0))
@@ -249,14 +248,12 @@ namespace PlayerInventoryClass
                     else if (itemsOfLvl[itemIndex].Quantity == 0)
                     {
                         ItemRemoved = true;
-                        DataRemoveFromLevelManager(Data);
                         DataRemove(itemsOfLvl[itemIndex].ParentItem, itemsOfLvl[itemIndex]);
                     }
                     else
                     {
                         count = Math.Abs(itemsOfLvl[itemIndex].Quantity);
                         Data.Quantity = count;
-                        DataRemoveFromLevelManager(Data);
                         DataRemove(itemsOfLvl[itemIndex].ParentItem, itemsOfLvl[itemIndex]);
                     }
                 }

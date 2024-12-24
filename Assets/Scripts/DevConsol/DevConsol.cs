@@ -142,7 +142,7 @@ public class DevConsol : MonoBehaviour
                 break;
             case "Save":
                 Debug.Log($"{text.GetComponent<TMP_InputField>().text}");
-                RootData = inventory.GetComponent<PlayerInventory>().levelManager.Items.FirstOrDefault(item=>item.lvl==-1);
+                RootData = inventory.GetComponent<PlayerInventory>().levelManager.Items.FirstOrDefault(item=>item.Lvl==-1);
                 break;
             case "Clear":
                 Debug.Log($"{text.GetComponent<TMP_InputField>().text}");
@@ -150,7 +150,7 @@ public class DevConsol : MonoBehaviour
                 break;
             case "Load":
                 Debug.Log($"{text.GetComponent<TMP_InputField>().text}");
-                Item root = inventory.GetComponent<PlayerInventory>().levelManager.Items.FirstOrDefault(item => item.lvl == -1);
+                Item root = inventory.GetComponent<PlayerInventory>().levelManager.Items.FirstOrDefault(item => item.Lvl == -1);
                 root = RootData;
                 break;
             case var _ when Command[0] == Main.name:

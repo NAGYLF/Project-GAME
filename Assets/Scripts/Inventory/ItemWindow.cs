@@ -48,35 +48,42 @@ public class ItemWindow : MonoBehaviour,IPointerExitHandler
     }
     private void ActionConstruction()
     {
-        if (item.Open)
+        if (item.IsUsable)
+        {
+            GameObject button = CreatePrefab("GameElements/ItemWindowButton");
+            button.GetComponent<Button>().onClick.AddListener(Use);
+            button.transform.SetParent(Content.transform);
+            button.transform.GetChild(0).GetComponent<TextMeshPro>().text = "Use";
+        }
+        if (item.IsOpenAble)
         {
             GameObject button = CreatePrefab("GameElements/ItemWindowButton");
             button.GetComponent<Button>().onClick.AddListener(Open);
             button.transform.SetParent(Content.transform);
             button.transform.GetChild(0).GetComponent<TextMeshPro>().text = "Open";
         }
-        if (item.Modification)
+        if (item.IsModificationAble)
         {
             GameObject button = CreatePrefab("GameElements/ItemWindowButton");
             button.GetComponent<Button>().onClick.AddListener(Modification);
             button.transform.SetParent(Content.transform);
             button.transform.GetChild(0).GetComponent<TextMeshPro>().text = "Modification";
         }
-        if (item.Unload)
+        if (item.IsUnloadAble)
         {
             GameObject button = CreatePrefab("GameElements/ItemWindowButton");
             button.GetComponent<Button>().onClick.AddListener(Unload);
             button.transform.SetParent(Content.transform);
             button.transform.GetChild(0).GetComponent<TextMeshPro>().text = "Unload";
         }
-        if (item.Drop)
+        if (item.IsDropAble)
         {
             GameObject button = CreatePrefab("GameElements/ItemWindowButton");
             button.GetComponent<Button>().onClick.AddListener(Drop);
             button.transform.SetParent(Content.transform);
             button.transform.GetChild(0).GetComponent<TextMeshPro>().text = "Drop";
         }
-        if (item.Remove)
+        if (item.IsRemoveAble)
         {
             GameObject button = CreatePrefab("GameElements/ItemWindowButton");
             button.GetComponent<Button>().onClick.AddListener(Remove);
@@ -86,23 +93,32 @@ public class ItemWindow : MonoBehaviour,IPointerExitHandler
     }
     private void Drop()
     {
+        item.Drop();
         Destroy(gameObject);
     }
     private void Remove()
     {
-        itemObject.GetComponent<ItemObject>().SelfDestruction();
+        item.Remove();
         Destroy(gameObject);
     }
     private void Unload()
     {
+        item.Unload();
         Destroy(gameObject);
     }
     private void Modification()
     {
+        item.Modification();
         Destroy(gameObject);
     }
     private void Open()
     {
+        item.Open();
+        Destroy(gameObject);
+    }
+    private void Use()
+    {
+        item.Use();
         Destroy(gameObject);
     }
 }

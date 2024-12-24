@@ -13,14 +13,12 @@ public class CharacterHand : MonoBehaviour
     {
         RotateObject();
         FlipObject();
-        HadHUDRefresh();
-
+        HandHUDRefresh();
     }
-    private void HadHUDRefresh()
+    private void HandHUDRefresh()
     {
         //a slected item adatait jeleniti meg
     }
-
     private void RotateObject()
     {
         // Az egér pozíciója a képernyõ koordinátái

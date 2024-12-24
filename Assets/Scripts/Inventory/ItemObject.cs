@@ -10,9 +10,11 @@ using static PlayerInventoryClass.PlayerInventory;
 using TMPro;
 using UnityEngine.EventSystems;
 using PlayerInventoryClass;
+using UI;
 
-public class ItemObject : MonoBehaviour, IPointerDownHandler, IPointerUpHandler
+public class ItemObject : MonoBehaviour, IPointerDownHandler, IPointerUpHandler , IPointerEnterHandler ,IPointerExitHandler
 {
+    public GameObject HotKeyPlate;
     public GameObject Counter;
     private GameObject Window;
     public Item ActualData { get; private set; }
@@ -56,6 +58,16 @@ public class ItemObject : MonoBehaviour, IPointerDownHandler, IPointerUpHandler
         {
             return false;
         }
+    }
+    public void OnPointerEnter(PointerEventData eventData)
+    {
+        InGameUI.SetHotKeyWithMouse = true;
+        InGameUI.SetGameObjectToHotKey = gameObject;
+    }
+    public void OnPointerExit(PointerEventData eventData)
+    {
+        InGameUI.SetHotKeyWithMouse = false;
+        InGameUI.SetGameObjectToHotKey = null;
     }
     public void OnPointerDown(PointerEventData eventData)
     {
@@ -204,12 +216,11 @@ public class ItemObject : MonoBehaviour, IPointerDownHandler, IPointerUpHandler
                 item.ParentItem = placer.NewParentData;
                 itemObject.GetComponent<ItemObject>().SetDataRoute(item, item.ParentItem);
 
-                InventorySystem.SetSlotUseByPlacer(placer.activeItemSlots,ActualData);
+                InventorySystem.SetSlotUseByPlacer(placer,ActualData);
 
                 InventorySystem.DataAdd(ActualData.ParentItem,ActualData);
-                InventorySystem.LiveDataAdd(ActualData.ParentItem, ActualData);
 
-                InventorySystem.DataAddToLevelManager(ActualData);
+                InventorySystem.DataAddToPlayerInventory(ActualData);
 
                 ActualData.Quantity = SplitedCount.smaller;
                 placementCanStart = false;
@@ -249,13 +260,11 @@ public class ItemObject : MonoBehaviour, IPointerDownHandler, IPointerUpHandler
         if (placementCanStart)
         {
             InventorySystem.DataRemove(ActualData.ParentItem,ActualData);
-            InventorySystem.LiveDataRemove(ActualData.ParentItem,ActualData);
 
             InventorySystem.SetNewDataParent(placer.NewParentData,ActualData);
 
-            InventorySystem.SetSlotUseByPlacer(placer.activeItemSlots,ActualData);
+            InventorySystem.SetSlotUseByPlacer(placer,ActualData);
             InventorySystem.DataAdd(ActualData.ParentItem,ActualData);
-            InventorySystem.LiveDataAdd(ActualData.ParentItem, ActualData);
 
             SelfVisualisation();
         }
@@ -364,21 +373,12 @@ public class ItemObject : MonoBehaviour, IPointerDownHandler, IPointerUpHandler
     public void SelfDestruction()//egy gombal hivhatod meg.
     {
         InventorySystem.DataRemove(ActualData.ParentItem,ActualData);
-        InventorySystem.LiveDataRemove(ActualData.ParentItem,ActualData);
         DestroyContainer();
         Destroy(gameObject);
     }
     #endregion
-    private void SelfVisualisation()//ha az item equipment slotban van
+    public void SelfVisualisation()//ha az item equipment slotban van
     {
-        if (ActualData.lvl == 0 && !ActualData.ParentItem.IsLoot)
-        {
-            ActualData.IsEquipment = true;
-        }
-        else
-        {
-            ActualData.IsEquipment = false;
-        }
         if (ActualData.Quantity == 1)
         {
             Counter.GetComponent<TextMeshPro>().text = "";
@@ -386,6 +386,14 @@ public class ItemObject : MonoBehaviour, IPointerDownHandler, IPointerUpHandler
         else
         {
             Counter.GetComponent<TextMeshPro>().text = ActualData.Quantity.ToString();
+        }
+        if (ActualData.HotKey != "")
+        {
+            HotKeyPlate.GetComponent<TextMeshPro>().text = ActualData.HotKey.ToString();
+        }
+        else
+        {
+            HotKeyPlate.GetComponent<TextMeshPro>().text = "";
         }
 
         Rigidbody2D itemObjectRigibody2D = gameObject.GetComponent<Rigidbody2D>();

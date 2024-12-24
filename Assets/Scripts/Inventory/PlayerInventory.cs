@@ -9,6 +9,7 @@ using ItemHandler;
 using Assets.Scripts.Inventory;
 using NaturalInventorys;
 using static ItemHandler.InventorySystem;
+using UI;
 
 namespace PlayerInventoryClass
 {
@@ -132,7 +133,7 @@ namespace PlayerInventoryClass
                                     SetSlotUseBySector(Y,X, sectorIndex,itemsOfLvl[itemIndex],Data);
                                     SetNewDataParent(itemsOfLvl[itemIndex],Data);
                                     DataAdd(itemsOfLvl[itemIndex],Data);
-                                    DataAddToLevelManager(Data);
+                                    DataAddToPlayerInventory(Data);
                                     Debug.Log($"Item Added in container");
                                     int count = 0;
                                     if (Data.Quantity > Data.MaxStackSize)
@@ -174,7 +175,7 @@ namespace PlayerInventoryClass
                                     SetSlotUseBySector(Y, X, sectorIndex, itemsOfLvl[itemIndex], Data);
                                     SetNewDataParent(itemsOfLvl[itemIndex], Data);
                                     DataAdd(itemsOfLvl[itemIndex], Data);
-                                    DataAddToLevelManager(Data);
+                                    DataAddToPlayerInventory(Data);
                                     (Data.SizeX, Data.SizeY) = (Data.SizeY, Data.SizeX);
                                     Debug.Log($"Item Added in container");
                                     int count = 0;

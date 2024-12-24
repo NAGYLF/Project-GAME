@@ -23,6 +23,7 @@ using NaturalInventorys;
 using Newtonsoft.Json.Linq;
 using PlayerInventoryClass;
 using static PlayerInventoryClass.PlayerInventory;
+using UI;
 
 namespace ItemHandler
 {
@@ -63,6 +64,7 @@ namespace ItemHandler
         public GameObject ContainerObject { get; set; }//conainer objectum
         public List<DataGrid> SectorDataGrid { get; set; }//ezek referanca pontokat atralamaznak amelyeken kersztul a tenyleges gameobjectumokat manipulalhatjuk
         public int lvl { get; set; }
+        public string HotKey { get; set; } = "";
         public bool IsEquipment { set; get; } = false;
         public bool IsLoot { set; get; } = false;
         public bool IsSlot { set; get; } = false;
@@ -335,7 +337,7 @@ namespace ItemHandler
             InventoryObjectRef.GetComponent<PlayerInventory>().levelManager.Items.Remove(Data);
             InventoryObjectRef.GetComponent<PlayerInventory>().levelManager.SetMaxLVL_And_Sort();
         }
-        public static void DataAddToLevelManager(Item Data)
+        public static void DataAddToPlayerInventory(Item Data)
         {
             InventoryObjectRef.GetComponent<PlayerInventory>().levelManager.Items.Add(Data);
             InventoryObjectRef.GetComponent<PlayerInventory>().levelManager.SetMaxLVL_And_Sort();
@@ -344,23 +346,93 @@ namespace ItemHandler
         {
             Data.ParentItem = SetTo;
         }
-        public static void SetSlotUseByPlacer(List<GameObject> Placer, Item Data)// 0.
+        public static void SetSlotUseByPlacer(PlacerStruct Placer, Item Data)// 0.
         {
             Data.SlotUse.Clear();
-            for (int i = 0; i < Placer.Count; i++)
+            if (Placer.NewParentData.IsEquipmentRoot)
             {
-                Data.SlotUse.Add(Placer[i].name);
-            }
-            Data.SetSlotUse();
-        }
-        public static void SetSlotUseBySector(int Y,int X,int sectorIndex, Item AddTo,Item Data)
-        {
-            if (AddTo.IsEquipmentRoot)
-            {
-                Data.SlotUse.Add(AddTo.Container.Sectors[sectorIndex][Y, X].SlotName);//ez alapjan azonositunk egy itemslotot
+                Data.IsEquipment = true;
             }
             else
             {
+                Data.IsEquipment = false;
+            }
+            for (int i = 0; i < Placer.activeItemSlots.Count; i++)
+            {
+                Data.SlotUse.Add(Placer.activeItemSlots[i].name);
+            }
+            Data.SetSlotUse();
+            if (Data.IsEquipment)
+            {
+                if (Data.HotKey != "")
+                {
+                    switch (int.Parse(Data.HotKey))
+                    {
+                        case 1:
+                            InGameUI.SetHotKey1(null);
+                            break;
+                        case 2:
+                            InGameUI.SetHotKey2(null);
+                            break;
+                        case 3:
+                            InGameUI.SetHotKey3(null);
+                            break;
+                        case 4:
+                            InGameUI.SetHotKey4(null);
+                            break;
+                        case 5:
+                            InGameUI.SetHotKey5(null);
+                            break;
+                        case 6:
+                            InGameUI.SetHotKey6(null);
+                            break;
+                        case 7:
+                            InGameUI.SetHotKey7(null);
+                            break;
+                        case 8:
+                            InGameUI.SetHotKey8(null);
+                            break;
+                        case 9:
+                            InGameUI.SetHotKey9(null);
+                            break;
+                        default:
+                            break;
+                    }
+                }
+                switch (Data.LowestSlotUseNumber)
+                {
+                    case 10:
+                        Data.HotKey = "1";
+                        InGameUI.SetHotKey1(Data);
+                        break;
+                    case 11:
+                        Data.HotKey = "2";
+                        InGameUI.SetHotKey2(Data);
+                        break;
+                    case 12:
+                        Data.HotKey = "3";
+                        InGameUI.SetHotKey3(Data);
+                        break;
+                    case 13:
+                        Data.HotKey = "4";
+                        InGameUI.SetHotKey4(Data);
+                        break;
+                    default:
+                        break;
+                }
+            }
+        }
+        public static void SetSlotUseBySector(int Y,int X,int sectorIndex, Item AddTo,Item Data)
+        {
+            Data.SlotUse.Clear();
+            if (AddTo.IsEquipmentRoot)
+            {
+                Data.SlotUse.Add(AddTo.Container.Sectors[sectorIndex][Y, X].SlotName);//ez alapjan azonositunk egy itemslotot
+                Data.IsEquipment = true;
+            }
+            else
+            {
+                Data.IsEquipment = false;
                 for (int y = Y; y < Y + Data.SizeY; y++)
                 {
                     for (int x = X; x < X + Data.SizeX; x++)
@@ -370,6 +442,65 @@ namespace ItemHandler
                 }
             }
             Data.SetSlotUse();
+            if (Data.IsEquipment)
+            {
+                if (Data.HotKey != "")
+                {
+                    switch (int.Parse(Data.HotKey))
+                    {
+                        case 1:
+                            InGameUI.SetHotKey1(null);
+                            break;
+                        case 2:
+                            InGameUI.SetHotKey2(null);
+                            break;
+                        case 3:
+                            InGameUI.SetHotKey3(null);
+                            break;
+                        case 4:
+                            InGameUI.SetHotKey4(null);
+                            break;
+                        case 5:
+                            InGameUI.SetHotKey5(null);
+                            break;
+                        case 6:
+                            InGameUI.SetHotKey6(null);
+                            break;
+                        case 7:
+                            InGameUI.SetHotKey7(null);
+                            break;
+                        case 8:
+                            InGameUI.SetHotKey8(null);
+                            break;
+                        case 9:
+                            InGameUI.SetHotKey9(null);
+                            break;
+                        default:
+                            break;
+                    }
+                }
+                switch (Data.LowestSlotUseNumber)
+                {
+                    case 10:
+                        Data.HotKey = "1";
+                        InGameUI.SetHotKey1(Data);
+                        break;
+                    case 11:
+                        Data.HotKey = "2";
+                        InGameUI.SetHotKey2(Data);
+                        break;
+                    case 12:
+                        Data.HotKey = "3";
+                        InGameUI.SetHotKey3(Data);
+                        break;
+                    case 13:
+                        Data.HotKey = "4";
+                        InGameUI.SetHotKey4(Data);
+                        break;
+                    default:
+                        break;
+                }
+            }
         }
         public static void DataAdd(Item AddTo, Item Data)// 1.
         {
@@ -386,18 +517,18 @@ namespace ItemHandler
             AddTo.Container.Items.Add(Data);
             int lvl = AddTo.lvl;
             Data.lvl = ++lvl;
-        }
-        public static void LiveDataAdd(Item AddTo,Item Data)// 2.
-        {
-            foreach (DataGrid dataGrid in AddTo.SectorDataGrid)
+            if (Data.SelfGameobject)
             {
-                foreach (RowData rowData in dataGrid.col)
+                foreach (DataGrid dataGrid in AddTo.SectorDataGrid)
                 {
-                    foreach (GameObject slot in rowData.row)
+                    foreach (RowData rowData in dataGrid.col)
                     {
-                        if (Data.SlotUse.Contains(slot.name))
+                        foreach (GameObject slot in rowData.row)
                         {
-                            slot.GetComponent<ItemSlot>().PartOfItemObject = Data.SelfGameobject;
+                            if (Data.SlotUse.Contains(slot.name))
+                            {
+                                slot.GetComponent<ItemSlot>().PartOfItemObject = Data.SelfGameobject;
+                            }
                         }
                     }
                 }
@@ -416,20 +547,44 @@ namespace ItemHandler
                 }
             }
             RemoveFrom.Container.Items.Remove(Data);
-        }
-        public static void LiveDataRemove(Item RemoveFrom, Item Data)// 2.
-        {
-            foreach (DataGrid dataGrid in RemoveFrom.SectorDataGrid)
+            if (Data.SelfGameobject)
             {
-                foreach (RowData rowData in dataGrid.col)
+                foreach (DataGrid dataGrid in RemoveFrom.SectorDataGrid)
                 {
-                    foreach (GameObject slot in rowData.row)
+                    foreach (RowData rowData in dataGrid.col)
                     {
-                        if (Data.SlotUse.Contains(slot.name))
+                        foreach (GameObject slot in rowData.row)
                         {
-                            slot.GetComponent<ItemSlot>().PartOfItemObject = null;
+                            if (Data.SlotUse.Contains(slot.name))
+                            {
+                                slot.GetComponent<ItemSlot>().PartOfItemObject = null;
+                            }
                         }
                     }
+                }
+            }
+            if (Data.IsEquipment)
+            {
+                switch (Data.LowestSlotUseNumber)
+                {
+                    case 10:
+                        Data.HotKey = "";
+                        InGameUI.SetHotKey1(null);
+                        break;
+                    case 11:
+                        Data.HotKey = "";
+                        InGameUI.SetHotKey2(null);
+                        break;
+                    case 12:
+                        Data.HotKey = "";
+                        InGameUI.SetHotKey3(null);
+                        break;
+                    case 13:
+                        Data.HotKey = "";
+                        InGameUI.SetHotKey4(null);
+                        break;
+                    default:
+                        break;
                 }
             }
         }

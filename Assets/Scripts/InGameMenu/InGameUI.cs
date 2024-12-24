@@ -57,149 +57,10 @@ namespace UI
         [SerializeField] public GameObject DevConsoleObject;
         #endregion
 
-        #region HOT - Bar Elements
-        public static Item HotKey0;//Ez egy mindig üres elem
-        public static Item HotKey1;//ez a main1
-        public static Item HotKey2;//ez a main2
-        public static Item HotKey3;//ez a secondary
-        public static Item HotKey4;//ez a melee
-        public static Item HotKey5;
-        public static Item HotKey6;
-        public static Item HotKey7;
-        public static Item HotKey8;
-        public static Item HotKey9;
-
-        public static void SetHotKey1(Item item)
-        {
-            if (HotKey1 == Player.GetComponent<Player>().Hand.GetComponent<CharacterHand>().SelectedItem)
-            {
-                HotKey1 = item;
-                Player.GetComponent<Player>().Hand.GetComponent<CharacterHand>().SelectedItem = HotKey1;
-            }
-            else
-            {
-                HotKey1 = item;
-            }
-        }
-        public static void SetHotKey2(Item item)
-        {
-            if (HotKey2 == Player.GetComponent<Player>().Hand.GetComponent<CharacterHand>().SelectedItem)
-            {
-                HotKey2 = item;
-                Player.GetComponent<Player>().Hand.GetComponent<CharacterHand>().SelectedItem = HotKey2;
-            }
-            else
-            {
-                HotKey2 = item;
-            }
-        }
-        public static void SetHotKey3(Item item)
-        {
-            if (HotKey3 == Player.GetComponent<Player>().Hand.GetComponent<CharacterHand>().SelectedItem)
-            {
-                HotKey3 = item;
-                Player.GetComponent<Player>().Hand.GetComponent<CharacterHand>().SelectedItem = HotKey3;
-            }
-            else
-            {
-                HotKey3 = item;
-            }
-        }
-        public static void SetHotKey4(Item item)
-        {
-            if (HotKey4 == Player.GetComponent<Player>().Hand.GetComponent<CharacterHand>().SelectedItem)
-            {
-                HotKey4 = item;
-                Player.GetComponent<Player>().Hand.GetComponent<CharacterHand>().SelectedItem = HotKey4;
-            }
-            else
-            {
-                HotKey4 = item;
-            }
-        }
-        public static void SetHotKey5(Item item)
-        {
-            if (HotKey5 == Player.GetComponent<Player>().Hand.GetComponent<CharacterHand>().SelectedItem)
-            {
-                HotKey5 = item;
-                Player.GetComponent<Player>().Hand.GetComponent<CharacterHand>().SelectedItem = HotKey5;
-            }
-            else
-            {
-                HotKey5 = item;
-            }
-        }
-        public static void SetHotKey6(Item item)
-        {
-            if (HotKey6 == Player.GetComponent<Player>().Hand.GetComponent<CharacterHand>().SelectedItem)
-            {
-                HotKey6 = item;
-                Player.GetComponent<Player>().Hand.GetComponent<CharacterHand>().SelectedItem = HotKey6;
-            }
-            else
-            {
-                HotKey6 = item;
-            }
-        }
-        public static void SetHotKey7(Item item)
-        {
-            if (HotKey7 == Player.GetComponent<Player>().Hand.GetComponent<CharacterHand>().SelectedItem)
-            {
-                HotKey7 = item;
-                Player.GetComponent<Player>().Hand.GetComponent<CharacterHand>().SelectedItem = HotKey7;
-                Player.GetComponent<Player>().Hand.GetComponent<CharacterHand>().SelectedItem = HotKey7;
-            }
-            else
-            {
-                HotKey7 = item;
-            }
-        }
-        public static void SetHotKey8(Item item)
-        {
-            if (HotKey8 == Player.GetComponent<Player>().Hand.GetComponent<CharacterHand>().SelectedItem)
-            {
-                HotKey8 = item;
-                Player.GetComponent<Player>().Hand.GetComponent<CharacterHand>().SelectedItem = HotKey8;
-            }
-            else
-            {
-                HotKey8 = item;
-            }
-        }
-        public static void SetHotKey9(Item item)
-        {
-            if (HotKey9 == Player.GetComponent<Player>().Hand.GetComponent<CharacterHand>().SelectedItem)
-            {
-                HotKey9 = item;
-                Player.GetComponent<Player>().Hand.GetComponent<CharacterHand>().SelectedItem = HotKey9;
-            }
-            else
-            {
-                HotKey9 = item;
-            }
-        }
-        #endregion
-
-        #region Inform Bars
-        public void SetHealtBar(float count)
-        {
-            HealtBar.GetComponent<Slider>().value = count;
-        }
-        public void SetStaminatBar(float count)
-        {
-            StaminaBar.GetComponent<Slider>().value = count;
-        }
-        public void SetHungerBar(float count)
-        {
-            HungerBar.GetComponent<Slider>().value = count;
-        }
-        public void SetThirstBar(float count)
-        {
-            ThirstBar.GetComponent<Slider>().value = count;
-        }
-        #endregion
-
         #region UI Other Variables
+        public static bool SetHotKeyWithMouse = false;
+        public static GameObject SetGameObjectToHotKey = null;
+
         [HideInInspector] public GameObject SelectedObject;
         public List<GameObject> IntecativeObjects;
         #endregion
@@ -402,11 +263,19 @@ namespace UI
                         {
                             Player.GetComponent<Player>().Hand.GetComponent<CharacterHand>().SelectedItem = HotKey5;
                         }
+                        if (SetHotKeyWithMouse)
+                        {
+                            SetHotKey(5);
+                        }
                         break;
                     case KeyCode.Alpha6:
                         if (HUD)
                         {
                             Player.GetComponent<Player>().Hand.GetComponent<CharacterHand>().SelectedItem = HotKey6;
+                        }
+                        if (SetHotKeyWithMouse)
+                        {
+                            SetHotKey(6);
                         }
                         break;
                     case KeyCode.Alpha7:
@@ -414,17 +283,29 @@ namespace UI
                         {
                             Player.GetComponent<Player>().Hand.GetComponent<CharacterHand>().SelectedItem = HotKey7;
                         }
+                        if (SetHotKeyWithMouse)
+                        {
+                            SetHotKey(7);
+                        }
                         break;
                     case KeyCode.Alpha8:
                         if (HUD)
                         {
                             Player.GetComponent<Player>().Hand.GetComponent<CharacterHand>().SelectedItem = HotKey8;
                         }
+                        if (SetHotKeyWithMouse)
+                        {
+                            SetHotKey(8);
+                        }
                         break;
                     case KeyCode.Alpha9:
                         if (HUD)
                         {
                             Player.GetComponent<Player>().Hand.GetComponent<CharacterHand>().SelectedItem = HotKey9;
+                        }
+                        if (SetHotKeyWithMouse)
+                        {
+                            SetHotKey(9);
                         }
                         break;
                     default:
@@ -463,6 +344,261 @@ namespace UI
         private void CloseHUD()
         {
             HUD.SetActive(false);
+        }
+        #endregion
+
+        #region HotKeySet
+        public static void SetHotKey(int SetToHotKeyNumber)
+        {
+            string ItemHotKey = SetGameObjectToHotKey.GetComponent<ItemObject>().ActualData.HotKey;
+            if (ItemHotKey == SetToHotKeyNumber.ToString())
+            {
+                switch (int.Parse(ItemHotKey))
+                {
+                    case 5:
+                        SetHotKey5(null);
+                        break;
+                    case 6:
+                        SetHotKey6(null);
+                        break;
+                    case 7:
+                        SetHotKey7(null);
+                        break;
+                    case 8:
+                        SetHotKey8(null);
+                        break;
+                    case 9:
+                        SetHotKey9(null);
+                        break;
+                    default:
+                        break;
+                }
+                SetGameObjectToHotKey.GetComponent<ItemObject>().ActualData.HotKey = "";
+                SetGameObjectToHotKey.GetComponent<ItemObject>().SelfVisualisation();
+            }
+            else
+            {
+                if (ItemHotKey != "")
+                {
+                    switch (int.Parse(ItemHotKey))
+                    {
+                        case 5:
+                            SetHotKey5(null);
+                            break;
+                        case 6:
+                            SetHotKey6(null);
+                            break;
+                        case 7:
+                            SetHotKey7(null);
+                            break;
+                        case 8:
+                            SetHotKey8(null);
+                            break;
+                        case 9:
+                            SetHotKey9(null);
+                            break;
+                        default:
+                            break;
+                    }
+                }
+                switch (SetToHotKeyNumber)
+                {
+                    case 5:
+                        if (HotKey5 != null)
+                        {
+                            HotKey5.HotKey = "";
+                            HotKey5.SelfGameobject.GetComponent<ItemObject>().SelfVisualisation();
+                        }
+                        SetHotKey5(SetGameObjectToHotKey.GetComponent<ItemObject>().ActualData);
+                        SetGameObjectToHotKey.GetComponent<ItemObject>().ActualData.HotKey = SetToHotKeyNumber.ToString();
+                        SetGameObjectToHotKey.GetComponent<ItemObject>().SelfVisualisation();
+                        break;
+                    case 6:
+                        if (HotKey6 != null)
+                        {
+                            HotKey6.HotKey = "";
+                            HotKey6.SelfGameobject.GetComponent<ItemObject>().SelfVisualisation();
+                        }
+                        SetHotKey6(SetGameObjectToHotKey.GetComponent<ItemObject>().ActualData);
+                        SetGameObjectToHotKey.GetComponent<ItemObject>().ActualData.HotKey = SetToHotKeyNumber.ToString();
+                        SetGameObjectToHotKey.GetComponent<ItemObject>().SelfVisualisation();
+                        break;
+                    case 7:
+                        if (HotKey7 != null)
+                        {
+                            HotKey7.HotKey = "";
+                            HotKey7.SelfGameobject.GetComponent<ItemObject>().SelfVisualisation();
+                        }
+                        SetHotKey7(SetGameObjectToHotKey.GetComponent<ItemObject>().ActualData);
+                        SetGameObjectToHotKey.GetComponent<ItemObject>().ActualData.HotKey = SetToHotKeyNumber.ToString();
+                        SetGameObjectToHotKey.GetComponent<ItemObject>().SelfVisualisation();
+                        break;
+                    case 8:
+                        if (HotKey8 != null)
+                        {
+                            HotKey8.HotKey = "";
+                            HotKey8.SelfGameobject.GetComponent<ItemObject>().SelfVisualisation();
+                        }
+                        SetHotKey8(SetGameObjectToHotKey.GetComponent<ItemObject>().ActualData);
+                        SetGameObjectToHotKey.GetComponent<ItemObject>().ActualData.HotKey = SetToHotKeyNumber.ToString();
+                        SetGameObjectToHotKey.GetComponent<ItemObject>().SelfVisualisation();
+                        break;
+                    case 9:
+                        if (HotKey9 != null)
+                        {
+                            HotKey9.HotKey = "";
+                            HotKey9.SelfGameobject.GetComponent<ItemObject>().SelfVisualisation();
+                        }
+                        SetHotKey9(SetGameObjectToHotKey.GetComponent<ItemObject>().ActualData);
+                        SetGameObjectToHotKey.GetComponent<ItemObject>().ActualData.HotKey = SetToHotKeyNumber.ToString();
+                        SetGameObjectToHotKey.GetComponent<ItemObject>().SelfVisualisation();
+                        break;
+                    default:
+                        break;
+                }
+            }
+        }
+        #endregion
+
+        #region HOT - Bar Elements
+        public static Item HotKey0;//Ez egy mindig üres elem
+        public static Item HotKey1;//ez a main1
+        public static Item HotKey2;//ez a main2
+        public static Item HotKey3;//ez a secondary
+        public static Item HotKey4;//ez a melee
+        public static Item HotKey5;
+        public static Item HotKey6;
+        public static Item HotKey7;
+        public static Item HotKey8;
+        public static Item HotKey9;
+
+        public static void SetHotKey1(Item item)
+        {
+            if (HotKey1 == Player.GetComponent<Player>().Hand.GetComponent<CharacterHand>().SelectedItem)
+            {
+                HotKey1 = item;
+                Player.GetComponent<Player>().Hand.GetComponent<CharacterHand>().SelectedItem = HotKey1;
+            }
+            else
+            {
+                HotKey1 = item;
+            }
+        }
+        public static void SetHotKey2(Item item)
+        {
+            if (HotKey2 == Player.GetComponent<Player>().Hand.GetComponent<CharacterHand>().SelectedItem)
+            {
+                HotKey2 = item;
+                Player.GetComponent<Player>().Hand.GetComponent<CharacterHand>().SelectedItem = HotKey2;
+            }
+            else
+            {
+                HotKey2 = item;
+            }
+        }
+        public static void SetHotKey3(Item item)
+        {
+            if (HotKey3 == Player.GetComponent<Player>().Hand.GetComponent<CharacterHand>().SelectedItem)
+            {
+                HotKey3 = item;
+                Player.GetComponent<Player>().Hand.GetComponent<CharacterHand>().SelectedItem = HotKey3;
+            }
+            else
+            {
+                HotKey3 = item;
+            }
+        }
+        public static void SetHotKey4(Item item)
+        {
+            if (HotKey4 == Player.GetComponent<Player>().Hand.GetComponent<CharacterHand>().SelectedItem)
+            {
+                HotKey4 = item;
+                Player.GetComponent<Player>().Hand.GetComponent<CharacterHand>().SelectedItem = HotKey4;
+            }
+            else
+            {
+                HotKey4 = item;
+            }
+        }
+        public static void SetHotKey5(Item item)
+        {
+            if (HotKey5 == Player.GetComponent<Player>().Hand.GetComponent<CharacterHand>().SelectedItem)
+            {
+                HotKey5 = item;
+                Player.GetComponent<Player>().Hand.GetComponent<CharacterHand>().SelectedItem = HotKey5;
+            }
+            else
+            {
+                HotKey5 = item;
+            }
+        }
+        public static void SetHotKey6(Item item)
+        {
+            if (HotKey6 == Player.GetComponent<Player>().Hand.GetComponent<CharacterHand>().SelectedItem)
+            {
+                HotKey6 = item;
+                Player.GetComponent<Player>().Hand.GetComponent<CharacterHand>().SelectedItem = HotKey6;
+            }
+            else
+            {
+                HotKey6 = item;
+            }
+        }
+        public static void SetHotKey7(Item item)
+        {
+            if (HotKey7 == Player.GetComponent<Player>().Hand.GetComponent<CharacterHand>().SelectedItem)
+            {
+                HotKey7 = item;
+                Player.GetComponent<Player>().Hand.GetComponent<CharacterHand>().SelectedItem = HotKey7;
+                Player.GetComponent<Player>().Hand.GetComponent<CharacterHand>().SelectedItem = HotKey7;
+            }
+            else
+            {
+                HotKey7 = item;
+            }
+        }
+        public static void SetHotKey8(Item item)
+        {
+            if (HotKey8 == Player.GetComponent<Player>().Hand.GetComponent<CharacterHand>().SelectedItem)
+            {
+                HotKey8 = item;
+                Player.GetComponent<Player>().Hand.GetComponent<CharacterHand>().SelectedItem = HotKey8;
+            }
+            else
+            {
+                HotKey8 = item;
+            }
+        }
+        public static void SetHotKey9(Item item)
+        {
+            if (HotKey9 == Player.GetComponent<Player>().Hand.GetComponent<CharacterHand>().SelectedItem)
+            {
+                HotKey9 = item;
+                Player.GetComponent<Player>().Hand.GetComponent<CharacterHand>().SelectedItem = HotKey9;
+            }
+            else
+            {
+                HotKey9 = item;
+            }
+        }
+        #endregion
+
+        #region Inform Bars
+        public void SetHealtBar(float count)
+        {
+            HealtBar.GetComponent<Slider>().value = count;
+        }
+        public void SetStaminatBar(float count)
+        {
+            StaminaBar.GetComponent<Slider>().value = count;
+        }
+        public void SetHungerBar(float count)
+        {
+            HungerBar.GetComponent<Slider>().value = count;
+        }
+        public void SetThirstBar(float count)
+        {
+            ThirstBar.GetComponent<Slider>().value = count;
         }
         #endregion
     }

@@ -10,9 +10,11 @@ using static PlayerInventoryClass.PlayerInventory;
 using TMPro;
 using UnityEngine.EventSystems;
 using PlayerInventoryClass;
+using UI;
 
-public class ItemObject : MonoBehaviour, IPointerDownHandler, IPointerUpHandler
+public class ItemObject : MonoBehaviour, IPointerDownHandler, IPointerUpHandler , IPointerEnterHandler ,IPointerExitHandler
 {
+    public GameObject HotKeyPlate;
     public GameObject Counter;
     private GameObject Window;
     public Item ActualData { get; private set; }
@@ -32,20 +34,20 @@ public class ItemObject : MonoBehaviour, IPointerDownHandler, IPointerUpHandler
     {
         //az itemslotok szama egynelo az item meretevel és mindegyik slot ugyan abban a sectorban van     vagy a placer aktiv slotjaiban egy elem van ami egy equipmentslot
         //Debug.Log(placer.activeItemSlots.First().name);
-        if (placer.activeItemSlots != null && placer.activeItemSlots.Count == 1 && placer.activeItemSlots.First().GetComponent<ItemSlot>().IsEquipment)
+        if (placer.ActiveItemSlots != null && placer.ActiveItemSlots.Count == 1 && placer.ActiveItemSlots.First().GetComponent<ItemSlot>().IsEquipment)
         {
-            if (placer.activeItemSlots.First().GetComponent<ItemSlot>().PartOfItemObject != null && placer.activeItemSlots.First().GetComponent<ItemSlot>().PartOfItemObject.GetInstanceID() != gameObject.GetInstanceID())
+            if (placer.ActiveItemSlots.First().GetComponent<ItemSlot>().PartOfItemObject != null && placer.ActiveItemSlots.First().GetComponent<ItemSlot>().PartOfItemObject.GetInstanceID() != gameObject.GetInstanceID())
             {
                 return false;
             }
             return true;
         }
-        else if (placer.activeItemSlots != null && placer.activeItemSlots.Count == ActualData.SizeX * ActualData.SizeY && placer.activeItemSlots.Count == placer.activeItemSlots.FindAll(elem => elem.GetComponent<ItemSlot>().ParentObject == placer.activeItemSlots.First().GetComponent<ItemSlot>().ParentObject).Count)
+        else if (placer.ActiveItemSlots != null && placer.ActiveItemSlots.Count == ActualData.SizeX * ActualData.SizeY && placer.ActiveItemSlots.Count == placer.ActiveItemSlots.FindAll(elem => elem.GetComponent<ItemSlot>().ParentObject == placer.ActiveItemSlots.First().GetComponent<ItemSlot>().ParentObject).Count)
         {
-            for (int i = 0; i < placer.activeItemSlots.Count; i++)
+            for (int i = 0; i < placer.ActiveItemSlots.Count; i++)
             {
                 //az itemslototk itemobject tartalma vagy null vagy az itemobjectum maga
-                if (placer.activeItemSlots[i].GetComponent<ItemSlot>().PartOfItemObject != null && placer.activeItemSlots[i].GetComponent<ItemSlot>().PartOfItemObject.GetInstanceID() != gameObject.GetInstanceID())
+                if (placer.ActiveItemSlots[i].GetComponent<ItemSlot>().PartOfItemObject != null && placer.ActiveItemSlots[i].GetComponent<ItemSlot>().PartOfItemObject.GetInstanceID() != gameObject.GetInstanceID())
                 {
                     return false;
                 }
@@ -56,6 +58,16 @@ public class ItemObject : MonoBehaviour, IPointerDownHandler, IPointerUpHandler
         {
             return false;
         }
+    }
+    public void OnPointerEnter(PointerEventData eventData)
+    {
+        InGameUI.SetHotKeyWithMouse = true;
+        InGameUI.SetGameObjectToHotKey = gameObject;
+    }
+    public void OnPointerExit(PointerEventData eventData)
+    {
+        InGameUI.SetHotKeyWithMouse = false;
+        InGameUI.SetGameObjectToHotKey = null;
     }
     public void OnPointerDown(PointerEventData eventData)
     {
@@ -162,13 +174,13 @@ public class ItemObject : MonoBehaviour, IPointerDownHandler, IPointerUpHandler
     private void Placing(bool placementCanStart)
     {
         //placer.activeItemSlots.FindAll(slot=> ActualData.SlotUse.Contains(slot.name)).Count != ActualData.SlotUse.Count
-        if (Input.GetKey(KeyCode.LeftControl) && !placer.activeItemSlots.Exists(slot=>slot.GetComponent<ItemSlot>().PartOfItemObject != null && slot.GetComponent<ItemSlot>().PartOfItemObject.GetInstanceID() == gameObject.GetInstanceID()))//split  (azt ellenorizzuk hogy meg lett e nyomva a ctrl és nincs olyan slot amelyet az item tartlamaz ezzel saját magéba nem slpitelhet ezzel megsporoljuk a felesleges szamitasokat)
+        if (Input.GetKey(KeyCode.LeftControl) && !placer.ActiveItemSlots.Exists(slot=>slot.GetComponent<ItemSlot>().PartOfItemObject != null && slot.GetComponent<ItemSlot>().PartOfItemObject.GetInstanceID() == gameObject.GetInstanceID()))//split  (azt ellenorizzuk hogy meg lett e nyomva a ctrl és nincs olyan slot amelyet az item tartlamaz ezzel saját magéba nem slpitelhet ezzel megsporoljuk a felesleges szamitasokat)
         {
             (int smaller, int larger) SplitedCount = SplitInteger(ActualData.Quantity);
 
-            if (placer.activeItemSlots.Exists(slot => slot.GetComponent<ItemSlot>().CountAddAvaiable))//split and megre
+            if (placer.ActiveItemSlots.Exists(slot => slot.GetComponent<ItemSlot>().CountAddAvaiable))//split and megre
             {
-                GameObject MergeObject = placer.activeItemSlots.Find(slot => slot.GetComponent<ItemSlot>().CountAddAvaiable).GetComponent<ItemSlot>().PartOfItemObject;
+                GameObject MergeObject = placer.ActiveItemSlots.Find(slot => slot.GetComponent<ItemSlot>().CountAddAvaiable).GetComponent<ItemSlot>().PartOfItemObject;
                 MergeObject.GetComponent<ItemObject>().ActualData.Quantity += SplitedCount.larger;
                 ActualData.Quantity = SplitedCount.smaller;
                 if (MergeObject.GetComponent<ItemObject>().ActualData.Quantity > MergeObject.GetComponent<ItemObject>().ActualData.MaxStackSize)//ha a split több mint a maximalis stacksize
@@ -186,7 +198,7 @@ public class ItemObject : MonoBehaviour, IPointerDownHandler, IPointerUpHandler
                     placementCanStart = false;
                     if (ActualData.Quantity<1)
                     {
-                        SelfDestruction();
+                        ActualData.Remove();
                     }
                     else
                     {
@@ -194,7 +206,7 @@ public class ItemObject : MonoBehaviour, IPointerDownHandler, IPointerUpHandler
                     }
                 }
             }
-            else if ((placer.activeItemSlots.Count == ActualData.SizeY * ActualData.SizeX) || (placer.activeItemSlots.Count == 1 && placer.activeItemSlots.First().GetComponent<ItemSlot>().IsEquipment))//egy specialis objektumlétrehozási folyamat ez akkor lép érvénybe ha üres slotba kerül az item
+            else if ((placer.ActiveItemSlots.Count == ActualData.SizeY * ActualData.SizeX) || (placer.ActiveItemSlots.Count == 1 && placer.ActiveItemSlots.First().GetComponent<ItemSlot>().IsEquipment))//egy specialis objektumlétrehozási folyamat ez akkor lép érvénybe ha üres slotba kerül az item
             {
                 Item item = new Item(ActualData.ItemName, SplitedCount.larger);
 
@@ -204,48 +216,15 @@ public class ItemObject : MonoBehaviour, IPointerDownHandler, IPointerUpHandler
                 item.ParentItem = placer.NewParentData;
                 itemObject.GetComponent<ItemObject>().SetDataRoute(item, item.ParentItem);
 
-                item.ParentItem.Container.Items.Add(item);
-                InventoryObjectRef.GetComponent<PlayerInventory>().levelManager.Items.Add(item);
-                InventoryObjectRef.GetComponent<PlayerInventory>().levelManager.SetMaxLVL_And_Sort();
+                InventorySystem.SetSlotUseByPlacer(placer,item);
 
-                foreach (ItemSlotData[,] sector in item.ParentItem.Container.Sectors)
-                {
-                    foreach (ItemSlotData slot in sector)
-                    {
-                        if (placer.activeItemSlots.Exists(slotObj => slotObj.name == slot.SlotName))
-                        {
-                            slot.PartOfItemData = item;
-                        }
-                    }
-                }
-
-                itemSlots.Clear();
-                foreach (DataGrid dataGrid in item.ParentItem.SectorDataGrid)
-                {
-                    foreach (RowData rowData in dataGrid.col)
-                    {
-                        foreach (GameObject slot in rowData.row)
-                        {
-                            if (placer.activeItemSlots.Contains(slot))
-                            {
-                                itemSlots.Add(slot);
-                                slot.GetComponent<ItemSlot>().PartOfItemObject = itemObject;
-                            }
-                        }
-                    }
-                }
-
-                item.SlotUse.Clear();
-                for (int i = 0; i < itemSlots.Count; i++)
-                {
-                    item.SlotUse.Add(itemSlots[i].name);
-                }
+                InventorySystem.DataAdd(item.ParentItem,item);
 
                 ActualData.Quantity = SplitedCount.smaller;
                 placementCanStart = false;
                 if (ActualData.Quantity < 1)
                 {
-                    SelfDestruction();
+                    ActualData.Remove();
                 }
                 else
                 {
@@ -255,9 +234,9 @@ public class ItemObject : MonoBehaviour, IPointerDownHandler, IPointerUpHandler
         }
         #region Item Merge
         //nem bizots hogy equipment tipusu itemslotokkal mukodik
-        else if (placer.activeItemSlots !=null && placer.activeItemSlots.Exists(slot=>slot.GetComponent<ItemSlot>() != null && slot.GetComponent<ItemSlot>().CountAddAvaiable))//csak containerekben mukodik
+        else if (placer.ActiveItemSlots !=null && placer.ActiveItemSlots.Exists(slot=>slot.GetComponent<ItemSlot>() != null && slot.GetComponent<ItemSlot>().CountAddAvaiable))//csak containerekben mukodik
         {
-            GameObject MergeObject = placer.activeItemSlots.Find(slot => slot.GetComponent<ItemSlot>().CountAddAvaiable).GetComponent<ItemSlot>().PartOfItemObject;
+            GameObject MergeObject = placer.ActiveItemSlots.Find(slot => slot.GetComponent<ItemSlot>().CountAddAvaiable).GetComponent<ItemSlot>().PartOfItemObject;
             int count = MergeObject.GetComponent<ItemObject>().ActualData.Quantity;
             MergeObject.GetComponent<ItemObject>().ActualData.Quantity += ActualData.Quantity;
             if (MergeObject.GetComponent<ItemObject>().ActualData.Quantity > MergeObject.GetComponent<ItemObject>().ActualData.MaxStackSize)
@@ -271,89 +250,20 @@ public class ItemObject : MonoBehaviour, IPointerDownHandler, IPointerUpHandler
             else
             {
                 MergeObject.GetComponent<ItemObject>().SelfVisualisation();
+                ActualData.Remove();//Totális Törlés mindenhonnan
                 placementCanStart = false;
-                SelfDestruction();
             }
         }
         #endregion
         if (placementCanStart)
         {
-            //adatokbol valo törles
-            ActualData.ParentItem.Container.Items.Remove(ActualData);
+            InventorySystem.DataRemove(ActualData.ParentItem,ActualData);
 
-            //adat sectorokbol valo torles
-            foreach (ItemSlotData[,] sector in ActualData.ParentItem.Container.Sectors)
-            {
-                foreach (ItemSlotData slot in sector)
-                {
-                    if (slot.PartOfItemData == ActualData)
-                    {
-                        slot.PartOfItemData = null;
-                    }
-                }
-            }
+            InventorySystem.SetNewDataParent(placer.NewParentData,ActualData);
 
-            //gameobjectumokbol való törles
-            foreach (DataGrid dataGrid in ActualData.ParentItem.SectorDataGrid)
-            {
-                foreach (RowData rowData in dataGrid.col)
-                {
-                    foreach (GameObject slot in rowData.row)
-                    {
-                        if (ActualData.SlotUse.Contains(slot.GetComponent<ItemSlot>().name))
-                        {
-                            slot.GetComponent<ItemSlot>().PartOfItemObject = null;
-                        }
-                    }
-                }
-            }
-            //megvaltozik a parent
-            ActualData.ParentItem = placer.NewParentData;
+            InventorySystem.SetSlotUseByPlacer(placer,ActualData);
+            InventorySystem.DataAdd(ActualData.ParentItem,ActualData);
 
-            //beallitjuk a megfelelo lvl erteket az ActualData-nak
-            int lvl = ActualData.ParentItem.lvl;
-            ActualData.lvl = ++lvl;
-
-            //hozzadjuk az uj parenthez
-            ActualData.ParentItem.Container.Items.Add(ActualData);
-
-            //sector adatokhoz hozzadjuk
-            foreach (ItemSlotData[,] sector in ActualData.ParentItem.Container.Sectors)
-            {
-                foreach (ItemSlotData slot in sector)
-                {
-                    if (placer.activeItemSlots.Exists(slotObj=>slotObj.name == slot.SlotName))
-                    {
-                        slot.PartOfItemData = ActualData;
-                    }
-                }
-            }
-
-            //hozzadjuk az uj parent gameobject slotjaihoz
-            itemSlots.Clear();
-            foreach (DataGrid dataGrid in ActualData.ParentItem.SectorDataGrid)
-            {
-                foreach (RowData rowData in dataGrid.col)
-                {
-                    foreach (GameObject slot in rowData.row)
-                    {
-                        if (placer.activeItemSlots.Contains(slot))
-                        {
-                            itemSlots.Add(slot);
-                            slot.GetComponent<ItemSlot>().PartOfItemObject = gameObject;
-                        }
-                    }
-                }
-            }
-
-            //slotuse adatát ujraepitjuk az azonosito használhatósága érdekében
-            ActualData.SlotUse.Clear();
-            for (int i = 0; i < itemSlots.Count; i++)
-            {
-                ActualData.SlotUse.Add(itemSlots[i].name);
-            }
-
-            //frisiitjuk a kinezetet ezzel kepernyon valo pozitciojat és meretet
             SelfVisualisation();
         }
         else
@@ -457,51 +367,8 @@ public class ItemObject : MonoBehaviour, IPointerDownHandler, IPointerUpHandler
             transform.position = new Vector3(mousePosition.x, mousePosition.y, transform.position.z);
         }
     }
-    #region Data Synch
-    public void SelfDestruction()//egy gombal hivhatod meg.
+    public void SelfVisualisation()//ha az item equipment slotban van
     {
-        //adatokbol valo törles
-        ActualData.ParentItem.Container.Items.Remove(ActualData);
-
-        ItemSlotData[][,] sectors = ActualData.ParentItem.Container.Sectors;
-        foreach (ItemSlotData[,] sector in sectors)
-        {
-            foreach (ItemSlotData slot in sector)
-            {
-                if (slot.PartOfItemData == ActualData)
-                {
-                    slot.PartOfItemData = null;
-                }
-            }
-        }
-        //gameobjectumokbol való törles
-        foreach (DataGrid dataGrid in ActualData.ParentItem.SectorDataGrid)
-        {
-            foreach (RowData rowData in dataGrid.col)
-            {
-                foreach (GameObject slot in rowData.row)
-                {
-                    if (ActualData.SlotUse.Contains(slot.GetComponent<ItemSlot>().name))
-                    {
-                        slot.GetComponent<ItemSlot>().PartOfItemObject = null;
-                    }
-                }
-            }
-        }
-        DestroyContainer();
-        Destroy(gameObject);
-    }
-    #endregion
-    private void SelfVisualisation()//ha az item equipment slotban van
-    {
-        if (ActualData.lvl == 0 && !ActualData.ParentItem.IsLoot)
-        {
-            ActualData.IsEquipment = true;
-        }
-        else
-        {
-            ActualData.IsEquipment = false;
-        }
         if (ActualData.Quantity == 1)
         {
             Counter.GetComponent<TextMeshPro>().text = "";
@@ -509,6 +376,14 @@ public class ItemObject : MonoBehaviour, IPointerDownHandler, IPointerUpHandler
         else
         {
             Counter.GetComponent<TextMeshPro>().text = ActualData.Quantity.ToString();
+        }
+        if (ActualData.HotKey != "")
+        {
+            HotKeyPlate.GetComponent<TextMeshPro>().text = ActualData.HotKey.ToString();
+        }
+        else
+        {
+            HotKeyPlate.GetComponent<TextMeshPro>().text = "";
         }
 
         Rigidbody2D itemObjectRigibody2D = gameObject.GetComponent<Rigidbody2D>();
@@ -541,11 +416,11 @@ public class ItemObject : MonoBehaviour, IPointerDownHandler, IPointerUpHandler
                     if (ActualData.SlotUse.Contains(slot.name))
                     {
                         itemSlots.Add(slot);
-                        slot.GetComponent<ItemSlot>().PartOfItemObject = gameObject;
                     }
                 }
             }
         }
+
         // Végigiterálunk az összes objektumon
         foreach (GameObject rect in itemSlots)
         {

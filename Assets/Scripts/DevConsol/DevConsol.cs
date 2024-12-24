@@ -9,19 +9,14 @@ using UnityEditor;
 using Newtonsoft.Json.Linq;
 using System;
 using System.Linq;
+using UI;
+using JetBrains.Annotations;
 public class DevConsol : MonoBehaviour
 {
     public GameObject text;
-    [HideInInspector] private static Item RootData;
-    [HideInInspector] public GameObject inventory;
-    [HideInInspector] public GameObject Player;
+    [HideInInspector] private static Item RootData; 
+    public GameObject inventory;
     //add [playerName] item [itemName] [Count]
-    private void Start()
-    {
-        RectTransform rectTransform = gameObject.GetComponent<RectTransform>();
-        rectTransform.localPosition = Vector3.zero;
-        rectTransform.sizeDelta = new Vector2(Main.DefaultWidth,Main.DefaultHeight);
-    }
     public void Consol()
     {
         string[] Command = text.GetComponent<TMP_InputField>().text.Split(' ');
@@ -148,16 +143,19 @@ public class DevConsol : MonoBehaviour
                 break;
             case "Save":
                 Debug.Log($"{text.GetComponent<TMP_InputField>().text}");
-                RootData = inventory.GetComponent<PlayerInventory>().levelManager.Items.FirstOrDefault(item=>item.lvl==-1);
+                RootData = inventory.GetComponent<PlayerInventory>().levelManager.Items.FirstOrDefault(item=>item.Lvl==-1);
                 break;
             case "Clear":
                 Debug.Log($"{text.GetComponent<TMP_InputField>().text}");
                 inventory.GetComponent<PlayerInventory>().levelManager.Items.Clear();
+                Item None = new Item();
+                None.Container = new Container(inventory.GetComponent<ContainerObject>().ActualData.Container.PrefabPath);
+                inventory.GetComponent<ContainerObject>().ActualData = None;
                 break;
             case "Load":
                 Debug.Log($"{text.GetComponent<TMP_InputField>().text}");
-                Item root = inventory.GetComponent<PlayerInventory>().levelManager.Items.FirstOrDefault(item => item.lvl == -1);
-                root = RootData;
+                inventory.GetComponent<PlayerInventory>().levelManager.Items.Add(RootData);
+                inventory.GetComponent<ContainerObject>().ActualData = RootData;
                 break;
             case var _ when Command[0] == Main.name:
                 switch (Command[1])
@@ -167,11 +165,11 @@ public class DevConsol : MonoBehaviour
                         float value = float.Parse(Command[2]);
                         if (value > 0)
                         {
-                            Player.GetComponent<Player>().HealtUp(value);
+                            InGameUI.Player.GetComponent<Player>().HealtUp(value);
                         }
                         else if (value < 0)
                         {
-                            Player.GetComponent<Player>().HealtDown(Math.Abs(value));
+                            InGameUI.Player.GetComponent<Player>().HealtDown(Math.Abs(value));
                         }
                         break;
                     case "Stamina":
@@ -179,11 +177,11 @@ public class DevConsol : MonoBehaviour
                         float value1 = float.Parse(Command[2]);
                         if (value1 > 0)
                         {
-                            Player.GetComponent<Player>().StaminaUp(value1);
+                            InGameUI.Player.GetComponent<Player>().StaminaUp(value1);
                         }
                         else if (value1 < 0)
                         {
-                            Player.GetComponent<Player>().StaminaDown(Math.Abs(value1));
+                            InGameUI.Player.GetComponent<Player>().StaminaDown(Math.Abs(value1));
                         }
                         break;
                     case "Hunger":
@@ -191,11 +189,11 @@ public class DevConsol : MonoBehaviour
                         float value2 = float.Parse(Command[2]);
                         if (value2 > 0)
                         {
-                            Player.GetComponent<Player>().HungerUp(value2);
+                            InGameUI.Player.GetComponent<Player>().HungerUp(value2);
                         }
                         else if (value2 < 0)
                         {
-                            Player.GetComponent<Player>().HungerDown(Math.Abs(value2));
+                            InGameUI.Player.GetComponent<Player>().HungerDown(Math.Abs(value2));
                         }
                         break;
                     case "Thirst":
@@ -203,11 +201,11 @@ public class DevConsol : MonoBehaviour
                         float value3 = float.Parse(Command[2]);
                         if (value3 > 0)
                         {
-                            Player.GetComponent<Player>().ThirstUp(value3);
+                            InGameUI.Player.GetComponent<Player>().ThirstUp(value3);
                         }
                         else if (value3 < 0)
                         {
-                            Player.GetComponent<Player>().ThirstDown(Math.Abs(value3));
+                            InGameUI.Player.GetComponent<Player>().ThirstDown(Math.Abs(value3));
                         }
                         break;
                     default:

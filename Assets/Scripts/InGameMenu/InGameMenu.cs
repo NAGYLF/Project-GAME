@@ -12,7 +12,7 @@ public class InGameMenu : MonoBehaviour
     }
     public void Back()
     {
-        InGameUI.InGameMenu.Action();
+        InGameUI.InGameMenuOpenClose.Action();
     }
     public void Settings()
     {

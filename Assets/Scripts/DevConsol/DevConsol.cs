@@ -10,6 +10,7 @@ using Newtonsoft.Json.Linq;
 using System;
 using System.Linq;
 using UI;
+using JetBrains.Annotations;
 public class DevConsol : MonoBehaviour
 {
     public GameObject text;
@@ -147,11 +148,14 @@ public class DevConsol : MonoBehaviour
             case "Clear":
                 Debug.Log($"{text.GetComponent<TMP_InputField>().text}");
                 inventory.GetComponent<PlayerInventory>().levelManager.Items.Clear();
+                Item None = new Item();
+                None.Container = new Container(inventory.GetComponent<ContainerObject>().ActualData.Container.PrefabPath);
+                inventory.GetComponent<ContainerObject>().ActualData = None;
                 break;
             case "Load":
                 Debug.Log($"{text.GetComponent<TMP_InputField>().text}");
-                Item root = inventory.GetComponent<PlayerInventory>().levelManager.Items.FirstOrDefault(item => item.Lvl == -1);
-                root = RootData;
+                inventory.GetComponent<PlayerInventory>().levelManager.Items.Add(RootData);
+                inventory.GetComponent<ContainerObject>().ActualData = RootData;
                 break;
             case var _ when Command[0] == Main.name:
                 switch (Command[1])

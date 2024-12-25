@@ -1,16 +1,12 @@
-using System.Collections;
-using System.Collections.Generic;
 using TMPro;
 using UnityEngine;
 using MainData;
 using ItemHandler;
 using PlayerInventoryClass;
-using UnityEditor;
 using Newtonsoft.Json.Linq;
 using System;
 using System.Linq;
 using UI;
-using JetBrains.Annotations;
 public class DevConsol : MonoBehaviour
 {
     public GameObject text;

@@ -61,6 +61,9 @@ namespace UI
         public static bool SetHotKeyWithMouse = false;
         public static GameObject SetGameObjectToHotKey = null;
 
+        public Texture2D cursorTexture;
+        private bool isCustomCursorActive = false;
+
         [HideInInspector] public GameObject SelectedObject;
         public List<GameObject> IntecativeObjects;
         #endregion
@@ -84,6 +87,8 @@ namespace UI
         [HideInInspector] private float PlayerMovementSpeedMax = 100f;//sprint speed
         [HideInInspector] private float moveSpeed;//actual speeed
         [HideInInspector] private bool isSprinting = false;
+        private float moveHorizontal = 0;
+        private float moveVertical = 0;
         #endregion
         private void Awake()
         {
@@ -135,12 +140,27 @@ namespace UI
         }
         void Update()
         {
-            float moveHorizontal = 0;
-            float moveVertical = 0;
-            if (HUD)
+            if (HUD.activeSelf)
             {
+                if (!isCustomCursorActive)
+                {
+                    Cursor.SetCursor(cursorTexture, Vector2.zero, CursorMode.Auto);
+                    isCustomCursorActive = true;
+                }
+
                 moveHorizontal = Input.GetAxis("Horizontal");
                 moveVertical = Input.GetAxis("Vertical");
+            }
+            else
+            {
+                moveHorizontal = 0;
+                moveVertical = 0;
+                // Csak akkor állítsd vissza az alapértelmezett kurzort, ha az egyedi aktív
+                if (isCustomCursorActive)
+                {
+                    Cursor.SetCursor(null, Vector2.zero, CursorMode.Auto);
+                    isCustomCursorActive = false;
+                }
             }
 
             PlayerMovement(moveHorizontal, moveVertical);
@@ -231,25 +251,25 @@ namespace UI
                 switch (Event.current.keyCode)
                 {
                     case KeyCode.W:
-                        if (!HUD)
+                        if (!HUD.activeSelf)
                         {
 
                         }
                         break;
                     case KeyCode.S:
-                        if (!HUD)
+                        if (!HUD.activeSelf)
                         {
 
                         }
                         break;
                     case KeyCode.A:
-                        if (!HUD)
+                        if (!HUD.activeSelf)
                         {
 
                         }
                         break;
                     case KeyCode.D:
-                        if (!HUD)
+                        if (!HUD.activeSelf)
                         {
 
                         }
@@ -283,31 +303,31 @@ namespace UI
                         QuestLogOpenClose.Action();
                         break;
                     case KeyCode.Alpha1:
-                        if (HUD)
+                        if (HUD.activeSelf)
                         {
                             Player.GetComponent<Player>().Hand.GetComponent<CharacterHand>().SelectedItem = HotKey1;
                         }
                         break;
                     case KeyCode.Alpha2:
-                        if (HUD)
+                        if (HUD.activeSelf)
                         {
                             Player.GetComponent<Player>().Hand.GetComponent<CharacterHand>().SelectedItem = HotKey2;
                         }
                         break;
                     case KeyCode.Alpha3:
-                        if (HUD)
+                        if (HUD.activeSelf)
                         {
                             Player.GetComponent<Player>().Hand.GetComponent<CharacterHand>().SelectedItem = HotKey3;
                         }
                         break;
                     case KeyCode.Alpha4:
-                        if (HUD)
+                        if (HUD.activeSelf)
                         {
                             Player.GetComponent<Player>().Hand.GetComponent<CharacterHand>().SelectedItem = HotKey4;
                         }
                         break;
                     case KeyCode.Alpha5:
-                        if (HUD)
+                        if (HUD.activeSelf)
                         {
                             Player.GetComponent<Player>().Hand.GetComponent<CharacterHand>().SelectedItem = HotKey5;
                         }
@@ -317,7 +337,7 @@ namespace UI
                         }
                         break;
                     case KeyCode.Alpha6:
-                        if (HUD)
+                        if (HUD.activeSelf)
                         {
                             Player.GetComponent<Player>().Hand.GetComponent<CharacterHand>().SelectedItem = HotKey6;
                         }
@@ -327,7 +347,7 @@ namespace UI
                         }
                         break;
                     case KeyCode.Alpha7:
-                        if (HUD)
+                        if (HUD.activeSelf)
                         {
                             Player.GetComponent<Player>().Hand.GetComponent<CharacterHand>().SelectedItem = HotKey7;
                         }
@@ -337,7 +357,7 @@ namespace UI
                         }
                         break;
                     case KeyCode.Alpha8:
-                        if (HUD)
+                        if (HUD.activeSelf)
                         {
                             Player.GetComponent<Player>().Hand.GetComponent<CharacterHand>().SelectedItem = HotKey8;
                         }
@@ -347,7 +367,7 @@ namespace UI
                         }
                         break;
                     case KeyCode.Alpha9:
-                        if (HUD)
+                        if (HUD.activeSelf)
                         {
                             Player.GetComponent<Player>().Hand.GetComponent<CharacterHand>().SelectedItem = HotKey9;
                         }

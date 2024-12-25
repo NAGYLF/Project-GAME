@@ -59,15 +59,17 @@ namespace PlayerInventoryClass
             }
             else
             {
-                Item RootData = new Item();
-                RootData.ItemName = "Root";
-                RootData.Lvl = -1;
-                RootData.IsRoot = true;
-                RootData.IsEquipmentRoot = true;
-                RootData.IsInPlayerInventory = true;
-                RootData.Container = new Container("GameElements/PlayerInventory");
-                RootData.ContainerObject = gameObject;
-                RootData.SectorDataGrid = gameObject.GetComponent<ContainerObject>().Sectors;
+                Item RootData = new()
+                {
+                    ItemName = "Root",
+                    Lvl = -1,
+                    IsRoot = true,
+                    IsEquipmentRoot = true,
+                    IsInPlayerInventory = true,
+                    Container = new Container("GameElements/PlayerInventory"),
+                    ContainerObject = gameObject,
+                    SectorDataGrid = gameObject.GetComponent<ContainerObject>().Sectors
+                };
                 levelManager = new LevelManager();
                 levelManager.Items.Add(RootData);
                 levelManager.SetMaxLVL_And_Sort();
@@ -299,6 +301,10 @@ namespace PlayerInventoryClass
             EquipmentsPanelObject.SetActive(false);
             SlotPanelObject.SetActive(false);
             LootPanelObject.SetActive(false);
+            for (int i = 3; i < gameObject.transform.childCount; i++)//ha egy itememt mozgatunk azt itt teszzuk meg. ezert szukseg van arr, hogyha mozgatas kozben bezarjuk az inventoryt akkor az az obejctum megsemmisuljon
+            {
+                Destroy(gameObject.transform.GetChild(i).gameObject);
+            }
         }
         public void OpenInventory()
         {

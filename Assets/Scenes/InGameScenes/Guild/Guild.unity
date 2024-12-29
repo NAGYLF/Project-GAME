@@ -2552,10 +2552,54 @@ PrefabInstance:
   m_Modification:
     m_TransformParent: {fileID: 903902354}
     m_Modifications:
+    - target: {fileID: 553769652, guid: 8b3d9052fc1731344bc23bb343136841, type: 3}
+      propertyPath: m_Layer
+      value: 5
+      objectReference: {fileID: 0}
+    - target: {fileID: 988606969, guid: 8b3d9052fc1731344bc23bb343136841, type: 3}
+      propertyPath: m_Layer
+      value: 5
+      objectReference: {fileID: 0}
+    - target: {fileID: 988606970, guid: 8b3d9052fc1731344bc23bb343136841, type: 3}
+      propertyPath: m_AnchorMax.x
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 988606970, guid: 8b3d9052fc1731344bc23bb343136841, type: 3}
+      propertyPath: m_AnchorMax.y
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 988606970, guid: 8b3d9052fc1731344bc23bb343136841, type: 3}
+      propertyPath: m_AnchorMin.x
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 988606970, guid: 8b3d9052fc1731344bc23bb343136841, type: 3}
+      propertyPath: m_AnchorMin.y
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 988606970, guid: 8b3d9052fc1731344bc23bb343136841, type: 3}
+      propertyPath: m_SizeDelta.x
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 988606970, guid: 8b3d9052fc1731344bc23bb343136841, type: 3}
+      propertyPath: m_SizeDelta.y
+      value: 0
+      objectReference: {fileID: 0}
     - target: {fileID: 1730488807, guid: 8b3d9052fc1731344bc23bb343136841, type: 3}
       propertyPath: PlayerObject
       value: 
       objectReference: {fileID: 781425559}
+    - target: {fileID: 1746848791, guid: 8b3d9052fc1731344bc23bb343136841, type: 3}
+      propertyPath: m_Layer
+      value: 5
+      objectReference: {fileID: 0}
+    - target: {fileID: 1746848794, guid: 8b3d9052fc1731344bc23bb343136841, type: 3}
+      propertyPath: m_Sprite
+      value: 
+      objectReference: {fileID: -2413806693520163455, guid: b1282e71b03f1a942a8b99cc604302ee, type: 3}
+    - target: {fileID: 1746848794, guid: 8b3d9052fc1731344bc23bb343136841, type: 3}
+      propertyPath: m_Color.a
+      value: 1
+      objectReference: {fileID: 0}
     - target: {fileID: 279754187892420990, guid: 8b3d9052fc1731344bc23bb343136841, type: 3}
       propertyPath: m_AnchorMax.x
       value: 0

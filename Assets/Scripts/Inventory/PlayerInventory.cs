@@ -19,12 +19,15 @@ namespace PlayerInventoryClass
         public GameObject EquipmentsPanelObject;//az inventory 3 alsóbrendűbb objektumának egyike
         public GameObject SlotPanelObject;//az inventory 3 alsóbrendűbb objektumának egyike
         public GameObject LootPanelObject;//az inventory 3 alsóbrendűbb objektumának egyike
+        public GameObject HealtPanelObejct;
+        public Camera BlourCamera;
+        public Material blurMaterial;
         public static GameObject InventoryObjectRef;
 
         [HideInInspector] public LevelManager levelManager;// ez lényegében az inventory adatait tartlamazza
 
         [HideInInspector] public GameObject LootableObject;//ezt kapja mint adat
-        private GameObject LootContainer;//ezt készíti el az adatokból mint objectum
+        [HideInInspector] private GameObject LootContainer;//ezt készíti el az adatokból mint objectum
         #endregion
         public class LevelManager
         {
@@ -45,6 +48,17 @@ namespace PlayerInventoryClass
             InventoryObjectRef = gameObject;
 
             InventoryLoad();
+        }
+        public void Start()
+        {
+            // 1. Kamera képarányának kiszámítása
+            float aspectRatio = (float)Screen.width / Screen.height;
+
+            // 2. Kamera arányának beállítása
+            BlourCamera.aspect = aspectRatio;
+
+            // 3. Shader képarány paraméterének átadása
+            blurMaterial.SetFloat("_AspectRatio", aspectRatio);
         }
         public void InventorySave()
         {
@@ -298,19 +312,24 @@ namespace PlayerInventoryClass
             {
                 Destroy(LootPanelObject.GetComponent<PanelLoot>().Content.transform.GetChild(i).gameObject);
             }
-            EquipmentsPanelObject.SetActive(false);
-            SlotPanelObject.SetActive(false);
-            LootPanelObject.SetActive(false);
-            for (int i = 3; i < gameObject.transform.childCount; i++)//ha egy itememt mozgatunk azt itt teszzuk meg. ezert szukseg van arr, hogyha mozgatas kozben bezarjuk az inventoryt akkor az az obejctum megsemmisuljon
+            for (int i = 0; i < gameObject.transform.childCount; i++)//ha egy itememt mozgatunk azt itt teszzuk meg. ezert szukseg van arr, hogyha mozgatas kozben bezarjuk az inventoryt akkor az az obejctum megsemmisuljon
             {
-                Destroy(gameObject.transform.GetChild(i).gameObject);
+                if (gameObject.transform.GetChild(i).gameObject.GetComponent<ItemObject>())
+                {
+                    Destroy(gameObject.transform.GetChild(i).gameObject);
+                }
+                else
+                {
+                    gameObject.transform.GetChild(i).gameObject.SetActive(false);
+                }
             }
         }
         public void OpenInventory()
         {
-            EquipmentsPanelObject.SetActive(true);
-            SlotPanelObject.SetActive(true);
-            LootPanelObject.SetActive(true);
+            for (int i = 0; i < gameObject.transform.childCount; i++)//ha egy itememt mozgatunk azt itt teszzuk meg. ezert szukseg van arr, hogyha mozgatas kozben bezarjuk az inventoryt akkor az az obejctum megsemmisuljon
+            {
+                gameObject.transform.GetChild(i).gameObject.SetActive(true);
+            }
             gameObject.GetComponent<ContainerObject>().DataLoad();
         }
         public void LootCreate()

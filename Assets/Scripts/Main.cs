@@ -34,7 +34,7 @@ namespace MainData
         public PlayerData[] items;
     }
 
-    public class DatabaseManager : MonoBehaviour
+    public class DatabaseManager
     {
         private static PlayerData[] playerDatas;//Probléma lehet, de a szervere csatlakozasnal az osszes player adatot lekerdezzuk, ezen a változatatás szükséges
         public IEnumerator ServerConnection()//itt csatlakotunk a szerverhez és lementjuk a playerek adatait
@@ -199,7 +199,7 @@ namespace MainData
         public static float DefaultHeight = 0f;//az InGameUI allija be
         public static float DefaultWidth = 0f;//az InGameUI allija be
         public const float DefaultItemSlotSize = 10f;
-        public const float SectorScale = 0.9f;//ez az inventorySlotok scale-je ez befolyásolja egy item meretet is
+        public const float SectorScale = 1.1f;//ez az inventorySlotok scale-je ez befolyásolja egy item meretet is
         public const float ItemCounterFontSize = 25f;
         public static void Save()
         {

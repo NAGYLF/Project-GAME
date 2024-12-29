@@ -161,11 +161,11 @@ public class DevConsol : MonoBehaviour
                         float value = float.Parse(Command[2]);
                         if (value > 0)
                         {
-                            InGameUI.Player.GetComponent<Player>().HealtUp(value);
+                            InGameUI.InGameUI_.GetComponent<InGameUI>().HealtUp(value);
                         }
                         else if (value < 0)
                         {
-                            InGameUI.Player.GetComponent<Player>().HealtDown(Math.Abs(value));
+                            InGameUI.InGameUI_.GetComponent<InGameUI>().HealtDown(Math.Abs(value));
                         }
                         break;
                     case "Stamina":
@@ -173,11 +173,11 @@ public class DevConsol : MonoBehaviour
                         float value1 = float.Parse(Command[2]);
                         if (value1 > 0)
                         {
-                            InGameUI.Player.GetComponent<Player>().StaminaUp(value1);
+                            InGameUI.InGameUI_.GetComponent<InGameUI>().StaminaUp(value1);
                         }
                         else if (value1 < 0)
                         {
-                            InGameUI.Player.GetComponent<Player>().StaminaDown(Math.Abs(value1));
+                            InGameUI.InGameUI_.GetComponent<InGameUI>().StaminaDown(Math.Abs(value1));
                         }
                         break;
                     case "Hunger":
@@ -185,11 +185,11 @@ public class DevConsol : MonoBehaviour
                         float value2 = float.Parse(Command[2]);
                         if (value2 > 0)
                         {
-                            InGameUI.Player.GetComponent<Player>().HungerUp(value2);
+                            InGameUI.InGameUI_.GetComponent<InGameUI>().HungerUp(value2);
                         }
                         else if (value2 < 0)
                         {
-                            InGameUI.Player.GetComponent<Player>().HungerDown(Math.Abs(value2));
+                            InGameUI.InGameUI_.GetComponent<InGameUI>().HungerDown(Math.Abs(value2));
                         }
                         break;
                     case "Thirst":
@@ -197,11 +197,11 @@ public class DevConsol : MonoBehaviour
                         float value3 = float.Parse(Command[2]);
                         if (value3 > 0)
                         {
-                            InGameUI.Player.GetComponent<Player>().ThirstUp(value3);
+                            InGameUI.InGameUI_.GetComponent<InGameUI>().ThirstUp(value3);
                         }
                         else if (value3 < 0)
                         {
-                            InGameUI.Player.GetComponent<Player>().ThirstDown(Math.Abs(value3));
+                            InGameUI.InGameUI_.GetComponent<InGameUI>().ThirstDown(Math.Abs(value3));
                         }
                         break;
                     default:

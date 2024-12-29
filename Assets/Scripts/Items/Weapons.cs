@@ -14,8 +14,9 @@ namespace Weapons
                 Description = "Ez egy Admin fegyver, statjai a leheto legjobbak",
                 SizeX = 4,//az item slotokban elfoglalt szelessege
                 SizeY = 2,//az item slotokban elfoglalt magassaga
-
                 DefaultMagasineSize = 30,//alap tár kapacitás
+                AmmoType = "7.69x39",
+
                 Spread = 1,//a spread minusz értéke és plusz erteke közötti random generált szögben indul ki a lövedék, az az ha ez 0 akkor minden lövedék pontos, ezt a recoil befolyasolja
                 Rpm = 500,//lovés percenként
                 Recoil = 1,//egy szorzó mely minden lövéssel önmagát szorozza, továbbá értéke mindig szorzatban áll a spreaddal.
@@ -49,8 +50,9 @@ namespace Weapons
                 Description = "Ez egy Admin fegyver, statjai a leheto legjobbak",
                 SizeX = 2,//az item slotokban elfoglalt szelessege
                 SizeY = 1,//az item slotokban elfoglalt magassaga
-
                 DefaultMagasineSize = 17,//alap tár kapacitás
+                AmmoType = "9x19",
+
                 Spread = 1,//a spread minusz értéke és plusz erteke közötti random generált szögben indul ki a lövedék, az az ha ez 0 akkor minden lövedék pontos, ezt a recoil befolyasolja
                 Rpm = 500,//lovés percenként
                 Recoil = 1,//egy szorzó mely minden lövéssel önmagát szorozza, továbbá értéke mindig szorzatban áll a spreaddal.
@@ -84,6 +86,8 @@ namespace Weapons
                 SizeX = 4,//az item slotokban elfoglalt szelessege
                 SizeY = 2,//az item slotokban elfoglalt magassaga
                 DefaultMagasineSize = 30,//alap tár kapacitás
+                AmmoType = "7.69x39",
+
                 Spread = 1,//a spread minusz értéke és plusz erteke közötti random generált szögben indul ki a lövedék, az az ha ez 0 akkor minden lövedék pontos, ezt a recoil befolyasolja
                 Rpm = 500,//lovés percenként
                 Recoil = 1,//egy szorzó mely minden lövéssel önmagát szorozza, továbbá értéke mindig szorzatban áll a spreaddal.

@@ -70,20 +70,20 @@ namespace ItemHandler
         //general variables
         public string ItemType { get; set; }
         public string ItemName { get; set; }
-        public string Description { get; set; }
+        public string Description { get; set; } = "...";
         public int MaxStackSize { get; set; } = 1;
         public int Quantity { get; set; }
-        public int Value { get; set; }
+        public int Value { get; set; } = 1;
         public int SizeX { get; set; }
         public int SizeY { get; set; }
         public string ImgPath { get; set; }
         public float RotateDegree { get; set; } = 0f;
-        public bool IsInPlayerInventory { get; set; } = false;
-        public bool IsEquipment { set; get; } = false;
-        public bool IsLoot { set; get; } = false;
-        public bool IsSlot { set; get; } = false;
-        public bool IsRoot { set; get; } = false;
-        public bool IsEquipmentRoot { set; get; } = false;
+        public bool IsInPlayerInventory { get; set; } = false;// a player inventory tagja az item
+        public bool IsEquipment { set; get; } = false;// az item egy equipment
+        public bool IsLoot { set; get; } = false;// az item a loot conténerekben van
+        public bool IsSlot { set; get; } = false;// az item a sloot konténerekben van
+        public bool IsRoot { set; get; } = false;// az item egy root data
+        public bool IsEquipmentRoot { set; get; } = false;// az item a player equipmentjeinek rootja ebbol csak egy lehet
 
         //SlotUse
         public List<string> SlotUse = new();
@@ -239,6 +239,7 @@ namespace ItemHandler
             Ergonomy = completedItem.Ergonomy;
             BulletType = completedItem.BulletType;
             Accessors = completedItem.Accessors;
+            AmmoType = completedItem.AmmoType;
             //hasznalhato e?
             UseLeft = completedItem.UseLeft;
             Debug.Log($"Item created {completedItem.ItemName}");
@@ -256,6 +257,7 @@ namespace ItemHandler
         public double? Accturacy { get; set; }
         public double? Range { get; set; }
         public double? Ergonomy { get; set; }
+        public string AmmoType { get; set; } = "";
         public BulletType BulletType { get; set; }
         public Accessors Accessors { get; set; }
         //usable
@@ -410,6 +412,22 @@ namespace ItemHandler
         public static void SetSlotUseByPlacer(PlacerStruct Placer, Item Data)// 0.
         {
             Data.SlotUse.Clear();
+            for (int i = 0; i < Placer.ActiveItemSlots.Count; i++)
+            {
+                Data.SlotUse.Add(Placer.ActiveItemSlots[i].name);
+            }
+            Data.SetSlotUse();
+
+            if ((Data.IsEquipment && !Placer.NewParentData.IsEquipmentRoot) || !Placer.NewParentData.IsInPlayerInventory)
+            {
+                UnSetHotKey(Data);
+            }
+            else if (Placer.NewParentData.IsEquipmentRoot)
+            {
+                UnSetHotKey(Data);
+                AutoSetHotkey(Data);
+            }
+
             if (Placer.NewParentData.IsEquipmentRoot)
             {
                 Data.IsEquipment = true;
@@ -418,11 +436,6 @@ namespace ItemHandler
             {
                 Data.IsEquipment = false;
             }
-            for (int i = 0; i < Placer.ActiveItemSlots.Count; i++)
-            {
-                Data.SlotUse.Add(Placer.ActiveItemSlots[i].name);
-            }
-            Data.SetSlotUse();
         }
 
         //Ez egy NonLive metodus az az csak adatok alapján dolgozik az inevntory bezárásakor.
@@ -447,6 +460,25 @@ namespace ItemHandler
                 }
             }
             Data.SetSlotUse();
+
+            if ((Data.IsEquipment && !AddTo.IsEquipmentRoot) || !AddTo.IsInPlayerInventory)
+            {
+                UnSetHotKey(Data);
+            }
+            else if (AddTo.IsEquipmentRoot)
+            {
+                UnSetHotKey(Data);
+                AutoSetHotkey(Data);
+            }
+
+            if (AddTo.IsEquipmentRoot)
+            {
+                Data.IsEquipment = true;
+            }
+            else
+            {
+                Data.IsEquipment = false;
+            }
         }
 
         //Hozzáad egy itemet egy másik itemhez
@@ -479,66 +511,6 @@ namespace ItemHandler
                             }
                         }
                     }
-                }
-            }
-            if (Data.IsEquipment)
-            {
-                if (Data.HotKey != "")
-                {
-                    switch (int.Parse(Data.HotKey))
-                    {
-                        case 1:
-                            InGameUI.SetHotKey1(null);
-                            break;
-                        case 2:
-                            InGameUI.SetHotKey2(null);
-                            break;
-                        case 3:
-                            InGameUI.SetHotKey3(null);
-                            break;
-                        case 4:
-                            InGameUI.SetHotKey4(null);
-                            break;
-                        case 5:
-                            InGameUI.SetHotKey5(null);
-                            break;
-                        case 6:
-                            InGameUI.SetHotKey6(null);
-                            break;
-                        case 7:
-                            InGameUI.SetHotKey7(null);
-                            break;
-                        case 8:
-                            InGameUI.SetHotKey8(null);
-                            break;
-                        case 9:
-                            InGameUI.SetHotKey9(null);
-                            break;
-                        default:
-                            break;
-                    }
-                    Data.HotKey = "";
-                }
-                switch (Data.LowestSlotUseNumber)
-                {
-                    case 10:
-                        Data.HotKey = "1";
-                        InGameUI.SetHotKey1(Data);
-                        break;
-                    case 11:
-                        Data.HotKey = "2";
-                        InGameUI.SetHotKey2(Data);
-                        break;
-                    case 12:
-                        Data.HotKey = "3";
-                        InGameUI.SetHotKey3(Data);
-                        break;
-                    case 13:
-                        Data.HotKey = "4";
-                        InGameUI.SetHotKey4(Data);
-                        break;
-                    default:
-                        break;
                 }
             }
             if (AddTo.IsInPlayerInventory)
@@ -579,71 +551,74 @@ namespace ItemHandler
                     }
                 }
             }
-            if (Data.IsEquipment)
-            {
-                if (Data.HotKey != "")
-                {
-                    switch (int.Parse(Data.HotKey))
-                    {
-                        case 1:
-                            InGameUI.SetHotKey1(null);
-                            break;
-                        case 2:
-                            InGameUI.SetHotKey2(null);
-                            break;
-                        case 3:
-                            InGameUI.SetHotKey3(null);
-                            break;
-                        case 4:
-                            InGameUI.SetHotKey4(null);
-                            break;
-                        case 5:
-                            InGameUI.SetHotKey5(null);
-                            break;
-                        case 6:
-                            InGameUI.SetHotKey6(null);
-                            break;
-                        case 7:
-                            InGameUI.SetHotKey7(null);
-                            break;
-                        case 8:
-                            InGameUI.SetHotKey8(null);
-                            break;
-                        case 9:
-                            InGameUI.SetHotKey9(null);
-                            break;
-                        default:
-                            break;
-                    }
-                    Data.HotKey = "";
-                }
-                switch (Data.LowestSlotUseNumber)
-                {
-                    case 10:
-                        Data.HotKey = "1";
-                        InGameUI.SetHotKey1(Data);
-                        break;
-                    case 11:
-                        Data.HotKey = "2";
-                        InGameUI.SetHotKey2(Data);
-                        break;
-                    case 12:
-                        Data.HotKey = "3";
-                        InGameUI.SetHotKey3(Data);
-                        break;
-                    case 13:
-                        Data.HotKey = "4";
-                        InGameUI.SetHotKey4(Data);
-                        break;
-                    default:
-                        break;
-                }
-            }
             if (Data.IsInPlayerInventory)
             {
                 Data.IsInPlayerInventory = false;
                 InventoryObjectRef.GetComponent<PlayerInventory>().levelManager.Items.Remove(Data);
                 InventoryObjectRef.GetComponent<PlayerInventory>().levelManager.SetMaxLVL_And_Sort();
+            }
+        }
+        public static void UnSetHotKey(Item Data)
+        {
+            if (Data.HotKey != "")
+            {
+                switch (int.Parse(Data.HotKey))
+                {
+                    case 1:
+                        InGameUI.SetHotKey1(null);
+                        break;
+                    case 2:
+                        InGameUI.SetHotKey2(null);
+                        break;
+                    case 3:
+                        InGameUI.SetHotKey3(null);
+                        break;
+                    case 4:
+                        InGameUI.SetHotKey4(null);
+                        break;
+                    case 5:
+                        InGameUI.SetHotKey5(null);
+                        break;
+                    case 6:
+                        InGameUI.SetHotKey6(null);
+                        break;
+                    case 7:
+                        InGameUI.SetHotKey7(null);
+                        break;
+                    case 8:
+                        InGameUI.SetHotKey8(null);
+                        break;
+                    case 9:
+                        InGameUI.SetHotKey9(null);
+                        break;
+                    default:
+                        break;
+                }
+                Data.HotKey = "";
+            }
+        }
+        public static void AutoSetHotkey(Item Data)
+        {
+            switch (Data.LowestSlotUseNumber)
+            {
+                case 10:
+                    Data.HotKey = "1";
+                    InGameUI.SetHotKey1(Data);
+                    break;
+                case 11:
+                    Data.HotKey = "2";
+                    InGameUI.SetHotKey2(Data);
+                    break;
+                case 12:
+                    Data.HotKey = "3";
+                    InGameUI.SetHotKey3(Data);
+                    break;
+                case 13:
+                    Data.HotKey = "4";
+                    InGameUI.SetHotKey4(Data);
+                    break;
+                default:
+                    break;
             }
         }
     }

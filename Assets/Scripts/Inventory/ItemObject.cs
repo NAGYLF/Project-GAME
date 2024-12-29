@@ -14,8 +14,10 @@ using UI;
 
 public class ItemObject : MonoBehaviour, IPointerDownHandler, IPointerUpHandler , IPointerEnterHandler ,IPointerExitHandler
 {
-    public GameObject HotKeyPlate;
-    public GameObject Counter;
+    public TextMeshPro NamePlate;
+    public TextMeshPro AmmoPlate;
+    public TextMeshPro HotKeyPlate;
+    public TextMeshPro Counter;
     private GameObject Window;
     public Item ActualData { get; private set; }
 
@@ -369,21 +371,30 @@ public class ItemObject : MonoBehaviour, IPointerDownHandler, IPointerUpHandler 
     }
     public void SelfVisualisation()//ha az item equipment slotban van
     {
+        NamePlate.text = ActualData.ItemName;
         if (ActualData.Quantity == 1)
         {
-            Counter.GetComponent<TextMeshPro>().text = "";
+            Counter.text = "";
         }
         else
         {
-            Counter.GetComponent<TextMeshPro>().text = ActualData.Quantity.ToString();
+            Counter.text = ActualData.Quantity.ToString();
         }
         if (ActualData.HotKey != "")
         {
-            HotKeyPlate.GetComponent<TextMeshPro>().text = ActualData.HotKey.ToString();
+            HotKeyPlate.text = ActualData.HotKey.ToString();
         }
         else
         {
-            HotKeyPlate.GetComponent<TextMeshPro>().text = "";
+            HotKeyPlate.text = "";
+        }
+        if (ActualData.AmmoType != "")
+        {
+            AmmoPlate.text = ActualData.AmmoType;
+        }
+        else
+        {
+            AmmoPlate.text = "";
         }
 
         Rigidbody2D itemObjectRigibody2D = gameObject.GetComponent<Rigidbody2D>();

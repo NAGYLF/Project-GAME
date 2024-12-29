@@ -1,12 +1,5 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using UnityEngine;
+﻿using UnityEngine;
 using UnityEngine.UI;
-using ItemHandler;
-using PlayerInventoryClass;
 using TMPro;
 
 namespace Assets.Scripts
@@ -14,7 +7,7 @@ namespace Assets.Scripts
     public class ItemSlot : MonoBehaviour
     {
         #region Equipment variables
-        public bool IsEquipment = false;
+        public bool IsEquipment = false;//csak az inspectorban allithato be
         #endregion
 
         [HideInInspector] public GameObject ParentObject;//a saját sectora ezzel végezteti az adatszinkronizációt és a az item elhelyezés azon problemajat,
@@ -28,6 +21,7 @@ namespace Assets.Scripts
         public bool CountAddAvaiable = false;
         private Color color;
         public GameObject Title;
+        public Image Background;
         #endregion
         private void OnCollisionEnter2D(Collision2D collision)
         {
@@ -35,21 +29,21 @@ namespace Assets.Scripts
             {
                 ActualPartOfItemObject = collision.gameObject;
                 ParentObject.GetComponent<ContainerObject>().activeSlots.Add(gameObject);
-                color = gameObject.GetComponent<Image>().color;
-                gameObject.GetComponent<Image>().color = Color.yellow;
+                color = Background.color;
+                Background.color = Color.yellow;
             }
             else if (PartOfItemObject != null && PartOfItemObject.GetComponent<ItemObject>().ActualData.ItemName == collision.gameObject.GetComponent<ItemObject>().ActualData.ItemName && PartOfItemObject.GetComponent<ItemObject>().ActualData.Quantity != PartOfItemObject.GetComponent<ItemObject>().ActualData.MaxStackSize)
             {
                 ActualPartOfItemObject = collision.gameObject;
-                color = gameObject.GetComponent<Image>().color;
-                gameObject.GetComponent<Image>().color = Color.yellow;
+                color = Background.color;
+                Background.color = Color.yellow;
                 CountAddAvaiable = true;
                 ParentObject.GetComponent<ContainerObject>().activeSlots.Add(gameObject);
             }
             else
             {
-                color = gameObject.GetComponent<Image>().color;
-                gameObject.GetComponent<Image>().color = Color.red;
+                color = Background.color;
+                Background.color = Color.red;
             }
         }
         private void OnCollisionExit2D(Collision2D collision)
@@ -57,11 +51,14 @@ namespace Assets.Scripts
             ParentObject.GetComponent<ContainerObject>().activeSlots.Remove(gameObject);
             ActualPartOfItemObject = null;
             CountAddAvaiable = false;
-            gameObject.GetComponent<Image>().color = color;
+            Background.color = color;
         }
         private void Awake()
         {
-            Title.GetComponent<TextMeshPro>().text = SlotType;
+            if (!IsEquipment)
+            {
+                Title.GetComponent<TextMeshPro>().text = SlotType;
+            }
         }
     }
 }

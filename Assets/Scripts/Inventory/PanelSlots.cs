@@ -1,8 +1,5 @@
-using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
-using ItemHandler;
-using System.Linq;
 using System;
 using Assets.Scripts;
 using PlayerInventoryClass;

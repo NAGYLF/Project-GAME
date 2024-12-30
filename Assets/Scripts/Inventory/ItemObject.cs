@@ -28,7 +28,6 @@ public class ItemObject : MonoBehaviour, IPointerDownHandler, IPointerUpHandler 
     private Vector2 originalAnchorMin;
     private Vector2 originalAnchorMax;
     private float originalRotation;//ezt kivetelesen nem az onMouseDown eljarasban hasznaljuk hanem a placing eljaras azon else agaban amely a CanBePlacing false agan helyezkedik el.
-    private List<GameObject> itemSlots { get; set; }//az itemlsotok pillanatnyi eltarolasara van szükség
 
     private bool isDragging = false;
     public PlacerStruct placer { private get; set; }
@@ -282,25 +281,7 @@ public class ItemObject : MonoBehaviour, IPointerDownHandler, IPointerUpHandler 
     }
     public void DataLoad()
     {
-        itemSlots = new List<GameObject>();
-
         ActualData.SelfGameobject = gameObject;
-
-        itemSlots.Clear();
-        for (int i = 0; i < ActualData.ParentItem.SectorDataGrid.Count; i++)
-        {
-            for (int j = 0; j < ActualData.ParentItem.SectorDataGrid[i].col.Count; j++)
-            {
-                for (int k = 0; k < ActualData.ParentItem.SectorDataGrid[i].col[j].row.Count; k++)
-                {
-                    if (ActualData.SlotUse.Contains(ActualData.ParentItem.SectorDataGrid[i].col[j].row[k].name))
-                    {
-                        itemSlots.Add(ActualData.ParentItem.ContainerObject.GetComponent<ContainerObject>().Sectors[i].col[j].row[k]);
-                        ActualData.ParentItem.ContainerObject.GetComponent<ContainerObject>().Sectors[i].col[j].row[k].GetComponent<ItemSlot>().PartOfItemObject = gameObject;
-                    }
-                }
-            }
-        }
 
         SelfVisualisation();
     }
@@ -312,7 +293,7 @@ public class ItemObject : MonoBehaviour, IPointerDownHandler, IPointerUpHandler 
 
     public void BuildContainer()
     {
-        if (ActualData.IsEquipment && ActualData.Container != null && ActualData.ContainerObject == null)//11. ha az item adatai tartalmaznak containert akkor az létrejön
+        if (ActualData.IsEquipment && ActualData.Container != null && ActualData.ContainerObject == null)
         {
             //--> ContainerObject.cs
             GameObject containerObject = CreatePrefab(ActualData.Container.PrefabPath);
@@ -323,7 +304,7 @@ public class ItemObject : MonoBehaviour, IPointerDownHandler, IPointerUpHandler 
     }
     public void DestroyContainer()
     {
-        if (ActualData.ContainerObject != null)//11. ha az item adatai tartalmaznak containert akkor az létrejön
+        if (ActualData.ContainerObject != null)
         {
             for (int sector = 0; sector < ActualData.ContainerObject.GetComponent<ContainerObject>().Sectors.Count; sector++)
             {
@@ -417,7 +398,7 @@ public class ItemObject : MonoBehaviour, IPointerDownHandler, IPointerUpHandler 
         Vector3 minPosition = Vector3.positiveInfinity;
         Vector3 maxPosition = Vector3.negativeInfinity;
 
-        itemSlots.Clear();
+        List<GameObject> itemSlots = new List<GameObject>();
         foreach (DataGrid dataGrid in ActualData.ParentItem.SectorDataGrid)
         {
             foreach (RowData rowData in dataGrid.col)
@@ -427,6 +408,7 @@ public class ItemObject : MonoBehaviour, IPointerDownHandler, IPointerUpHandler 
                     if (ActualData.SlotUse.Contains(slot.name))
                     {
                         itemSlots.Add(slot);
+                        slot.GetComponent<ItemSlot>().PartOfItemObject = gameObject;
                     }
                 }
             }

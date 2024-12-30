@@ -49,7 +49,7 @@ namespace NaturalInventorys
             }
             if (!ItemAdded)
             {
-                Debug.LogWarning($"item: {Data.ItemName} cannot added, probably no space for that");
+                //Debug.LogWarning($"item: {Data.ItemName} cannot added, probably no space for that");
             }
         }
         //public void InventoryRemove(Item item)//pocitciot és rogatast figyelmen kivul hagy     ,    csak 1 db tavolit el

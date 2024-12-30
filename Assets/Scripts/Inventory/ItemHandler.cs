@@ -81,7 +81,6 @@ namespace ItemHandler
         public bool IsInPlayerInventory { get; set; } = false;// a player inventory tagja az item
         public bool IsEquipment { set; get; } = false;// az item egy equipment
         public bool IsLoot { set; get; } = false;// az item a loot conténerekben van
-        public bool IsSlot { set; get; } = false;// az item a sloot konténerekben van
         public bool IsRoot { set; get; } = false;// az item egy root data
         public bool IsEquipmentRoot { set; get; } = false;// az item a player equipmentjeinek rootja ebbol csak egy lehet
 

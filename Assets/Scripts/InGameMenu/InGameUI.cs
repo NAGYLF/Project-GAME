@@ -327,6 +327,7 @@ namespace UI
                         break;
                     case KeyCode.Tab:
                         PlayerInventoryOpenClose.Action();
+                        PlayerInventory.GetComponent<PlayerInventory>().EquipmentsPanelObject.GetComponent<PanelEquipments>().OpenGearsPanel();
                         break;
                     case KeyCode.Escape:
                         InGameMenuOpenClose.Action();
@@ -349,6 +350,10 @@ namespace UI
                         break;
                     case KeyCode.Q:
                         QuestLogOpenClose.Action();
+                        break;
+                    case KeyCode.H:
+                        PlayerInventoryOpenClose.Action();
+                        PlayerInventory.GetComponent<PlayerInventory>().EquipmentsPanelObject.GetComponent<PanelEquipments>().OpenHealtPanel();
                         break;
                     case KeyCode.Alpha1:
                         if (HUD.activeSelf)

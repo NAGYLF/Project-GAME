@@ -9,7 +9,6 @@ using ItemHandler;
 using Assets.Scripts.Inventory;
 using NaturalInventorys;
 using static ItemHandler.InventorySystem;
-using UI;
 
 namespace PlayerInventoryClass
 {
@@ -19,7 +18,6 @@ namespace PlayerInventoryClass
         public GameObject EquipmentsPanelObject;//az inventory 3 alsóbrendűbb objektumának egyike
         public GameObject SlotPanelObject;//az inventory 3 alsóbrendűbb objektumának egyike
         public GameObject LootPanelObject;//az inventory 3 alsóbrendűbb objektumának egyike
-        public GameObject HealtPanelObejct;
         public Camera BlourCamera;
         public Material blurMaterial;
         public static GameObject InventoryObjectRef;
@@ -297,11 +295,11 @@ namespace PlayerInventoryClass
         
         public void CloseInventory()
         {
-            for (int i = EquipmentsPanelObject.transform.childCount - 1; i >= 0; i--)
+            for (int i = EquipmentsPanelObject.GetComponent<PanelEquipments>().Equipments.transform.childCount - 1; i >= 0; i--)
             {
-                if (EquipmentsPanelObject.transform.GetChild(i).GetComponent<ItemObject>())
+                if (EquipmentsPanelObject.GetComponent<PanelEquipments>().Equipments.transform.GetChild(i).GetComponent<ItemObject>())
                 {
-                    Destroy(EquipmentsPanelObject.transform.GetChild(i).gameObject);
+                    Destroy(EquipmentsPanelObject.GetComponent<PanelEquipments>().Equipments.transform.GetChild(i).gameObject);
                 }
             }
             for (int i = SlotPanelObject.GetComponent<PanelSlots>().Content.transform.childCount - 1; i >= 0; i--)

@@ -33,8 +33,8 @@ namespace UI
         public static GameObject PlayerInventory;
         [SerializeField] private GameObject PlayerInventoryObject;
 
-        public static GameObject MessageBar;
-        [SerializeField] private GameObject MessageBarObject;
+        //public static GameObject MessageBar;
+        //[SerializeField] private GameObject MessageBarObject;
 
         public static GameObject HealtBar;
         [SerializeField] private GameObject HealtBarObject;
@@ -147,7 +147,7 @@ namespace UI
             IntecativeObjectSelectorBox = IntecativeObjectSelectorBoxObject;
             InGameMenu = InGameMenuObject;
             PlayerInventory = PlayerInventoryObject;
-            MessageBar = MessageBarObject;
+            //MessageBar = MessageBarObject;
             WorldMap = WorldMapObject;
             QuestLog = QuestLogObject;
             DevConsole = DevConsoleObject;
@@ -665,27 +665,27 @@ namespace UI
         #region PlayerMovement And Animations
         public void SetWeightBar(float value)
         {
-            WeightIndicador.GetComponent<TextMeshPro>().text = $"{MaxWeight} / {value}";
+            WeightIndicador.GetComponent<TextMeshProUGUI>().text = $"{MaxWeight} / {value}";
         }
         public void SetHealtBar(float value)
         {
             HealtBar.GetComponent<Slider>().value = value;
-            HealtIndicador.GetComponent<TextMeshPro>().text = $"{value}";
+            HealtIndicador.GetComponent<TextMeshProUGUI>().text = $"{value}";
         }
         public void SetStaminatBar(float value)
         {
             StaminaBar.GetComponent<Slider>().value = value;
-            StaminaIndicador.GetComponent<TextMeshPro>().text = $"{value}";
+            StaminaIndicador.GetComponent<TextMeshProUGUI>().text = $"{value}";
         }
         public void SetHungerBar(float value)
         {
             HungerBar.GetComponent<Slider>().value = value;
-            HungerIndicador.GetComponent<TextMeshPro>().text = $"{value}";
+            HungerIndicador.GetComponent<TextMeshProUGUI>().text = $"{value}";
         }
         public void SetThirstBar(float value)
         {
             ThirstBar.GetComponent<Slider>().value = value;
-            ThirstyIndicador.GetComponent<TextMeshPro>().text = $"{value}";
+            ThirstyIndicador.GetComponent<TextMeshProUGUI>().text = $"{value}";
         }
         public void HealtUp(float count)
         {

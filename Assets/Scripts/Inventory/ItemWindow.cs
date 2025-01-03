@@ -13,7 +13,6 @@ public class ItemWindow : MonoBehaviour,IPointerExitHandler
 {
     [SerializeField] public GameObject Content;
     [HideInInspector] public GameObject itemObject;
-    [HideInInspector] public GameObject parentObject;
     private Item item;
     public void OnPointerExit(PointerEventData eventData)
     {
@@ -23,13 +22,12 @@ public class ItemWindow : MonoBehaviour,IPointerExitHandler
     {
         RectTransform rectTransform = GetComponent<RectTransform>();
         // Beállítjuk a szülõt
-        gameObject.transform.SetParent(parentObject.transform, false);
 
         // Egér pozíciójának lekérése
         Vector2 mousePosition = Input.mousePosition;
 
         // Lokális pozíció kiszámítása
-        RectTransform parentRect = parentObject.GetComponent<RectTransform>();
+        RectTransform parentRect = transform.parent.GetComponent<RectTransform>();
         Vector2 tempLocalPosition;
         RectTransformUtility.ScreenPointToLocalPointInRectangle(
             parentRect,

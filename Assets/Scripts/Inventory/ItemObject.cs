@@ -14,10 +14,11 @@ using UI;
 
 public class ItemObject : MonoBehaviour, IPointerDownHandler, IPointerUpHandler , IPointerEnterHandler ,IPointerExitHandler
 {
-    public TextMeshPro NamePlate;
-    public TextMeshPro AmmoPlate;
-    public TextMeshPro HotKeyPlate;
-    public TextMeshPro Counter;
+    public TextMeshProUGUI NamePlate;
+    public TextMeshProUGUI AmmoPlate;
+    public TextMeshProUGUI HotKeyPlate;
+    public TextMeshProUGUI Counter;
+    public Image image;
     private GameObject Window;
     public Item ActualData { get; private set; }
 
@@ -74,9 +75,10 @@ public class ItemObject : MonoBehaviour, IPointerDownHandler, IPointerUpHandler 
     {
         if (eventData.button == PointerEventData.InputButton.Right)
         {
+            Debug.LogWarning("window opened");
             GameObject itemWindow = CreatePrefab("GameElements/ItemWindow");
+            itemWindow.transform.SetParent(InventoryObjectRef.transform);
             itemWindow.GetComponent<ItemWindow>().itemObject = gameObject;
-            itemWindow.GetComponent<ItemWindow>().parentObject = InventoryObjectRef;
             itemWindow.GetComponent<ItemWindow>().positioning();
             Window = itemWindow;
         }
@@ -104,9 +106,8 @@ public class ItemObject : MonoBehaviour, IPointerDownHandler, IPointerUpHandler 
 
             #region Set Sprite
             RectTransform itemObjectRectTransform = gameObject.GetComponent<RectTransform>();
-            SpriteRenderer itemObjectSpriteRedner = gameObject.GetComponent<SpriteRenderer>();
-            float Scale = Mathf.Min(itemObjectRectTransform.rect.height / itemObjectSpriteRedner.size.y, itemObjectRectTransform.rect.width / itemObjectSpriteRedner.size.x);
-            itemObjectSpriteRedner.size = new Vector2(itemObjectSpriteRedner.size.x * Scale, itemObjectSpriteRedner.size.y * Scale);
+            float Scale = Mathf.Min(itemObjectRectTransform.rect.height / image.GetComponent<RectTransform>().sizeDelta.y, itemObjectRectTransform.rect.width / image.GetComponent<RectTransform>().sizeDelta.x);
+            image.GetComponent<RectTransform>().sizeDelta = new Vector2(image.GetComponent<RectTransform>().sizeDelta.x * Scale, image.GetComponent<RectTransform>().sizeDelta.y * Scale);
             #endregion
 
             #region Set Targeting Mode 
@@ -116,7 +117,6 @@ public class ItemObject : MonoBehaviour, IPointerDownHandler, IPointerUpHandler 
 
             #region Set Dragable mod
             InventoryObjectRef.GetComponent<PlayerInventory>().SlotPanelObject.GetComponent<PanelSlots>().ScrollPanel.GetComponent<ScrollRect>().enabled = false;
-            Counter.GetComponent<TextMeshPro>().fontSize = Main.ItemCounterFontSize;
             isDragging = true;
             DestroyContainer();
             #endregion
@@ -141,9 +141,8 @@ public class ItemObject : MonoBehaviour, IPointerDownHandler, IPointerUpHandler 
 
             #region Set Sprite
             RectTransform itemObjectRectTransform = gameObject.GetComponent<RectTransform>();
-            SpriteRenderer itemObjectSpriteRedner = gameObject.GetComponent<SpriteRenderer>();
-            float Scale = Mathf.Min(itemObjectRectTransform.rect.height / itemObjectSpriteRedner.size.y, itemObjectRectTransform.rect.width / itemObjectSpriteRedner.size.x);
-            itemObjectSpriteRedner.size = new Vector2(itemObjectSpriteRedner.size.x * Scale, itemObjectSpriteRedner.size.y * Scale);
+            float Scale = Mathf.Min(itemObjectRectTransform.rect.height / image.GetComponent<RectTransform>().sizeDelta.y, itemObjectRectTransform.rect.width / image.GetComponent<RectTransform>().sizeDelta.x);
+            image.GetComponent<RectTransform>().sizeDelta = new Vector2(image.GetComponent<RectTransform>().sizeDelta.x * Scale, image.GetComponent<RectTransform>().sizeDelta.y * Scale);
             #endregion
 
             #region unSet Targeting Mode
@@ -153,7 +152,6 @@ public class ItemObject : MonoBehaviour, IPointerDownHandler, IPointerUpHandler 
 
             #region unSet Dragable mod
             InventoryObjectRef.GetComponent<PlayerInventory>().SlotPanelObject.GetComponent<PanelSlots>().ScrollPanel.GetComponent<ScrollRect>().enabled = true;
-            Counter.GetComponent<TextMeshPro>().fontSize = Main.ItemCounterFontSize / Main.SectorScale;
             isDragging = false;
             Placing(CanBePlace());
             BuildContainer();
@@ -283,6 +281,10 @@ public class ItemObject : MonoBehaviour, IPointerDownHandler, IPointerUpHandler 
     {
         ActualData.SelfGameobject = gameObject;
 
+        Sprite sprite = Resources.Load<Sprite>(gameObject.GetComponent<ItemObject>().ActualData.ImgPath);//az itemobjektum megkapja képét
+        image.sprite = sprite;
+        image.GetComponent<RectTransform>().sizeDelta = new Vector2(sprite.rect.width, sprite.rect.height);
+
         SelfVisualisation();
     }
     public void SetDataRoute(Item Data,Item Parent)
@@ -389,10 +391,6 @@ public class ItemObject : MonoBehaviour, IPointerDownHandler, IPointerUpHandler 
 
         RectTransform itemObjectRectTransform = gameObject.GetComponent<RectTransform>();
 
-        SpriteRenderer itemObjectSpriteRedner = gameObject.GetComponent<SpriteRenderer>();
-        itemObjectSpriteRedner.sprite = Resources.Load<Sprite>(gameObject.GetComponent<ItemObject>().ActualData.ImgPath);//az itemobjektum megkapja képét
-        itemObjectSpriteRedner.drawMode = SpriteDrawMode.Sliced;
-
         // Alapértelmezett kezdõértékek (értelmesen kiszámítva)
         // Meghatározzuk a legkisebb és legnagyobb pozíciót
         Vector3 minPosition = Vector3.positiveInfinity;
@@ -441,13 +439,10 @@ public class ItemObject : MonoBehaviour, IPointerDownHandler, IPointerUpHandler 
 
         gameObject.transform.rotation = Quaternion.Euler(0, 0, ActualData.RotateDegree);
 
-        float Scale = Mathf.Min(itemObjectRectTransform.rect.height / itemObjectSpriteRedner.size.y, itemObjectRectTransform.rect.width / itemObjectSpriteRedner.size.x);
-        itemObjectSpriteRedner.size = new Vector2(itemObjectSpriteRedner.size.x * Scale, itemObjectSpriteRedner.size.y * Scale);
-
-        Counter.GetComponent<TextMeshPro>().fontSize = Main.ItemCounterFontSize / Main.SectorScale;
+        float Scale = Mathf.Min(itemObjectRectTransform.rect.height / image.GetComponent<RectTransform>().sizeDelta.y, itemObjectRectTransform.rect.width / image.GetComponent<RectTransform>().sizeDelta.x);
+        image.GetComponent<RectTransform>().sizeDelta = new Vector2(image.GetComponent<RectTransform>().sizeDelta.x * Scale, image.GetComponent<RectTransform>().sizeDelta.y * Scale);
 
         BoxCollider2D itemObjectBoxCollider2D = gameObject.GetComponent<BoxCollider2D>();
-        itemObjectBoxCollider2D.autoTiling = true;
         itemObjectBoxCollider2D.size = itemObjectRectTransform.rect.size;
 
         InventoryObjectRef.GetComponent<PlayerInventory>().SlotPanelObject.GetComponent<PanelSlots>().ReFresh();

@@ -1,36 +1,40 @@
 using UnityEngine;
 using System.Collections.Generic;
+using System.Collections;
+using UI;
 
 [RequireComponent(typeof(LineRenderer))]
 public class HealtUILineRenderel : MonoBehaviour
 {
     [Header("Settings")]
-    public List<GameObject> points = new List<GameObject>(); // A GameObject-ek listája
-    private const float lineWidth = 0.5f; // A vonal szélessége
+    public List<GameObject> points = new List<GameObject>();
+    private const float lineWidth = 0.5f;
 
     private LineRenderer lineRenderer;
 
-    void Start()
+    void OnEnable()
     {
-        // Line Renderer inicializálása
         lineRenderer = GetComponent<LineRenderer>();
         lineRenderer.startWidth = lineWidth;
         lineRenderer.endWidth = lineWidth;
         lineRenderer.useWorldSpace = true; // World Space használata
 
+        StartCoroutine(UpdateLineWhileMoving());
+    }
+
+    IEnumerator UpdateLineWhileMoving()
+    {
+        while (InGameUI.Player.GetComponent<Rigidbody2D>().velocity != Vector2.zero)
+        {
+            UpdateLine();
+
+            yield return null;
+        }
         UpdateLine();
     }
 
     void UpdateLine()
     {
-        if (points.Count < 2)
-        {
-            // Ha nincs elég pont, ne rajzoljon vonalat
-            lineRenderer.positionCount = 0;
-            return;
-        }
-
-        // Beállítja a Line Renderer pozícióit a GameObject-ek alapján
         lineRenderer.positionCount = points.Count;
 
         for (int i = 0; i < points.Count; i++)

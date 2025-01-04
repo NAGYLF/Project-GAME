@@ -7,6 +7,7 @@ using UnityEngine.UI;
 using ItemHandler;
 using TMPro;
 using Newtonsoft.Json.Linq;
+using System.Collections;
 
 namespace UI
 {
@@ -188,7 +189,7 @@ namespace UI
         }
         void Update()
         {
-            if (HUD.activeSelf)
+            if (HUD.activeInHierarchy)
             {
                 if (!isCustomCursorActive)
                 {
@@ -299,25 +300,25 @@ namespace UI
                 switch (Event.current.keyCode)
                 {
                     case KeyCode.W:
-                        if (!HUD.activeSelf)
+                        if (!HUD.activeInHierarchy)
                         {
 
                         }
                         break;
                     case KeyCode.S:
-                        if (!HUD.activeSelf)
+                        if (!HUD.activeInHierarchy)
                         {
 
                         }
                         break;
                     case KeyCode.A:
-                        if (!HUD.activeSelf)
+                        if (!HUD.activeInHierarchy)
                         {
 
                         }
                         break;
                     case KeyCode.D:
-                        if (!HUD.activeSelf)
+                        if (!HUD.activeInHierarchy)
                         {
 
                         }
@@ -326,8 +327,19 @@ namespace UI
                         DevConsolOpenClose.Action();
                         break;
                     case KeyCode.Tab:
-                        PlayerInventoryOpenClose.Action();
-                        PlayerInventory.GetComponent<PlayerInventory>().EquipmentsPanelObject.GetComponent<PanelEquipments>().OpenGearsPanel();
+                        if (PlayerInventory.GetComponent<PlayerInventory>().EquipmentsPanelObject.GetComponent<PanelMain>().EqipmentsPanel.activeInHierarchy)
+                        {
+                            PlayerInventoryOpenClose.Action();
+                        }
+                        else if (PlayerInventory.GetComponent<PlayerInventory>().EquipmentsPanelObject.GetComponent<PanelMain>().HealthPanel.activeInHierarchy)
+                        {
+                            PlayerInventory.GetComponent<PlayerInventory>().EquipmentsPanelObject.GetComponent<PanelMain>().OpenGearsPanel();
+                        }
+                        else
+                        {
+                            PlayerInventoryOpenClose.Action();
+                            PlayerInventory.GetComponent<PlayerInventory>().EquipmentsPanelObject.GetComponent<PanelMain>().OpenGearsPanel();
+                        }
                         break;
                     case KeyCode.Escape:
                         InGameMenuOpenClose.Action();
@@ -352,35 +364,46 @@ namespace UI
                         QuestLogOpenClose.Action();
                         break;
                     case KeyCode.H:
-                        PlayerInventoryOpenClose.Action();
-                        PlayerInventory.GetComponent<PlayerInventory>().EquipmentsPanelObject.GetComponent<PanelEquipments>().OpenHealtPanel();
+                        if (PlayerInventory.GetComponent<PlayerInventory>().EquipmentsPanelObject.GetComponent<PanelMain>().EqipmentsPanel.activeInHierarchy)
+                        {
+                            PlayerInventory.GetComponent<PlayerInventory>().EquipmentsPanelObject.GetComponent<PanelMain>().OpenHealtPanel();
+                        }
+                        else if (PlayerInventory.GetComponent<PlayerInventory>().EquipmentsPanelObject.GetComponent<PanelMain>().HealthPanel.activeInHierarchy)
+                        {
+                            PlayerInventoryOpenClose.Action();
+                        }
+                        else
+                        {
+                            PlayerInventoryOpenClose.Action();
+                            PlayerInventory.GetComponent<PlayerInventory>().EquipmentsPanelObject.GetComponent<PanelMain>().OpenHealtPanel();
+                        }
                         break;
                     case KeyCode.Alpha1:
-                        if (HUD.activeSelf)
+                        if (HUD.activeInHierarchy)
                         {
                             Player.GetComponent<Player>().Hand.GetComponent<CharacterHand>().SelectedItem = HotKey1;
                         }
                         break;
                     case KeyCode.Alpha2:
-                        if (HUD.activeSelf)
+                        if (HUD.activeInHierarchy)
                         {
                             Player.GetComponent<Player>().Hand.GetComponent<CharacterHand>().SelectedItem = HotKey2;
                         }
                         break;
                     case KeyCode.Alpha3:
-                        if (HUD.activeSelf)
+                        if (HUD.activeInHierarchy)
                         {
                             Player.GetComponent<Player>().Hand.GetComponent<CharacterHand>().SelectedItem = HotKey3;
                         }
                         break;
                     case KeyCode.Alpha4:
-                        if (HUD.activeSelf)
+                        if (HUD.activeInHierarchy)
                         {
                             Player.GetComponent<Player>().Hand.GetComponent<CharacterHand>().SelectedItem = HotKey4;
                         }
                         break;
                     case KeyCode.Alpha5:
-                        if (HUD.activeSelf)
+                        if (HUD.activeInHierarchy)
                         {
                             Player.GetComponent<Player>().Hand.GetComponent<CharacterHand>().SelectedItem = HotKey5;
                         }
@@ -390,7 +413,7 @@ namespace UI
                         }
                         break;
                     case KeyCode.Alpha6:
-                        if (HUD.activeSelf)
+                        if (HUD.activeInHierarchy)
                         {
                             Player.GetComponent<Player>().Hand.GetComponent<CharacterHand>().SelectedItem = HotKey6;
                         }
@@ -400,7 +423,7 @@ namespace UI
                         }
                         break;
                     case KeyCode.Alpha7:
-                        if (HUD.activeSelf)
+                        if (HUD.activeInHierarchy)
                         {
                             Player.GetComponent<Player>().Hand.GetComponent<CharacterHand>().SelectedItem = HotKey7;
                         }
@@ -410,7 +433,7 @@ namespace UI
                         }
                         break;
                     case KeyCode.Alpha8:
-                        if (HUD.activeSelf)
+                        if (HUD.activeInHierarchy)
                         {
                             Player.GetComponent<Player>().Hand.GetComponent<CharacterHand>().SelectedItem = HotKey8;
                         }
@@ -420,7 +443,7 @@ namespace UI
                         }
                         break;
                     case KeyCode.Alpha9:
-                        if (HUD.activeSelf)
+                        if (HUD.activeInHierarchy)
                         {
                             Player.GetComponent<Player>().Hand.GetComponent<CharacterHand>().SelectedItem = HotKey9;
                         }
@@ -437,25 +460,25 @@ namespace UI
 
         #region Interactions
         private void Metodes(string ActionMode)
-        {
-            switch (ActionMode)
             {
-                case "OpenSimpleInventory":
-                    OpenSimpleInventory();
-                    break;
-                default:
-                    break;
+                switch (ActionMode)
+                {
+                    case "OpenSimpleInventory":
+                        OpenSimpleInventory();
+                        break;
+                    default:
+                        break;
+                }
             }
-        }
-        private void OpenSimpleInventory()
-        {
-            SelectedObject.GetComponent<Interact>().Opened = true;
-            PlayerInventoryObject.GetComponent<PlayerInventory>().LootableObject = SelectedObject;
-            PlayerInventoryOpenClose.Action();
-            PlayerInventoryObject.GetComponent<PlayerInventory>().LootCreate();
+            private void OpenSimpleInventory()
+            {
+                SelectedObject.GetComponent<Interact>().Opened = true;
+                PlayerInventoryObject.GetComponent<PlayerInventory>().LootableObject = SelectedObject;
+                PlayerInventoryOpenClose.Action();
+                PlayerInventoryObject.GetComponent<PlayerInventory>().LootCreate();
 
-        }
-        #endregion
+            }
+            #endregion
 
         #region HUD Metodes
         public void OpenHUD()

@@ -24,6 +24,8 @@ using NaturalInventorys;
 using PlayerInventoryClass;
 using static PlayerInventoryClass.PlayerInventory;
 using UI;
+using Unity.Mathematics;
+using UnityEngine.WSA;
 
 
 namespace ItemHandler
@@ -156,48 +158,159 @@ namespace ItemHandler
         {
             Item completedItem = name switch
             {
-                //backpacks
                 "TestBackpack" => new TestBackpack().Set(),
-
-                //vests
                 "TestVest" => new TestVest().Set(),
-
-                //armors
-                "TestArmor" => new TestArmor().Set(),
-
-                //helmets
-                "TestHelmet" => new TestHelmet().Set(),
-
-                //gloves
                 "TestFingers" => new TestFingers().Set(),
-
-                //boots
                 "TestBoots" => new TestBoots().Set(),
 
-                //masks
-                "TestMask" => new TestMask().Set(),
-
-                //headsets
-                "TestHeadset" => new TestHeadset().Set(),
-
-                //torso
-                "TestSkin" => new TestSkin().Set(),
-
-                //Pants
-                "TestPant" => new TestPant().Set(),
-
-                //Main Weapons
-                "TestWeapon" => new TestWeapon().Set(),
-                "AK103" => new AK103().Set(),
-
-                //secondary weapons
-                "TestHandgun" => new TestHandgun().Set(),
+                //Backpacks
+                "Camelback_Tri_Zip_assault_backpack" => new Camelback_Tri_Zip_assault_backpack().Set(),
+                "Flyye_MBSS_backpack" => new Flyye_MBSS_backpack().Set(),
+                "Gruppa_99_T30_backpack" => new Gruppa_99_T30_backpack().Set(),
+                "Sanitars_bag" => new Sanitars_bag().Set(),
+                "Scav_backpack" => new Scav_backpack().Set(),
+                "Tactical_sling_bag" => new Tactical_sling_bag().Set(),
+                "Transformer_Bag" => new Transformer_Bag().Set(),
+                "Vertx_Ready_Pack_Backpack" => new Vertx_Ready_Pack_Backpack().Set(),
+                "VKBO_army_bag" => new VKBO_army_bag().Set(),
+                "WARTECH_Berkut_Backpack" => new WARTECH_Berkut_Backpack().Set(),
 
                 //Melees
-                "TestMelee" => new TestMelee().Set(),
+                "APOK_Tactical_Wasteland_Gladius" => new APOK_Tactical_Wasteland_Gladius().Set(),
+                "Camper_axe" => new Camper_axe().Set(),
+                "Cultist_knife" => new Cultist_knife().Set(),
+                "ER_FULCRUM_BAYONET" => new ER_FULCRUM_BAYONET().Set(),
+                "Miller_Bros_Blades_M_2_Tactical_Sword" => new Miller_Bros_Blades_M_2_Tactical_Sword().Set(),
+                "PR_Taran_police_baton" => new PR_Taran_police_baton().Set(),
+                "SOG_Voodoo_Hawk_tactical_tomahawk" => new SOG_Voodoo_Hawk_tactical_tomahawk().Set(),
+                "SP_8_Survival_Machete" => new SP_8_Survival_Machete().Set(),
+                "Unitted_Cutlery_M48_Tactical_Kukri" => new Unitted_Cutlery_M48_Tactical_Kukri().Set(),
+                "UVSR_Taiga_1_survival_machete" => new UVSR_Taiga_1_survival_machete().Set(),
 
-                //Ammunitons
+                //WeaponsMain
+                "AK103" => new AK103().Set(),
+                "Colt_M4A1_5_56x45_assault_rifle_KAC_RIS" => new Colt_M4A1_5_56x45_assault_rifle_KAC_RIS().Set(),
+                "Desert_Tech_MDR_5_56x45_assault_rifle_HHS_1_Tan" => new Desert_Tech_MDR_5_56x45_assault_rifle_HHS_1_Tan().Set(),
+                "DS_Arms_SA_58_7_62x51_assault_rifle_SPR" => new DS_Arms_SA_58_7_62x51_assault_rifle_SPR().Set(),
+                "DS_Arms_SA_58_7_62x51_assault_rifle_X_FAL" => new DS_Arms_SA_58_7_62x51_assault_rifle_X_FAL().Set(),
+                "Mosin_7_62x54R_bolt_action_rifle_Sniper_ATACR_7_35x56" => new Mosin_7_62x54R_bolt_action_rifle_Sniper_ATACR_7_35x56().Set(),
+                "FN_SCAR_H_7_62x51_assault_rifle_BOSS_Xe" => new FN_SCAR_H_7_62x51_assault_rifle_BOSS_Xe().Set(),
+                "SIG_MCX_SPEAR_6_8x51_assault_rifle_EXPS3" => new SIG_MCX_SPEAR_6_8x51_assault_rifle_EXPS3().Set(),
+                "SIG_MPX_9x19_submachine_gun_MRS" => new SIG_MPX_9x19_submachine_gun_MRS().Set(),
+                "TOZ_Simonov_SKS_7_62x39_carbine_TAPCO_Intrafuse" => new TOZ_Simonov_SKS_7_62x39_carbine_TAPCO_Intrafuse().Set(),
+                "U_S_Ordnance_M60E6_7_62x51_light_machine_gun_Default" => new U_S_Ordnance_M60E6_7_62x51_light_machine_gun_Default().Set(),
+
+                //WeaponsSecondary
+                "Glock_17_9x19_pistol_PS9" => new Glock_17_9x19_pistol_PS9().Set(),
+                "Glock_17_9x19_pistol_Tac_2" => new Glock_17_9x19_pistol_Tac_2().Set(),
+                "Magnum_Research_Desert_Eagle_L5_50_AE_pistol_Default" => new Magnum_Research_Desert_Eagle_L5_50_AE_pistol_Default().Set(),
+                "Magnum_Research_Desert_Eagle_L6_50_AE_pistol_WTS_Default" => new Magnum_Research_Desert_Eagle_L6_50_AE_pistol_WTS_Default().Set(),
+                "RSh_12_12_7x55_revolver_TAC30" => new RSh_12_12_7x55_revolver_TAC30().Set(),
+
+                //Armors
+                "_5_11_Tactical_TacTec_plate_carrier" => new _5_11_Tactical_TacTec_plate_carrier().Set(),
+                "_6B5_16_Zh_86_Uley_armored_rig" => new _6B5_16_Zh_86_Uley_armored_rig().Set(),
+                "_6B43_6A_Zabralo_Sh_body_armor" => new _6B43_6A_Zabralo_Sh_body_armor().Set(),
+                "BNTI_Kirasa_N_bodyarmor" => new BNTI_Kirasa_N_bodyarmor().Set(),
+                "BNTI_Module_3M_body_armor" => new BNTI_Module_3M_body_armor().Set(),
+                "Crye_Precision_AVS_plate_carrier" => new Crye_Precision_AVS_plate_carrier().Set(),
+                "IOTV_Gen4_body_armor_Assault_Kit" => new IOTV_Gen4_body_armor_Assault_Kit().Set(),
+                "IOTV_Gen4_body_armor_Full_Protection_Kit" => new IOTV_Gen4_body_armor_Full_Protection_Kit().Set(),
+                "IOTV_Gen4_body_armor_High_Mobility_Kit" => new IOTV_Gen4_body_armor_High_Mobility_Kit().Set(),
+                "PACA_Soft_Armor" => new PACA_Soft_Armor().Set(),
+
+                //Helmets
+                "_6B47_Ratnik_BSh_helmet_Olive_Drab" => new _6B47_Ratnik_BSh_helmet_Olive_Drab().Set(),
+                "Galvion_Caiman_Hybrid_helmet_Grey" => new Galvion_Caiman_Hybrid_helmet_Grey().Set(),
+                "Kolpak_1S_riot_helmet" => new Kolpak_1S_riot_helmet().Set(),
+                "LShZ_lightweight_helmet_Olive_Drab" => new LShZ_lightweight_helmet_Olive_Drab().Set(),
+                "PSh_97_DJETA_riot_helmet" => new PSh_97_DJETA_riot_helmet().Set(),
+                "ShPM_Firefighter_helmet" => new ShPM_Firefighter_helmet().Set(),
+                "Tac_Kek_FAST_MT_helmet_Replica" => new Tac_Kek_FAST_MT_helmet_Replica().Set(),
+                "SSh_68_steel_helmet_Olive_Drab" => new SSh_68_steel_helmet_Olive_Drab().Set(),
+                "TSh_4M_L_soft_tank_crew_helmet" => new TSh_4M_L_soft_tank_crew_helmet().Set(),
+                "UNTAR_helmet" => new UNTAR_helmet().Set(),
+
+                //Masks
+                "Atomic_Defense_CQCM_ballistic_mask_Black" => new Atomic_Defense_CQCM_ballistic_mask_Black().Set(),
+                "Death_Knight_mask" => new Death_Knight_mask().Set(),
+                "Death_Shadow_lightweight_armored_mask" => new Death_Shadow_lightweight_armored_mask().Set(),
+                "Glorious_E_lightweight_armored_mask" => new Glorious_E_lightweight_armored_mask().Set(),
+                "Shattered_lightweight_armored_mask" => new Shattered_lightweight_armored_mask().Set(),
+                "Tagillas_welding_mask_Gorilla" => new Tagillas_welding_mask_Gorilla().Set(),
+                "Tagillas_welding_mask_UBEY" => new Tagillas_welding_mask_UBEY().Set(),
+
+                //Headsets
+                "GSSh_01_active_headset" => new GSSh_01_active_headset().Set(),
+                "MSA_Sordin_Supreme_headset" => new MSA_Sordin_Supreme_headset().Set(),
+                "Ops_Core_FAST_RAC_Headset" => new Ops_Core_FAST_RAC_Headset().Set(),
+                "OPSMEN_Earmor_M32_headset" => new OPSMEN_Earmor_M32_headset().Set(),
+                "Peltor_ComTac_IV_Hybrid_headset" => new Peltor_ComTac_IV_Hybrid_headset().Set(),
+                "Peltor_ComTac_V_headset" => new Peltor_ComTac_V_headset().Set(),
+                "Peltor_ComTac_VI_headset" => new Peltor_ComTac_VI_headset().Set(),
+                "Safariland_Liberator_HP_2_0_Headset" => new Safariland_Liberator_HP_2_0_Headset().Set(),
+                "Walkers_Razor_Digital_headset" => new Walkers_Razor_Digital_headset().Set(),
+                "Walkers_XCEL_500BT_Digital_headset" => new Walkers_XCEL_500BT_Digital_headset().Set(),
+
+                //Vests
+                "_6B5_15_Zh_86_Uley_armored_rig" => new _6B5_15_Zh_86_Uley_armored_rig().Set(),
+                "ANA_Tactical_M1_plate_carrier" => new ANA_Tactical_M1_plate_carrier().Set(),
+                "BlackRock_chest_rig" => new BlackRock_chest_rig().Set(),
+                "Scav_Vest" => new Scav_Vest().Set(),
+                "Security_vest" => new Security_vest().Set(),
+                "SOE_Micro_Rig" => new SOE_Micro_Rig().Set(),
+                "Stich_Profi_Plate_Carrier_V2" => new Stich_Profi_Plate_Carrier_V2().Set(),
+                "Tasmanian_Tiger_Plate_Carrier_MKIII" => new Tasmanian_Tiger_Plate_Carrier_MKIII().Set(),
+                "Umka_M33_SET1_hunter_vest" => new Umka_M33_SET1_hunter_vest().Set(),
+                "Velocity_Systems_MPPV_Multi_Purpose_Patrol_Vest" => new Velocity_Systems_MPPV_Multi_Purpose_Patrol_Vest().Set(),
+
+                //Ammunitions
                 "7.62x39FMJ" => new Ammunition762x39FMJ().Set(),
+                "_12_70_8_5mm_Magnum_buckshot" => new Ammunition_12_70_8_5mm_Magnum_buckshot().Set(),
+                "_12_70_Grizzly_40_slug" => new Ammunition_12_70_Grizzly_40_slug().Set(),
+                "_20_70_7_5mm_buckshot" => new Ammunition_20_70_7_5mm_buckshot().Set(),
+                "_23_75mm_Shrapnel_10_buckshot" => new Ammunition_23_75mm_Shrapnel_10_buckshot().Set(),
+                "_9x18mm_PM_PSO_gzh" => new Ammunition_9x18mm_PM_PSO_gzh().Set(),
+                "_7_62x25mm_TT_AKBS" => new Ammunition_7_62x25mm_TT_AKBS().Set(),
+                "_9x19mm_Green_Tracer" => new Ammunition_9x19mm_Green_Tracer().Set(),
+                "_45_ACP_Lasermatch_FMJ" => new Ammunition_45_ACP_Lasermatch_FMJ().Set(),
+                "_50_AE_Hawk_JSP" => new Ammunition_50_AE_Hawk_JSP().Set(),
+                "_9x21mm_7U4" => new Ammunition_9x21mm_7U4().Set(),
+                "_357_Magnum_JHP" => new Ammunition_357_Magnum_JHP().Set(),
+                "_5_7x28mm_SS197SR" => new Ammunition_5_7x28mm_SS197SR().Set(),
+                "_4_6x30mm_JSP_SX" => new Ammunition_4_6x30mm_JSP_SX().Set(),
+                "_9x39mm_PAB_9_gs" => new Ammunition_9x39mm_PAB_9_gs().Set(),
+                "_366_TKM_EKO" => new Ammunition_366_TKM_EKO().Set(),
+                "_5_45x39mm_FMJ" => new Ammunition_5_45x39mm_FMJ().Set(),
+                "_5_56x45mm_M856" => new Ammunition_5_56x45mm_M856().Set(),
+                "_7_62x39mm_T_45M1_gzh" => new Ammunition_7_62x39mm_T_45M1_gzh().Set(),
+                "_300_Blackout_V_Max" => new Ammunition_300_Blackout_V_Max().Set(),
+                "_6_8x51mm_SIG_Hybrid" => new Ammunition_6_8x51mm_SIG_Hybrid().Set(),
+                "_7_62x51mm_M80" => new Ammunition_7_62x51mm_M80().Set(),
+                "_7_62x54mm_R_SNB_gzh" => new Ammunition_7_62x54mm_R_SNB_gzh().Set(),
+                "_12_7x55mm_PS12" => new Ammunition_12_7x55mm_PS12().Set(),
+
+                //Pants
+                "USEC_Base" => new USEC_Base().Set(),
+                "USEC_Defender" => new USEC_Defender().Set(),
+                "USEC_Legionnaire" => new USEC_Legionnaire().Set(),
+                "USEC_Outdoor_Tactical" => new USEC_Outdoor_Tactical().Set(),
+                "USEC_Rangemaster" => new USEC_Rangemaster().Set(),
+                "USEC_Ranger_Jeans" => new USEC_Ranger_Jeans().Set(),
+                "USEC_Sage_Warrior" => new USEC_Sage_Warrior().Set(),
+                "USEC_Taclife_Terrain" => new USEC_Taclife_Terrain().Set(),
+                "USEC_TIER3" => new USEC_TIER3().Set(),
+
+                //Skins
+                "Adik_Tracksuit" => new Adik_Tracksuit().Set(),
+                "USEC_Adaptive_Combat" => new USEC_Adaptive_Combat().Set(),
+                "USEC_Aggressor_TAC" => new USEC_Aggressor_TAC().Set(),
+                "USEC_Base_Upper" => new USEC_Base_Upper().Set(),
+                "USEC_BOSS_Delta" => new USEC_BOSS_Delta().Set(),
+                "USEC_Mission" => new USEC_Mission().Set(),
+                "USEC_PCU_Ironsight" => new USEC_PCU_Ironsight().Set(),
+                "USEC_Sandstone" => new USEC_Sandstone().Set(),
+                "USEC_Troubleshooter" => new USEC_Troubleshooter().Set(),
 
                 //money
                 "Dollar_1" => new Dollar_1().Set(),
@@ -311,23 +424,23 @@ namespace ItemHandler
     {
         private static readonly List<LootItem> weapons = new()
         {
-            new LootItem("TestHandgun",5f),
-            new LootItem("TestWeapon",3f),
-            new LootItem("AK103", 1f),
-            new LootItem("TestMelee",2f),
+            new LootItem("Glock_17_9x19_pistol_PS9",1f),
+            new LootItem("AK103", 2f),
+            new LootItem("APOK_Tactical_Wasteland_Gladius",2f),
             new LootItem("7.62x39FMJ",2f,0.1f,0.5f)//jelentese, hogy 10% és 50% staksize ban spawnolhat.
         };
         private static readonly List<LootItem> equipments = new()
         {
-            new LootItem("TestArmor",1f),
-            new LootItem("TestBackpack",2f),
+            new LootItem("USEC_Base",1f),
+            new LootItem("USEC_Base_Upper", 1f),
+            new LootItem("Atomic_Defense_CQCM_ballistic_mask_Black", 1f),
+            new LootItem("GSSh_01_active_headset", 1f),
+            new LootItem("Galvion_Caiman_Hybrid_helmet_Grey", 1f),
+            new LootItem("_6B43_6A_Zabralo_Sh_body_armor", 1f),
+            new LootItem("TestVest", 4f),
+            new LootItem("TestBackpack",4f),
             new LootItem("TestBoots", 1f),
             new LootItem("TestFingers", 1f),
-            new LootItem("TestHeadset", 1f),
-            new LootItem("TestHelmet", 1f),
-            new LootItem("TestMask", 1f),
-            new LootItem("TestPant", 1f),
-            new LootItem("TestVest", 2f),                                                                                 new LootItem("TestBoots", 1f),
         };
         private struct LootItem
         {

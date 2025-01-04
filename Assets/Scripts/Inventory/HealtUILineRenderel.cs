@@ -26,8 +26,6 @@ public class HealtUILineRenderel : MonoBehaviour
     {
         while (InGameUI.Player.GetComponent<Rigidbody2D>().velocity != Vector2.zero)
         {
-            UpdateLine();
-
             yield return null;
         }
         UpdateLine();

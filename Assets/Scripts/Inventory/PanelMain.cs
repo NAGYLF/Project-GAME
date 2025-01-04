@@ -2,7 +2,7 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
-public class PanelEquipments : MonoBehaviour
+public class PanelMain : MonoBehaviour
 {
     public GameObject[] EquipmentsSlots;
     public GameObject Equipments;//ezek az equipments-ek

@@ -295,11 +295,11 @@ namespace PlayerInventoryClass
         
         public void CloseInventory()
         {
-            for (int i = EquipmentsPanelObject.GetComponent<PanelEquipments>().Equipments.transform.childCount - 1; i >= 0; i--)
+            for (int i = EquipmentsPanelObject.GetComponent<PanelMain>().Equipments.transform.childCount - 1; i >= 0; i--)
             {
-                if (EquipmentsPanelObject.GetComponent<PanelEquipments>().Equipments.transform.GetChild(i).GetComponent<ItemObject>())
+                if (EquipmentsPanelObject.GetComponent<PanelMain>().Equipments.transform.GetChild(i).GetComponent<ItemObject>())
                 {
-                    Destroy(EquipmentsPanelObject.GetComponent<PanelEquipments>().Equipments.transform.GetChild(i).gameObject);
+                    Destroy(EquipmentsPanelObject.GetComponent<PanelMain>().Equipments.transform.GetChild(i).gameObject);
                 }
             }
             for (int i = SlotPanelObject.GetComponent<PanelSlots>().Content.transform.childCount - 1; i >= 0; i--)

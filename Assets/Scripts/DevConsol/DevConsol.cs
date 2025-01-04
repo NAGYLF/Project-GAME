@@ -37,60 +37,47 @@ public class DevConsol : MonoBehaviour
                                 Debug.Log($"{text.GetComponent<TMP_InputField>().text}");
                                 Item[] items00 = new Item[]
                                 {
-                                    new Item("TestWeapon"),
-                                    new Item("TestWeapon"),
-                                    new Item("TestHandgun"),
-                                    new Item("TestArmor"),
+                                    new Item("AK103"),
+                                    new Item("AK103"),
+                                    new Item("Glock_17_9x19_pistol_PS9"),
+                                    new Item("_6B43_6A_Zabralo_Sh_body_armor"),
                                     new Item("TestBackpack"),
                                     new Item("TestVest"),
                                     new Item("TestBoots"),
                                     new Item("TestFingers"),
-                                    new Item("TestHeadset"),
-                                    new Item("TestHelmet"),
-                                    new Item("TestMask"),
-                                    new Item("TestMelee"),
-                                    new Item("TestPant"),
-                                    new Item("TestSkin"),
+                                    new Item("GSSh_01_active_headset"),
+                                    new Item("Galvion_Caiman_Hybrid_helmet_Grey"),
+                                    new Item("Atomic_Defense_CQCM_ballistic_mask_Black"),
+                                    new Item("APOK_Tactical_Wasteland_Gladius"),
+                                    new Item("USEC_Base"),
+                                    new Item("USEC_Base_Upper"),
                                 };
                                 foreach (Item item_ in items00)
                                 {
                                     inventory.GetComponent<PlayerInventory>().InventoryAdd(item_);
                                 }
                                 break;
-                            case "3xTestWeapon+TestBackPack":
-                                Debug.Log($"{text.GetComponent<TMP_InputField>().text}");
-                                Item[] items01 = new Item[]
-                                {
-                                    new Item("TestBackpack"),
-                                    new Item("TestWeapon"),
-                                    new Item("TestWeapon"),
-                                    new Item("TestWeapon"),
-                                };
-                                foreach (Item item_ in items01)
-                                {
-                                    inventory.GetComponent<PlayerInventory>().InventoryAdd(item_);
-                                }
-                                break;
-                            case "DevInventory_2xHandgun":
+                            case "DevInventory_FullGear":
                                 Debug.Log($"{text.GetComponent<TMP_InputField>().text}");
                                 Item[] items02 = new Item[]
                                            {
-                                    new Item("TestWeapon"),
-                                    new Item("TestWeapon"),
-                                    new Item("TestHandgun"),
-                                    new Item("TestArmor"),
+                                    new Item("AK103"),
+                                    new Item("U_S_Ordnance_M60E6_7_62x51_light_machine_gun_Default"),
+                                    new Item("Glock_17_9x19_pistol_PS9"),
+                                    new Item("_6B43_6A_Zabralo_Sh_body_armor"),
                                     new Item("TestBackpack"),
                                     new Item("TestVest"),
                                     new Item("TestBoots"),
                                     new Item("TestFingers"),
-                                    new Item("TestHeadset"),
-                                    new Item("TestHelmet"),
-                                    new Item("TestMask"),
-                                    new Item("TestMelee"),
-                                    new Item("TestPant"),
-                                    new Item("TestSkin"),
-                                    new Item("TestHandgun"),
-                                    new Item("TestHandgun"),
+                                    new Item("GSSh_01_active_headset"),
+                                    new Item("Galvion_Caiman_Hybrid_helmet_Grey"),
+                                    new Item("Atomic_Defense_CQCM_ballistic_mask_Black"),
+                                    new Item("APOK_Tactical_Wasteland_Gladius"),
+                                    new Item("USEC_Base"),
+                                    new Item("USEC_Base_Upper"),
+                                    new Item("_7_62x39mm_T_45M1_gzh",180),
+                                    new Item("_5_56x45mm_M856",180),
+                                    new Item("_9x19mm_Green_Tracer",60),
                                            };
                                 foreach (Item item_ in items02)
                                 {

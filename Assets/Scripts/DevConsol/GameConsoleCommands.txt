@@ -4,19 +4,22 @@
 #----------------Add Items--------------------#
 
 
-add TestPlayer item TestWeapon
+add TestPlayer item AK103
 
 
-add TestPlayer item TestHandgun
+add TestPlayer item Glock_17_9x19_pistol_PS9
 
 
 add TestPlayer item TestBackpack
 
 
+add TestPlayer item _6B43_6A_Zabralo_Sh_body_armor
+
+
 add TestPlayer item TestVest
 
 
-add TestPlayer item TestHelmet
+add TestPlayer item Galvion_Caiman_Hybrid_helmet_Grey
 
 
 add TestPlayer item TestBoots
@@ -25,19 +28,25 @@ add TestPlayer item TestBoots
 add TestPlayer item TestFingers
 
 
-add TestPlayer item TestHeadset
+add TestPlayer item GSSh_01_active_headset
 
 
-add TestPlayer item TestMask
+add TestPlayer item Atomic_Defense_CQCM_ballistic_mask_Black
 
 
-add TestPlayer item TestSkin
+add TestPlayer item USEC_Base_Upper
 
 
-add TestPlayer item TestPant
+add TestPlayer item USEC_Base
 
 
-add TestPlayer item TestMelee
+add TestPlayer item APOK_Tactical_Wasteland_Gladius
+
+
+add TestPlayer item Dollar_1
+
+
+add TestPlayer item AI_2
 
 
 #----------------Add ammo--------------------#
@@ -70,10 +79,7 @@ remove TestPlayer item 7.62x39FMJ 113
 add TestPlayer DevInventory
 
 
-add TestPlayer 3xTestWeapon+TestBackPack
-
-
-add TestPlayer DevInventory_2xHandgun
+add TestPlayer DevInventory_FullGear
 
 
 add TestPlayer _7.62x39FMJx600
@@ -86,9 +92,6 @@ Save
 Clear
 
 Load
-
-
-
 
 #----------------Player Bar Commands--------------------#
 

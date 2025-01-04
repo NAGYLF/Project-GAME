@@ -24,8 +24,8 @@ public class PanelSlots : MonoBehaviour
                 var childSlotTypeA = children[j].GetComponent<ContainerObject>().ActualData.ItemType;
                 var childSlotTypeB = children[j + 1].GetComponent<ContainerObject>().ActualData.ItemType;
 
-                int indexA = Array.FindIndex(PlayerInventoryObject.GetComponent<PlayerInventory>().EquipmentsPanelObject.GetComponent<PanelEquipments>().EquipmentsSlots, slot => slot.GetComponent<ItemSlot>().SlotType == childSlotTypeA);
-                int indexB = Array.FindIndex(PlayerInventoryObject.GetComponent<PlayerInventory>().EquipmentsPanelObject.GetComponent<PanelEquipments>().EquipmentsSlots, slot => slot.GetComponent<ItemSlot>().SlotType == childSlotTypeB);
+                int indexA = Array.FindIndex(PlayerInventoryObject.GetComponent<PlayerInventory>().EquipmentsPanelObject.GetComponent<PanelMain>().EquipmentsSlots, slot => slot.GetComponent<ItemSlot>().SlotType == childSlotTypeA);
+                int indexB = Array.FindIndex(PlayerInventoryObject.GetComponent<PlayerInventory>().EquipmentsPanelObject.GetComponent<PanelMain>().EquipmentsSlots, slot => slot.GetComponent<ItemSlot>().SlotType == childSlotTypeB);
 
                 if (indexA > indexB)
                 {

@@ -1,6 +1,7 @@
 ﻿using Microsoft.AspNetCore.Mvc;
 using EphemeralCourage_API.Models;
 using static EphemeralCourage_API.Models.Dto;
+using Microsoft.EntityFrameworkCore;
 
 [Route("UnityController")]
 [ApiController]
@@ -14,6 +15,24 @@ public class PlayersDataController : ControllerBase
             return StatusCode(201, context.Players.ToList());
         }
     }
+
+    [HttpGet("{name},{password}")]
+    public ActionResult<Player> GetByNameAndPassword(string name, string password)
+    {
+        using (var context = new DatasDbContext())
+        {
+            var player = context.Players.FirstOrDefault(x => x.Name == name && x.Password == password);
+
+            if (player == null)
+            {
+                return NotFound(new { message = "Player not found" });
+            }
+
+            return Ok(player);
+        }
+    }
+
+
 
     [HttpPost]
     public ActionResult<Player> Post(CreatePlayer createPlayerDto)

@@ -9,6 +9,33 @@ export default function Nav() {
 
   const [isAdmin, setIsAdmin] = useState(true);
   const [isLoggedIn, setIsLoggedIn] = useState(false);
+  const [username, setUsername] = useState('');
+
+  function getPlayerByNameAndPassword(name, password) {
+    fetch(`http://localhost:5269/UnityController/${name},${password}`)
+      .then(response => {
+        if (!response.ok) {
+          throw new Error('Játékos nem található');
+        }
+        return response.json();
+      })
+      .then(player => {
+        console.log('Játékos megtalálva:', player);
+        setUsername(player.name);
+        setIsLoggedIn(true);
+      })
+      .catch(error => {
+        console.error('Hiba történt:', error);
+        setIsLoggedIn(false);
+      });
+  }
+
+  const handleLogin = () => {
+    const name = document.getElementById('username').value;
+    const password = document.getElementById('password').value;
+    getPlayerByNameAndPassword(name, password);
+  };
+
 
   return (
     <nav className="navbar navbar-expand-lg custom-navbar">
@@ -45,52 +72,56 @@ export default function Nav() {
           </ul>
 
           <form className="d-flex ms-auto align-items-center text-center">
-            {isLoggedIn ? <div className="dropstart">
-              <button
-                type="button"
-                id="dropdownMenuButton"
-                data-bs-toggle="dropdown"
-                aria-expanded="false"
-                style={{
-                  background: 'none',
-                  border: 'none',
-                  padding: 0,
-                  margin: 0,
-                  display: 'inline-block',
-                }}
-              >
-                <img
-                  src={Kep}
-                  alt="Profil"
-                  style={{ width: '30px', height: '30px', borderRadius: '50%' }}
-                />
-              </button>
-              <ul className="dropdown-menu" aria-labelledby="dropdownMenuButton">
-                {isAdmin ? <li>
-                  <a className="dropdown-item" href="#adminModal" data-bs-toggle="modal">
-                    Admin
-                  </a>
-                </li> : ""}
-                <li>
-                  <a className="dropdown-item" href="#settingsModal" data-bs-toggle="modal">
-                    Beállítások
-                  </a>
-                </li>
-                <li>
-                  <a onClick={() => setIsLoggedIn(false)} className="dropdown-item">
-                    Kijelentkezés
-                  </a>
-                </li>
-              </ul>
-            </div> : <><a className="btn btn-outline-light ms-2" data-bs-toggle="modal" data-bs-target="#loginModal">
-              Bejelentkezés
-            </a>
-            <a className="btn btn-outline-light ms-2" data-bs-toggle="modal" data-bs-target="#registerModal">
-              Regisztráció
-            </a></>}
-            
-
-
+            {isLoggedIn ? (
+              <div className="dropstart">
+                <button
+                  type="button"
+                  id="dropdownMenuButton"
+                  data-bs-toggle="dropdown"
+                  aria-expanded="false"
+                  style={{
+                    background: 'none',
+                    border: 'none',
+                    padding: 0,
+                    margin: 0,
+                    display: 'inline-block',
+                  }}
+                >
+                  <img
+                    src={Kep}
+                    alt="Profil"
+                    style={{ width: '30px', height: '30px', borderRadius: '50%' }}
+                  />
+                </button>
+                <ul className="dropdown-menu" aria-labelledby="dropdownMenuButton">
+                  {isAdmin ? <li>
+                    <a className="dropdown-item" href="#adminModal" data-bs-toggle="modal">
+                      Admin
+                    </a>
+                  </li> : ""}
+                  <li>
+                    <a className="dropdown-item" href="#settingsModal" data-bs-toggle="modal">
+                      Beállítások
+                    </a>
+                  </li>
+                  <li>
+                    <a onClick={() => setIsLoggedIn(false)} className="dropdown-item">
+                      Kijelentkezés
+                    </a>
+                  </li>
+                </ul>
+                <p>{username ? username : ''}</p>
+              </div>
+            ) : (
+              <>
+                <a className="btn btn-outline-light ms-2" data-bs-toggle="modal" data-bs-target="#loginModal">
+                  Bejelentkezés
+                </a>
+                <a className="btn btn-outline-light ms-2" data-bs-toggle="modal" data-bs-target="#registerModal">
+                  Regisztráció
+                </a>
+              </>
+            )}
           </form>
         </div>
       </div>
@@ -174,7 +205,7 @@ export default function Nav() {
                   <label htmlFor="password" className="form-label">Jelszó</label>
                   <input type="password" className="form-control" id="password" placeholder="Jelszó" />
                 </div>
-                <a onClick={() => setIsLoggedIn(true)} data-bs-dismiss="modal" className="btn btn-secondary">Bejelentkezés</a>
+                <a onClick={handleLogin} data-bs-dismiss="modal" className="btn btn-secondary">Bejelentkezés</a>
               </form>
             </div>
           </div>

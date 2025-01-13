@@ -1,0 +1,3 @@
+﻿<Project>
+  <Import Project="..\build\EphemeralCourage_API.props" />
+</Project>

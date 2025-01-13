@@ -1,0 +1,6 @@
+@EphemeralCourage_API_HostAddress = http://localhost:5269
+
+GET {{EphemeralCourage_API_HostAddress}}/EphemeralCouage/
+Accept: application/json
+
+###

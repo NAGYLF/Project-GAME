@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import Kep from './img/profilkep.jpg';
 import Arpi from './img/arpi.png'; 
 import Balow from './img/balow.png';
@@ -7,10 +7,14 @@ import './Nav.css'
 
 export default function Nav() {
 
-  const [isAdmin, setIsAdmin] = useState(true);
+  const [isAdmin, setIsAdmin] = useState(false);
   const [isLoggedIn, setIsLoggedIn] = useState(false);
   const [username, setUsername] = useState('');
+  const [code, setCode] = useState('');
+  const [secondsLeft, setSecondsLeft] = useState(30);
 
+
+  //Bejelentkezés
   function getPlayerByNameAndPassword(name, password) {
     fetch(`http://localhost:5269/UnityController/${name},${password}`)
       .then(response => {
@@ -23,6 +27,9 @@ export default function Nav() {
         console.log('Játékos megtalálva:', player);
         setUsername(player.name);
         setIsLoggedIn(true);
+        if(player.isAdmin == 1){
+          setIsAdmin(true);
+        }
       })
       .catch(error => {
         console.error('Hiba történt:', error);
@@ -35,6 +42,36 @@ export default function Nav() {
     const password = document.getElementById('password').value;
     getPlayerByNameAndPassword(name, password);
   };
+
+  //Kód
+  useEffect(() => {
+    fetch('http://localhost:5269/UnityController/code')
+      .then(res => res.json())
+      .then(data => {
+        setCode(data.code);
+        setSecondsLeft(data.secondsLeft);
+      })
+      .catch(err => console.error(err));
+
+    const interval = setInterval(() => {
+      setSecondsLeft(prev => {
+        if (prev > 1) {
+          return prev - 1;
+        } else {
+          fetch('http://localhost:5269/UnityController/code')
+            .then(res => res.json())
+            .then(data => {
+              setCode(data.code);
+              setSecondsLeft(data.secondsLeft);
+            })
+            .catch(err => console.error(err));
+          return 30;
+        }
+      });
+    }, 1000);
+
+    return () => clearInterval(interval);
+  }, []);
 
 
   return (
@@ -335,15 +372,17 @@ export default function Nav() {
                 </label>
                 <input
                   type="text"
+                  style={{margin:"5px", width:"90px"}}
+                  value={code}
                   className="form-control"
                   id="newAdminPassword"
                   placeholder="Generált jelszó itt fog megjelenni"
                   readOnly
                 />
+                <label>
+                  {"Új jelszó fog megjelenni " + secondsLeft + " másodperc múlva"}
+                </label>
               </div>
-              <button type="button" className="btn btn-secondary">
-                Jelszó generálása
-              </button>
             </form>
           </div>
           <div className="modal-footer">

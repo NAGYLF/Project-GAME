@@ -20,7 +20,7 @@ namespace Backpacks
         }
     }
 
-    public class Camelback_Tri_Zip_assault_backpack : Item
+ public class Camelback_Tri_Zip_assault_backpack : Item
     {
         public Item Set()
         {

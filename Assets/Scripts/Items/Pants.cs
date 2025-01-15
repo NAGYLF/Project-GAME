@@ -18,7 +18,6 @@ namespace Pants
 
         }
     }
-
     public class USEC_AC_Ranger_Green : Item
     {
         public Item Set()

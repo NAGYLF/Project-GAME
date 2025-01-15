@@ -11,14 +11,16 @@ using TMPro;
 using UnityEngine.EventSystems;
 using PlayerInventoryClass;
 using UI;
+using Unity.VisualScripting;
 
-public class ItemObject : MonoBehaviour, IPointerDownHandler, IPointerUpHandler , IPointerEnterHandler ,IPointerExitHandler
+public class ItemObject : MonoBehaviour, IPointerDownHandler, IPointerUpHandler, IPointerEnterHandler, IPointerExitHandler
 {
     public TextMeshProUGUI NamePlate;
     public TextMeshProUGUI AmmoPlate;
     public TextMeshProUGUI HotKeyPlate;
     public TextMeshProUGUI Counter;
-    public Image image;
+    public GameObject ItemCompound;
+    public List<GameObject> Parts;//opcionálisan használandó
     private GameObject Window;
     public Item ActualData { get; private set; }
 
@@ -104,12 +106,6 @@ public class ItemObject : MonoBehaviour, IPointerDownHandler, IPointerUpHandler 
             transform.GetComponent<RectTransform>().sizeDelta = new Vector2(ActualData.SizeX * Main.SectorScale * Main.DefaultItemSlotSize, ActualData.SizeY * Main.SectorScale * Main.DefaultItemSlotSize);
             #endregion
 
-            #region Set Sprite
-            RectTransform itemObjectRectTransform = gameObject.GetComponent<RectTransform>();
-            float Scale = Mathf.Min(itemObjectRectTransform.rect.height / image.GetComponent<RectTransform>().sizeDelta.y, itemObjectRectTransform.rect.width / image.GetComponent<RectTransform>().sizeDelta.x);
-            image.GetComponent<RectTransform>().sizeDelta = new Vector2(image.GetComponent<RectTransform>().sizeDelta.x * Scale, image.GetComponent<RectTransform>().sizeDelta.y * Scale);
-            #endregion
-
             #region Set Targeting Mode 
             gameObject.GetComponent<Rigidbody2D>().bodyType = RigidbodyType2D.Dynamic;
             transform.GetComponent<BoxCollider2D>().size = transform.GetComponent<RectTransform>().rect.size;
@@ -119,6 +115,10 @@ public class ItemObject : MonoBehaviour, IPointerDownHandler, IPointerUpHandler 
             InventoryObjectRef.GetComponent<PlayerInventory>().SlotPanelObject.GetComponent<PanelSlots>().ScrollPanel.GetComponent<ScrollRect>().enabled = false;
             isDragging = true;
             DestroyContainer();
+            #endregion
+
+            #region Set Sprite
+            ItemPartTrasformation();
             #endregion
         }
     }
@@ -139,12 +139,6 @@ public class ItemObject : MonoBehaviour, IPointerDownHandler, IPointerUpHandler 
             transform.GetComponent<RectTransform>().sizeDelta = originalSize;
             #endregion
 
-            #region Set Sprite
-            RectTransform itemObjectRectTransform = gameObject.GetComponent<RectTransform>();
-            float Scale = Mathf.Min(itemObjectRectTransform.rect.height / image.GetComponent<RectTransform>().sizeDelta.y, itemObjectRectTransform.rect.width / image.GetComponent<RectTransform>().sizeDelta.x);
-            image.GetComponent<RectTransform>().sizeDelta = new Vector2(image.GetComponent<RectTransform>().sizeDelta.x * Scale, image.GetComponent<RectTransform>().sizeDelta.y * Scale);
-            #endregion
-
             #region unSet Targeting Mode
             gameObject.GetComponent<Rigidbody2D>().bodyType = RigidbodyType2D.Static;
             transform.GetComponent<BoxCollider2D>().size = transform.GetComponent<RectTransform>().rect.size;
@@ -156,7 +150,11 @@ public class ItemObject : MonoBehaviour, IPointerDownHandler, IPointerUpHandler 
             Placing(CanBePlace());
             BuildContainer();
             #endregion
-        } 
+
+            #region Set Sprite
+            ItemPartTrasformation();
+            #endregion
+        }
     }
     private (int smaller, int larger) SplitInteger(int number)
     {
@@ -172,16 +170,15 @@ public class ItemObject : MonoBehaviour, IPointerDownHandler, IPointerUpHandler 
     }
     private void Placing(bool placementCanStart)
     {
-        //placer.activeItemSlots.FindAll(slot=> ActualData.SlotUse.Contains(slot.name)).Count != ActualData.SlotUse.Count
-        if (Input.GetKey(KeyCode.LeftControl) && !placer.ActiveItemSlots.Exists(slot=>slot.GetComponent<ItemSlot>().PartOfItemObject != null && slot.GetComponent<ItemSlot>().PartOfItemObject.GetInstanceID() == gameObject.GetInstanceID()))//split  (azt ellenorizzuk hogy meg lett e nyomva a ctrl és nincs olyan slot amelyet az item tartlamaz ezzel saját magéba nem slpitelhet ezzel megsporoljuk a felesleges szamitasokat)
+        if (Input.GetKey(KeyCode.LeftControl) && !placer.ActiveItemSlots.Exists(slot => slot.GetComponent<ItemSlot>().PartOfItemObject != null && slot.GetComponent<ItemSlot>().PartOfItemObject.GetInstanceID() == gameObject.GetInstanceID()))//split  (azt ellenorizzuk hogy meg lett e nyomva a ctrl és nincs olyan slot amelyet az item tartlamaz ezzel saját magéba nem slpitelhet ezzel megsporoljuk a felesleges szamitasokat)
         {
-            (int smaller, int larger) SplitedCount = SplitInteger(ActualData.Quantity);
+            (int smaller, int larger) = SplitInteger(ActualData.Quantity);
 
             if (placer.ActiveItemSlots.Exists(slot => slot.GetComponent<ItemSlot>().CountAddAvaiable))//split and megre
             {
                 GameObject MergeObject = placer.ActiveItemSlots.Find(slot => slot.GetComponent<ItemSlot>().CountAddAvaiable).GetComponent<ItemSlot>().PartOfItemObject;
-                MergeObject.GetComponent<ItemObject>().ActualData.Quantity += SplitedCount.larger;
-                ActualData.Quantity = SplitedCount.smaller;
+                MergeObject.GetComponent<ItemObject>().ActualData.Quantity += larger;
+                ActualData.Quantity = smaller;
                 if (MergeObject.GetComponent<ItemObject>().ActualData.Quantity > MergeObject.GetComponent<ItemObject>().ActualData.MaxStackSize)//ha a split több mint a maximalis stacksize
                 {
                     ActualData.Quantity += (MergeObject.GetComponent<ItemObject>().ActualData.Quantity - MergeObject.GetComponent<ItemObject>().ActualData.MaxStackSize);
@@ -192,10 +189,10 @@ public class ItemObject : MonoBehaviour, IPointerDownHandler, IPointerUpHandler 
                 }
                 else//ha nem több a split mint a maximális stacksize
                 {
-                    ActualData.Quantity = SplitedCount.smaller;
+                    ActualData.Quantity = smaller;
                     MergeObject.GetComponent<ItemObject>().SelfVisualisation();
                     placementCanStart = false;
-                    if (ActualData.Quantity<1)
+                    if (ActualData.Quantity < 1)
                     {
                         ActualData.Remove();
                     }
@@ -207,19 +204,19 @@ public class ItemObject : MonoBehaviour, IPointerDownHandler, IPointerUpHandler 
             }
             else if ((placer.ActiveItemSlots.Count == ActualData.SizeY * ActualData.SizeX) || (placer.ActiveItemSlots.Count == 1 && placer.ActiveItemSlots.First().GetComponent<ItemSlot>().IsEquipment))//egy specialis objektumlétrehozási folyamat ez akkor lép érvénybe ha üres slotba kerül az item
             {
-                Item item = new Item(ActualData.ItemName, SplitedCount.larger);
+                Item item = new(ActualData.ItemName, larger);
 
-                GameObject itemObject = CreatePrefab("GameElements/ItemObject");
+                GameObject itemObject = CreatePrefab(Item.SimpleItemObjectParth);
                 itemObject.name = item.ItemName;
                 item.SelfGameobject = itemObject;
                 item.ParentItem = placer.NewParentData;
                 itemObject.GetComponent<ItemObject>().SetDataRoute(item, item.ParentItem);
 
-                InventorySystem.SetSlotUseByPlacer(placer,item);
+                InventorySystem.SetSlotUseByPlacer(placer, item);
 
-                InventorySystem.DataAdd(item.ParentItem,item);
+                InventorySystem.DataAdd(item.ParentItem, item);
 
-                ActualData.Quantity = SplitedCount.smaller;
+                ActualData.Quantity = smaller;
                 placementCanStart = false;
                 if (ActualData.Quantity < 1)
                 {
@@ -233,7 +230,7 @@ public class ItemObject : MonoBehaviour, IPointerDownHandler, IPointerUpHandler 
         }
         #region Item Merge
         //nem bizots hogy equipment tipusu itemslotokkal mukodik
-        else if (placer.ActiveItemSlots !=null && placer.ActiveItemSlots.Exists(slot=>slot.GetComponent<ItemSlot>() != null && slot.GetComponent<ItemSlot>().CountAddAvaiable))//csak containerekben mukodik
+        else if (placer.ActiveItemSlots != null && placer.ActiveItemSlots.Exists(slot => slot.GetComponent<ItemSlot>() != null && slot.GetComponent<ItemSlot>().CountAddAvaiable))//csak containerekben mukodik
         {
             GameObject MergeObject = placer.ActiveItemSlots.Find(slot => slot.GetComponent<ItemSlot>().CountAddAvaiable).GetComponent<ItemSlot>().PartOfItemObject;
             int count = MergeObject.GetComponent<ItemObject>().ActualData.Quantity;
@@ -256,12 +253,12 @@ public class ItemObject : MonoBehaviour, IPointerDownHandler, IPointerUpHandler 
         #endregion
         if (placementCanStart)
         {
-            InventorySystem.DataRemove(ActualData.ParentItem,ActualData);
+            InventorySystem.DataRemove(ActualData.ParentItem, ActualData);
 
-            InventorySystem.SetNewDataParent(placer.NewParentData,ActualData);
+            InventorySystem.SetNewDataParent(placer.NewParentData, ActualData);
 
-            InventorySystem.SetSlotUseByPlacer(placer,ActualData);
-            InventorySystem.DataAdd(ActualData.ParentItem,ActualData);
+            InventorySystem.SetSlotUseByPlacer(placer, ActualData);
+            InventorySystem.DataAdd(ActualData.ParentItem, ActualData);
 
             SelfVisualisation();
         }
@@ -280,14 +277,15 @@ public class ItemObject : MonoBehaviour, IPointerDownHandler, IPointerUpHandler 
     public void DataLoad()
     {
         ActualData.SelfGameobject = gameObject;
-
-        Sprite sprite = Resources.Load<Sprite>(gameObject.GetComponent<ItemObject>().ActualData.ImgPath);//az itemobjektum megkapja képét
-        image.sprite = sprite;
-        image.GetComponent<RectTransform>().sizeDelta = new Vector2(sprite.rect.width, sprite.rect.height);
-
+        if (!ActualData.IsModificationAble)
+        {
+            Sprite sprite = Resources.Load<Sprite>(gameObject.GetComponent<ItemObject>().ActualData.ImgPath);//az itemobjektum megkapja képét
+            ItemCompound.GetComponent<Image>().sprite = sprite;
+            ItemCompound.GetComponent<RectTransform>().sizeDelta = new Vector2(sprite.rect.width, sprite.rect.height);
+        }
         SelfVisualisation();
     }
-    public void SetDataRoute(Item Data,Item Parent)
+    public void SetDataRoute(Item Data, Item Parent)
     {
         ActualData = Data;
         ActualData.ParentItem = Parent;
@@ -352,6 +350,67 @@ public class ItemObject : MonoBehaviour, IPointerDownHandler, IPointerUpHandler 
             transform.position = new Vector3(mousePosition.x, mousePosition.y, transform.position.z);
         }
     }
+    public void ItemPartTrasformation()
+    {
+        if (ActualData.IsModificationAble)//modifikálható item
+        {
+            GameObject fitter = ItemCompound.GetComponent<ItemImgFitter>().fitter.gameObject;
+            foreach (GameObject part in Parts)
+            {
+                Destroy(part);
+            }
+            Parts.Clear();
+            foreach (Part part in ActualData.Parts)
+            {
+                GameObject PartObject = Instantiate(Resources.Load<GameObject>(part.item_s_Part.ItemPartPath));
+                part.SetLive(PartObject, PartObject.GetComponent<PartObject>().connectionPoints);
+                Parts.Add(PartObject);
+                PartObject.transform.SetParent(fitter.transform);
+                if (part == ActualData.Parts.First())
+                {
+                    PartObject.GetComponent<RectTransform>().localPosition = Vector2.zero;
+                }
+            }
+            foreach (Part part in ActualData.Parts)
+            {
+                foreach (ConnectionPoint connectionPoint in part.SelfPoints)
+                {
+                    if (connectionPoint.ConnectedPoint != null)
+                    {
+                        RectTransform targetPoint1 = connectionPoint.RefPoint1;
+                        RectTransform targetPoint2 = connectionPoint.RefPoint2;
+                        RectTransform toMoveObject = connectionPoint.ConnectedPoint.SelfPart.PartObject.GetComponent<RectTransform>();
+                        RectTransform toMovePoint1 = connectionPoint.ConnectedPoint.RefPoint1;
+                        RectTransform toMovePoint2 = connectionPoint.ConnectedPoint.RefPoint2;
+
+                        // Pozíció középre igazítása
+                        Vector3 midPointTarget = (targetPoint1.localPosition + targetPoint2.localPosition) / 2;
+                        toMoveObject.localPosition = midPointTarget;
+
+                        // Skálázás
+                        float targetDistance = Vector3.Distance(targetPoint1.position, targetPoint2.position);
+                        float toMoveDistance = Vector3.Distance(toMovePoint1.position, toMovePoint2.position);
+                        float scale = targetDistance / toMoveDistance;
+                        toMoveObject.localScale = new Vector3(scale, scale, scale);
+
+                        // Forgatás
+                        Vector3 targetDirection = (targetPoint2.position - targetPoint1.position).normalized;
+                        Vector3 toMoveDirection = (toMovePoint2.position - toMovePoint1.position).normalized;
+                        float angle = Vector3.SignedAngle(toMoveDirection, targetDirection, Vector3.forward);
+                        toMoveObject.rotation = Quaternion.Euler(0, 0, toMoveObject.eulerAngles.z + angle);
+                    }
+                }
+            }
+            ItemCompound.GetComponent<ItemImgFitter>().Fitting();
+        }
+        else//nem modifikálhazó item
+        {
+            RectTransform itemObjectRectTransform = gameObject.GetComponent<RectTransform>();
+            float Scale = Mathf.Min(itemObjectRectTransform.rect.height / ItemCompound.GetComponent<RectTransform>().sizeDelta.y, itemObjectRectTransform.rect.width / ItemCompound.GetComponent<RectTransform>().sizeDelta.x);
+            ItemCompound.GetComponent<RectTransform>().sizeDelta = new Vector2(ItemCompound.GetComponent<RectTransform>().sizeDelta.x * Scale, ItemCompound.GetComponent<RectTransform>().sizeDelta.y * Scale);
+        }
+
+    }
     public void SelfVisualisation()//ha az item equipment slotban van
     {
         NamePlate.text = ActualData.ItemName;
@@ -396,7 +455,7 @@ public class ItemObject : MonoBehaviour, IPointerDownHandler, IPointerUpHandler 
         Vector3 minPosition = Vector3.positiveInfinity;
         Vector3 maxPosition = Vector3.negativeInfinity;
 
-        List<GameObject> itemSlots = new List<GameObject>();
+        List<GameObject> itemSlots = new();
         foreach (DataGrid dataGrid in ActualData.ParentItem.SectorDataGrid)
         {
             foreach (RowData rowData in dataGrid.col)
@@ -432,15 +491,14 @@ public class ItemObject : MonoBehaviour, IPointerDownHandler, IPointerUpHandler 
         }
         else
         {
-            itemObjectRectTransform.sizeDelta = new Vector2(ActualData.SizeX*Main.DefaultItemSlotSize,ActualData.SizeY*Main.DefaultItemSlotSize);
+            itemObjectRectTransform.sizeDelta = new Vector2(ActualData.SizeX * Main.DefaultItemSlotSize, ActualData.SizeY * Main.DefaultItemSlotSize);
         }
 
         itemObjectRectTransform.localPosition = (minPosition + maxPosition) / 2;
 
         gameObject.transform.rotation = Quaternion.Euler(0, 0, ActualData.RotateDegree);
 
-        float Scale = Mathf.Min(itemObjectRectTransform.rect.height / image.GetComponent<RectTransform>().sizeDelta.y, itemObjectRectTransform.rect.width / image.GetComponent<RectTransform>().sizeDelta.x);
-        image.GetComponent<RectTransform>().sizeDelta = new Vector2(image.GetComponent<RectTransform>().sizeDelta.x * Scale, image.GetComponent<RectTransform>().sizeDelta.y * Scale);
+        ItemPartTrasformation();
 
         BoxCollider2D itemObjectBoxCollider2D = gameObject.GetComponent<BoxCollider2D>();
         itemObjectBoxCollider2D.size = itemObjectRectTransform.rect.size;

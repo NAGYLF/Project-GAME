@@ -508,7 +508,7 @@ namespace UI
             if (HotKey1 == Player.GetComponent<Player>().Hand.GetComponent<CharacterHand>().SelectedItem)
             {
                 HotKey1 = item;
-                Player.GetComponent<Player>().Hand.GetComponent<CharacterHand>().SelectedItem = HotKey1;
+                SetPlayerHand(item);
             }
             else
             {
@@ -520,7 +520,7 @@ namespace UI
             if (HotKey2 == Player.GetComponent<Player>().Hand.GetComponent<CharacterHand>().SelectedItem)
             {
                 HotKey2 = item;
-                Player.GetComponent<Player>().Hand.GetComponent<CharacterHand>().SelectedItem = HotKey2;
+                SetPlayerHand(item);
             }
             else
             {
@@ -532,7 +532,7 @@ namespace UI
             if (HotKey3 == Player.GetComponent<Player>().Hand.GetComponent<CharacterHand>().SelectedItem)
             {
                 HotKey3 = item;
-                Player.GetComponent<Player>().Hand.GetComponent<CharacterHand>().SelectedItem = HotKey3;
+                SetPlayerHand(item);
             }
             else
             {
@@ -544,7 +544,7 @@ namespace UI
             if (HotKey4 == Player.GetComponent<Player>().Hand.GetComponent<CharacterHand>().SelectedItem)
             {
                 HotKey4 = item;
-                Player.GetComponent<Player>().Hand.GetComponent<CharacterHand>().SelectedItem = HotKey4;
+                SetPlayerHand(item);
             }
             else
             {
@@ -556,7 +556,7 @@ namespace UI
             if (HotKey5 == Player.GetComponent<Player>().Hand.GetComponent<CharacterHand>().SelectedItem)
             {
                 HotKey5 = item;
-                Player.GetComponent<Player>().Hand.GetComponent<CharacterHand>().SelectedItem = HotKey5;
+                SetPlayerHand(item);
             }
             else
             {
@@ -568,7 +568,7 @@ namespace UI
             if (HotKey6 == Player.GetComponent<Player>().Hand.GetComponent<CharacterHand>().SelectedItem)
             {
                 HotKey6 = item;
-                Player.GetComponent<Player>().Hand.GetComponent<CharacterHand>().SelectedItem = HotKey6;
+                SetPlayerHand(item);
             }
             else
             {
@@ -580,8 +580,7 @@ namespace UI
             if (HotKey7 == Player.GetComponent<Player>().Hand.GetComponent<CharacterHand>().SelectedItem)
             {
                 HotKey7 = item;
-                Player.GetComponent<Player>().Hand.GetComponent<CharacterHand>().SelectedItem = HotKey7;
-                Player.GetComponent<Player>().Hand.GetComponent<CharacterHand>().SelectedItem = HotKey7;
+                SetPlayerHand(item);
             }
             else
             {
@@ -593,7 +592,7 @@ namespace UI
             if (HotKey8 == Player.GetComponent<Player>().Hand.GetComponent<CharacterHand>().SelectedItem)
             {
                 HotKey8 = item;
-                Player.GetComponent<Player>().Hand.GetComponent<CharacterHand>().SelectedItem = HotKey8;
+                SetPlayerHand(item);
             }
             else
             {
@@ -605,7 +604,7 @@ namespace UI
             if (HotKey9 == Player.GetComponent<Player>().Hand.GetComponent<CharacterHand>().SelectedItem)
             {
                 HotKey9 = item;
-                Player.GetComponent<Player>().Hand.GetComponent<CharacterHand>().SelectedItem = HotKey9;
+                SetPlayerHand(item);
             }
             else
             {
@@ -784,6 +783,17 @@ namespace UI
             }
             Thirst -= count;
             SetThirstBar(count);
+        }
+        private static void SetPlayerHand(Item item)//ez inicializálja az uj selected itemet
+        {
+            Player.GetComponent<Player>().Hand.GetComponent<CharacterHand>().SelectedItem = item;
+            HandHUDRefresh();
+        }
+        private static void HandHUDRefresh()//ez a selected item alapján frissiti a HUD-ot
+        {
+            Item selectedItem = Player.GetComponent<Player>().Hand.GetComponent<CharacterHand>().SelectedItem;
+            Player player = Player.GetComponent<Player>();
+            GameObject playerObject = Player;
         }
         private void PlayerAnimation()
         {

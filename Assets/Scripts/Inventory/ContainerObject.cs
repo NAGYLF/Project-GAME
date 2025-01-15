@@ -5,12 +5,10 @@ using ItemHandler;
 using MainData;
 using Assets.Scripts;
 using System.Linq;
-using System;
 using static PlayerInventoryClass.PlayerInventory;
 using static MainData.SupportScripts;
 using Assets.Scripts.Inventory;
 using PlayerInventoryClass;
-using UnityEngine.UI;
 
 
 public class ContainerObject : MonoBehaviour
@@ -88,7 +86,15 @@ public class ContainerObject : MonoBehaviour
         for (int i = 0; i < ActualData.Container.Items.Count; i++)//létrehozzuk itemObjektumait
         {
             Debug.Log($"{ActualData.Container.Items[i].ItemName} creating into {ActualData.ItemName}'s container");
-            GameObject itemObject = CreatePrefab("GameElements/ItemObject");
+            GameObject itemObject;
+            if (ActualData.Container.Items[i].IsModificationAble)
+            {
+                itemObject = CreatePrefab(Item.AdvancedItemObjectParth);
+            }
+            else
+            {
+                itemObject = CreatePrefab(Item.SimpleItemObjectParth);
+            }
             itemObject.name = ActualData.Container.Items[i].ItemName;
             itemObject.GetComponent<ItemObject>().SetDataRoute(ActualData.Container.Items[i],ActualData);//Létrehozzuk a szikronizálási utat ezen VirtualParentObject és a VirtualChildrenObject között
         }

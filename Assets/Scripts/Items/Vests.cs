@@ -73,7 +73,6 @@ namespace Vests
 
         }
     }
-
     public class Scav_Vest : Item
     {
         public Item Set()

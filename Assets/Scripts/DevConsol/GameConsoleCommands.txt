@@ -49,6 +49,8 @@ add TestPlayer item Dollar_1
 add TestPlayer item AI_2
 
 
+add TestPlayer item AK103Body
+
 #----------------Add ammo--------------------#
 
 

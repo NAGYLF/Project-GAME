@@ -24,8 +24,8 @@ using NaturalInventorys;
 using PlayerInventoryClass;
 using static PlayerInventoryClass.PlayerInventory;
 using UI;
-using Unity.Mathematics;
-using UnityEngine.WSA;
+using Newtonsoft.Json.Linq;
+using WeaponBodys;
 
 
 namespace ItemHandler
@@ -61,8 +61,13 @@ namespace ItemHandler
     }
     public class Item : NonGeneralItemProperties
     {
+        public static string SimpleItemObjectParth = "GameElements/SimpleItemObject";
+        public static string AdvancedItemObjectParth = "GameElements/AdvancedItemObject";
         //system variables
-        public Item ParentItem;
+        public List<Part> Parts { get; set; }//az item darabjai
+        public string ImgPath {get;set;}
+        public string ItemPartPath { get; set; }//az item prefab eleresi utja
+        public Item ParentItem {  get; set; }//az az item ami tárolja ezt az itemet
         public GameObject SelfGameobject { get; set; }// a parent objectum
         public GameObject ContainerObject { get; set; }//conainer objectum
         public List<DataGrid> SectorDataGrid { get; set; }//ezek referanca pontokat atralamaznak amelyeken kersztul a tenyleges gameobjectumokat manipulalhatjuk
@@ -78,7 +83,6 @@ namespace ItemHandler
         public int Value { get; set; } = 1;
         public int SizeX { get; set; }
         public int SizeY { get; set; }
-        public string ImgPath { get; set; }
         public float RotateDegree { get; set; } = 0f;
         public bool IsInPlayerInventory { get; set; } = false;// a player inventory tagja az item
         public bool IsEquipment { set; get; } = false;// az item egy equipment
@@ -104,6 +108,7 @@ namespace ItemHandler
         public bool IsModificationAble { get; set; } = false;
         public bool IsOpenAble { get; set; } = false;
         public bool IsUsable { get; set; } = false;
+        public bool CanReload { get; set; } = false;
 
         //Ez egy Totális Törlés ami azt jelenti, hogy mindenhonnan törli. Ez nem jo akkor ha valahonnan torolni akarjuk de mashol meg hozzadni
         public void Remove()
@@ -134,11 +139,16 @@ namespace ItemHandler
                 }
             }
         }
+        //action (Live/NonLive Inventory)
         public void Open()
         {
 
         }
         public void Modification()
+        {
+
+        }
+        public void Reload()
         {
 
         }
@@ -150,6 +160,73 @@ namespace ItemHandler
         {
 
         }
+        //action (Only NonLive inventory)
+        public bool PutOnPart(Item item,string ConnectionPointName = "",string PartName = "")
+        {
+            ConnectionPoint[] ConnectingCPs = item.Parts.SelectMany(x => x.SelfPoints).ToArray();//az összes connection point amitje az itemnek van
+            ConnectionPoint[] TargetCps = Parts.SelectMany(x => x.SelfPoints).ToArray();//az össze sconnection point amihez hozzadhatja
+            (ConnectionPoint,ConnectionPoint)[] connectablePairs = ConnectingCPs.AsParallel().SelectMany(item1 => TargetCps.AsParallel().Where(item2 => item1.CompatibleItemText.Intersect(item2.CompatibleItemText).Any()).Select(item2 => (item1, item2))).ToArray();
+            ConnectionPoint TargetedCP;//egy part célzott pontja
+            ConnectionPoint ConnectingCP;//az item csatlakoztatott pontja
+            if (ConnectionPointName != "" && PartName == "")
+            {
+                (ConnectingCP,TargetedCP) = connectablePairs.FirstOrDefault(x=> !x.Item1.Used && x.Item1.SelfPart.Name == PartName);
+            }
+            else if (ConnectionPointName == "" && PartName != "")
+            {
+                (ConnectingCP, TargetedCP) = connectablePairs.FirstOrDefault(x => !x.Item1.Used && x.Item1.Name == ConnectionPointName);
+            }
+            else if (ConnectionPointName == "" && PartName == "")
+            {
+                (ConnectingCP, TargetedCP) = connectablePairs.FirstOrDefault(x => !x.Item1.Used && x.Item1.Name == ConnectionPointName && x.Item1.SelfPart.Name == PartName);
+            }
+            else
+            {
+                (ConnectingCP, TargetedCP) = connectablePairs.FirstOrDefault( x=> !x.Item1.Used);
+            }
+            if (TargetedCP == null || ConnectingCP ==null)
+            {
+                return false;
+            }
+            Part MainPart = item.Parts.First();
+            TargetedCP.Used = true;
+            TargetedCP.ConnectedPoint = ConnectingCP;
+            ConnectingCP.ConnectedPoint = TargetedCP;
+            Parts.Concat(item.Parts);
+            return true;
+        }
+        public (bool,List<Part>) CutOffPart(Part part)
+        {
+            ConnectionPoint CPStand = Parts.SelectMany(x => x.SelfPoints).First(y => y.ConnectedPoint.SelfPart == part);
+            ConnectionPoint CPOff = Parts.SelectMany(x => x.SelfPoints).First(y => y.SelfPart == part);
+            CPStand.ConnectedPoint = null;
+            CPStand.Used = false;
+            CPOff.ConnectedPoint = null;
+            Parts.Remove(part);
+            List<Part> parts = new()
+            {
+                part
+            };
+            RemovingPart(part, parts);
+            return (true, parts);
+        }
+        private void RemovingPart(Part part,List<Part> list)
+        {
+            foreach (ConnectionPoint cp in part.SelfPoints)
+            {
+                if (cp.ConnectedPoint != null)
+                {
+                    list.Add(cp.ConnectedPoint.SelfPart);
+                    Parts.Remove(part);
+                    RemovingPart(cp.ConnectedPoint.SelfPart,list);
+                }
+            }
+        }
+        //action (Only Live Inventory)
+        public void Shoot()
+        {
+
+        }
         public Item()//ha contume itememt akarunk letrehozni mint pl: egy Root item
         {
 
@@ -158,10 +235,13 @@ namespace ItemHandler
         {
             Item completedItem = name switch
             {
+                //Test
                 "TestBackpack" => new TestBackpack().Set(),
                 "TestVest" => new TestVest().Set(),
                 "TestFingers" => new TestFingers().Set(),
                 "TestBoots" => new TestBoots().Set(),
+                "AK103" => new AK103().Set(),
+                "AK103Body" => new AK103Body().Set(),
 
                 //Backpacks
                 "Camelback_Tri_Zip_assault_backpack" => new Camelback_Tri_Zip_assault_backpack().Set(),
@@ -188,7 +268,6 @@ namespace ItemHandler
                 "UVSR_Taiga_1_survival_machete" => new UVSR_Taiga_1_survival_machete().Set(),
 
                 //WeaponsMain
-                "AK103" => new AK103().Set(),
                 "Colt_M4A1_5_56x45_assault_rifle_KAC_RIS" => new Colt_M4A1_5_56x45_assault_rifle_KAC_RIS().Set(),
                 "Desert_Tech_MDR_5_56x45_assault_rifle_HHS_1_Tan" => new Desert_Tech_MDR_5_56x45_assault_rifle_HHS_1_Tan().Set(),
                 "DS_Arms_SA_58_7_62x51_assault_rifle_SPR" => new DS_Arms_SA_58_7_62x51_assault_rifle_SPR().Set(),
@@ -323,6 +402,8 @@ namespace ItemHandler
             completedItem.Quantity = count;
 
             //altalanos adatok
+            ImgPath = completedItem.ImgPath;
+            ItemPartPath = completedItem.ItemPartPath;
             ItemType = completedItem.ItemType;//ez alapján kerülhet be egy slotba ugyan is vannak pecifikus slotok melyeknek typusváltozójában benen kell, hogy legyen.
             ItemName = completedItem.ItemName;//ez alapján hozza létre egy item saját magát
             Description = completedItem.Description;
@@ -330,7 +411,6 @@ namespace ItemHandler
             Value = completedItem.Value;
             SizeX = completedItem.SizeX;
             SizeY = completedItem.SizeY;
-            ImgPath = completedItem.ImgPath;
             MaxStackSize = completedItem.MaxStackSize;
             //Action
             IsDropAble = completedItem.IsDropAble;
@@ -341,6 +421,14 @@ namespace ItemHandler
             IsUsable = completedItem.IsUsable;
             //tartalom
             Container = completedItem.Container;//tartalom
+            //darabokbol all
+            if (IsModificationAble)
+            {
+                Parts = new List<Part>
+                {
+                    new Part(ItemPartPath, this)
+                };
+            }
             //fegyver adatok
             DefaultMagasineSize = completedItem.DefaultMagasineSize;
             Spread = completedItem.Spread;
@@ -350,11 +438,11 @@ namespace ItemHandler
             Range = completedItem.Range;
             Ergonomy = completedItem.Ergonomy;
             BulletType = completedItem.BulletType;
-            Accessors = completedItem.Accessors;
             AmmoType = completedItem.AmmoType;
             //hasznalhato e?
             UseLeft = completedItem.UseLeft;
-            Debug.Log($"Item created {completedItem.ItemName}");
+
+        Debug.Log($"Item created {completedItem.ItemName}");
         }
     }
     public abstract class NonGeneralItemProperties// az item hozza letre azt a panelt a slot inventoryban amely a tartlomert felelos, de csak akkor ha ő equipment slotban van egybekent egy up relativ pozitcioju panelt hozzon letre mint az EFT-ban
@@ -371,7 +459,6 @@ namespace ItemHandler
         public double? Ergonomy { get; set; }
         public string AmmoType { get; set; } = "";
         public BulletType BulletType { get; set; }
-        public Accessors Accessors { get; set; }
         //usable
         public int UseLeft { get; set; } = 0;
         //ammo
@@ -379,6 +466,58 @@ namespace ItemHandler
         //med
 
         //armor
+    }
+
+    //a connection point inpectorban létező dolog ami lenyegeben statikusan jelen van nem kell generalni
+    [System.Serializable]
+    public class ConnectionPoint
+    {
+        public RectTransform RefPoint1;//csak live ban van
+        public RectTransform RefPoint2;//csak live ban van
+
+        public ConnectionPoint ConnectedPoint;//a csatlakozattott point
+        public Part SelfPart;//amelyik part-nak a pointja
+
+        public bool Used = false;//alapotjezo
+
+        public string Name;//inspector
+        public string Type = "";//inspector
+        public int Layer;//inspector
+        [SerializeField] private TextAsset CompatibleItemTextFile;//inspector
+        [HideInInspector] public string[] CompatibleItemText; 
+        public void SetText()
+        {
+            CompatibleItemText = CompatibleItemTextFile.text.Split('\n');
+        }
+    }
+    public class Part
+    {
+        public Part(string part, Item item)
+        {
+            GameObject partObj = Resources.Load<GameObject>(item.ItemPartPath);
+            item_s_Part = item;
+            SelfPoints = partObj.GetComponent<PartObject>().connectionPoints;
+            foreach (ConnectionPoint cp in SelfPoints)
+            {
+                cp.SetText();
+            }
+            Name = partObj.name;
+        }
+
+        public GameObject PartObject;//csak live ban van
+
+        public ConnectionPoint[] SelfPoints;//a tartalmazott pontok
+        public string Name;//nev
+        public Item item_s_Part;//az item aminek a partja
+        public void SetLive(GameObject PartObject,ConnectionPoint[] connectionPoints)
+        {
+            this.PartObject = PartObject;
+            this.SelfPoints = connectionPoints;
+        }
+    }
+    public class BulletType
+    {
+
     }
     public class Container
     {
@@ -411,15 +550,6 @@ namespace ItemHandler
             }
         }
     }
-    public class BulletType
-    {
-
-    }
-
-    public class Accessors
-    {
-
-    }
     public static class LootRandomizer
     {
         private static readonly List<LootItem> weapons = new()
@@ -427,7 +557,7 @@ namespace ItemHandler
             new LootItem("Glock_17_9x19_pistol_PS9",1f),
             new LootItem("AK103", 2f),
             new LootItem("APOK_Tactical_Wasteland_Gladius",2f),
-            new LootItem("7.62x39FMJ",2f,0.1f,0.5f)//jelentese, hogy 10% és 50% staksize ban spawnolhat.
+            new LootItem("7.62x39FMJ",2f,0.1f,0.5f)//jelentese, hogy 10% és 50% staksize között spawnolhat.
         };
         private static readonly List<LootItem> equipments = new()
         {

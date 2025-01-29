@@ -36,11 +36,13 @@ public class ItemObject : MonoBehaviour, IPointerDownHandler, IPointerUpHandler,
     public PlacerStruct Placer;
     public void OnPointerEnter(PointerEventData eventData)
     {
+        Debug.Log("van");
         InGameUI.SetHotKeyWithMouse = true;
         InGameUI.SetGameObjectToHotKey = gameObject;
     }
     public void OnPointerExit(PointerEventData eventData)
     {
+        Debug.Log("nincs");
         InGameUI.SetHotKeyWithMouse = false;
         InGameUI.SetGameObjectToHotKey = null;
     }

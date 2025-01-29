@@ -129,13 +129,9 @@ public class DevConsol : MonoBehaviour
                 break;
             case "Clear":
                 Debug.Log($"{text.GetComponent<TMP_InputField>().text}");
-                //Item None = new Item();
-                //None.Container = new Container(inventory.GetComponent<ContainerObject>().ActualData.Container.PrefabPath);
-                //InventorySystem.DataDelete(inventory.GetComponent<ContainerObject>().ActualData);
-                //inventory.GetComponent<ContainerObject>().ActualData = None;
                 inventory.GetComponent<ContainerObject>().ActualData = null;
                 inventory.GetComponent<PlayerInventory>().levelManager.Items.Clear();
-                inventory.GetComponent<PlayerInventory>().EmptyInvenotry();
+                inventory.GetComponent<PlayerInventory>().CreateEmptyInvenotry();
                 break;
             case "Load":
                 Debug.Log($"{text.GetComponent<TMP_InputField>().text}");

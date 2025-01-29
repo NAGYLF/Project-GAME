@@ -22,29 +22,63 @@ namespace UI
         {
             Key = key;
         }
+        public void SetWithUI(Item item)
+        {
+            if (Item == item)
+            {
+                UnSetHotKey();
+            }
+            else
+            {
+                if (item.hotKeyRef != null)
+                {
+                    item.hotKeyRef.UnSetHotKey();
+                }
+                UnSetHotKey();
+                SetHotKey(item);
+            }
+        }
         public void UnSetHotKey()
         {
-            Item.HotKey = "";
-            Item.hotKeyRef = null;
-            if (IsInPlayerHand)
+            if (Item != null)
             {
-                InGameUI.Player.GetComponent<Player>().Hand.GetComponent<CharacterHand>().SelectedItem = null;
-                Item selectedItem = InGameUI.Player.GetComponent<Player>().Hand.GetComponent<CharacterHand>().SelectedItem;
-                GameObject playerObject = InGameUI.Player;
+                Item.HotKey = "";
+                Item.hotKeyRef = null;
+                if (IsInPlayerHand)
+                {
+                    InGameUI.Player.GetComponent<Player>().Hand.GetComponent<CharacterHand>().SelectedItem = null;
+                    Item selectedItem = InGameUI.Player.GetComponent<Player>().Hand.GetComponent<CharacterHand>().SelectedItem;
+                    GameObject playerObject = InGameUI.Player;
+                }
+                if (Item.SelfGameobject)
+                {
+                    Item.SelfGameobject.GetComponent<ItemObject>().SelfVisualisation();
+                }
+                Item = null;
             }
-            Item = null;
         }
         public void SetHotKey(Item SetIn)
         {
-            SetIn.HotKey = Key.ToString();
-            SetIn.hotKeyRef = this;
-            if (IsInPlayerHand)
+            if (Item == null)
             {
-                InGameUI.Player.GetComponent<Player>().Hand.GetComponent<CharacterHand>().SelectedItem = SetIn;
-                Item selectedItem = InGameUI.Player.GetComponent<Player>().Hand.GetComponent<CharacterHand>().SelectedItem;
-                GameObject playerObject = InGameUI.Player;
+                SetIn.HotKey = Key.ToString();
+                SetIn.hotKeyRef = this;
+                if (IsInPlayerHand)
+                {
+                    InGameUI.Player.GetComponent<Player>().Hand.GetComponent<CharacterHand>().SelectedItem = SetIn;
+                    Item selectedItem = InGameUI.Player.GetComponent<Player>().Hand.GetComponent<CharacterHand>().SelectedItem;
+                    GameObject playerObject = InGameUI.Player;
+                }
+                if (SetIn.SelfGameobject)
+                {
+                    SetIn.SelfGameobject.GetComponent<ItemObject>().SelfVisualisation();
+                }
+                Item = SetIn;
             }
-            Item = SetIn;
+            else
+            {
+                Debug.LogError($"HotKey is occupied {Key}");
+            }
         }
     }
     public class InGameUI : MonoBehaviour
@@ -472,7 +506,7 @@ namespace UI
                         }
                         if (SetHotKeyWithMouse)
                         {
-                            HotKey5.SetHotKey(SetGameObjectToHotKey.GetComponent<ItemObject>().ActualData);
+                            HotKey5.SetWithUI(SetGameObjectToHotKey.GetComponent<ItemObject>().ActualData);
                         }
                         break;
                     case KeyCode.Alpha6:
@@ -482,7 +516,7 @@ namespace UI
                         }
                         if (SetHotKeyWithMouse)
                         {
-                            HotKey6.SetHotKey(SetGameObjectToHotKey.GetComponent<ItemObject>().ActualData);
+                            HotKey6.SetWithUI(SetGameObjectToHotKey.GetComponent<ItemObject>().ActualData);
                         }
                         break;
                     case KeyCode.Alpha7:
@@ -492,7 +526,7 @@ namespace UI
                         }
                         if (SetHotKeyWithMouse)
                         {
-                            HotKey7.SetHotKey(SetGameObjectToHotKey.GetComponent<ItemObject>().ActualData);
+                            HotKey7.SetWithUI(SetGameObjectToHotKey.GetComponent<ItemObject>().ActualData);
                         }
                         break;
                     case KeyCode.Alpha8:
@@ -502,7 +536,7 @@ namespace UI
                         }
                         if (SetHotKeyWithMouse)
                         {
-                            HotKey8.SetHotKey(SetGameObjectToHotKey.GetComponent<ItemObject>().ActualData);
+                            HotKey8.SetWithUI(SetGameObjectToHotKey.GetComponent<ItemObject>().ActualData);
                         }
                         break;
                     case KeyCode.Alpha9:
@@ -512,7 +546,8 @@ namespace UI
                         }
                         if (SetHotKeyWithMouse)
                         {
-                            HotKey9.SetHotKey(SetGameObjectToHotKey.GetComponent<ItemObject>().ActualData);
+                            HotKey9.SetWithUI(SetGameObjectToHotKey.GetComponent<ItemObject>().ActualData);
+                            Debug.Log("hotkey9 foglalas");
                         }
                         break;
                     default:

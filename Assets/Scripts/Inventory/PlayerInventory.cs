@@ -72,7 +72,7 @@ namespace PlayerInventoryClass
         {
 
         }
-        public void EmptyInvenotry()
+        public void CreateEmptyInvenotry()
         {
             Item RootData = new()
             {
@@ -100,7 +100,7 @@ namespace PlayerInventoryClass
             }
             else
             {
-                EmptyInvenotry();
+                CreateEmptyInvenotry();
             }
         }
         private bool CanBePlace(ItemSlotData[,] slots, int Y, int X, Item item)

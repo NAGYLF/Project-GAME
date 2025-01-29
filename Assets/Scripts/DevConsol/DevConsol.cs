@@ -3,7 +3,6 @@ using UnityEngine;
 using MainData;
 using ItemHandler;
 using PlayerInventoryClass;
-using Newtonsoft.Json.Linq;
 using System;
 using System.Linq;
 using UI;
@@ -27,7 +26,7 @@ public class DevConsol : MonoBehaviour
                             case "item":
                                 Debug.Log($"{text.GetComponent<TMP_InputField>().text}");
                                 Item item = new Item(Command[3]);
-                                if (Command.Length==5)
+                                if (Command.Length>=5)
                                 {
                                     item.Quantity = int.Parse(Command[4]);
                                 }
@@ -130,10 +129,10 @@ public class DevConsol : MonoBehaviour
                 break;
             case "Clear":
                 Debug.Log($"{text.GetComponent<TMP_InputField>().text}");
-                inventory.GetComponent<PlayerInventory>().levelManager.Items.Clear();
+                /*
                 Item None = new Item();
                 None.Container = new Container(inventory.GetComponent<ContainerObject>().ActualData.Container.PrefabPath);
-                inventory.GetComponent<ContainerObject>().ActualData = None;
+                inventory.GetComponent<ContainerObject>().ActualData = None;*/
                 break;
             case "Load":
                 Debug.Log($"{text.GetComponent<TMP_InputField>().text}");

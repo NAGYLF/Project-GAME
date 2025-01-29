@@ -27,7 +27,6 @@ public class ContainerObject : MonoBehaviour
     [HideInInspector] public List<GameObject> activeSlots;
     [HideInInspector] public GameObject PlaceableObject;
     private int activeSlotsCount = 0;
-    private PlacerStruct placer;
     #endregion
 
     #region Active Slot Handler
@@ -39,9 +38,9 @@ public class ContainerObject : MonoBehaviour
             PlaceableObject = activeSlots.First().GetComponent<ItemSlot>().ActualPartOfItemObject;
             if ((activeSlots.First().GetComponent<ItemSlot>().IsEquipment && activeSlots.Count == 1) || (activeSlots.Count == PlaceableObject.GetComponent<ItemObject>().ActualData.SizeX * PlaceableObject.GetComponent<ItemObject>().ActualData.SizeY))
             {
-                placer.ActiveItemSlots = activeSlots;
-                placer.NewParentData = ActualData;
-                PlaceableObject.GetComponent<ItemObject>().placer = placer;
+                PlacerStruct placer = new PlacerStruct(activeSlots,ActualData);
+                ActualData.GivePlacer = placer;
+                PlaceableObject.GetComponent<ItemObject>().AvaiableNewParentObject = gameObject;
             }
         }
         yield return null;
@@ -66,7 +65,6 @@ public class ContainerObject : MonoBehaviour
             }
         }
         activeSlots = new List<GameObject>();
-        placer.ActiveItemSlots = new List<GameObject>();
     }
     #endregion
     private void Start()
@@ -87,14 +85,7 @@ public class ContainerObject : MonoBehaviour
         {
             Debug.Log($"{ActualData.Container.Items[i].ItemName} creating into {ActualData.ItemName}'s container");
             GameObject itemObject;
-            if (ActualData.Container.Items[i].IsModificationAble)
-            {
-                itemObject = CreatePrefab(Item.AdvancedItemObjectParth);
-            }
-            else
-            {
-                itemObject = CreatePrefab(Item.SimpleItemObjectParth);
-            }
+            itemObject = CreatePrefab(ActualData.Container.Items[i].ObjectPath);
             itemObject.name = ActualData.Container.Items[i].ItemName;
             itemObject.GetComponent<ItemObject>().SetDataRoute(ActualData.Container.Items[i],ActualData);//Létrehozzuk a szikronizálási utat ezen VirtualParentObject és a VirtualChildrenObject között
         }

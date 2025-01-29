@@ -145,9 +145,7 @@ namespace PlayerInventoryClass
                             {
                                 if ((itemsOfLvl[itemIndex].Container.Sectors[sectorIndex][Y, X].SlotType.Contains(Data.ItemType) || itemsOfLvl[itemIndex].Container.Sectors[sectorIndex][Y, X].SlotType == "") && itemsOfLvl[itemIndex].Container.Sectors[sectorIndex][Y, X].PartOfItemData == null && (CanBePlace(itemsOfLvl[itemIndex].Container.Sectors[sectorIndex], Y, X, Data) || itemsOfLvl[itemIndex].IsRoot))//ha a slot nem tagja egy itemnek sem akkor target
                                 {
-                                    SetSlotUseBySector(Y,X, sectorIndex,itemsOfLvl[itemIndex],Data);
-                                    SetNewDataParent(itemsOfLvl[itemIndex],Data);
-                                    DataAdd(itemsOfLvl[itemIndex],Data);
+                                    AddDataNonLive(Y,X, sectorIndex, itemsOfLvl[itemIndex], Data);
                                     Debug.Log($"Item Added in container");
                                     int count = 0;
                                     if (Data.Quantity > Data.MaxStackSize)
@@ -186,9 +184,7 @@ namespace PlayerInventoryClass
                             {
                                 if ((itemsOfLvl[itemIndex].Container.Sectors[sectorIndex][Y, X].SlotType.Contains(Data.ItemType) || itemsOfLvl[itemIndex].Container.Sectors[sectorIndex][Y, X].SlotType == "") && itemsOfLvl[itemIndex].Container.Sectors[sectorIndex][Y, X].PartOfItemData == null && (CanBePlace(itemsOfLvl[itemIndex].Container.Sectors[sectorIndex], Y, X, Data) || itemsOfLvl[itemIndex].IsRoot))//ha a slot nem tagja egy itemnek sem akkor target
                                 {
-                                    SetSlotUseBySector(Y, X, sectorIndex, itemsOfLvl[itemIndex], Data);
-                                    SetNewDataParent(itemsOfLvl[itemIndex], Data);
-                                    DataAdd(itemsOfLvl[itemIndex], Data);
+                                    AddDataNonLive(Y, X, sectorIndex, itemsOfLvl[itemIndex], Data);
                                     (Data.SizeX, Data.SizeY) = (Data.SizeY, Data.SizeX);
                                     Debug.Log($"Item Added in container");
                                     int count = 0;
@@ -262,13 +258,13 @@ namespace PlayerInventoryClass
                     else if (itemsOfLvl[itemIndex].Quantity == 0)
                     {
                         ItemRemoved = true;
-                        DataRemove(itemsOfLvl[itemIndex].ParentItem, itemsOfLvl[itemIndex]);
+                        DataDelete(itemsOfLvl[itemIndex]);
                     }
                     else
                     {
                         count = Math.Abs(itemsOfLvl[itemIndex].Quantity);
                         Data.Quantity = count;
-                        DataRemove(itemsOfLvl[itemIndex].ParentItem, itemsOfLvl[itemIndex]);
+                        DataDelete(itemsOfLvl[itemIndex]);
                     }
                 }
             }

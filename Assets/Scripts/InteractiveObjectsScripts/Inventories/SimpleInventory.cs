@@ -37,9 +37,7 @@ namespace NaturalInventorys
                             {
                                 if (Root.Container.Sectors[sectorIndex][Y, X].PartOfItemData == null && CanBePlace(Root.Container.Sectors[sectorIndex], Y, X, Data))//ha a slot nem tagja egy itemnek sem akkor target
                                 {
-                                    SetNewDataParent(Root, Data);
-                                    SetSlotUseBySector(Y,X,sectorIndex,Root,Data);
-                                    DataAdd(Root,Data);
+                                    AddDataNonLive(Y,X,sectorIndex,Root,Data);
                                     ItemAdded = true;
                                 }
                             }

@@ -40,6 +40,16 @@ namespace PlayerInventoryClass
             {
                 Items = new List<Item>();
             }
+            public void Cleaning()
+            {
+                foreach (Item item in Items)
+                {
+                    if (item.ParentItem == null && !item.IsRoot)
+                    {
+                        InventorySystem.DataDelete(item);
+                    }
+                }
+            }
         }
         private void Awake()
         {
@@ -62,6 +72,25 @@ namespace PlayerInventoryClass
         {
 
         }
+        public void EmptyInvenotry()
+        {
+            Item RootData = new()
+            {
+                ItemName = "Root",
+                Lvl = -1,
+                IsRoot = true,
+                IsEquipmentRoot = true,
+                IsInPlayerInventory = true,
+                Container = new Container("GameElements/PlayerInventory"),
+                ContainerObject = gameObject,
+                SectorDataGrid = gameObject.GetComponent<ContainerObject>().Sectors
+            };
+            levelManager = new LevelManager();
+            levelManager.Items.Add(RootData);
+            RootData.LevelManagerRef = levelManager;
+            levelManager.SetMaxLVL_And_Sort();
+            gameObject.GetComponent<ContainerObject>().SetDataRoute(RootData);
+        }
         public void InventoryLoad()//kelelne egy save manager script ami a be ovasat es a kiirast kezelni ezzel lehet idot lehetni sporolni
         {
             if (File.Exists("UserSave.json"))
@@ -71,21 +100,7 @@ namespace PlayerInventoryClass
             }
             else
             {
-                Item RootData = new()
-                {
-                    ItemName = "Root",
-                    Lvl = -1,
-                    IsRoot = true,
-                    IsEquipmentRoot = true,
-                    IsInPlayerInventory = true,
-                    Container = new Container("GameElements/PlayerInventory"),
-                    ContainerObject = gameObject,
-                    SectorDataGrid = gameObject.GetComponent<ContainerObject>().Sectors
-                };
-                levelManager = new LevelManager();
-                levelManager.Items.Add(RootData);
-                levelManager.SetMaxLVL_And_Sort();
-                gameObject.GetComponent<ContainerObject>().SetDataRoute(RootData);
+                EmptyInvenotry();
             }
         }
         private bool CanBePlace(ItemSlotData[,] slots, int Y, int X, Item item)

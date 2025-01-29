@@ -7,7 +7,6 @@ using UnityEngine.UI;
 using ItemHandler;
 using TMPro;
 using Newtonsoft.Json.Linq;
-using static System.Collections.Specialized.BitVector32;
 
 namespace UI
 {

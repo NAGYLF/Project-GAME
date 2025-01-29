@@ -26,7 +26,6 @@ using static PlayerInventoryClass.PlayerInventory;
 using UI;
 using Newtonsoft.Json.Linq;
 using static MainData.SupportScripts;
-using UnityEditorInternal.Profiling.Memory.Experimental;
 
 
 namespace ItemHandler
@@ -1446,12 +1445,17 @@ namespace ItemHandler
                     }
                     int lvl = Data.Lvl;
                     Data.Lvl = ++lvl;
-                    StatusIsInPlayerInventory(Data);
+                    StatusIsInPlayerInventory(item);
                 }
             }
         }
-        public static void DataDelete(Item Data)//Teljes törlést végez az egesz itemen , a childjeit is törli
+        public static void DataDelete(Item Data)//Teljes törlést végez az egesz itemen
         {
+            //hotkeybol valo torles
+            if (Data.hotKeyRef != null)
+            {
+                Data.hotKeyRef.UnSetHotKey();
+            }
             //item sectorbol valo törles
             foreach (ItemSlotData slotData in Data.ItemSlotDataRef)
             {
@@ -1463,38 +1467,29 @@ namespace ItemHandler
             Data.ContainerItemListRef.Remove(Data);//remove
             Data.ContainerItemListRef = null;//ref delete
 
-            //playerinventorybol valo torles
-            if (Data.IsInPlayerInventory)
-            {
-                Data.IsInPlayerInventory = false;
-                Data.LevelManagerRef.Items.Remove(Data);//remove
-                Data.LevelManagerRef.SetMaxLVL_And_Sort();
-                Data.LevelManagerRef = null;//ref delete
-            }
-
-            //hotkeybol valo torles
-            if (Data.hotKeyRef != null)
-            {
-                Data.hotKeyRef.UnSetHotKey();
-            }
-
             //gameobject törlese
-            if (Data.SelfGameobject != null)
+            if (Data.ItemSlotObjectRef != null)
             {
                 foreach (GameObject slotObject in Data.ItemSlotObjectRef)
                 {
                     slotObject.GetComponent<ItemSlot>().PartOfItemObject = null;//remove
                 }
                 Data.ItemSlotObjectRef.Clear();//ref delete
-                if (Data.Container != null)
+                if (Data.SelfGameobject != null)
                 {
-                    foreach (Item item in Data.Container.Items)
-                    {
-                        DataDelete(item);
-                    }
+                    Data.SelfGameobject.GetComponent<ItemObject>().DestroyContainer();
+                    GameObject.Destroy(Data.SelfGameobject);
                 }
-                Data.SelfGameobject.GetComponent<ItemObject>().DestroyContainer();
-                GameObject.Destroy(Data.SelfGameobject);
+            }
+
+            //playerinventorybol valo torles
+            if (Data.IsInPlayerInventory)
+            {
+                Data.IsInPlayerInventory = false;
+                Data.LevelManagerRef.Items.Remove(Data);//remove
+                Data.LevelManagerRef.SetMaxLVL_And_Sort();
+                Data.LevelManagerRef.Cleaning();
+                Data.LevelManagerRef = null;//ref delete
             }
         }
     }

@@ -89,7 +89,7 @@ public class ItemObject : MonoBehaviour, IPointerDownHandler, IPointerUpHandler,
             #endregion
         }
     }
-    public async void OnPointerUp(PointerEventData eventData)
+    public void OnPointerUp(PointerEventData eventData)
     {
         if (isDragging)
         {

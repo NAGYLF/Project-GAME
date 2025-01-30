@@ -12,9 +12,9 @@ using System;
 using System.Reflection;
 
 [assembly: System.Reflection.AssemblyCompanyAttribute("EphemeralCourage_API")]
-[assembly: System.Reflection.AssemblyConfigurationAttribute("Debug")]
+[assembly: System.Reflection.AssemblyConfigurationAttribute("Release")]
 [assembly: System.Reflection.AssemblyFileVersionAttribute("1.0.0.0")]
-[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0+fe3a2e3e79ace6016de7e568d33ca08a3be99c9c")]
+[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0")]
 [assembly: System.Reflection.AssemblyProductAttribute("EphemeralCourage_API")]
 [assembly: System.Reflection.AssemblyTitleAttribute("EphemeralCourage_API")]
 [assembly: System.Reflection.AssemblyVersionAttribute("1.0.0.0")]

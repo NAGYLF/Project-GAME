@@ -1,8 +1,8 @@
 {
   "version": 2,
-  "dgSpecHash": "/0lr+R76n9s=",
+  "dgSpecHash": "/YiecW82jkQ=",
   "success": true,
-  "projectFilePath": "C:\\Users\\arpig\\Desktop\\Project-GAME-API\\EphemeralCourage_API.csproj",
+  "projectFilePath": "C:\\Users\\arpig\\Desktop\\Project-GAME-API2\\EphemeralCourage_API.csproj",
   "expectedPackageFiles": [
     "C:\\Users\\arpig\\.nuget\\packages\\bouncycastle.cryptography\\2.3.1\\bouncycastle.cryptography.2.3.1.nupkg.sha512",
     "C:\\Users\\arpig\\.nuget\\packages\\google.protobuf\\3.26.1\\google.protobuf.3.26.1.nupkg.sha512",

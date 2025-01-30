@@ -1,17 +1,17 @@
 {
   "format": 1,
   "restore": {
-    "C:\\Users\\arpig\\Desktop\\Project-GAME-API\\EphemeralCourage_API.csproj": {}
+    "C:\\Users\\arpig\\Desktop\\Project-GAME-API2\\EphemeralCourage_API.csproj": {}
   },
   "projects": {
-    "C:\\Users\\arpig\\Desktop\\Project-GAME-API\\EphemeralCourage_API.csproj": {
+    "C:\\Users\\arpig\\Desktop\\Project-GAME-API2\\EphemeralCourage_API.csproj": {
       "version": "1.0.0",
       "restore": {
-        "projectUniqueName": "C:\\Users\\arpig\\Desktop\\Project-GAME-API\\EphemeralCourage_API.csproj",
+        "projectUniqueName": "C:\\Users\\arpig\\Desktop\\Project-GAME-API2\\EphemeralCourage_API.csproj",
         "projectName": "EphemeralCourage_API",
-        "projectPath": "C:\\Users\\arpig\\Desktop\\Project-GAME-API\\EphemeralCourage_API.csproj",
+        "projectPath": "C:\\Users\\arpig\\Desktop\\Project-GAME-API2\\EphemeralCourage_API.csproj",
         "packagesPath": "C:\\Users\\arpig\\.nuget\\packages\\",
-        "outputPath": "C:\\Users\\arpig\\Desktop\\Project-GAME-API\\obj\\",
+        "outputPath": "C:\\Users\\arpig\\Desktop\\Project-GAME-API2\\obj\\",
         "projectStyle": "PackageReference",
         "fallbackFolders": [
           "C:\\Program Files (x86)\\Microsoft Visual Studio\\Shared\\NuGetPackages"

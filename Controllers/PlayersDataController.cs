@@ -75,19 +75,7 @@ public class PlayersDataController : ControllerBase
             return StatusCode(200, data);
         }
     }
-    [HttpGet("{name},{password}")]
-    public ActionResult<Player> GetByNameAndPassword(string name, string password)
-    {
-        using (var context = new DatasDbContext())
-        {
-            var player = context.Players.FirstOrDefault(x => x.Name == name && x.Password == password);
-            if (player == null)
-            {
-                return NotFound(new { message = "Player not found" });
-            }
-            return Ok(player);
-        }
-    }
+
     [HttpPost]
     public ActionResult<Player> Post(CreatePlayer createPlayerDto)
     {
@@ -140,7 +128,7 @@ public class PlayersDataController : ControllerBase
         }
     }
 
-    [HttpDelete("PlayerDelete")]
+    [HttpDelete("PlayerDelete")]//Player Kitörlése
     public ActionResult<object> Delete(int id)
     {
         using (var context = new DatasDbContext())
@@ -156,7 +144,7 @@ public class PlayersDataController : ControllerBase
         return StatusCode(404, new { message = "Nincs ilyen player!" });
     }
 
-    [HttpGet("code")]
+    [HttpGet("code")//Kód Generálás
     public ActionResult<object> GetTotpCode()
     {
         var base32Secret = "ABCDEFGHIJKLMNOPQRSTUVWXYZ234567";

@@ -73,7 +73,7 @@ function Nav({ language, setLanguage, texts, isLoggedIn, setIsLoggedIn, isAdmin,
                         border: 'none',
                         padding: 0,
                         margin: 0,
-                        display: 'inline-block',
+                        position: 'relative'
                       }}
                     >
                       <img
@@ -83,7 +83,7 @@ function Nav({ language, setLanguage, texts, isLoggedIn, setIsLoggedIn, isAdmin,
                         style={{ width: '30px', height: '30px', borderRadius: '50%' }}
                       />
                     </button>
-                    <ul className="dropdown-menu" aria-labelledby="dropdownMenuButton">
+                    <ul className="dropdown-menu" aria-labelledby="dropdownMenuButton" style={{ position: 'absolute', top: '100%' }}>
                       {isAdmin && (
                         <li>
                           <Link className="dropdown-item" to="/admin">

@@ -8,6 +8,7 @@ import Register from './Register';
 import Settings from "./Settings";
 import Search from "./Search";
 import Admin from "./Admin";
+import Footer from "./Footer";
 
 function App() {
   const [language, setLanguage] = useState('hu');
@@ -25,7 +26,8 @@ function App() {
       settings: 'Beállítások',
       signout: 'Kijelentkezés',
       adminSettings: 'Admin beállítások',
-      search: 'Keresés'
+      search: 'Keresés',
+      footerText: "© 2025 Ephemeral Courage. Minden jog fenntartva.",
     },
     en: {
       description: 'Description',
@@ -35,7 +37,8 @@ function App() {
       settings: 'Settings',
       signout: 'Sign Out',
       adminSettings: 'Admin Settings',
-      search: 'Search'
+      search: 'Search',
+      footerText: "© 2025 Ephemeral Courage. All rights reserved.",
     },
   });
   
@@ -61,6 +64,10 @@ function App() {
         <Route path="/admin" element={<Admin texts={texts} language={language} code={code} setCode={setCode} secondsLeft={secondsLeft} setSecondsLeft={setSecondsLeft} />} />
         <Route path="/search" element={<Search texts={texts} language={language}/>} />
       </Routes>
+      <Footer 
+        language={language}  
+        texts={texts} 
+      />
     </Router>
   );
 }

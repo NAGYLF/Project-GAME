@@ -114,7 +114,6 @@ function Nav({ language, setLanguage, texts, isLoggedIn, setIsLoggedIn, isAdmin,
                   </Link>
                   </>
                 )}
-
               </form>
             </div>
           </div>

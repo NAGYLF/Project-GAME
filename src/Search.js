@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
 
 export default function Search({ texts, language }) {
 
@@ -9,74 +9,74 @@ export default function Search({ texts, language }) {
         <input type="search" placeholder={texts[language].search+" onchange lesz"} style={{width: "100%", height: "50px",border:"2px solid black",borderRadius: "10px", fontSize: "20px", padding: "10px"}}/>
         <div id="searchbox">
           <div className="row">
-            <p>Test</p>
-            <p>Test</p>
-            <p>Test</p>
+            <Link to="/player" className="styled-link">Test</Link>
+            <Link to="/player" className="styled-link">Test</Link>
+            <Link to="/player" className="styled-link">Test</Link>
           </div>
           <div className="row">
-            <p>Test</p>
-            <p>Test</p>
-            <p>Test</p>
+            <Link to="/player" className="styled-link">Test</Link>
+            <Link to="/player" className="styled-link">Test</Link>
+            <Link to="/player" className="styled-link">Test</Link>
           </div>
           <div className="row">
-            <p>Test</p>
-            <p>Test</p>
-            <p>Test</p>
+            <Link to="/player" className="styled-link">Test</Link>
+            <Link to="/player" className="styled-link">Test</Link>
+            <Link to="/player" className="styled-link">Test</Link>
           </div>
           <div className="row">
-            <p>Test</p>
-            <p>Test</p>
-            <p>Test</p>
+            <Link to="/player" className="styled-link">Test</Link>
+            <Link to="/player" className="styled-link">Test</Link>
+            <Link to="/player" className="styled-link">Test</Link>
           </div>
           <div className="row">
-            <p>Test</p>
-            <p>Test</p>
-            <p>Test</p>
+            <Link to="/player" className="styled-link">Test</Link>
+            <Link to="/player" className="styled-link">Test</Link>
+            <Link to="/player" className="styled-link">Test</Link>
           </div>
           <div className="row">
-            <p>Test</p>
-            <p>Test</p>
-            <p>Test</p>
+            <Link to="/player" className="styled-link">Test</Link>
+            <Link to="/player" className="styled-link">Test</Link>
+            <Link to="/player" className="styled-link">Test</Link>
           </div>
           <div className="row">
-            <p>Test</p>
-            <p>Test</p>
-            <p>Test</p>
+            <Link to="/player" className="styled-link">Test</Link>
+            <Link to="/player" className="styled-link">Test</Link>
+            <Link to="/player" className="styled-link">Test</Link>
           </div>
           <div className="row">
-            <p>Test</p>
-            <p>Test</p>
-            <p>Test</p>
+            <Link to="/player" className="styled-link">Test</Link>
+            <Link to="/player" className="styled-link">Test</Link>
+            <Link to="/player" className="styled-link">Test</Link>
           </div>
           <div className="row">
-            <p>Test</p>
-            <p>Test</p>
-            <p>Test</p>
+            <Link to="/player" className="styled-link">Test</Link>
+            <Link to="/player" className="styled-link">Test</Link>
+            <Link to="/player" className="styled-link">Test</Link>
           </div>
           <div className="row">
-            <p>Test</p>
-            <p>Test</p>
-            <p>Test</p>
+            <Link to="/player" className="styled-link">Test</Link>
+            <Link to="/player" className="styled-link">Test</Link>
+            <Link to="/player" className="styled-link">Test</Link>
           </div>
           <div className="row">
-            <p>Test</p>
-            <p>Test</p>
-            <p>Test</p>
+            <Link to="/player" className="styled-link">Test</Link>
+            <Link to="/player" className="styled-link">Test</Link>
+            <Link to="/player" className="styled-link">Test</Link>
           </div>
           <div className="row">
-            <p>Test</p>
-            <p>Test</p>
-            <p>Test</p>
+            <Link to="/player" className="styled-link">Test</Link>
+            <Link to="/player" className="styled-link">Test</Link>
+            <Link to="/player" className="styled-link">Test</Link>
           </div>
           <div className="row">
-            <p>Test</p>
-            <p>Test</p>
-            <p>Test</p>
+            <Link to="/player" className="styled-link">Test</Link>
+            <Link to="/player" className="styled-link">Test</Link>
+            <Link to="/player" className="styled-link">Test</Link>
           </div>
           <div className="row">
-            <p>Test</p>
-            <p>Test</p>
-            <p>Test</p>
+            <Link to="/player" className="styled-link">Test</Link>
+            <Link to="/player" className="styled-link">Test</Link>
+            <Link to="/player" className="styled-link">Test</Link>
           </div>
         </div>
       </div>

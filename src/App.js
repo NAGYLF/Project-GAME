@@ -9,6 +9,7 @@ import Settings from "./Settings";
 import Search from "./Search";
 import Admin from "./Admin";
 import Footer from "./Footer";
+import Player from "./Player";
 
 function App() {
   const [language, setLanguage] = useState('hu');
@@ -63,6 +64,7 @@ function App() {
         <Route path="/settings" element={<Settings texts={texts} language={language}/>} />
         <Route path="/admin" element={<Admin texts={texts} language={language} code={code} setCode={setCode} secondsLeft={secondsLeft} setSecondsLeft={setSecondsLeft} />} />
         <Route path="/search" element={<Search texts={texts} language={language}/>} />
+        <Route path="/player" element={<Player texts={texts} language={language}/>} />
       </Routes>
       <Footer 
         language={language}  

@@ -6,6 +6,7 @@ function Description(props) {
     <div className="content">
       <div className="box">
         <h1>{props.language === "hu" ? "Leírás" : "Description"}</h1>
+        <hr/>
         <p>Lorem ipsum dolor sit amet, consectetur adipiscing elit. Vivamus lacinia est eget ante
             euismod, id sollicitudin leo malesuada. Integer convallis malesuada leo, ac auctor
             lacus interdum et. Cras vestibulum, sapien at consequat tristique, risus metus

@@ -1,8 +1,8 @@
-@import url('https://fonts.googleapis.com/css2?family=Russo+One&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Raleway:ital,wght@0,100..900;1,100..900&display=swap');
 
 * {
-  font-family: "Russo One", serif;
-  font-weight: 400;
+  font-family: "Raleway", serif;
+  font-optical-sizing: auto;
   font-style: normal;
   transition: all 0.5s ease;
 }
@@ -25,15 +25,16 @@ img, a{
 }
 
 .box {
-  background-color: rgb(128, 128, 128, 0.8); 
+  background-color: rgba(50, 50, 50, 0.8); 
   padding: 20px;
   width: 40vw!important;
   min-width: 100px;
   max-width: 100%;
-  border-radius: 10px;
+  border-radius: 5px;
+  border: 1px solid rgb(120, 120, 120);
   box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
-  text-align: center;
-  color:white;
+  text-align: justify;
+  color:azure;
   width: 50%;
   user-select: none;
 }
@@ -52,14 +53,13 @@ img, a{
 
 /*Keresőhöz*/
 #searchbox {
-  background-color: white;
+  background-color: #171717;
   color: black;
   padding: 20px;
   margin-top: 25px;
   border: 2px solid black;
   border-radius: 10px;
   overflow: hidden;
-  overflow-y: scroll;
   text-align: center;
   height: 85%;
 }
@@ -67,46 +67,44 @@ img, a{
 #searchbox .row {
   display: flex;
   justify-content: space-between;
+  margin: auto;
   margin-bottom: 10px;
 }
 
 #searchbox .row .styled-link {
-  background-color: rgb(77, 77, 77);
-  border: 1px solid black;
+  background-color: rgb(77, 77, 77, 0);
   color: white;
-  max-width: 150px;
+  min-width: 110px;
+  max-width: 110px;
   overflow: hidden;
   flex: 1;
   margin: 0 10px;
   position: relative;
-  padding: 2.5px;
+  padding: 10px;
   transition: 0.5s all;
   text-decoration: none;
   text-align: center;
-}
-
-#searchbox .row .styled-link::before {
-  content: '';
-  position: absolute;
-  width: 0;
-  height: 3px;
-  bottom: 0;
-  left: 0;
-  background-color: white;
-  visibility: hidden;
-  transition: all 0.5s ease-in-out;
-}
-
-#searchbox .row .styled-link:hover::before {
-  visibility: visible;
-  width: 100%;
+  font-size: 16px;
+  border-radius: 10px;
 }
 
 #searchbox .row .styled-link:hover {
-  cursor: pointer;
-  padding: 0.5px;
-  transition: 0.5s all;
+  background-color: rgb(129, 126, 126, 0.1);
 }
+
+#searchbox .row .styled-link img {
+  width: 50px;
+  height: 50px;
+  border-radius: 50%;
+  margin-bottom: 10px;
+}
+
+#searchbox .row .player-card .player-name {
+  font-size: 14px;
+  font-weight: bold;
+  text-overflow: ellipsis;
+}
+
 /*-----*/
 
 #logo:hover{
@@ -124,18 +122,39 @@ img, a{
   width: 100%;
   height: 100%;
   object-fit: cover;
-  z-index: -1; /* Videó háttérként */
+  z-index: -1;
 }
 .navbar-nav .nav-link {
-  border: 1px solid white;
+  background-color: rgb(10,10,10);
   border-radius: 5px;
-  max-width: 150px;
+  color:azure;
+  width: 90px!important;
   text-align: center;
   margin: 0 5px;
   transition: 0.5s;
-  padding: 5px;
+  font-size: 14px;
 }
 
+#logreg{
+  width: 120px!important;
+  margin: 5px;
+}
+
+#languagechanger{
+  background-color: rgb(10,10,10);
+  border-radius: 5px;
+  color:azure;
+  width: 90px!important;
+  text-align: center;
+  margin: 0 5px;
+  transition: 0.5s;
+  font-size: 14px;
+  min-height: 35.6px;
+}
+
+.custom-nav{
+  background-color: #171717;
+}
 .navbar-nav .nav-link:hover {
   background-color:rgb(255, 255, 255);
   color:rgb(0, 0, 0)!important;
@@ -154,7 +173,12 @@ img, a{
   position: fixed;
   bottom: 0;
   width: 100%;
+  font-size: 9px;
   user-select: none;
+}
+
+.footer p{
+  color: rgb(170,170,170);
 }
 
 .dropdown-item:hover{
@@ -162,23 +186,38 @@ img, a{
   color: rgb(255, 255, 255)!important;
 }
 
+@media (max-width: 1222px) {
+  .center-logo{
+    margin-left: 15%;
+  }
+
+  #searchbox .row .styled-link {
+    min-width: 40%;
+    max-width: 40%;
+  }
+}
 
 @media (max-width: 992px) {
   .navbar-nav {
     display: flex;
-    flex-direction:row!important;
+    flex-direction: row!important;
     align-items: center;
     justify-content: center;
     width: 100%;
     max-height: 50px;
   }
+
   .footer{
     font-size: small;
   }
 
   .navbar-nav .nav-link {
     margin: 5px;
-    max-width: 120px;
+    max-width: 75px;
+  }
+  #logreg{
+    max-width: 100px;
+    margin: 5px;
   }
 
   .center-logo {
@@ -217,6 +256,16 @@ img, a{
     overflow-y: scroll;
   }
 
+  /* Reszponzív mód */
+  #searchbox .row .styled-link {
+    font-size: 12px;
+    max-width: 26%;
+    padding: 5px;
+    white-space: nowrap;
+    text-overflow: ellipsis;
+    overflow: hidden;
+  }
+
   #rightnav{
     margin-top: 5vh;
   }
@@ -225,5 +274,21 @@ img, a{
     display: block;
     margin-left: auto;
     margin-right: auto;
+  }
+}
+
+@media (max-width: 380px){
+  #searchbox .row .styled-link {
+    min-width: 20%;
+    max-width: 20%;
+  }
+
+  #searchbox .row .styled-link img {
+    width: 31.5px;
+    height: 31.5px;
+  }
+  
+  #searchbox .row .player-card .player-name {
+    font-size: 7px;
   }
 }

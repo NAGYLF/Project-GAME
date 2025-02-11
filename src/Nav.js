@@ -21,7 +21,7 @@ function Nav({ language, setLanguage, texts, isLoggedIn, setIsLoggedIn, isAdmin,
         <source src={Video} type="video/mp4" />
         A böngésző nem támogatja a videó lejátszást.
       </video>
-      <nav className="navbar navbar-expand-lg navbar-dark bg-dark">
+      <nav className="navbar navbar-expand-lg navbar-dark custom-nav">
         <div className="container-fluid">
           <button 
             className="navbar-toggler" 
@@ -49,8 +49,8 @@ function Nav({ language, setLanguage, texts, isLoggedIn, setIsLoggedIn, isAdmin,
               <select 
                 value={language} 
                 onChange={handleLanguageChange} 
-                className="nav-item nav-link" 
-                style={{color:'black', background:"rgb(255,255,255,0.7)", borderRadius:"10px", maxWidth: "100px", cursor: "pointer"}}
+                id='languagechanger' 
+                style={{color:'black', background:"rgb(255,255,255,0.7)", borderRadius:"5px", maxWidth: "125px", cursor: "pointer"}}
               >
                 <option value="hu">Magyar</option>
                 <option value="en">English</option>
@@ -106,10 +106,10 @@ function Nav({ language, setLanguage, texts, isLoggedIn, setIsLoggedIn, isAdmin,
                   </div>
                 ) : (
                   <>
-                  <Link to="/login" className="nav-item nav-link active">
+                  <Link to="/login" className="nav-item nav-link active" id='logreg'>
                   {texts[language].login}
                   </Link>
-                  <Link to="/register" className="nav-item nav-link active">
+                  <Link to="/register" className="nav-item nav-link active" id='logreg'>
                     {texts[language].register}
                   </Link>
                   </>

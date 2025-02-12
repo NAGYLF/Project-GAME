@@ -66,7 +66,6 @@ img, a{
 
 #searchbox .row {
   display: flex;
-  justify-content: space-between;
   margin: auto;
   margin-bottom: 10px;
 }
@@ -188,7 +187,8 @@ img, a{
 
 @media (max-width: 1222px) {
   .center-logo{
-    margin-left: 15%;
+    margin-left: 7.5%;
+    height: 40px!important;
   }
 
   #searchbox .row .styled-link {
@@ -197,7 +197,7 @@ img, a{
   }
 }
 
-@media (max-width: 992px) {
+@media (max-width: 1025px) {
   .navbar-nav {
     display: flex;
     flex-direction: row!important;
@@ -258,12 +258,17 @@ img, a{
 
   /* Reszponzív mód */
   #searchbox .row .styled-link {
-    font-size: 12px;
-    max-width: 26%;
-    padding: 5px;
-    white-space: nowrap;
-    text-overflow: ellipsis;
-    overflow: hidden;
+    min-width: 20%;
+    max-width: 20%;
+  }
+
+  #searchbox .row .styled-link img {
+    width: 30px;
+    height: 30px;
+  }
+  
+  .player-name {
+    font-size: 8px ;
   }
 
   #rightnav{
@@ -284,11 +289,11 @@ img, a{
   }
 
   #searchbox .row .styled-link img {
-    width: 31.5px;
-    height: 31.5px;
+    width: 25px;
+    height: 25px;
   }
   
-  #searchbox .row .player-card .player-name {
-    font-size: 7px;
+  .player-name {
+    font-size: 8px;
   }
 }

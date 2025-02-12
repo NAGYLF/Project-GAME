@@ -48,14 +48,14 @@ const Search = ({ texts, language }) => {
   const renderPlayers = () => {
     console.log('Rendering players:', players); // Itt logoljuk a játékosokat, mielőtt renderelésre kerülnek
     const rows = [];
-    for (let i = 0; i < players.length; i += 4) {
+    for (let i = 0; i < players.length; i += 3) {
       rows.push(
-        <div className="row" key={i} style={{ display: 'flex', justifyContent: 'flex-start' }}>
-          {players.slice(i, i + 4).map((player) => (
-            <Link to={`/player/${player.id}`} className="styled-link" key={player.id} style={{ flex: 1, textAlign: 'center' }}>
-            <img src={Kep} alt={`${player.name} Image`} />
-            <div className="player-name">{player.name}</div>
-          </Link>
+        <div className="row" key={i} style={{ display: 'flex', justifyContent: 'space-evenly' }}>
+          {players.slice(i, i + 3).map((player) => (
+            <Link to={`/player/${player.id}`} className="styled-link" key={player.id} style={{ flex: '1 1 0', textAlign: 'center', margin: '0 10px' }}>
+              <img src={Kep} alt={`${player.name} Image`} />
+              <div className="player-name">{player.name}</div>
+            </Link>
           ))}
         </div>
       );

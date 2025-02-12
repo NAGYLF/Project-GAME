@@ -7,7 +7,7 @@ const Admin = ({ texts, language, code, setCode ,secondsLeft ,setSecondsLeft }) 
 
   //Kód
   useEffect(() => {
-    fetch('http://localhost:5269/UnityController/code')
+    fetch('http://localhost:5269/api/Player/code')
       .then(res => res.json())
       .then(data => {
         setCode(data.code);
@@ -20,7 +20,7 @@ const Admin = ({ texts, language, code, setCode ,secondsLeft ,setSecondsLeft }) 
         if (prev > 1) {
           return prev - 1;
         } else {
-          fetch('http://localhost:5269/UnityController/code')
+          fetch('http://localhost:5269/api/Player/code')
             .then(res => res.json())
             .then(data => {
               setCode(data.code);

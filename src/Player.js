@@ -42,9 +42,9 @@ export default function Player({ texts, language }) {
             <h3>{language === "hu" ? `${name} statisztikái` : 'Players statistics'}</h3>
             <hr/>
             <div className="left">
-                <p>{language === "hu" ? 'Pontok: ' : 'Score: '}{stats.score}</p>
-                <p>{language === "hu" ? 'Megölt ellenfelek: ' : 'Enemies killed: '}{stats.enemiesKilled}</p>
-                <p>{language === "hu" ? 'Halálok: ' : 'Deaths: '}{stats.deathCount}</p>
+                <p>{language === "hu" ? 'Pontok: ' : 'Score: '}{stats.score == null ? "0" : stats.score}</p>
+                <p>{language === "hu" ? 'Megölt ellenfelek: ' : 'Enemies killed: '}{stats.enemiesKilled == null ? "0" : stats.enemiesKilled}</p>
+                <p>{language === "hu" ? 'Halálok: ' : 'Deaths: '}{stats.deathCount == null ? "0" : stats.deathCount}</p>
             </div>
         </div>
     </div>

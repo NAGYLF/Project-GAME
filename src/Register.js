@@ -9,6 +9,7 @@ function Register({ language }) {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [passwordAgain, setPasswordAgain] = useState("");
+  const [adminCode, setAdminCode] = useState("");
 
   useEffect(() => {
     if (location.pathname !== "/register") {
@@ -100,6 +101,19 @@ function Register({ language }) {
                   id="registerPasswordAgain"
                   value={passwordAgain}
                   onChange={(e) => setPasswordAgain(e.target.value)}
+                  required
+                />
+              </div>
+              <div className="mb-3">
+                <label htmlFor="adminCode" className="form-label">
+                  {language === "hu" ? "Admin kód (opcionális)" : "Admin code (optional)"}
+                </label>
+                <input
+                  type="text"
+                  className="form-control"
+                  id="adminCode"
+                  value={adminCode}
+                  onChange={(e) => setAdminCode(e.target.value)}
                   required
                 />
               </div>

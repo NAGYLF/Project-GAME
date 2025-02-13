@@ -5,7 +5,7 @@ function Login({ language, texts, setIsLoggedIn, setIsAdmin }) {
   const location = useLocation();
   const navigate = useNavigate();
 
-  const [username, setUsername] = useState('');
+  const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
 
   useEffect(() => {
@@ -25,7 +25,7 @@ function Login({ language, texts, setIsLoggedIn, setIsAdmin }) {
       })
       .then(player => {
         console.log('Játékos megtalálva:', player);
-        setUsername(player.name);
+        setEmail(player.name);
         setIsLoggedIn(true);
         if (player.isAdmin === 1) {
           setIsAdmin(true);
@@ -39,11 +39,11 @@ function Login({ language, texts, setIsLoggedIn, setIsAdmin }) {
 
   const handleLogin = (e) => {
     e.preventDefault();
-    getPlayerByNameAndPassword(username, password);
+    getPlayerByNameAndPassword(email, password);
   };
 
   const handleAdditionalEvent = () => {
-    if (username && password) {
+    if (email && password) {
       navigate("/home");
     } else {
       alert("Please fill in all fields.");
@@ -82,15 +82,15 @@ function Login({ language, texts, setIsLoggedIn, setIsAdmin }) {
           <div className="modal-body">
             <form onSubmit={handleLogin}>
               <div className="mb-3">
-                <label htmlFor="username" className="form-label">
-                  {language === "hu" ? 'Felhasználónév' : 'Username'}
+                <label htmlFor="email" className="form-label">
+                  {language === "hu" ? 'Email cím' : 'Email'}
                 </label>
                 <input
                   type="text"
                   className="form-control"
-                  id="username"
-                  value={username}
-                  onChange={(e) => setUsername(e.target.value)}
+                  id="email"
+                  value={email}
+                  onChange={(e) => setEmail(e.target.value)}
                   required
                 />
               </div>

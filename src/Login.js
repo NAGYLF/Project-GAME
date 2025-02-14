@@ -1,5 +1,7 @@
+import axios from 'axios';
 import React, { useState, useEffect } from 'react';
 import { useLocation, useNavigate } from 'react-router-dom';
+import { jwtDecode } from 'jwt-decode';  // Helyes importálás
 
 function Login({ language, texts, setIsLoggedIn, setIsAdmin }) {
   const location = useLocation();
@@ -8,51 +10,45 @@ function Login({ language, texts, setIsLoggedIn, setIsAdmin }) {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
 
-  useEffect(() => {
-    if (location.pathname !== "/login") {
-      // If we navigate away from /login, modal should hide automatically
-      // You could add more logic to reset form or pesrform any other action
-    }
-  }, [location.pathname]);
+  const login = (email, password) => {
+    let user = {
+      email: email,
+      password: password
+    };
+    console.log(user);
+    
 
-  function getPlayerByNameAndPassword(name, password) {
-    fetch(`http://localhost:5269/UnityController/${name},${password}`)
-      .then(response => {
-        if (!response.ok) {
-          throw new Error('Játékos nem található');
-        }
-        return response.json();
-      })
-      .then(player => {
-        console.log('Játékos megtalálva:', player);
-        setEmail(player.name);
+    axios.post('http://localhost:5269/api/auth/login', user).then((response) => {
+      if (response.data) {
+        const token = response.data.token; // JWT token a válaszból
+        localStorage.setItem('token', token); // Token mentése localStorage-ba
+
+        // Token dekódolása
+        const decodedToken = jwtDecode(token);
+        const isAdmin = decodedToken.IsAdmin;
+        console.log(decodedToken);
+
+        // Állapotok beállítása
         setIsLoggedIn(true);
-        if (player.isAdmin === 1) {
-          setIsAdmin(true);
-        }
-      })
-      .catch(error => {
-        console.error('Hiba történt:', error);
-        setIsLoggedIn(false);
-      });
-  }
+        setIsAdmin(isAdmin);  // Az admin státusz beállítása
 
-  const handleLogin = (e) => {
-    e.preventDefault();
-    getPlayerByNameAndPassword(email, password);
+        // A felhasználót átirányítjuk a főoldalra
+        navigate("/home");
+      } else {
+        alert(response.data.message);
+      }
+    }).catch((error) => {
+      console.error("Login failed:", error);
+      alert("Bejelentkezés hiba!");
+    });
   };
 
-  const handleAdditionalEvent = () => {
-    if (email && password) {
-      navigate("/home");
-    } else {
-      alert("Please fill in all fields.");
-    }
-  };
-
-  const handleButtonClick = (e) => {
-    handleLogin(e);
-    handleAdditionalEvent();
+  const logout = () => {
+    localStorage.deleteItem('token');
+    console.log(localStorage.getItem('token'));
+    setIsLoggedIn(false);
+    setIsAdmin(false);
+    navigate("/home");
   };
 
   return (
@@ -80,7 +76,7 @@ function Login({ language, texts, setIsLoggedIn, setIsAdmin }) {
             ></button>
           </div>
           <div className="modal-body">
-            <form onSubmit={handleLogin}>
+            <form>
               <div className="mb-3">
                 <label htmlFor="email" className="form-label">
                   {language === "hu" ? 'Email cím' : 'Email'}
@@ -110,14 +106,14 @@ function Login({ language, texts, setIsLoggedIn, setIsAdmin }) {
             </form>
           </div>
           <div className="modal-footer">
-            <button type="submit" className="btn btn-light" onClick={handleButtonClick}>
+            <button type="submit" className="btn btn-light" onClick={() => login(email, password)}>
               {texts[language].login}
             </button>
             <button
               type="button"
               className="btn btn-danger"
               data-bs-dismiss="modal"
-              onClick={() => navigate("/home")}
+              onClick={logout}
             >
               {language === "hu" ? "Bezárás" : "Close"}
             </button>

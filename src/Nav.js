@@ -10,6 +10,12 @@ function Nav({ language, setLanguage, texts, isLoggedIn, setIsLoggedIn, isAdmin,
     setLanguage(e.target.value);
   };
 
+  const logout = () => {
+    localStorage.removeItem('token');
+    console.log(localStorage.getItem('token'));
+    setIsLoggedIn(false);
+  };
+
   return (
     <div>
       <video 
@@ -97,12 +103,11 @@ function Nav({ language, setLanguage, texts, isLoggedIn, setIsLoggedIn, isAdmin,
                       </Link>
                       </li>
                       <li>
-                        <a style={{cursor: "pointer"}} onClick={() => setIsLoggedIn(false)} className="dropdown-item">
+                        <a style={{cursor: "pointer"}} onClick={logout} className="dropdown-item">
                         {texts[language].signout}
                         </a>
                       </li>
                     </ul>
-                    <p style={{margin:"-1px"}}>{username ? username : ''}</p>
                   </div>
                 ) : (
                   <>

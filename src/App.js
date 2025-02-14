@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import { BrowserRouter as Router, Route, Routes } from 'react-router-dom';
 import Nav from './Nav';
 import Description from './Description';
@@ -10,14 +10,28 @@ import Search from "./Search";
 import Admin from "./Admin";
 import Footer from "./Footer";
 import Player from "./Player";
+import { jwtDecode } from 'jwt-decode';
 
 function App() {
   const [language, setLanguage] = useState('hu');
-  const [isLoggedIn, setIsLoggedIn] = useState(true);
-  const [isAdmin, setIsAdmin] = useState(true);
+  const [isLoggedIn, setIsLoggedIn] = useState(false);
+  const [isAdmin, setIsAdmin] = useState(false);
   const [code, setCode] = useState('');
   const [secondsLeft, setSecondsLeft] = useState(30);
   const [username, setUsername] = useState('');
+
+  useEffect(() => {
+      const token = localStorage.getItem('token');
+      if (token) {
+        const decodedToken = jwtDecode(token);
+        setIsLoggedIn(true);
+        setIsAdmin(decodedToken.IsAdmin);
+
+      }
+    }, [setIsLoggedIn, setIsAdmin]);
+
+    
+  
   const [texts, setTexts] = useState({
     hu: {
       description: 'Leírás',
@@ -59,7 +73,7 @@ function App() {
         {/* Passing language and texts props to all components */}
         <Route path="/description" element={<Description language={language} texts={texts} />} />
         <Route path="/about" element={<About language={language} texts={texts}/>} />
-        <Route path="/login" element={<Login language={language} texts={texts} isLoggedIn={isLoggedIn} setIsLoggedIn={setIsLoggedIn}/>} />
+        <Route path="/login" element={<Login language={language} texts={texts} isLoggedIn={isLoggedIn} setIsLoggedIn={setIsLoggedIn} setIsAdmin={setIsAdmin}/>} />
         <Route path="/register" element={<Register language={language} texts={texts} isLoggedIn={isLoggedIn} setIsLoggedIn={setIsLoggedIn}/>} />
         <Route path="/settings" element={<Settings texts={texts} language={language}/>} />
         <Route path="/admin" element={<Admin texts={texts} language={language} code={code} setCode={setCode} secondsLeft={secondsLeft} setSecondsLeft={setSecondsLeft} />} />

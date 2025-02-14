@@ -60,8 +60,13 @@ img, a{
   border: 2px solid black;
   border-radius: 10px;
   overflow: hidden;
+  overflow-y: scroll;
   text-align: center;
   height: 85%;
+}
+
+::-webkit-scrollbar {
+  width: 0px;
 }
 
 #searchbox .row {

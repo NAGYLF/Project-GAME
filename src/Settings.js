@@ -1,18 +1,21 @@
+import axios from "axios";
 import React, { useState } from "react";
 import { useLocation, useNavigate } from "react-router-dom";
 
-const Settings = ({ texts, language }) => {
+const Settings = ({ texts, language, id, token, logout }) => {
   const [newName, setNewName] = useState("");
   const [newEmail, setNewEmail] = useState("");
   const [newPassword, setNewPassword] = useState("");
   const location = useLocation();
   const navigate = useNavigate();
 
-  const handleSave = (e) => {
-    e.preventDefault();
-    console.log("New settings saved:", { newName, newEmail, newPassword });
-    navigate("/home");
-  };
+  const deleteAccount = () =>{
+    axios.delete(`http://localhost:5269/api/Player/${id}?token=${token}`).then(() => {
+      logout();
+      alert("Fiók sikeresen törölve!");
+      navigate("/");
+    }
+  )}
 
   return (
     <div
@@ -35,11 +38,14 @@ const Settings = ({ texts, language }) => {
               className="btn-close bg-light"
               data-bs-dismiss="modal"
               aria-label="Close"
-              onClick={() => navigate("/home")}
+              onClick={() => navigate("/")}
             ></button>
           </div>
           <div className="modal-body">
-            <form onSubmit={handleSave}>
+            <form onSubmit={(e) => {
+              e.preventDefault();
+              navigate("/");
+            }}>
               <div className="mb-3">
                 <label htmlFor="newName" className="form-label">
                   {language === "hu" ? 'Új felhasználónév' : 'New username'}
@@ -82,20 +88,15 @@ const Settings = ({ texts, language }) => {
                   required
                 />
               </div>
+              <div className="d-flex justify-content-between">
+                <button type="submit" className="btn btn-light">
+                {language === "hu" ? 'Mentés' : 'Save'}
+                </button>
+                <button type="button" className="btn btn-danger" onClick={() => (window.confirm("Biztosan törölni szeretnéd a fiókod?") ? deleteAccount() : null)}>
+                {language === "hu" ? 'Fiók törlése' : 'Delete account'}
+                </button>
+              </div>
             </form>
-          </div>
-          <div className="modal-footer">
-            <button type="submit" className="btn btn-light" onClick={handleSave}>
-              {language === "hu" ? 'Mentés' : 'Save'}
-            </button>
-            <button
-              type="button"
-              className="btn btn-danger"
-              data-bs-dismiss="modal"
-              onClick={() => navigate("/home")}
-            >
-              {language === "hu" ? "Bezárás" : "Close"}
-            </button>
           </div>
         </div>
       </div>

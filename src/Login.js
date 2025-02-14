@@ -1,47 +1,13 @@
-import axios from 'axios';
-import React, { useState, useEffect } from 'react';
+import React, { useState } from 'react';
 import { useLocation, useNavigate } from 'react-router-dom';
-import { jwtDecode } from 'jwt-decode';  // Helyes importálás
 
-function Login({ language, texts, setIsLoggedIn, setIsAdmin }) {
+function Login({ language, texts, setIsLoggedIn, setIsAdmin, login }) {
   const location = useLocation();
   const navigate = useNavigate();
 
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
 
-  const login = (email, password) => {
-    let user = {
-      email: email,
-      password: password
-    };
-    console.log(user);
-    
-
-    axios.post('http://localhost:5269/api/auth/login', user).then((response) => {
-      if (response.data) {
-        const token = response.data.token; // JWT token a válaszból
-        localStorage.setItem('token', token); // Token mentése localStorage-ba
-
-        // Token dekódolása
-        const decodedToken = jwtDecode(token);
-        const isAdmin = decodedToken.IsAdmin;
-        console.log(decodedToken);
-
-        // Állapotok beállítása
-        setIsLoggedIn(true);
-        setIsAdmin(isAdmin);  // Az admin státusz beállítása
-
-        // A felhasználót átirányítjuk a főoldalra
-        navigate("/home");
-      } else {
-        alert(response.data.message);
-      }
-    }).catch((error) => {
-      console.error("Login failed:", error);
-      alert("Bejelentkezés hiba!");
-    });
-  };
 
   const logout = () => {
     localStorage.deleteItem('token');
@@ -72,11 +38,15 @@ function Login({ language, texts, setIsLoggedIn, setIsAdmin }) {
               className="btn-close bg-light"
               data-bs-dismiss="modal"
               aria-label="Close"
-              onClick={() => navigate("/home")}
+              onClick={() => navigate("/")}
             ></button>
           </div>
           <div className="modal-body">
-            <form>
+            <form onSubmit={(e) => {
+              e.preventDefault();
+              login(email, password);
+              navigate("/");
+            } }>
               <div className="mb-3">
                 <label htmlFor="email" className="form-label">
                   {language === "hu" ? 'Email cím' : 'Email'}
@@ -103,20 +73,10 @@ function Login({ language, texts, setIsLoggedIn, setIsAdmin }) {
                   required
                 />
               </div>
-            </form>
-          </div>
-          <div className="modal-footer">
-            <button type="submit" className="btn btn-light" onClick={() => login(email, password)}>
+              <button type="submit" className="btn btn-light">
               {texts[language].login}
             </button>
-            <button
-              type="button"
-              className="btn btn-danger"
-              data-bs-dismiss="modal"
-              onClick={logout}
-            >
-              {language === "hu" ? "Bezárás" : "Close"}
-            </button>
+            </form>
           </div>
         </div>
       </div>

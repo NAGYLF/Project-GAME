@@ -1,38 +1,13 @@
-import React, { useState, useEffect } from 'react';
+import React, { useEffect } from 'react';
 import { useLocation, useNavigate } from 'react-router-dom';
 
-const Admin = ({ texts, language, code, setCode ,secondsLeft ,setSecondsLeft }) => {
+const Admin = ({ texts, language, code, setCode ,secondsLeft ,setSecondsLeft, admincode }) => {
   const location = useLocation();
   const navigate = useNavigate();
 
   //Kód
   useEffect(() => {
-    fetch('http://localhost:5269/api/Player/code')
-      .then(res => res.json())
-      .then(data => {
-        setCode(data.code);
-        setSecondsLeft(data.secondsLeft);
-      })
-      .catch(err => console.error(err));
-
-    const interval = setInterval(() => {
-      setSecondsLeft(prev => {
-        if (prev > 1) {
-          return prev - 1;
-        } else {
-          fetch('http://localhost:5269/api/Player/code')
-            .then(res => res.json())
-            .then(data => {
-              setCode(data.code);
-              setSecondsLeft(data.secondsLeft);
-            })
-            .catch(err => console.error(err));
-          return 30;
-        }
-      });
-    }, 1000);
-
-    return () => clearInterval(interval);
+    admincode();
   }, []);
 
   return (

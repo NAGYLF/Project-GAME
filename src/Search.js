@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
+import axios from 'axios';
 import Kep from './img/profilkep.jpg';
 
 const Search = ({ texts, language }) => {
@@ -9,9 +10,9 @@ const Search = ({ texts, language }) => {
   // Az első betöltésnél lekérjük az összes játékost
   useEffect(() => {
     console.log('Fetching all players...');
-    fetch('http://localhost:5269/api/Player')
-      .then(response => response.json())
-      .then(data => {
+    axios.get('http://localhost:5269/api/Player')
+      .then(response => {
+        const data = response.data;
         console.log('Fetched all players:', data); // Itt logoljuk a teljes választ
         setPlayers(data);
       })
@@ -23,18 +24,18 @@ const Search = ({ texts, language }) => {
     console.log('Searching for:', term); // A keresési kifejezés logolása
     if (term === '') {
       // Ha üres a keresési mező, lekérjük az összes játékost
-      fetch('http://localhost:5269/api/Player')
-        .then(response => response.json())
-        .then(data => {
+      axios.get('http://localhost:5269/api/Player')
+        .then(response => {
+          const data = response.data;
           console.log('Fetched all players after clearing search:', data); // Keresés törlés után
           setPlayers(data);
         })
         .catch(error => console.error('Error fetching player data:', error));
     } else {
       // Ha van keresési kifejezés, szűrjük a játékosokat a név alapján
-      fetch(`http://localhost:5269/api/Player/GetByName/${term}`)
-        .then(response => response.json())
-        .then(data => {
+      axios.get(`http://localhost:5269/api/Player/GetByName/${term}`)
+        .then(response => {
+          const data = response.data;
           console.log(`Fetched players for search term "${term}":`, data); // Keresési eredmény logolása
           let tomb = [];
           tomb.push(data);
@@ -53,7 +54,7 @@ const Search = ({ texts, language }) => {
         <div className="row" key={i} style={{ display: 'flex', justifyContent: 'space-evenly' }}>
           {players.slice(i, i + 3).map((player) => (
             <Link to={`/player/${player.id}`} className="styled-link" key={player.id} style={{ flex: '1 1 0', textAlign: 'center', margin: '0 10px' }}>
-              <img src={Kep} alt={`${player.name} Image`} />
+              <img src={Kep} alt={`${player.name} kep`} />
               <div className="player-name">{player.name}</div>
             </Link>
           ))}

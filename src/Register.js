@@ -1,30 +1,16 @@
-import React, { useState, useEffect } from "react";
+import React, { useState } from "react";
 import { useLocation, useNavigate } from "react-router-dom";
+import axios from "axios";
 
-function Register({ language }) {
-  const location = useLocation(); // Track current route
-  const navigate = useNavigate(); // Navigation function
+function Register({ language, code, login}) {
+  const location = useLocation();
+  const navigate = useNavigate();
 
   const [username, setUsername] = useState("");
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [passwordAgain, setPasswordAgain] = useState("");
   const [adminCode, setAdminCode] = useState("");
-
-  useEffect(() => {
-    if (location.pathname !== "/register") {
-      // If we navigate away from /register, modal should hide automatically
-      // You could add more logic to reset form or perform any other action
-    }
-  }, [location.pathname]);
-
-  const handleRegister = (e) => {
-    e.preventDefault();
-    // Registration logic
-    console.log("Registering user:", username, email);
-    // After successful registration, redirect
-    navigate("/home"); // Navigate to home after registration
-  };
 
   return (
     <div
@@ -51,7 +37,23 @@ function Register({ language }) {
             ></button>
           </div>
           <div className="modal-body">
-            <form onSubmit={handleRegister}>
+            <form onSubmit={(e) => {
+              e.preventDefault();
+              if(password === passwordAgain) {
+                const isAdmin = adminCode === code;
+                axios.post("http://localhost:5269/api/auth/register", { 
+                  name: username,
+                  password: password,
+                  email: email,
+                  isAdmin: isAdmin
+                })
+                .then(() => {
+                  login(email, password);
+                  navigate("/");
+                })
+              }
+              
+            }}>
               <div className="mb-3">
                 <label htmlFor="registerUsername" className="form-label">
                   {language === "hu" ? "Felhasználónév" : "Username"}
@@ -114,23 +116,14 @@ function Register({ language }) {
                   id="adminCode"
                   value={adminCode}
                   onChange={(e) => setAdminCode(e.target.value)}
-                  required
                 />
               </div>
+              <div style={{ display: "flex", justifyContent: "space-between" }}>
+                <button type="submit" className="btn btn-light">
+                {language === "hu" ? "Regisztráció" : "Register"}
+                </button>
+              </div>
             </form>
-          </div>
-          <div className="modal-footer">
-            <button type="submit" className="btn btn-light" onClick={handleRegister}>
-              {language === "hu" ? "Regisztráció" : "Register"}
-            </button>
-            <button
-              type="button"
-              className="btn btn-danger"
-              data-bs-dismiss="modal"
-              onClick={() => navigate("/home")}
-            >
-              {language === "hu" ? "Bezárás" : "Close"}
-            </button>
           </div>
         </div>
       </div>

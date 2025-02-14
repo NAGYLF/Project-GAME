@@ -5,16 +5,11 @@ import Logo from './img/logo.png';
 import Kep from './img/profilkep.jpg';
 import './Nav.css';
 
-function Nav({ language, setLanguage, texts, isLoggedIn, setIsLoggedIn, isAdmin, username }) {
+function Nav({ language, setLanguage, texts, isLoggedIn, setIsLoggedIn, isAdmin, username, logout }) {
   const handleLanguageChange = (e) => {
     setLanguage(e.target.value);
   };
 
-  const logout = () => {
-    localStorage.removeItem('token');
-    console.log(localStorage.getItem('token'));
-    setIsLoggedIn(false);
-  };
 
   return (
     <div>
@@ -56,7 +51,8 @@ function Nav({ language, setLanguage, texts, isLoggedIn, setIsLoggedIn, isAdmin,
                 value={language} 
                 onChange={handleLanguageChange} 
                 id='languagechanger' 
-                style={{color:'black', background:"rgb(255,255,255,0.7)", borderRadius:"5px", maxWidth: "125px", cursor: "pointer"}}
+                className='form-select'
+                style={{ borderRadius:"5px",minWidth:"100px", cursor: "pointer", textAlign:"left"}}
               >
                 <option value="hu">Magyar</option>
                 <option value="en">English</option>
@@ -103,9 +99,9 @@ function Nav({ language, setLanguage, texts, isLoggedIn, setIsLoggedIn, isAdmin,
                       </Link>
                       </li>
                       <li>
-                        <a style={{cursor: "pointer"}} onClick={logout} className="dropdown-item">
+                        <button style={{cursor: "pointer"}} onClick={logout} className="dropdown-item">
                         {texts[language].signout}
-                        </a>
+                        </button>
                       </li>
                     </ul>
                   </div>

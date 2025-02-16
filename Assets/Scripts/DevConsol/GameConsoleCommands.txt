@@ -49,7 +49,7 @@ add TestPlayer item Dollar_1
 add TestPlayer item AI_2
 
 
-add TestPlayer item AK103Body
+add TestPlayer item TestCenter
 
 #----------------Add ammo--------------------#
 
@@ -79,6 +79,9 @@ remove TestPlayer item 7.62x39FMJ 113
 #----------------Test Dev Commands--------------------#
 
 add TestPlayer DevInventory
+
+
+add TestPlayer AdvancedItemTest
 
 
 add TestPlayer DevInventory_FullGear

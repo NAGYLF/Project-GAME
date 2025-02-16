@@ -125,7 +125,7 @@ namespace PlayerInventoryClass
         {
             bool ItemAdded = false;
             List<Item> itemsOfLvl = levelManager.Items.Where(Item => Item.Lvl == lvl).ToList();
-            for (int itemIndex = 0; itemIndex < itemsOfLvl.Count && !ItemAdded; itemIndex++)
+            for (int itemIndex = 0; itemIndex < itemsOfLvl.Count; itemIndex++)
             {
                 if (itemsOfLvl[itemIndex].ItemName == Data.ItemName && itemsOfLvl[itemIndex].Quantity != itemsOfLvl[itemIndex].MaxStackSize)
                 {
@@ -144,79 +144,53 @@ namespace PlayerInventoryClass
             }
             return ItemAdded;
         }
-        private (bool, int) AddingByNewItem(int lvl, Item Data)
+        private bool AddingByNewItem(int lvl, Item Data)
         {
-            bool ItemAdded = false;
             List<Item> itemsOfLvl = levelManager.Items.Where(Item => Item.Lvl == lvl && Item.Container != null).ToList();
-            for (int itemIndex = 0; itemIndex < itemsOfLvl.Count && !ItemAdded; itemIndex++)
+            for (int itemIndex = 0; itemIndex < itemsOfLvl.Count; itemIndex++)
             {
-                for (int sectorIndex = 0; sectorIndex < itemsOfLvl[itemIndex].Container.Sectors.Length && !ItemAdded; sectorIndex++)//mivel a szector 2D array-okat tartalmaz ezert a sectorokon az az ezen 2D arrayokon iteralunk vegig
+                for (int sectorIndex = 0; sectorIndex < itemsOfLvl[itemIndex].Container.Sectors.Length; sectorIndex++)//mivel a szector 2D array-okat tartalmaz ezert a sectorokon az az ezen 2D arrayokon iteralunk vegig
                 {
                     if (itemsOfLvl[itemIndex].IsRoot || (itemsOfLvl[itemIndex].Container.Sectors[sectorIndex].GetLength(1) >= Data.SizeX && itemsOfLvl[itemIndex].Container.Sectors[sectorIndex].GetLength(0) >= Data.SizeY))
                     {
-                        for (int Y = 0; Y < itemsOfLvl[itemIndex].Container.Sectors[sectorIndex].GetLength(0) && !ItemAdded; Y++)//vegig iterálunk a sorokon
+                        for (int Y = 0; Y < itemsOfLvl[itemIndex].Container.Sectors[sectorIndex].GetLength(0); Y++)//vegig iterálunk a sorokon
                         {
-                            for (int X = 0; X < itemsOfLvl[itemIndex].Container.Sectors[sectorIndex].GetLength(1) && !ItemAdded; X++)//a sorokon belul az oszlopokon
+                            for (int X = 0; X < itemsOfLvl[itemIndex].Container.Sectors[sectorIndex].GetLength(1); X++)//a sorokon belul az oszlopokon
                             {
                                 if ((itemsOfLvl[itemIndex].Container.Sectors[sectorIndex][Y, X].SlotType.Contains(Data.ItemType) || itemsOfLvl[itemIndex].Container.Sectors[sectorIndex][Y, X].SlotType == "") && itemsOfLvl[itemIndex].Container.Sectors[sectorIndex][Y, X].PartOfItemData == null && (CanBePlace(itemsOfLvl[itemIndex].Container.Sectors[sectorIndex], Y, X, Data) || itemsOfLvl[itemIndex].IsRoot))//ha a slot nem tagja egy itemnek sem akkor target
                                 {
                                     AddDataNonLive(Y,X, sectorIndex, itemsOfLvl[itemIndex], Data);
-                                    Debug.Log($"Item Added in container");
-                                    int count = 0;
-                                    if (Data.Quantity > Data.MaxStackSize)
-                                    {
-                                        count = Data.Quantity - Data.MaxStackSize;
-                                        Data.Quantity = Data.MaxStackSize;
-                                        Data = new Item(Data.ItemName, count);
-                                    }
-                                    else
-                                    {
-                                        return  (true, 0);
-                                    }
+                                    //Debug.Log($"Item Added in container");
+                                    return true;
                                 }
                             }
                         }
                     }
                 }
             }
-            return (ItemAdded, Data.Quantity);
+            return false;
         }
-        private (bool,int) AddingByNewItemByRotate(int lvl, Item Data)
+        private bool AddingByNewItemByRotate(int lvl, Item Data)
         {
-            bool ItemAdded = false;
             Data.RotateDegree = 90;
             (Data.SizeX, Data.SizeY) = (Data.SizeY, Data.SizeX);
             List<Item> itemsOfLvl = levelManager.Items.Where(Item => Item.Lvl == lvl && Item.Container != null).ToList();
-            for (int itemIndex = 0; itemIndex < itemsOfLvl.Count && !ItemAdded; itemIndex++)
+            for (int itemIndex = 0; itemIndex < itemsOfLvl.Count; itemIndex++)
             {
-                for (int sectorIndex = 0; sectorIndex < itemsOfLvl[itemIndex].Container.Sectors.Length && !ItemAdded; sectorIndex++)//mivel a szector 2D array-okat tartalmaz ezert a sectorokon az az ezen 2D arrayokon iteralunk vegig
+                for (int sectorIndex = 0; sectorIndex < itemsOfLvl[itemIndex].Container.Sectors.Length; sectorIndex++)//mivel a szector 2D array-okat tartalmaz ezert a sectorokon az az ezen 2D arrayokon iteralunk vegig
                 {
                     if (itemsOfLvl[itemIndex].IsRoot || (itemsOfLvl[itemIndex].Container.Sectors[sectorIndex].GetLength(1) >= Data.SizeX && itemsOfLvl[itemIndex].Container.Sectors[sectorIndex].GetLength(0) >= Data.SizeY))
                     {
-                        for (int Y = 0; Y < itemsOfLvl[itemIndex].Container.Sectors[sectorIndex].GetLength(0) && !ItemAdded; Y++)//vegig iterálunk a sorokon
+                        for (int Y = 0; Y < itemsOfLvl[itemIndex].Container.Sectors[sectorIndex].GetLength(0); Y++)//vegig iterálunk a sorokon
                         {
-                            for (int X = 0; X < itemsOfLvl[itemIndex].Container.Sectors[sectorIndex].GetLength(1) && !ItemAdded; X++)//a sorokon belul az oszlopokon
+                            for (int X = 0; X < itemsOfLvl[itemIndex].Container.Sectors[sectorIndex].GetLength(1); X++)//a sorokon belul az oszlopokon
                             {
                                 if ((itemsOfLvl[itemIndex].Container.Sectors[sectorIndex][Y, X].SlotType.Contains(Data.ItemType) || itemsOfLvl[itemIndex].Container.Sectors[sectorIndex][Y, X].SlotType == "") && itemsOfLvl[itemIndex].Container.Sectors[sectorIndex][Y, X].PartOfItemData == null && (CanBePlace(itemsOfLvl[itemIndex].Container.Sectors[sectorIndex], Y, X, Data) || itemsOfLvl[itemIndex].IsRoot))//ha a slot nem tagja egy itemnek sem akkor target
                                 {
                                     AddDataNonLive(Y, X, sectorIndex, itemsOfLvl[itemIndex], Data);
                                     (Data.SizeX, Data.SizeY) = (Data.SizeY, Data.SizeX);
-                                    Debug.Log($"Item Added in container");
-                                    int count = 0;
-                                    if (Data.Quantity > Data.MaxStackSize)
-                                    {
-                                        count = Data.Quantity - Data.MaxStackSize;
-                                        Data.Quantity = Data.MaxStackSize;
-                                        Data = new Item(Data.ItemName, count)
-                                        {
-                                            RotateDegree = 90
-                                        };
-                                        (Data.SizeX, Data.SizeY) = (Data.SizeY, Data.SizeX);
-                                    }
-                                    else
-                                    {
-                                        return (true, 0);
-                                    }
+                                    //Debug.Log($"Item Added in container");
+                                    return true;
                                 }
                             }
                         }
@@ -225,7 +199,7 @@ namespace PlayerInventoryClass
             }
             Data.RotateDegree = 0;
             (Data.SizeX, Data.SizeY) = (Data.SizeY, Data.SizeX);
-            return (ItemAdded, Data.Quantity);
+            return false;
         }
         public void InventoryAdd(Item item)//az equipmentekbe nem ad count szerint.
         {
@@ -242,12 +216,10 @@ namespace PlayerInventoryClass
             {
                 for (int lvl = -1; lvl <= levelManager.MaxLVL && !ItemAdded; lvl++)//vegig iterálunk az osszes equipmenten
                 {
-                    item = new Item(item.ItemName, quantity);
-                    (ItemAdded, quantity) = AddingByNewItem(lvl, item);
+                    ItemAdded = AddingByNewItem(lvl, item);
                     if (!ItemAdded)
                     {
-                        item = new Item(item.ItemName,quantity);
-                        (ItemAdded, quantity) = AddingByNewItemByRotate(lvl, item);
+                        ItemAdded = AddingByNewItemByRotate(lvl, item);
                     }
                 }
             }

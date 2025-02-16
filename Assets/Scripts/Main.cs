@@ -1,21 +1,20 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using System.IO;
 using System.Collections;
 using UnityEngine.Networking;
 using UnityEngine;
-using Unity.VisualScripting;
 using Newtonsoft.Json;
-using UnityEngine.Video;
-using UnityEngine.UI;
 using TMPro;
 using ItemHandler;
 using UnityEngine.SceneManagement;
+using NPOI.SS.UserModel;
+using NPOI.XSSF.UserModel;
+using NPOI.HSSF.UserModel;
+using NPOI.SS.Formula.Functions;
+using Unity.VisualScripting;
 
-//test
 namespace MainData
 {
     #region DataBase Connection 
@@ -33,7 +32,6 @@ namespace MainData
     {
         public PlayerData[] items;
     }
-
     public class DatabaseManager
     {
         private static PlayerData[] playerDatas;//Probléma lehet, de a szervere csatlakozasnal az osszes player adatot lekerdezzuk, ezen a változatatás szükséges
@@ -192,7 +190,7 @@ namespace MainData
     #region Main
     // itt tároljuk a user adatait és azon globális kostruktorokat amelyke az egesz játék alatt ervenyesek pl:targetFPS
     //továbbá eljárásokat melyek bármikor elérhetőknek kell, hogy legyenek pl:Save, Load
-    internal static class Main
+    public static class Main
     {
         public const int targetFPS = 60;
         private static List<Item> InvetnoryElemetList;
@@ -210,11 +208,127 @@ namespace MainData
 
         }
 
+        public static void LoadAdvancedItems()
+        {
+            
+        }
+
         public static bool logged = false;
         public static int id = -1;
         public static string name;
         public static string email;
         public static string password;
+
+        public class AdvancedItemHandler
+        {
+            public const string PartPath = "GameElements/ItemOPart";
+            public const string CPPath = "GameElements/ItemOCP";
+            private const string AdvancedItemDataFilePath = "Assets/Resources/Items/AdvancedItemData.xlsx";
+
+            private static ItemPartData[] ItemPartDatas;
+            private static MainItem[] MainItems;
+            public static void AdvancedItemHanderDataLoad()
+            {
+                IWorkbook wb;
+                using (var fs = new FileStream(AdvancedItemDataFilePath, FileMode.Open, FileAccess.Read)) wb = new XSSFWorkbook(fs);
+                
+                ISheet s = wb.GetSheetAt(1);
+                object temporaryList = new List<MainItem>();
+                for (int i = 1; i <= s.LastRowNum; i++)
+                {
+                    var r = s.GetRow(i);
+                    string mainItemName = r.GetCell(0).ToString();
+                    string[] NecessaryItemNames = r.GetCell(1).ToString().Split(';');
+                    ((List<MainItem>)temporaryList).Add(new MainItem(mainItemName, NecessaryItemNames));
+                }
+                MainItems = ((List<MainItem>)temporaryList).ToArray();
+         
+                s = wb.GetSheetAt(0);
+                temporaryList = new List<ItemPartData>();
+                for (int i = 1; i <= s.LastRowNum;)
+                {
+                    var r = s.GetRow(i);
+                    if (r.GetCell(0) != null)
+                    {
+                        string partName = r.GetCell(0).ToString();
+                        string imagePath = r.GetCell(1).ToString();
+                        List<CP> cps = new();
+                        do
+                        {
+                            string pointName = r.GetCell(2).ToString();
+                            int.TryParse(r.GetCell(3).ToString(), out int layer);
+                            string[] compatibleItemNames = r.GetCell(4).ToString().Split(';');
+                            short.TryParse(r.GetCell(5).ToString(), out short pixel_1_X);
+                            short.TryParse(r.GetCell(6).ToString(), out short pixel_1_Y);
+                            short.TryParse(r.GetCell(7).ToString(), out short pixel_2_X);
+                            short.TryParse(r.GetCell(8).ToString(), out short pixel_2_Y);
+                            cps.Add(new CP(pointName, layer, compatibleItemNames, pixel_1_X, pixel_1_Y, pixel_2_X, pixel_2_Y,imagePath));
+                            r = s.GetRow(++i);
+                        }
+                        while (r != null && r.GetCell(0) == null);
+                        ((List<ItemPartData>)temporaryList).Add(new ItemPartData(partName, imagePath, cps.ToArray()));
+                    }
+                }
+                ItemPartDatas = ((List<ItemPartData>)temporaryList).ToArray();
+            }
+            public static ItemPartData GetPartData(string ItemName)
+            {
+                return ItemPartDatas.Where(x => x.PartName == ItemName).FirstOrDefault();
+            }
+            public static MainItem GetMainItemData(string MainItemName)
+            {
+                return MainItems.Where(x => x.MainItemName == MainItemName).FirstOrDefault();
+            }
+        }
+        public struct ItemPartData
+        {
+            //ez egy part neve és egyben annak az itemnek a neve amié a part
+            public string PartName { private set; get; }
+            public string ImagePath { private set; get; }
+            public MainItem? MainItem { private set; get; }
+            public CP[] CPs { private set; get; }
+            public ItemPartData(string partName, string imagePath, CP[] cPs)
+            {
+                PartName = partName;
+                ImagePath = imagePath;
+                MainItem = AdvancedItemHandler.GetMainItemData(PartName);
+                CPs = cPs;
+            }
+        }
+        public struct MainItem
+        {
+            public string MainItemName { private set; get; }
+            public string[] NecessaryItemNames { private set; get; }
+            public MainItem(string mainItemName, string[] necessaryItemNames)
+            {
+                MainItemName = mainItemName;
+                NecessaryItemNames = necessaryItemNames;
+            }
+        }
+        public struct CP
+        {
+            public string PointName { private set; get; }
+            public int Layer { private set; get; }
+            public string[] CompatibleItemNames { private set; get; }
+            public Vector2 AnchorMin1 { get; private set; }
+            public Vector2 AnchorMax1 { get; private set; }
+            public Vector2 AnchorMin2 { get; private set; }
+            public Vector2 AnchorMax2 { get; private set; }
+            public CP(string pointName, int layer, string[] compatibleItemNames, short pixel_1_X, short pixel_1_Y, short pixel_2_X, short pixel_2_Y,string partImgPath)
+            {
+                Texture2D texture = Resources.Load<Texture2D>(partImgPath);
+                float imgWidth = texture.width;
+                float imgHeight = texture.height;
+
+                PointName = pointName;
+                Layer = layer;
+                CompatibleItemNames = compatibleItemNames;
+                AnchorMin1 = new Vector2(pixel_1_X / (float)imgWidth, pixel_1_Y / (float)imgHeight);
+                AnchorMax1 = new Vector2(pixel_1_X / (float)imgWidth, pixel_1_Y / (float)imgHeight);
+                AnchorMin2 = new Vector2(pixel_2_X / (float)imgWidth, pixel_2_Y / (float)imgHeight);
+                AnchorMax2 = new Vector2(pixel_2_X / (float)imgWidth, pixel_2_Y / (float)imgHeight);
+            }
+        }
     }
     #endregion
 

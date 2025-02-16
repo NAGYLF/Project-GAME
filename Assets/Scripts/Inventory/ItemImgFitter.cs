@@ -7,20 +7,29 @@ public class ItemImgFitter : MonoBehaviour
     // majd a szülõhöz skálázunk.
     public RectTransform fitter;
 
-    public void Fitting()
+    /// <summary>
+    /// Alaphelyzetbe állítja a fittert.
+    /// Beállítja a scale, anchor, pivot, anchoredPosition és egy ideiglenes sizeDelta értékét.
+    /// </summary>
+    public void ResetFitter()
     {
-        // 1) Szülõ RectTransform (ugyanazon a GameObjecten vagyunk), aminek a méretéhez igazodunk
-        RectTransform parentRect = GetComponent<RectTransform>();
-
-        // 2) A 'fitter' alaphelyzetbe hozása
-        fitter.localScale = Vector3.one;          // ne legyen nagyítva/kicsinyítve
+        fitter.localScale = Vector3.one;
         fitter.anchorMin = new Vector2(0.5f, 0.5f);
         fitter.anchorMax = new Vector2(0.5f, 0.5f);
-        fitter.pivot = new Vector2(0.5f, 0.5f); // forgáspont a közép
-        fitter.anchoredPosition = Vector2.zero;           // helyezze középre
-        fitter.sizeDelta = Vector2.zero;           // induljunk nulláról
+        fitter.pivot = new Vector2(0.5f, 0.5f);
+        fitter.anchoredPosition = Vector2.zero;
+        fitter.sizeDelta = new Vector2(100, 100); // Ideiglenes alapméret
+    }
 
-        // 3) A gyerekek által lefedett terület kiszámítása lokális térben
+    /// <summary>
+    /// A fittert úgy méretezi át, hogy lefedje az összes gyermekét,
+    /// majd arányosan skálázza magát, hogy pontosan beleférjen a szülõ RectTransform-ba.
+    /// A gyermekeket eltolja, hogy a tartalom (bounding box) középre kerüljön.
+    /// </summary>
+    public void Fitting()
+    {
+        RectTransform parentRect = GetComponent<RectTransform>();
+
         float minX = float.MaxValue;
         float minY = float.MaxValue;
         float maxX = float.MinValue;
@@ -32,55 +41,55 @@ public class ItemImgFitter : MonoBehaviour
             if (childRect == null || !childRect.gameObject.activeInHierarchy)
                 continue;
 
-            // A gyerek 4 sarkát lekérdezzük a *gyerek saját* lokális térben.
             Vector3[] corners = new Vector3[4];
             childRect.GetLocalCorners(corners);
 
-            // A feltételezés szerint NINCS extra lokális forgatás vagy skálázás a gyereken,
-            // így egyszerûen a gyerek anchoredPosition-jét hozzáadjuk,
-            // hogy a 'fitter' lokális terébe helyezzük ezeket a sarkokat.
             Vector2 childPos = childRect.anchoredPosition;
+            Vector3 childScale = childRect.localScale; // Figyelembe vesszük a gyermek saját scale-jét
 
             for (int c = 0; c < 4; c++)
             {
-                Vector3 cornerInFitterSpace = corners[c] + (Vector3)childPos;
+                // Skálázott sarkok számítása
+                Vector3 scaledCorner = new Vector3(
+                    corners[c].x * childScale.x,
+                    corners[c].y * childScale.y,
+                    corners[c].z * childScale.z
+                );
 
+                Vector3 cornerInFitterSpace = scaledCorner + (Vector3)childPos;
                 if (cornerInFitterSpace.x < minX) minX = cornerInFitterSpace.x;
                 if (cornerInFitterSpace.y < minY) minY = cornerInFitterSpace.y;
                 if (cornerInFitterSpace.x > maxX) maxX = cornerInFitterSpace.x;
                 if (cornerInFitterSpace.y > maxY) maxY = cornerInFitterSpace.y;
             }
-            childRect.localScale = Vector3.one;
-            childRect.localRotation = Quaternion.identity;
         }
-        // Ha nincs érvényes bounding box (nincsenek aktív gyermekek), kilépünk
+
         if (minX > maxX || minY > maxY)
         {
             Debug.LogWarning("Nincs aktív gyerek, vagy érvénytelen bounding box.");
             return;
         }
 
-        // 4) A gyerekek által lefedett teljes méret
         float contentWidth = maxX - minX;
         float contentHeight = maxY - minY;
 
-        // -----------------------------
-        // LÉPÉS 1: A FITTER MÉRETEZÉSE
-        // -----------------------------
-        // Itt a 'fitter' valódi szélességét/magasságát húzzuk pont akkorára,
-        // amekkorát a gyerekek ténylegesen igényelnek.
+        Vector2 contentCenter = new Vector2(minX + contentWidth * 0.5f, minY + contentHeight * 0.5f);
+
+        for (int i = 0; i < fitter.childCount; i++)
+        {
+            RectTransform childRect = fitter.GetChild(i).GetComponent<RectTransform>();
+            if (childRect == null || !childRect.gameObject.activeInHierarchy)
+                continue;
+
+            childRect.anchoredPosition -= contentCenter;
+        }
+
         fitter.sizeDelta = new Vector2(contentWidth, contentHeight);
 
-        // --------------------------
-        // LÉPÉS 2: FITTER SKÁLÁZÁSA
-        // --------------------------
-        // A szülõ méretéhez igazítjuk a 'fitter' méretet (aránytartóan),
-        // hogy biztosan beleférjen a parentRectbe.
         Vector2 parentSize = parentRect.rect.size;
-
         float scaleX = parentSize.x / contentWidth;
         float scaleY = parentSize.y / contentHeight;
-        float finalScale = Mathf.Min(scaleX, scaleY); // aránytartó illesztés
+        float finalScale = Mathf.Min(scaleX, scaleY);
 
         fitter.localScale = new Vector3(finalScale, finalScale, 1f);
     }

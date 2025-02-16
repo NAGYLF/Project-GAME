@@ -26,6 +26,11 @@ using static PlayerInventoryClass.PlayerInventory;
 using UI;
 using Newtonsoft.Json.Linq;
 using static MainData.SupportScripts;
+using static TestModulartItems.TestModularItems;
+using static MainData.Main;
+using MainData;
+using System.IO;
+using UnityEngine.UI;
 
 
 namespace ItemHandler
@@ -84,7 +89,6 @@ namespace ItemHandler
         public PlacerStruct GivePlacer { get; set; }
         public List<Part> Parts { get; set; }//az item darabjai
         public string ImgPath { get; set; }
-        public string ItemPartPath { get; set; }//az item prefab eleresi utja
         public string ObjectPath { get; private set; }//az, hogy milyen obejctum tipust hasznal
         public Item ParentItem { get; set; }//az az item ami tárolja ezt az itemet
         public GameObject SelfGameobject { get; set; }// a parent objectum
@@ -180,7 +184,7 @@ namespace ItemHandler
 
         }
         //action (Only NonLive inventory)
-        public bool PartPut(Item Item, string ConnectionPointName = "", string PartName = "")//amit rá helyezunk
+        public bool PartPut(Item Item)//ha egy item partjait belerakjuk akkor az item az inventoryban megmaradhat ezert azt torolni kellesz vagy vmi
         {
             //amit rá helyezunk
             ConnectionPoint[] IncomingCPs = Item.Parts.SelectMany(x => x.ConnectionPoints).ToArray();//az összes connection point amitje az itemnek van
@@ -188,91 +192,39 @@ namespace ItemHandler
             ConnectionPoint[] SelfCPs = Parts.SelectMany(x => x.ConnectionPoints).ToArray();//az össze sconnection point amihez hozzadhatja
             ConnectionPoint IncomingCP = null;//egy part célzott pontja
             ConnectionPoint SelfCP = null;//az item csatlakoztatott pontja
+            /*
+             * ellenorizzuk, hogy a CP-k egyike sincs e hasznalva
+             * ellenorizzuk, hogy a self cp kompatibilis e az incoming cp-vel
+             */
+            foreach (ConnectionPoint SCP in SelfCPs)
+            {
+                foreach (ConnectionPoint ICP in IncomingCPs)
+                {
+                    if (!SCP.Used && !ICP.Used && SCP.CPData.CompatibleItemNames.Contains(ICP.SelfPart.PartData.PartName))
+                    {
+                        SCP.Connect(ICP);
+                        SelfCP = SCP;
+                        IncomingCP = ICP;
 
-            if (ConnectionPointName != "" && PartName == "")
-            {
-                foreach (ConnectionPoint ICP in IncomingCPs)
-                {
-                    foreach (ConnectionPoint SCP in SelfCPs)
-                    {
-                        if (ConnectionPointName == SCP.Name && !SCP.Used && !ICP.Used && SCP.CompatibleItemText.Any(item => ICP.CompatibleItemText.Contains(item)))
-                        {
-                            SelfCP = ICP;
-                            IncomingCP = SCP;
-                            SelfCP.Used = true;
-                            IncomingCP.Used = true;
-                            IncomingCP.ConnectedPoint = SelfCP;
-                            SelfCP.ConnectedPoint = IncomingCP;
-                            Parts.Concat(Item.Parts);
-                            goto EndSearch;
-                        }
+                        int baseHierarhicPlace = SelfCP.SelfPart.HierarhicPlace;
+                        IncomingCP.SelfPart.HierarhicPlace = baseHierarhicPlace + 1;
+                        //Debug.LogWarning($"{IncomingCP.SelfPart.item_s_Part.ItemName} : {IncomingCP.SelfPart.HierarhicPlace}   -------   {SelfCP.SelfPart.item_s_Part.ItemName} : {SelfCP.SelfPart.HierarhicPlace}");
+                        //foreach (Part part in Parts)
+                        //{
+                        //    Debug.LogWarning($"{part.item_s_Part.ItemName}");
+                        //}
+                        Parts.AddRange(Item.Parts);
+                        //Debug.LogWarning($"---------------");
+                        //foreach (Part part in Parts)
+                        //{
+                        //    Debug.LogWarning($"{part.item_s_Part.ItemName}");
+                        //}
+                        AdvancedItemContsruct();
+                        goto EndSearch;
                     }
                 }
-            EndSearch:;
             }
-            else if (ConnectionPointName == "" && PartName != "")
-            {
-                foreach (ConnectionPoint ICP in IncomingCPs)
-                {
-                    foreach (ConnectionPoint SCP in SelfCPs)
-                    {
-                        if (PartName == SCP.SelfPart.item_s_Part.ItemName && !SCP.Used && !ICP.Used && SCP.CompatibleItemText.Any(item => ICP.CompatibleItemText.Contains(item)))
-                        {
-                            SelfCP = ICP;
-                            IncomingCP = SCP;
-                            SelfCP.Used = true;
-                            IncomingCP.Used = true;
-                            IncomingCP.ConnectedPoint = SelfCP;
-                            SelfCP.ConnectedPoint = IncomingCP;
-                            Parts.Concat(Item.Parts);
-                            goto EndSearch;
-                        }
-                    }
-                }
             EndSearch:;
-            }
-            else if (ConnectionPointName != "" && PartName != "")
-            {
-                foreach (ConnectionPoint ICP in IncomingCPs)
-                {
-                    foreach (ConnectionPoint SCP in SelfCPs)
-                    {
-                        if (ConnectionPointName == SCP.Name && PartName == SCP.SelfPart.item_s_Part.ItemName && !SCP.Used && !ICP.Used && SCP.CompatibleItemText.Any(item => ICP.CompatibleItemText.Contains(item)))
-                        {
-                            SelfCP = ICP;
-                            IncomingCP = SCP;
-                            SelfCP.Used = true;
-                            IncomingCP.Used = true;
-                            IncomingCP.ConnectedPoint = SelfCP;
-                            SelfCP.ConnectedPoint = IncomingCP;
-                            Parts.Concat(Item.Parts);
-                            goto EndSearch;
-                        }
-                    }
-                }
-            EndSearch:;
-            }
-            else
-            {
-                foreach (ConnectionPoint ICP in IncomingCPs)
-                {
-                    foreach (ConnectionPoint SCP in SelfCPs)
-                    {
-                        if (!SCP.Used && !ICP.Used && SCP.CompatibleItemText.Any(item => ICP.CompatibleItemText.Contains(item)))
-                        {
-                            SelfCP = ICP;
-                            IncomingCP = SCP;
-                            SelfCP.Used = true;
-                            IncomingCP.Used = true;
-                            IncomingCP.ConnectedPoint = SelfCP;
-                            SelfCP.ConnectedPoint = IncomingCP;
-                            Parts.Concat(Item.Parts);
-                            goto EndSearch;
-                        }
-                    }
-                }
-            EndSearch:;
-            }
             if (IncomingCP == null || SelfCP == null)
             {
                 return false;
@@ -283,10 +235,7 @@ namespace ItemHandler
         {
             ConnectionPoint CPStand = Parts.SelectMany(x => x.ConnectionPoints).First(y => y.ConnectedPoint.SelfPart == part);
             ConnectionPoint CPOff = Parts.SelectMany(x => x.ConnectionPoints).First(y => y.SelfPart == part);
-            CPStand.ConnectedPoint = null;
-            CPStand.Used = false;
-            CPOff.ConnectedPoint = null;
-            CPOff.Used = false;
+            CPStand.Disconnect();
             Parts.Remove(part);
             List<Part> parts = new()
             {
@@ -309,6 +258,147 @@ namespace ItemHandler
         }
         private void AdvancedItemContsruct()
         {
+            ObjectPath = AdvancedItemObjectParth;
+
+            Item FirstItem = Parts.First().item_s_Part;
+
+            ItemType = "AdvancedItem";//ez alapján kerülhet be egy slotba ugyan is vannak pecifikus slotok melyeknek typusváltozójában benen kell, hogy legyen.
+            
+            if (Parts.Count > 1)
+            {
+                ItemName = FirstItem.ItemName + "...";
+                Description = "AdvancedItem: More Item in one Complexer item";
+
+                Value = 0;
+                SizeX = FirstItem.SizeX;
+                SizeY = FirstItem.SizeY;
+                Container = FirstItem.Container;
+                Spread = 0;
+                Fps = 0;
+                Recoil = 0;
+                Accturacy = 0;
+                Range = 0;
+                Ergonomy = 0;
+
+                foreach (Part part in Parts)
+                {
+                    Item item = part.item_s_Part;
+                    Value += item.Value;
+                    if (item.SizeChanger != null)
+                    {
+                        string direction = item.SizeChanger.Direction;
+                        SizeChanger sizeChanger = item.SizeChanger;
+                        if (direction == "R" || direction == "L")
+                        {
+                            SizeX += sizeChanger.Plus;
+                            if (SizeX > sizeChanger.MaxPlus)
+                            {
+                                SizeX = sizeChanger.MaxPlus;
+                            }
+                        }
+                        else
+                        {
+                            SizeY += sizeChanger.Plus;
+                            if (SizeY > sizeChanger.MaxPlus)
+                            {
+                                SizeY = sizeChanger.MaxPlus;
+                            }
+                        }
+                        Debug.Log($"{SizeX} x {SizeY}");
+                    }
+                    if (item.IsDropAble)
+                    {
+                        IsDropAble = item.IsDropAble;
+                    }
+                    if (item.IsUnloadAble)
+                    {
+                        IsUnloadAble = item.IsUnloadAble;
+                    }
+                    if (item.IsRemoveAble)
+                    {
+                        IsRemoveAble = item.IsRemoveAble;
+                    }
+                    if (item.IsOpenAble)
+                    {
+                        IsOpenAble = item.IsOpenAble;
+                    }
+                    if (item.IsUsable)
+                    {
+                        IsUsable = item.IsUsable;
+                    }
+                    if (item.MagasineSize != 0)//csak 1 lehet
+                    {
+                        MagasineSize = item.MagasineSize;
+                    }
+                    if (item.BulletType != null)//csak 1 lehet
+                    {
+                        BulletType = item.BulletType;
+                    }
+                    if (item.AmmoType != null)//csak 1 lehet
+                    {
+                        AmmoType = item.AmmoType;
+                    }
+                    if (item.Spread != 0)
+                    {
+                        Spread += item.Spread;
+                    }
+                    if (item.Fps != 0)
+                    {
+                        Fps += item.Fps;
+                    }
+                    if (item.Recoil != 0)
+                    {
+                        Recoil += item.Recoil;
+                    }
+                    if (item.Accturacy != 0)
+                    {
+                        Accturacy += item.Accturacy;
+                    }
+                    if (item.Range != 0)
+                    {
+                        Range += item.Range;
+                    }
+                    if (item.Ergonomy != 0)
+                    {
+                        Ergonomy += item.Ergonomy;
+                    }
+                    //hasznalhato e?
+                    if (UseLeft != 0)
+                    {
+                        UseLeft = item.UseLeft;
+                    }
+                }
+            }
+            else
+            {
+                SizeX = FirstItem.SizeX;
+                SizeY = FirstItem.SizeY;
+                ItemName = FirstItem.ItemName;
+                Description = FirstItem.Description;
+                Value = FirstItem.Value;
+                //Action
+                IsDropAble = FirstItem.IsDropAble;
+                IsUnloadAble = FirstItem.IsUnloadAble;
+                IsRemoveAble = FirstItem.IsRemoveAble;
+                IsOpenAble = FirstItem.IsOpenAble;
+                IsUsable = FirstItem.IsUsable;
+                //fegyver adatok
+                MagasineSize = FirstItem.MagasineSize;
+                Spread = FirstItem.Spread;
+                Fps = FirstItem.Fps;
+                Recoil = FirstItem.Recoil;
+                Accturacy = FirstItem.Accturacy;
+                Range = FirstItem.Range;
+                Ergonomy = FirstItem.Ergonomy;
+                BulletType = FirstItem.BulletType;
+                AmmoType = FirstItem.AmmoType;
+                //hasznalhato e?
+                UseLeft = FirstItem.UseLeft;
+            }
+            Quantity = 1;
+            MaxStackSize = 1;
+            IsModificationAble = true;
+
 
         }
         //action (Only Live Inventory)
@@ -330,16 +420,16 @@ namespace ItemHandler
                 "TestFingers" => new TestFingers().Set(),
                 "TestBoots" => new TestBoots().Set(),
                 "AK103" => new AK103().Set(),
-                /*
-                "TestCenter" => new AK103().Set(),
-                "TestBox" => new AK103().Set(),
+
+                "TestCenter" => new TestCenter().Set(),
+                "TestBox" => new TestBox().Set(),
                 "TestUpper" => new AK103().Set(),
                 "TestButtom" => new AK103().Set(),
                 "TestHead" => new AK103().Set(),
                 "TestFoot" => new AK103().Set(),
                 "TestFront" => new AK103().Set(),
                 "TestBack" => new AK103().Set(),
-                */
+
                 //Backpacks
                 "Camelback_Tri_Zip_assault_backpack" => new Camelback_Tri_Zip_assault_backpack().Set(),
                 "Flyye_MBSS_backpack" => new Flyye_MBSS_backpack().Set(),
@@ -502,7 +592,7 @@ namespace ItemHandler
                 Item item = new()
                 {
                     ImgPath = completedItem.ImgPath,
-                    ItemPartPath = completedItem.ItemPartPath,
+                    ObjectPath = AdvancedItemObjectParth,
                     ItemType = completedItem.ItemType,//ez alapján kerülhet be egy slotba ugyan is vannak pecifikus slotok melyeknek typusváltozójában benen kell, hogy legyen.
                     ItemName = completedItem.ItemName,//ez alapján hozza létre egy item saját magát
                     Description = completedItem.Description,
@@ -521,9 +611,9 @@ namespace ItemHandler
                     //tartalom
                     Container = completedItem.Container,
                     //fegyver adatok
-                    DefaultMagasineSize = completedItem.DefaultMagasineSize,
+                    MagasineSize = completedItem.MagasineSize,
                     Spread = completedItem.Spread,
-                    Rpm = completedItem.Rpm,
+                    Fps = completedItem.Fps,
                     Recoil = completedItem.Recoil,
                     Accturacy = completedItem.Accturacy,
                     Range = completedItem.Range,
@@ -532,16 +622,17 @@ namespace ItemHandler
                     AmmoType = completedItem.AmmoType,
                     //hasznalhato e?
                     UseLeft = completedItem.UseLeft,
+                    //Advanced
+                    SizeChanger = completedItem.SizeChanger,
                 };
                 Parts = new List<Part>
                 {
                     new(item)
                 };
-                ObjectPath = AdvancedItemObjectParth;
-                IsModificationAble = completedItem.IsModificationAble;
                 //fügvény ami az össze spart ertekeit az advanced valtozoba tölti és adja össze
+                AdvancedItemContsruct();
 
-                Debug.Log($"Item(A) created {completedItem.ItemName}");
+                Debug.LogWarning($"Item(A) created {completedItem.ItemName}");
             }
             else
             {
@@ -549,7 +640,6 @@ namespace ItemHandler
 
                 //altalanos adatok
                 ImgPath = completedItem.ImgPath;
-                ItemPartPath = completedItem.ItemPartPath;
                 ItemType = completedItem.ItemType;//ez alapján kerülhet be egy slotba ugyan is vannak pecifikus slotok melyeknek typusváltozójában benen kell, hogy legyen.
                 ItemName = completedItem.ItemName;//ez alapján hozza létre egy item saját magát
                 Description = completedItem.Description;
@@ -568,9 +658,9 @@ namespace ItemHandler
                 //tartalom
                 Container = completedItem.Container;
                 //fegyver adatok
-                DefaultMagasineSize = completedItem.DefaultMagasineSize;
+                MagasineSize = completedItem.MagasineSize;
                 Spread = completedItem.Spread;
-                Rpm = completedItem.Rpm;
+                Fps = completedItem.Fps;
                 Recoil = completedItem.Recoil;
                 Accturacy = completedItem.Accturacy;
                 Range = completedItem.Range;
@@ -580,18 +670,20 @@ namespace ItemHandler
                 //hasznalhato e?
                 UseLeft = completedItem.UseLeft;
 
-                Debug.Log($"Item(S) created {ItemName} - {Quantity}db");
+                //Debug.Log($"Item(S) created {ItemName} - {Quantity}db");
             }
         }
     }
     public abstract class NonGeneralItemProperties// az item hozza letre azt a panelt a slot inventoryban amely a tartlomert felelos, de csak akkor ha ő equipment slotban van egybekent egy up relativ pozitcioju panelt hozzon letre mint az EFT-ban
     {
+        //Size Changer
+        public SizeChanger SizeChanger { get; set; }
         //contain
         public Container Container { get; set; }
         //weapon
-        public int? DefaultMagasineSize { get; set; }
+        public int? MagasineSize { get; set; }
         public double? Spread { get; set; }
-        public int? Rpm { get; set; }
+        public int? Fps { get; set; }
         public double? Recoil { get; set; }
         public double? Accturacy { get; set; }
         public double? Range { get; set; }
@@ -606,60 +698,103 @@ namespace ItemHandler
 
         //armor
     }
-
+    public class SizeChanger
+    {
+        public int Plus;
+        public string Direction;
+        public int MaxPlus;
+    }
     //a connection point inpectorban létező dolog ami lenyegeben statikusan jelen van nem kell generalni
     [System.Serializable]
     public class ConnectionPoint
     {
-        public RectTransform RefPoint1;//csak live ban van
-        public RectTransform RefPoint2;//csak live ban van
+        //Live adatok meylek addig vannak amig a connectionPoint létezik
+        public GameObject RefPoint1 = null;//LIVE
+        public GameObject RefPoint2 = null;//LIVE
 
-        public ConnectionPoint ConnectedPoint;//a csatlakozattott point
-        public Part SelfPart;//amelyik part-nak a pointja
-
+        //active adatok melyek valtozhatnak
+        public ConnectionPoint ConnectedPoint = null;//amelyik ponttal össze van kötve
         public bool Used = false;//alapotjezo
 
-        public string Name;//inspector
-        public int Layer;//inspector
-        public bool InOrOut;//inspector 1 = IN 0 = OUT
-        [SerializeField] private TextAsset CompatibleItemTextFile;//inspector
-        [HideInInspector] public string[] CompatibleItemText;
-        public void SetText()
+        //statikus adatok melyek nem valtoznak
+        public CP CPData;
+        public Part SelfPart;//a part amelyikhez tartozik
+        public ConnectionPoint(CP cPData,Part selfPart)
         {
-            CompatibleItemText = CompatibleItemTextFile.text.Split('\n');
+            CPData = cPData;
+            SelfPart = selfPart;
+        }
+        public void Connect(ConnectionPoint cp)
+        {
+            ConnectedPoint = cp;
+            Used = true;
+            cp.ConnectedPoint = this;
+            cp.Used = true;
+        }
+        public void Disconnect()
+        {
+            ConnectedPoint.Used = false;
+            ConnectedPoint.ConnectedPoint = null;
+            Used = true;
+            ConnectedPoint = null;
+        }
+        public void SetLive()
+        {
+            GameObject CP = CreatePrefab(AdvancedItemHandler.CPPath);
+            CP.name = CPData.PointName;
+            RefPoint1 = CP.transform.GetChild(0).gameObject;
+            RefPoint2 = CP.transform.GetChild(1).gameObject;
+
+            RectTransform rt1 = RefPoint1.GetComponent<RectTransform>();
+            rt1.anchorMin = CPData.AnchorMin1;
+            rt1.anchorMax = CPData.AnchorMax1;
+            rt1.anchoredPosition = Vector2.zero;
+
+            RectTransform rt2 = RefPoint2.GetComponent<RectTransform>();
+            rt2.anchorMin = CPData.AnchorMin2;
+            rt2.anchorMax = CPData.AnchorMax2;
+            rt2.anchoredPosition = Vector2.zero;
+
+            //!!! Ez változhat a fejlesztes soran szoval oda kell ra figyelni !!!
+            CP.transform.SetParent(SelfPart.PartObject.transform.GetChild(0).transform);
         }
     }
     public class Part
     {
-
+        //Live adatok meylek addig vannak amig a connectionPoint létezik
         public GameObject PartObject;//csak live ban van
 
+        //active adatok melyek valtozhatnak
+        public int HierarhicPlace = 0;
+
+        //statikus adatok melyek nem valtoznak
         public ConnectionPoint[] ConnectionPoints;//a tartalmazott pontok
         public Item item_s_Part;//az item aminek a partja
-
-        public int HierarhicPlace;
-        public MainItemPart MainItemPart;
-        public bool IsMain;
+        public ItemPartData PartData;
         public Part(Item item)
         {
-            PartObject partObj = Resources.Load<GameObject>(item.ItemPartPath).GetComponent<PartObject>();
             item_s_Part = item;
-            ConnectionPoints = partObj.connectionPoints;
-            if (partObj.mainItemText != null)
+            PartData = AdvancedItemHandler.GetPartData(item.ItemName);
+            ConnectionPoints = new ConnectionPoint[PartData.CPs.Length];
+
+            for (int i = 0; i < ConnectionPoints.Length; i++)
             {
-                MainItemPart.Name = partObj.mainItemText.text.Split('\n')[0];
-                MainItemPart.Type = partObj.mainItemText.text.Split('\n')[1];
-            }
-            IsMain = partObj.IsMain;
-            foreach (ConnectionPoint cp in ConnectionPoints)
-            {
-                cp.SetText();
+                ConnectionPoints[i] = new ConnectionPoint(PartData.CPs[i],this);
             }
         }
-        public void SetLive(GameObject PartObject, ConnectionPoint[] connectionPoints)
+        public void SetLive(GameObject AdvancedItemObejct)
         {
-            this.PartObject = PartObject;
-            this.ConnectionPoints = connectionPoints;
+            GameObject Part = CreatePrefab(AdvancedItemHandler.PartPath);
+            PartObject = Part;
+            Part.name = PartData.PartName;
+            Part.GetComponent<PartObject>().SelfData = this;
+
+            //!!! Ez változhat a fejlesztes soran szoval oda kell ra figyelni !!!
+            Part.transform.SetParent(AdvancedItemObejct.GetComponent<ItemObject>().ItemCompound.GetComponent<ItemImgFitter>().fitter.transform);
+
+            //!!! Ez változhat a fejlesztes soran szoval oda kell ra figyelni !!!
+            Sprite sprite = Resources.Load<Sprite>(PartData.ImagePath);
+            Part.transform.GetChild(0).GetComponent<Image>().sprite = sprite;
         }
     }
     public class BulletType
@@ -787,7 +922,6 @@ namespace ItemHandler
             }
         }
     }
-
     public static class InventorySystem
     {
         public static bool CanBePlace(Item Data, PlacerStruct placer)

@@ -547,7 +547,6 @@ namespace UI
                         if (SetHotKeyWithMouse)
                         {
                             HotKey9.SetWithUI(SetGameObjectToHotKey.GetComponent<ItemObject>().ActualData);
-                            Debug.Log("hotkey9 foglalas");
                         }
                         break;
                     default:

@@ -15,7 +15,7 @@ namespace TestModulartItems
                     Description = "...",
                     SizeX = 1,
                     SizeY = 1,
-                    IsModificationAble = true,
+                    IsAdvancedItem = true,
                 };
             }
         }
@@ -30,7 +30,7 @@ namespace TestModulartItems
                     Description = "...",
                     SizeX = 1,
                     SizeY = 1,
-                    IsModificationAble = true,
+                    IsAdvancedItem = true,
                     SizeChanger = new SizeChanger()
                     {
                         Plus = 1,//mekkora meretet adjon hozza

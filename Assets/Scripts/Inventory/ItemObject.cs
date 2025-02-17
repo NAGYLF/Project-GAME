@@ -158,7 +158,7 @@ public class ItemObject : MonoBehaviour, IPointerDownHandler, IPointerUpHandler,
     public void DataLoad()
     {
         ActualData.SelfGameobject = gameObject;
-        if (!ActualData.IsModificationAble)
+        if (!ActualData.IsAdvancedItem)
         {
             Sprite sprite = Resources.Load<Sprite>(gameObject.GetComponent<ItemObject>().ActualData.ImgPath);//az itemobjektum megkapja képét
             ItemCompound.GetComponent<Image>().sprite = sprite;
@@ -233,7 +233,7 @@ public class ItemObject : MonoBehaviour, IPointerDownHandler, IPointerUpHandler,
     }
     public void ItemPartTrasformation()
     {
-        if (ActualData.IsModificationAble)//modifikálható item
+        if (ActualData.IsAdvancedItem)//modifikálható item
         {
             ItemCompound.GetComponent<ItemImgFitter>().ResetFitter();
             GameObject fitter = ItemCompound.GetComponent<ItemImgFitter>().fitter.gameObject;

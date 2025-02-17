@@ -11,9 +11,9 @@ using ItemHandler;
 using UnityEngine.SceneManagement;
 using NPOI.SS.UserModel;
 using NPOI.XSSF.UserModel;
-using NPOI.HSSF.UserModel;
-using NPOI.SS.Formula.Functions;
-using Unity.VisualScripting;
+using System.Threading.Tasks;
+using System.Runtime.CompilerServices;
+
 
 namespace MainData
 {
@@ -32,57 +32,32 @@ namespace MainData
     {
         public PlayerData[] items;
     }
-    public class DatabaseManager
+    public static class DatabaseManager
     {
-        private static PlayerData[] playerDatas;//Probléma lehet, de a szervere csatlakozasnal az osszes player adatot lekerdezzuk, ezen a változatatás szükséges
-        public IEnumerator ServerConnection()//itt csatlakotunk a szerverhez és lementjuk a playerek adatait
+        public static IEnumerator GetData(string name, string password, PlayerData playerData)
         {
+            string url = $"http://localhost:5269/UnityController/{name},{password}";
 
-            using (UnityWebRequest webRequest = UnityWebRequest.Get("http://localhost:5269/UnityController"))
+            using (UnityWebRequest webRequest = UnityWebRequest.Get(url))
             {
-
+                // Elküldjük a GET kérést és megvárjuk a befejeződést
                 yield return webRequest.SendWebRequest();
 
                 if (webRequest.result == UnityWebRequest.Result.ConnectionError ||
                     webRequest.result == UnityWebRequest.Result.ProtocolError)
                 {
                     Debug.LogError(webRequest.error);
+                    playerData = null;
                 }
                 else
                 {
-                    Debug.Log(webRequest.downloadHandler.text);
-
-                    // JSON feldolgozása
-                    playerDatas = JsonConvert.DeserializeObject<PlayerData[]>(webRequest.downloadHandler.text);
-                    Debug.Log("Succesful Server connection");
-                    UIFunctions.LogIn();
-
+                    Debug.Log("Successful Server connection");
+                    string jsonResponse = webRequest.downloadHandler.text;
+                    // JSON deszerializálása a PlayerData típusra
+                    playerData = JsonConvert.DeserializeObject<PlayerData>(jsonResponse);
                 }
             }
-
         }
-        public static PlayerData GetData(PlayerData playerData)//itt a beerkezo hiányos playerData változó tartalma alapján kikeressuk a profilt és visszakuldjuk a profil adataival kitöltött playerData változót
-        {
-            try
-            {
-                foreach (PlayerData player in playerDatas)
-                {
-                    if (player.name == playerData.name && player.password == playerData.password && player.email == playerData.email)
-                    {
-                        return player;
-                    }
-                }
-                Debug.LogError("Login Error, The user not found");
-                return null;
-            }
-            catch (Exception ex)
-            {
-                Debug.Log(ex.ToString());
-                throw;
-            }
-
-        }
-
     }
     #endregion
 
@@ -92,22 +67,7 @@ namespace MainData
 
     public class UIFunctions : MonoBehaviour
     {
-        private static void AccuntSincronisation(PlayerData playerData)
-        {
-            Main.id = playerData.id;
-            Main.name = playerData.name;
-            Main.email = playerData.email;
-            Main.password = playerData.password;
-        }
-        private static void LocalAccuntPush(PlayerData playerData)
-        {
-            StreamWriter sw = new StreamWriter("User.txt");
-            sw.WriteLine(playerData.name);
-            sw.WriteLine(playerData.email);
-            sw.WriteLine(playerData.password);
-            sw.Close();
-        }
-        private static void ProfileBTStyle()
+        public static void ProfileBTStyle()
         {
             string[] namesParts = Main.name.Split(' ');
             string monogram = "";
@@ -127,7 +87,8 @@ namespace MainData
             playerData.email = email;
             playerData.password = password;
 
-            playerData = DatabaseManager.GetData(playerData);
+            DatabaseManager.GetData(name, password, playerData);
+
             if (playerData == null)
             {
                 Debug.LogError("Login failed. User data is not available.");
@@ -135,8 +96,16 @@ namespace MainData
             }
             else
             {
-                LocalAccuntPush(playerData);
-                AccuntSincronisation(playerData);
+                StreamWriter sw = new StreamWriter("User.txt");
+                sw.WriteLine(playerData.name);
+                sw.WriteLine(playerData.email);
+                sw.WriteLine(playerData.password);
+                sw.Close();
+
+                Main.id = playerData.id;
+                Main.name = playerData.name;
+                Main.email = playerData.email;
+                Main.password = playerData.password;
 
                 Debug.Log($"server connection is avaiable for: {playerData.id} - {playerData.name} - {playerData.password} - {playerData.email}  user");
                 Debug.Log("Login succesful");
@@ -159,7 +128,8 @@ namespace MainData
                 playerData.email = sr.ReadLine();
                 playerData.password = sr.ReadLine();
 
-                playerData = DatabaseManager.GetData(playerData);
+                DatabaseManager.GetData(playerData.name, playerData.password, playerData);
+
                 if (playerData == null)
                 {
                     Debug.LogError("Login failed. User data is not available.");
@@ -167,11 +137,13 @@ namespace MainData
                 }
                 else
                 {
-                    AccuntSincronisation(playerData);
+                    Main.id = playerData.id;
+                    Main.name = playerData.name;
+                    Main.email = playerData.email;
+                    Main.password = playerData.password;
 
                     Debug.Log($"server connection is avaiable for: {playerData.id} - {playerData.name} - {playerData.password} - {playerData.email}  user");
                     Debug.Log("Login succesful");
-                    ProfileBTStyle();
                     Main.logged = true;
                 }
             }
@@ -206,11 +178,6 @@ namespace MainData
         public static void Load()
         {
 
-        }
-
-        public static void LoadAdvancedItems()
-        {
-            
         }
 
         public static bool logged = false;

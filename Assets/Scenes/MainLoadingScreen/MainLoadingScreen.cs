@@ -1,5 +1,7 @@
 using MainData;
+using System;
 using System.Collections;
+using System.Threading.Tasks;
 using UnityEngine;
 using UnityEngine.SceneManagement;
 using UnityEngine.UI;
@@ -52,7 +54,6 @@ public class MainLoadingScreen : MonoBehaviour
         // Kikapcsoljuk a betöltõ képernyõt
         loadingScreen.SetActive(false);
     }
-
     IEnumerator FillProgressBar(int targetPercentage)
     {
         float duration = 0f; // 2 másodperc alatt töltsön be
@@ -79,6 +80,7 @@ public class MainLoadingScreen : MonoBehaviour
     IEnumerator LoadData()
     {
         Main.AdvancedItemHandler.AdvancedItemHanderDataLoad();
+        UIFunctions.LogIn();
         yield return null;
     }
 }

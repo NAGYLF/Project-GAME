@@ -13,7 +13,6 @@ public class MainMenu : MonoBehaviour
 {
     public static float fadeDuration = 1.5f;
     public static GameObject secondMenu;
-    DatabaseManager manager;
     void Start()
     {
         //Aplication Start
@@ -22,9 +21,7 @@ public class MainMenu : MonoBehaviour
         GameObject.Find("FadeOutScreen").GetComponentInChildren<UnityEngine.UI.Image>().enabled = false;
         secondMenu = GameObject.Find("SecondMenu");
         secondMenu.SetActive(false);
-
-        manager = new DatabaseManager();
-        StartCoroutine(manager.ServerConnection());
+        UIFunctions.ProfileBTStyle();
     }
 
     private IEnumerator StartFadeOutScreen(VideoPlayer videoPlayer,GameObject fadeOutScreen)

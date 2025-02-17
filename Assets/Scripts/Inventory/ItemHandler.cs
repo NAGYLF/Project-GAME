@@ -112,6 +112,7 @@ namespace ItemHandler
         public bool IsLoot { set; get; } = false;// az item a loot conténerekben van
         public bool IsRoot { set; get; } = false;// az item egy root data
         public bool IsEquipmentRoot { set; get; } = false;// az item a player equipmentjeinek rootja ebbol csak egy lehet
+        public bool IsAdvancedItem { set; get; } = false;// az item egy advanced item
 
         //SlotUse
         public List<string> SlotUse = new();
@@ -184,14 +185,13 @@ namespace ItemHandler
 
         }
         //action (Only NonLive inventory)
-        public bool PartPut(Item Item)//ha egy item partjait belerakjuk akkor az item az inventoryban megmaradhat ezert azt torolni kellesz vagy vmi
+        public bool PartPut(Item AdvancedItem)//ha egy item partjait belerakjuk akkor az item az inventoryban megmaradhat ezert azt torolni kellesz vagy vmi
         {
             //amit rá helyezunk
-            ConnectionPoint[] IncomingCPs = Item.Parts.SelectMany(x => x.ConnectionPoints).ToArray();//az összes connection point amitje az itemnek van
+            ConnectionPoint[] IncomingCPs = AdvancedItem.Parts.SelectMany(x => x.ConnectionPoints).ToArray();//az összes connection point amitje az itemnek van
             //amire helyezunk
             ConnectionPoint[] SelfCPs = Parts.SelectMany(x => x.ConnectionPoints).ToArray();//az össze sconnection point amihez hozzadhatja
-            ConnectionPoint IncomingCP = null;//egy part célzott pontja
-            ConnectionPoint SelfCP = null;//az item csatlakoztatott pontja
+            bool Connected = false;
             /*
              * ellenorizzuk, hogy a CP-k egyike sincs e hasznalva
              * ellenorizzuk, hogy a self cp kompatibilis e az incoming cp-vel
@@ -202,30 +202,43 @@ namespace ItemHandler
                 {
                     if (!SCP.Used && !ICP.Used && SCP.CPData.CompatibleItemNames.Contains(ICP.SelfPart.PartData.PartName))
                     {
+                        Connected = true;
                         SCP.Connect(ICP);
-                        SelfCP = SCP;
-                        IncomingCP = ICP;
 
-                        int baseHierarhicPlace = SelfCP.SelfPart.HierarhicPlace;
-                        IncomingCP.SelfPart.HierarhicPlace = baseHierarhicPlace + 1;
-                        //Debug.LogWarning($"{IncomingCP.SelfPart.item_s_Part.ItemName} : {IncomingCP.SelfPart.HierarhicPlace}   -------   {SelfCP.SelfPart.item_s_Part.ItemName} : {SelfCP.SelfPart.HierarhicPlace}");
-                        //foreach (Part part in Parts)
-                        //{
-                        //    Debug.LogWarning($"{part.item_s_Part.ItemName}");
-                        //}
-                        Parts.AddRange(Item.Parts);
-                        //Debug.LogWarning($"---------------");
-                        //foreach (Part part in Parts)
-                        //{
-                        //    Debug.LogWarning($"{part.item_s_Part.ItemName}");
-                        //}
+                        int baseHierarhicPlace = SCP.SelfPart.HierarhicPlace;
+                        int IncomingCPPlace = ICP.SelfPart.HierarhicPlace;
+                        int hierarhicPlaceChanger = 0;
+                        if (baseHierarhicPlace<IncomingCPPlace)
+                        {
+                            hierarhicPlaceChanger = (IncomingCPPlace-(++baseHierarhicPlace))*-1;
+                        }
+                        else if (baseHierarhicPlace>IncomingCPPlace)
+                        {
+                            hierarhicPlaceChanger = baseHierarhicPlace-IncomingCPPlace+1;
+                        }
+                        else
+                        {
+                            hierarhicPlaceChanger = 1;
+                        }
+
+                        foreach (Part part in AdvancedItem.Parts)
+                        {
+                            part.HierarhicPlace += hierarhicPlaceChanger;
+                        }
+
+                        Parts.AddRange(AdvancedItem.Parts);
+
+                        Parts.OrderBy(part => part.HierarhicPlace);
+
+                        InventorySystem.DataDelete(AdvancedItem);//törli az advanced itemet amely a partokat tartalmazta
+
                         AdvancedItemContsruct();
                         goto EndSearch;
                     }
                 }
             }
             EndSearch:;
-            if (IncomingCP == null || SelfCP == null)
+            if (Connected)
             {
                 return false;
             }
@@ -398,6 +411,7 @@ namespace ItemHandler
             Quantity = 1;
             MaxStackSize = 1;
             IsModificationAble = true;
+            IsAdvancedItem = true;
 
 
         }
@@ -587,7 +601,7 @@ namespace ItemHandler
                 _ => throw new ArgumentException($"Invalid type {name}")
             };
             completedItem.Quantity = count;
-            if (completedItem.IsModificationAble)
+            if (completedItem.IsAdvancedItem)
             {
                 Item item = new()
                 {
@@ -608,6 +622,7 @@ namespace ItemHandler
                     IsModificationAble = completedItem.IsModificationAble,
                     IsOpenAble = completedItem.IsOpenAble,
                     IsUsable = completedItem.IsUsable,
+                    IsAdvancedItem = completedItem.IsAdvancedItem,
                     //tartalom
                     Container = completedItem.Container,
                     //fegyver adatok
@@ -655,6 +670,7 @@ namespace ItemHandler
                 IsModificationAble = completedItem.IsModificationAble;
                 IsOpenAble = completedItem.IsOpenAble;
                 IsUsable = completedItem.IsUsable;
+                IsAdvancedItem = completedItem.IsAdvancedItem;
                 //tartalom
                 Container = completedItem.Container;
                 //fegyver adatok
@@ -1583,7 +1599,7 @@ namespace ItemHandler
                 }
             }
         }
-        public static void DataDelete(Item Data)//Teljes törlést végez az egesz itemen
+        public static void DataDelete(Item Data)//Teljes törlést végez az egesz itemen, de a child itemeit nem torli
         {
             //hotkeybol valo torles
             if (Data.hotKeyRef != null)

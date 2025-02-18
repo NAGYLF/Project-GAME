@@ -10,7 +10,6 @@ function Nav({ language, setLanguage, texts, isLoggedIn, setIsLoggedIn, isAdmin,
     setLanguage(e.target.value);
   };
 
-
   return (
     <div>
       <video 

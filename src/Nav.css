@@ -1,3 +1,4 @@
+/* Font */
 @import url('https://fonts.googleapis.com/css2?family=Raleway:ital,wght@0,100..900;1,100..900&display=swap');
 
 * {
@@ -6,16 +7,9 @@
   font-style: normal;
   transition: all 0.5s ease;
 }
+/*--------*/
 
-body{
-  padding-bottom: 150px;
-}
-
-img, a{
-  -webkit-user-drag: none;
-}
-
-/*Oldalra*/
+/* Oldal */
 .content {
   display: flex;
   justify-content: center;
@@ -51,7 +45,16 @@ img, a{
   margin-bottom: 35px;
 }
 
-/*Keresőhöz*/
+body{
+  padding-bottom: 150px;
+}
+
+img, a{
+  -webkit-user-drag: none;
+}
+/*--------*/
+
+/* Search box */
 #searchbox {
   background-color: #171717;
   color: black;
@@ -63,10 +66,6 @@ img, a{
   overflow-y: scroll;
   text-align: center;
   height: 85%;
-}
-
-::-webkit-scrollbar {
-  width: 0px;
 }
 
 #searchbox .row {
@@ -109,8 +108,12 @@ img, a{
   text-overflow: ellipsis;
 }
 
+::-webkit-scrollbar {
+  width: 0px;
+}
 /*-----*/
 
+/* Navbar */
 #logo:hover{
   height: 48.5px!important;
 }
@@ -190,6 +193,7 @@ img, a{
   color: rgb(255, 255, 255)!important;
 }
 
+/* Media */
 @media (max-width: 1222px) {
   .center-logo{
     margin-left: 7.5%;

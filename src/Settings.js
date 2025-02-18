@@ -1,11 +1,12 @@
 import axios from "axios";
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import { useLocation, useNavigate } from "react-router-dom";
 
 const Settings = ({ texts, language, id, token, logout }) => {
   const [newName, setNewName] = useState("");
   const [newEmail, setNewEmail] = useState("");
   const [newPassword, setNewPassword] = useState("");
+  const [newPasswordAgain, setNewPasswordAgain] = useState("");
   const location = useLocation();
   const navigate = useNavigate();
 
@@ -16,6 +17,28 @@ const Settings = ({ texts, language, id, token, logout }) => {
       navigate("/");
     }
   )}
+
+  const modifyAccount = () => {
+    axios.put(`http://localhost:5269/api/Player/${id}`, {
+      name: newName,
+      email: newEmail,
+      password: newPassword,
+      }, 
+    )
+  .then(() => {
+    alert("Fiók módosítva!");
+    navigate("/");
+  })
+  .catch((error) => {
+    alert(error.response.data);
+  })};
+
+  useEffect(() => {
+    axios.get(`http://localhost:5269/GetbyId/${id}`).then((res) => {
+      setNewName(res.data.name);
+      setNewEmail(res.data.email);
+    });
+  }, [id]);
 
   return (
     <div
@@ -41,11 +64,17 @@ const Settings = ({ texts, language, id, token, logout }) => {
               onClick={() => navigate("/")}
             ></button>
           </div>
+          <p style={{textAlign: "center", margin: "auto", marginTop: "20px"}}>{language === "hu" ? "A változtatni nem kívánt adatokat hagyd változtatlanul." : "Leave the data you don't want to change unchanged."}</p>
           <div className="modal-body">
             <form onSubmit={(e) => {
               e.preventDefault();
+              if(newPassword === newPasswordAgain) {
+              modifyAccount();
               navigate("/");
-            }}>
+            }
+            else{
+              alert("A két jelszó nem egyezik!");
+            }}}>
               <div className="mb-3">
                 <label htmlFor="newName" className="form-label">
                   {language === "hu" ? 'Új felhasználónév' : 'New username'}
@@ -85,7 +114,19 @@ const Settings = ({ texts, language, id, token, logout }) => {
                   value={newPassword}
                   onChange={(e) => setNewPassword(e.target.value)}
                   placeholder={language === "hu" ? 'Új jelszó' : 'New password'}
-                  required
+                />
+              </div>
+              <div className="mb-3">
+                <label htmlFor="newPasswordAgain" className="form-label">
+                  {language === "hu" ? 'Új jelszó újra' : 'New password again'}
+                </label>
+                <input
+                  type="password"
+                  className="form-control"
+                  id="newPasswordAgain"
+                  value={newPasswordAgain}
+                  onChange={(e) => setNewPasswordAgain(e.target.value)}
+                  placeholder={language === "hu" ? 'Új jelszó újra' : 'New password again'}
                 />
               </div>
               <div className="d-flex justify-content-between">

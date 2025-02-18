@@ -61,6 +61,7 @@ function App() {
 
     const logout = () => {
       localStorage.removeItem('token');
+      alert(language === "hu" ? "Sikeres kijelentkezés!" : "Successful logout!");
       setToken(null);
       setIsLoggedIn(false);
     };
@@ -82,6 +83,7 @@ function App() {
           const decodedToken = jwtDecode(token);
           const isAdmin = decodedToken.IsAdmin === "True" ? true : false;
   
+          alert(language === "hu" ? "Sikeres bejelentkezés!" : "Successful login!");
           // Állapotok beállítása
           setIsLoggedIn(true);
           setIsAdmin(isAdmin);  // Az admin státusz beállítása

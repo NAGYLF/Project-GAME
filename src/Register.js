@@ -48,9 +48,13 @@ function Register({ language, code, login}) {
                   isAdmin: isAdmin
                 })
                 .then(() => {
+                  alert(language === "hu" ? "Sikeres regisztráció!" : "Successful registration!");
                   login(email, password);
                   navigate("/");
                 })
+                .catch((error) => {
+                  alert(error.response.data);
+                });
               }
               
             }}>

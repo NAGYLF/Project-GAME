@@ -1,21 +1,12 @@
 import React, { useState } from 'react';
 import { useLocation, useNavigate } from 'react-router-dom';
 
-function Login({ language, texts, setIsLoggedIn, setIsAdmin, login }) {
+function Login({ language, texts, login }) {
   const location = useLocation();
   const navigate = useNavigate();
 
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
-
-
-  const logout = () => {
-    localStorage.deleteItem('token');
-    console.log(localStorage.getItem('token'));
-    setIsLoggedIn(false);
-    setIsAdmin(false);
-    navigate("/home");
-  };
 
   return (
     <div

@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { useLocation, useNavigate } from 'react-router-dom';
 
-function Login({ language, texts, login }) {
+function Login({ language, texts, login, showAlert }) {
   const location = useLocation();
   const navigate = useNavigate();
 
@@ -35,7 +35,7 @@ function Login({ language, texts, login }) {
           <div className="modal-body">
             <form onSubmit={(e) => {
               e.preventDefault();
-              login(email, password);
+              login(email, password, showAlert);
               navigate("/");
             } }>
               <div className="mb-3">

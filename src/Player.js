@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react';
 import axios from 'axios';
 import { useNavigate, useParams } from 'react-router-dom';
 
-export default function Player({ texts, language, token, isAdmin }) {
+export default function Player({ texts, language, token, isAdmin, showAlert }) {
   const { id } = useParams();
   const [stats, setStats] = useState({
     score: 0,
@@ -53,7 +53,7 @@ export default function Player({ texts, language, token, isAdmin }) {
             if (window.confirm(language === "hu" ? 'Biztosan törölni szeretnéd a fiókot?' : 'Are you sure you want to delete this account?')) {
               axios.delete(`http://localhost:5269/api/Player/${id}?token=${token}`)
                 .then(() => {
-                  alert(language === "hu" ? 'Fiók sikeresen törölve!' : 'Account deleted successfully!');
+                  showAlert(language === "hu" ? "Fiók sikeresen törölve!" : "Account deleted successfully!" , "success");
                   navigate("/search");
                 })
                 .catch(error => console.error('Error deleting player:', error));

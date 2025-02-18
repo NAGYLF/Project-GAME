@@ -1,8 +1,8 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import { useLocation, useNavigate } from "react-router-dom";
 import axios from "axios";
 
-function Register({ language, code, login}) {
+function Register({ language, code, login, admincode, showAlert }) {
   const location = useLocation();
   const navigate = useNavigate();
 
@@ -11,6 +11,10 @@ function Register({ language, code, login}) {
   const [password, setPassword] = useState("");
   const [passwordAgain, setPasswordAgain] = useState("");
   const [adminCode, setAdminCode] = useState("");
+
+  useEffect(() => {
+      admincode();
+    }, []);
 
   return (
     <div
@@ -33,14 +37,16 @@ function Register({ language, code, login}) {
               className="btn-close bg-light"
               data-bs-dismiss="modal"
               aria-label="Close"
-              onClick={() => navigate("/home")}
+              onClick={() => navigate("/")}
             ></button>
           </div>
           <div className="modal-body">
             <form onSubmit={(e) => {
               e.preventDefault();
               if(password === passwordAgain) {
-                const isAdmin = adminCode === code;
+                console.log(adminCode);
+                console.log(code);
+                const isAdmin = adminCode == code;
                 axios.post("http://localhost:5269/api/auth/register", { 
                   name: username,
                   password: password,
@@ -48,12 +54,12 @@ function Register({ language, code, login}) {
                   isAdmin: isAdmin
                 })
                 .then(() => {
-                  alert(language === "hu" ? "Sikeres regisztráció!" : "Successful registration!");
-                  login(email, password);
+                  showAlert(language === "hu" ? "Sikeres regisztráció!" : "Successful registration!" , "success");
+                  login(email, password, showAlert);
                   navigate("/");
                 })
                 .catch((error) => {
-                  alert(error.response.data);
+                  showAlert(error.response.data , "error");
                 });
               }
               

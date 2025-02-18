@@ -45,10 +45,6 @@
   margin-bottom: 35px;
 }
 
-body{
-  padding-bottom: 150px;
-}
-
 img, a{
   -webkit-user-drag: none;
 }
@@ -193,6 +189,57 @@ img, a{
   color: rgb(255, 255, 255)!important;
 }
 
+/*--------*/
+#snackbar {
+  display: none;
+  min-width: 250px;
+  color: azure;
+  text-align: center;
+  border-radius: 2px;
+  padding: 16px;
+  position: fixed;
+  z-index: 1;
+  left: 50%;
+  bottom: 30px;
+  font-size: 17px;
+  transform: translateX(-50%);
+}
+
+#snackbar.show {
+  display: block;
+  -webkit-animation: fadein 0.5s, fadeout 0.5s 2.5s;
+  animation: fadein 0.5s, fadeout 0.5s 2.5s;
+}
+
+#snackbar.success {
+  background-color: green;
+}
+
+#snackbar.error {
+  background-color: red;
+}
+
+@-webkit-keyframes fadein {
+  from {bottom: 0; opacity: 0;} 
+  to {bottom: 30px; opacity: 1;}
+}
+
+@keyframes fadein {
+  from {bottom: 0; opacity: 0;}
+  to {bottom: 30px; opacity: 1;}
+}
+
+@-webkit-keyframes fadeout {
+  from {bottom: 30px; opacity: 1;} 
+  to {bottom: 0; opacity: 0;}
+}
+
+@keyframes fadeout {
+  from {bottom: 30px; opacity: 1;}
+  to {bottom: 0; opacity: 0;}
+}
+/*--------*/
+
 /* Media */
 @media (max-width: 1222px) {
   .center-logo{
@@ -214,6 +261,10 @@ img, a{
     justify-content: center;
     width: 100%;
     max-height: 50px;
+  }
+
+  body{
+    padding-bottom: 15vh;
   }
 
   .footer{

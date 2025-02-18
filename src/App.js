@@ -10,6 +10,7 @@ import Search from "./Search";
 import Admin from "./Admin";
 import Footer from "./Footer";
 import Player from "./Player";
+import Alert from './Alert'; // Import Alert component
 import { jwtDecode } from 'jwt-decode';
 import axios from 'axios';
 
@@ -23,6 +24,7 @@ function App() {
   const [username, setUsername] = useState('');
   const [id, setId] = useState('');
   const [token, setToken] = useState(localStorage.getItem('token'));
+  const [alertMessage, setAlertMessage] = useState(''); // State for alert message
 
   useEffect(() => {
      setToken(localStorage.getItem('token'));
@@ -61,19 +63,19 @@ function App() {
 
     const logout = () => {
       localStorage.removeItem('token');
-      alert(language === "hu" ? "Sikeres kijelentkezés!" : "Successful logout!");
+      showAlert(language === "hu" ? "Sikeres kijelentkezés!" : "Successful logout!", "success");
       setToken(null);
       setIsLoggedIn(false);
+      setIsAdmin(false);
     };
 
-    const login = (email, password) => {
+    const login = (email, password, showAlert) => {
       let user = {
         email: email,
         password: password
       };
       console.log(user);
       
-  
       axios.post('http://localhost:5269/api/auth/login', user).then((response) => {
         if (response.data) {
           const token = response.data.token; // JWT token a válaszból
@@ -81,9 +83,10 @@ function App() {
           setToken(token);
           // Token dekódolása
           const decodedToken = jwtDecode(token);
+          console.log(decodedToken);
           const isAdmin = decodedToken.IsAdmin === "True" ? true : false;
   
-          alert(language === "hu" ? "Sikeres bejelentkezés!" : "Successful login!");
+          showAlert(language === "hu" ? "Sikeres bejelentkezés!" : "Successful login!", "success"); // Show success alert
           // Állapotok beállítása
           setIsLoggedIn(true);
           setIsAdmin(isAdmin);  // Az admin státusz beállítása
@@ -91,12 +94,22 @@ function App() {
           // A felhasználót átirányítjuk a főoldalra
           navigate("/");
         } else {
-          alert(response.data.message);
+          showAlert(response.data.message, "error"); // Show error alert
         }
-      }).catch((error) => {
-        console.error("Login failed:", error);
-        alert(language === "hu" ? "Sikertelen bejelentkezés!" : "Login failed!");
+      }).catch(() => {
+        showAlert(language === "hu" ? "Sikertelen bejelentkezés!" : "Login failed!", "error"); // Show error alert
       });
+    };
+
+    const showAlert = (message, type) => {
+      setAlertMessage(message);
+      const snackbar = document.getElementById("snackbar");
+      snackbar.className = `show ${type}`;
+      snackbar.style.display = "block";
+      setTimeout(() => {
+        snackbar.className = snackbar.className.replace(`show ${type}`, "");
+        snackbar.style.display = "none";
+      }, 2900);
     };
     
   
@@ -138,16 +151,17 @@ function App() {
         username={username}
         logout={logout}
       />
+      <Alert message={alertMessage} />
       <Routes>
         {/* Passing language and texts props to all components */}
         <Route path="/description" element={<Description language={language} texts={texts} />} />
         <Route path="/about" element={<About language={language} texts={texts}/>} />
-        <Route path="/login" element={<Login language={language} texts={texts} isLoggedIn={isLoggedIn} setIsLoggedIn={setIsLoggedIn} setIsAdmin={setIsAdmin} login={login}/>} />
-        <Route path="/register" element={<Register language={language} texts={texts} isLoggedIn={isLoggedIn} setIsLoggedIn={setIsLoggedIn} code={code} login={login}/>} />
-        <Route path="/settings" element={<Settings texts={texts} language={language} id={id} token={token} logout={logout}/>} />
+        <Route path="/login" element={<Login language={language} texts={texts} isLoggedIn={isLoggedIn} setIsLoggedIn={setIsLoggedIn} setIsAdmin={setIsAdmin} login={login} showAlert={showAlert}/>} />
+        <Route path="/register" element={<Register language={language} texts={texts} isLoggedIn={isLoggedIn} setIsLoggedIn={setIsLoggedIn} code={code} login={login} showAlert={showAlert} admincode={admincode}/>} />
+        <Route path="/settings" element={<Settings texts={texts} language={language} id={id} token={token} logout={logout} showAlert={showAlert}/>} />
         <Route path="/admin" element={<Admin texts={texts} language={language} code={code} setCode={setCode} secondsLeft={secondsLeft} setSecondsLeft={setSecondsLeft} admincode={admincode}/>} />
         <Route path="/search" element={<Search texts={texts} language={language}/>} />
-        <Route path="/player/:id" element={<Player texts={texts} language={language} token={token} isAdmin={isAdmin}/>} />
+        <Route path="/player/:id" element={<Player texts={texts} language={language} token={token} isAdmin={isAdmin} showAlert={showAlert}/>} />
       </Routes>
       <Footer 
         language={language}  

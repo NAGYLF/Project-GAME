@@ -1,7 +1,7 @@
 import React, { useEffect } from 'react';
 import { useLocation, useNavigate } from 'react-router-dom';
 
-const Admin = ({ texts, language, code, setCode ,secondsLeft ,setSecondsLeft, admincode }) => {
+const Admin = ({ texts, language, code ,secondsLeft ,setSecondsLeft, admincode }) => {
   const location = useLocation();
   const navigate = useNavigate();
 
@@ -33,7 +33,7 @@ const Admin = ({ texts, language, code, setCode ,secondsLeft ,setSecondsLeft, ad
               className="btn-close bg-light"
               data-bs-dismiss="modal"
               aria-label="Close"
-              onClick={() => navigate("/home")}
+              onClick={() => navigate("/")}
             ></button>
           </div>
           <div className="modal-body">
@@ -74,7 +74,7 @@ const Admin = ({ texts, language, code, setCode ,secondsLeft ,setSecondsLeft, ad
               type="button"
               className="btn btn-danger"
               data-bs-dismiss="modal"
-              onClick={() => navigate("/home")}
+              onClick={() => navigate("/")}
             >
               {language === "hu" ? "Bezárás" : "Close"}
             </button>

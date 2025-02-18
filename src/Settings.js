@@ -2,7 +2,7 @@ import axios from "axios";
 import React, { useEffect, useState } from "react";
 import { useLocation, useNavigate } from "react-router-dom";
 
-const Settings = ({ texts, language, id, token, logout }) => {
+const Settings = ({ texts, language, id, token, logout, showAlert }) => {
   const [newName, setNewName] = useState("");
   const [newEmail, setNewEmail] = useState("");
   const [newPassword, setNewPassword] = useState("");
@@ -13,7 +13,7 @@ const Settings = ({ texts, language, id, token, logout }) => {
   const deleteAccount = () =>{
     axios.delete(`http://localhost:5269/api/Player/${id}?token=${token}`).then(() => {
       logout();
-      alert("Fiók sikeresen törölve!");
+      showAlert(language === "hu" ? "Fiók sikeresen törölve!" : "User successfully deleted!" , "success");
       navigate("/");
     }
   )}
@@ -26,18 +26,23 @@ const Settings = ({ texts, language, id, token, logout }) => {
       }, 
     )
   .then(() => {
-    alert("Fiók módosítva!");
+    showAlert(language === "hu" ? "Fiók módosítva!" : "Account modified!" , "success");
     navigate("/");
   })
   .catch((error) => {
-    alert(error.response.data);
+    showAlert(language === "hu" ? "Hiba!" : "Error!", "error");
   })};
 
   useEffect(() => {
-    axios.get(`http://localhost:5269/GetbyId/${id}`).then((res) => {
-      setNewName(res.data.name);
-      setNewEmail(res.data.email);
-    });
+    if (id) {
+      axios.get(`http://localhost:5269/GetbyId/${id}`).then((res) => {
+        setNewName(res.data.name);
+        setNewEmail(res.data.email);
+      }).catch((error) => {
+        showAlert(language === "hu" ? "Hiba történt az adatok lekérésekor!" : "Error fetching data!", "error");
+        console.error('Error fetching data:', error);
+      });
+    }
   }, [id]);
 
   return (
@@ -64,7 +69,7 @@ const Settings = ({ texts, language, id, token, logout }) => {
               onClick={() => navigate("/")}
             ></button>
           </div>
-          <p style={{textAlign: "center", margin: "auto", marginTop: "20px"}}>{language === "hu" ? "A változtatni nem kívánt adatokat hagyd változtatlanul." : "Leave the data you don't want to change unchanged."}</p>
+          <p style={{textAlign: "center", margin: "auto", marginTop: "20px", cursor: "default"}}>{language === "hu" ? "A változtatni nem kívánt adatokat hagyd változtatlanul." : "Leave the data you don't want to change unchanged."}</p>
           <div className="modal-body">
             <form onSubmit={(e) => {
               e.preventDefault();
@@ -73,7 +78,7 @@ const Settings = ({ texts, language, id, token, logout }) => {
               navigate("/");
             }
             else{
-              alert("A két jelszó nem egyezik!");
+              showAlert(language === "hu" ? "A két jelszó nem egyezik!" : "The two password doesn't match!" , "error");
             }}}>
               <div className="mb-3">
                 <label htmlFor="newName" className="form-label">

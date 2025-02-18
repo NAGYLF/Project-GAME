@@ -1,0 +1,11 @@
+{
+  "Version": 1,
+  "Hash": "NIQgkIxME783iXaO5a7w9sQ+39zA0qcN5IuhINWn2xo=",
+  "Source": "EphemeralApi",
+  "BasePath": "_content/EphemeralApi",
+  "Mode": "Default",
+  "ManifestType": "Build",
+  "ReferencedProjectsConfiguration": [],
+  "DiscoveryPatterns": [],
+  "Assets": []
+}

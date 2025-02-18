@@ -13,6 +13,7 @@ using NPOI.SS.UserModel;
 using NPOI.XSSF.UserModel;
 using System.Threading.Tasks;
 using System.Runtime.CompilerServices;
+using NPOI.XWPF.UserModel;
 
 
 namespace MainData
@@ -204,9 +205,12 @@ namespace MainData
                 for (int i = 1; i <= s.LastRowNum; i++)
                 {
                     var r = s.GetRow(i);
-                    string mainItemName = r.GetCell(0).ToString();
-                    string[] NecessaryItemNames = r.GetCell(1).ToString().Split(';');
-                    ((List<MainItem>)temporaryList).Add(new MainItem(mainItemName, NecessaryItemNames));
+                    if (r.GetCell(0) != null)
+                    {
+                        string mainItemName = r.GetCell(0).ToString();
+                        string[] NecessaryItemNames = r.GetCell(1).ToString().Split(';');
+                        ((List<MainItem>)temporaryList).Add(new MainItem(mainItemName, NecessaryItemNames));
+                    }
                 }
                 MainItems = ((List<MainItem>)temporaryList).ToArray();
          
@@ -232,8 +236,12 @@ namespace MainData
                             cps.Add(new CP(pointName, layer, compatibleItemNames, pixel_1_X, pixel_1_Y, pixel_2_X, pixel_2_Y,imagePath));
                             r = s.GetRow(++i);
                         }
-                        while (r != null && r.GetCell(0) == null);
+                        while (r.GetCell(0)==null && r.GetCell(2) != null);
                         ((List<ItemPartData>)temporaryList).Add(new ItemPartData(partName, imagePath, cps.ToArray()));
+                    }
+                    else
+                    {
+                        break;
                     }
                 }
                 ItemPartDatas = ((List<ItemPartData>)temporaryList).ToArray();
@@ -290,10 +298,10 @@ namespace MainData
                 PointName = pointName;
                 Layer = layer;
                 CompatibleItemNames = compatibleItemNames;
-                AnchorMin1 = new Vector2(pixel_1_X / (float)imgWidth, pixel_1_Y / (float)imgHeight);
-                AnchorMax1 = new Vector2(pixel_1_X / (float)imgWidth, pixel_1_Y / (float)imgHeight);
-                AnchorMin2 = new Vector2(pixel_2_X / (float)imgWidth, pixel_2_Y / (float)imgHeight);
-                AnchorMax2 = new Vector2(pixel_2_X / (float)imgWidth, pixel_2_Y / (float)imgHeight);
+                AnchorMin1 = new Vector2((pixel_1_X / (float)imgWidth), 1 - (pixel_1_Y / (float)imgHeight));
+                AnchorMax1 = new Vector2((pixel_1_X / (float)imgWidth), 1 - (pixel_1_Y / (float)imgHeight));
+                AnchorMin2 = new Vector2((pixel_2_X / (float)imgWidth), 1 - (pixel_2_Y / (float)imgHeight));
+                AnchorMax2 = new Vector2((pixel_2_X / (float)imgWidth), 1 - (pixel_2_Y / (float)imgHeight));
             }
         }
     }

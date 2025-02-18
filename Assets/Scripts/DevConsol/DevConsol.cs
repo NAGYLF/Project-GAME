@@ -109,6 +109,46 @@ public class DevConsol : MonoBehaviour
                                     inventory.GetComponent<PlayerInventory>().InventoryAdd(item_);
                                 }
                                 break;
+                            case "DevInvenotry_AKS74UAdvnacedItem":
+                                Debug.Log($"{text.GetComponent<TMP_InputField>().text}");
+                                Item[] items_AK74UTest = new Item[]
+                                {
+                                    new Item("AK103"),
+                                    new Item("AK103"),
+                                    new Item("Glock_17_9x19_pistol_PS9"),
+                                    new Item("_6B43_6A_Zabralo_Sh_body_armor"),
+                                    new Item("TestBackpack"),
+                                    new Item("TestVest"),
+                                    new Item("TestBoots"),
+                                    new Item("TestFingers"),
+                                    new Item("GSSh_01_active_headset"),
+                                    new Item("Galvion_Caiman_Hybrid_helmet_Grey"),
+                                    new Item("Atomic_Defense_CQCM_ballistic_mask_Black"),
+                                    new Item("APOK_Tactical_Wasteland_Gladius"),
+                                    new Item("USEC_Base"),
+                                    new Item("USEC_Base_Upper"),
+                                    new Item("AKS-74U_Body"),
+                                };
+                                Item[] parts_AKS74U = new Item[]
+                                {
+                                    new Item("AKS-74U_Legal_Arsenal_Pilgrim_railed_dust_cover"),
+                                    new Item("AKS-74U_Zenit_B-11_handguard"),
+                                    new Item("AKS-74U_bakelite_pistol_grip"),
+                                    new Item("AK-74_5.45x39_6L20_30-round_magasine"),
+                                    new Item("KAC_vertical_foregrip"),
+                                    new Item("AK-105_5.45x39_muzzle_brake-compensator"),
+                                    new Item("Walther_MRS_reflex_sight"),
+                                    new Item("AKS-74U_Skeletonized_Stock"),
+                                };
+                                foreach (Item item_ in parts_AKS74U)
+                                {
+                                    items_AK74UTest.Last().PartPut(item_);
+                                }
+                                foreach (Item item_ in items_AK74UTest)
+                                {
+                                    inventory.GetComponent<PlayerInventory>().InventoryAdd(item_);
+                                }
+                                break;
                             case "_7.62x39FMJx600":
                                 Debug.Log($"{text.GetComponent<TMP_InputField>().text}");
                                 Item[] items03 = new Item[]

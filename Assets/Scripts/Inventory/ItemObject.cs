@@ -219,6 +219,7 @@ public class ItemObject : MonoBehaviour, IPointerDownHandler, IPointerUpHandler,
                 ActualData.RotateDegree = 0f;
             }
             transform.rotation = Quaternion.Euler(0, 0, ActualData.RotateDegree);
+            Debug.LogWarning(ActualData.RotateDegree);
         }
     }
     private void ObjectMovement()
@@ -252,24 +253,11 @@ public class ItemObject : MonoBehaviour, IPointerDownHandler, IPointerUpHandler,
                 }
                 else
                 {
+                    //!!! miert valtozik a scale ez elott meg?
+                    part.PartObject.GetComponent<RectTransform>().localScale = Vector3.one;
+                    
                     PartObject = part.PartObject;
                 }
-
-                //Debug.LogWarning($"partobject {PartObject.GetInstanceID()}    {PartObject.GetComponent<PartObject>().connectionPoints[0].RefPoint1 != null}");
-
-                //PartObject.name = part.item_s_Part.ItemName;
-                //PartObject.transform.SetParent(fitter.transform);
-
-                PartObject.GetComponent<RectTransform>().localPosition = Vector2.zero;
-                PartObject.GetComponent<RectTransform>().localScale = Vector3.one;
-                //PartObject.GetComponent<RectTransform>().localRotation = Quaternion.Euler(0, 0, ActualData.RotateDegree);
-
-                //part.PartObject = PartObject;
-                //for (int i = 0; i < PartObject.GetComponent<PartObject>().SelfData.ConnectionPoints.Length; i++)
-                //{
-                //    part.ConnectionPoints[i].RefPoint1 = PartObject.GetComponent<PartObject>().connectionPoints[i].RefPoint1;
-                //    part.ConnectionPoints[i].RefPoint2 = PartObject.GetComponent<PartObject>().connectionPoints[i].RefPoint2;
-                //}
             }
             foreach (Part part in ActualData.Parts)
             {
@@ -279,7 +267,6 @@ public class ItemObject : MonoBehaviour, IPointerDownHandler, IPointerUpHandler,
                     //Debug.LogWarning($"CP connected   {connectionPoint.ConnectedPoint != null}");
                     if (connectionPoint.ConnectedPoint != null)
                     {
-
                         if (connectionPoint.SelfPart.HierarhicPlace < connectionPoint.ConnectedPoint.SelfPart.HierarhicPlace)
                         {
 
@@ -288,79 +275,33 @@ public class ItemObject : MonoBehaviour, IPointerDownHandler, IPointerUpHandler,
                             RectTransform targetPoint1 = connectionPoint.RefPoint1.GetComponent<RectTransform>();
                             RectTransform targetPoint2 = connectionPoint.RefPoint2.GetComponent<RectTransform>();
 
-                            //Debug.LogWarning($"TargetPoint1: {targetPoint1}, Position: {targetPoint1?.localPosition}");
-                            //Debug.LogWarning($"TargetPoint2: {targetPoint2}, Position: {targetPoint2?.localPosition}");
-
                             // 2. Mozgatandó objektum és referencia pontok lekérése
                             RectTransform toMoveObject = connectionPoint.ConnectedPoint.SelfPart.PartObject.GetComponent<RectTransform>();
                             RectTransform toMovePoint1 = connectionPoint.ConnectedPoint.RefPoint1.GetComponent<RectTransform>();
                             RectTransform toMovePoint2 = connectionPoint.ConnectedPoint.RefPoint2.GetComponent<RectTransform>();
 
-                            //Debug.LogWarning($"ToMoveObject: {toMoveObject}, Position: {toMoveObject?.localPosition}");
-                            //Debug.LogWarning($"ToMovePoint1: {toMovePoint1}, Position: {toMovePoint1?.localPosition}");
-                            //Debug.LogWarning($"ToMovePoint2: {toMovePoint2}, Position: {toMovePoint2?.localPosition}");
-
-
-
-                            //Debug.LogWarning($"ToMoveObject eredeti localScale: {toMoveObject.name}   {toMoveObject.localScale} {toMoveObject.localRotation}");
-
-
-
-
-
-                            // 5. Skálázási faktor számítása
-                            float targetLocalDistance = Vector3.Distance(targetPoint1.localPosition, targetPoint2.localPosition);
-                            float toMoveLocalDistance = Vector3.Distance(toMovePoint1.localPosition, toMovePoint2.localPosition);
+                            // 3. Skálázási faktor számítása
+                            float targetLocalDistance = Vector3.Distance(targetPoint1.position, targetPoint2.position);
+                            float toMoveLocalDistance = Vector3.Distance(toMovePoint1.position, toMovePoint2.position);
                             float scaleFactor = targetLocalDistance / toMoveLocalDistance;
+                            //Debug.LogWarning(part.item_s_Part.ItemName+" "+scaleFactor+ " targetLocalDistante: " + targetLocalDistance+ " toMoveLocalDistance: "+ toMoveLocalDistance);
                             if (float.IsNaN(scaleFactor))
                             {
                                 scaleFactor = 1;
                             }
 
-                            // 6. Alkalmazzuk a skálázást
+                            // 4. Alkalmazzuk a skálázást
                             toMoveObject.localScale = new Vector3(scaleFactor, scaleFactor, 1);
-                            //Debug.LogWarning($"ToMoveObject új localScale: {toMoveObject.name}   {toMoveObject.localScale}");
 
+                            //5. Pozíciók kiszámítása
+                            Vector3 targetMidLocal = (targetPoint1.position + targetPoint2.position) * 0.5f;
+                            Vector3 toMoveMidLocal = (toMovePoint1.position + toMovePoint2.position) * 0.5f;
+                            Vector3 translationLocal = targetMidLocal - toMoveMidLocal;
 
-
-
-
-
-
-
-
-
-                            // Ellenőrizzük, hogy egyik referencia sem null-e
-                            //if (targetPoint1 == null || targetPoint2 == null || toMoveObject == null || toMovePoint1 == null || toMovePoint2 == null)
-                            //{
-                            //    Debug.LogError("HIBA: Egy vagy több RectTransform referenciapont NULL!");
-                            //    return;
-                            //}
-
-                            //// 3. Pozíciók kiszámítása
-                            //Vector3 targetMidLocal = (targetPoint1.localPosition + targetPoint2.localPosition) * 0.5f;
-                            //Vector3 toMoveMidLocal = (toMovePoint1.localPosition + toMovePoint2.localPosition) * 0.5f;
-                            //Vector3 translationLocal = targetMidLocal - toMoveMidLocal;
-
-                            //Debug.LogWarning($"TargetMidLocal: {targetMidLocal}");
-                            //Debug.LogWarning($"ToMoveMidLocal: {toMoveMidLocal}");
-                            //Debug.LogWarning($"TranslationLocal: {translationLocal}");
-
-                            //// 4. Alkalmazzuk az eltolást
-                            //toMoveObject.localPosition += translationLocal;
-                            //Debug.LogWarning($"ToMoveObject új localPosition: {toMoveObject.localPosition}");
-
-
-                            //// 3. Forgatás: számoljuk ki az irányokat a két pontpár között local space-ben.
-                            //Vector3 targetDirLocal = (targetPoint2.localPosition - targetPoint1.localPosition).normalized;
-                            //Vector3 toMoveDirLocal = (toMovePoint2.localPosition - toMovePoint1.localPosition).normalized;
-                            //// Számoljuk ki a két irány közötti szögkülönbséget a Z tengely körül
-                            //float angle = Vector3.SignedAngle(toMoveDirLocal, targetDirLocal, Vector3.forward);
-                            //// Forgatás: adjuk hozzá a kiszámolt szöget az aktuális local forgatáshoz
-                            //toMoveObject.localRotation = Quaternion.Euler(0, 0, toMoveObject.localEulerAngles.z + angle);
+                            // 6. Alkalmazzuk az eltolást
+                            toMoveObject.position += translationLocal;
                         }
                     }
-
                 }
             }
             ItemCompound.GetComponent<ItemImgFitter>().Fitting();
@@ -445,7 +386,6 @@ public class ItemObject : MonoBehaviour, IPointerDownHandler, IPointerUpHandler,
         if (ActualData.IsEquipment)
         {
             itemObjectRectTransform.sizeDelta = maxPosition - minPosition;
-            ActualData.RotateDegree = 0;
         }
         else
         {

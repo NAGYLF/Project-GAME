@@ -15,6 +15,15 @@ using Weapons;
 using System;
 using Cash;
 using Meds;
+using WeaponBodys;
+using Dustcovers;
+using Grips;
+using Handguards;
+using Magasines;
+using Modgrips;
+using Muzzles;
+using Sights;
+using Stoks;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text.RegularExpressions;
@@ -28,10 +37,9 @@ using Newtonsoft.Json.Linq;
 using static MainData.SupportScripts;
 using static TestModulartItems.TestModularItems;
 using static MainData.Main;
-using MainData;
-using System.IO;
 using UnityEngine.UI;
 using Assets.Scripts.Inventory;
+using System.Drawing.Drawing2D;
 
 
 namespace ItemHandler
@@ -438,12 +446,45 @@ namespace ItemHandler
 
                 "TestCenter" => new TestCenter().Set(),
                 "TestBox" => new TestBox().Set(),
-                "TestUpper" => new AK103().Set(),
-                "TestButtom" => new AK103().Set(),
-                "TestHead" => new AK103().Set(),
-                "TestFoot" => new AK103().Set(),
-                "TestFront" => new AK103().Set(),
-                "TestBack" => new AK103().Set(),
+                //"TestUpper" => new AK103().Set(),
+                //"TestButtom" => new AK103().Set(),
+                //"TestHead" => new AK103().Set(),
+                //"TestFoot" => new AK103().Set(),
+                //"TestFront" => new AK103().Set(),
+                //"TestBack" => new AK103().Set(),
+
+
+
+                //Weapon Bodys
+                "AKS-74U_Body" => new AKS74UBody().Set(),
+
+                //Dustcovers
+                "AKS-74U_dust_cover" => new AKS_74U_dust_cover().Set(),
+                "AKS-74U_Legal_Arsenal_Pilgrim_railed_dust_cover" => new AKS_74U_Legal_Arsenal_Pilgrim_railed_dust_cover().Set(),
+
+                //Grips
+                "AK_Zenit_RK-3_pistol_grip" => new AK_Zenit_RK_3_pistol_grip().Set(),
+                "AKS-74U_bakelite_pistol_grip" => new AKS_74U_bakelite_pistol_grip().Set(),
+
+                //Handguars
+                "AKS-74U_Wooden_handguard" => new AKS_74U_Wooden_handguard().Set(),
+                "AKS-74U_Zenit_B-11_handguard" => new AKS_74U_Zenit_B_11_handguard().Set(),
+
+                //Magasines
+                "AK-74_5.45x39_6L20_30-round_magasine" => new AK_74_545x39_6L20_30_round_magasine().Set(),
+                "AK-74_5.45x39_6L31_60-round_magasine" => new AK_74_545x39_6L31_60_round_magasine().Set(),
+
+                //Modgrips
+                "KAC_vertical_foregrip" => new KAC_vertical_foregrip().Set(),
+
+                //Muzzles
+                "AK-105_5.45x39_muzzle_brake-compensator" => new AK_105_545x39_muzzle_brake_compensator().Set(),
+
+                //Sights
+                "Walther_MRS_reflex_sight" => new Walther_MRS_reflex_sight().Set(),
+
+                //Stoks
+                "AKS-74U_Skeletonized_Stock" => new AKS_74U_Skeletonized_Stock().Set(),
 
                 //Backpacks
                 "Camelback_Tri_Zip_assault_backpack" => new Camelback_Tri_Zip_assault_backpack().Set(),
@@ -758,22 +799,32 @@ namespace ItemHandler
         public void SetLive()
         {
             GameObject CP = CreatePrefab(AdvancedItemHandler.CPPath);
+
+            //!!! Ez változhat a fejlesztes soran szoval oda kell ra figyelni !!!
+            CP.transform.SetParent(SelfPart.PartObject.transform.GetChild(0).transform);
+            Texture2D texture = Resources.Load<Texture2D>(SelfPart.PartData.ImagePath);
+            float imgWidth = texture.width;
+            float imgHeight = texture.height;
+
+            //!!! miert valtozik a scale ez elott meg?
+            CP.GetComponent<RectTransform>().localScale = new Vector3(1,1,1);
+            CP.GetComponent<RectTransform>().sizeDelta = new Vector2(imgWidth, imgHeight);
+            CP.GetComponent<RectTransform>().localPosition = Vector2.zero;
+
             CP.name = CPData.PointName;
             RefPoint1 = CP.transform.GetChild(0).gameObject;
             RefPoint2 = CP.transform.GetChild(1).gameObject;
 
             RectTransform rt1 = RefPoint1.GetComponent<RectTransform>();
+            rt1.anchoredPosition = Vector2.zero;
             rt1.anchorMin = CPData.AnchorMin1;
             rt1.anchorMax = CPData.AnchorMax1;
-            rt1.anchoredPosition = Vector2.zero;
+
 
             RectTransform rt2 = RefPoint2.GetComponent<RectTransform>();
+            rt2.anchoredPosition = Vector2.zero;
             rt2.anchorMin = CPData.AnchorMin2;
             rt2.anchorMax = CPData.AnchorMax2;
-            rt2.anchoredPosition = Vector2.zero;
-
-            //!!! Ez változhat a fejlesztes soran szoval oda kell ra figyelni !!!
-            CP.transform.SetParent(SelfPart.PartObject.transform.GetChild(0).transform);
         }
     }
     public class Part
@@ -812,6 +863,13 @@ namespace ItemHandler
             //!!! Ez változhat a fejlesztes soran szoval oda kell ra figyelni !!!
             Sprite sprite = Resources.Load<Sprite>(PartData.ImagePath);
             Part.transform.GetChild(0).GetComponent<Image>().sprite = sprite;
+            Part.GetComponent<RectTransform>().localPosition = Vector2.zero;
+            Part.GetComponent<RectTransform>().localScale = Vector3.one;
+            Texture2D texture = Resources.Load<Texture2D>(PartData.ImagePath);
+            float imgWidth = texture.width;
+            float imgHeight = texture.height;
+            Part.GetComponent<RectTransform>().sizeDelta = new Vector2(imgWidth,imgHeight);
+            Part.transform.GetChild(0).GetComponent<RectTransform>().sizeDelta = new Vector2(imgWidth, imgHeight);
         }
     }
     public class BulletType
@@ -1542,6 +1600,7 @@ namespace ItemHandler
             if (!Data.IsEquipment && TransferToItem.IsEquipmentRoot)
             {
                 Data.IsEquipment = true;
+                Data.RotateDegree = 0;
             }
             else if (Data.IsEquipment && !TransferToItem.IsEquipmentRoot)
             {

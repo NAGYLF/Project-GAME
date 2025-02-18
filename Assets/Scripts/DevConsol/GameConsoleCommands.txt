@@ -75,13 +75,15 @@ remove TestPlayer item 7.62x39FMJ 113
 
 
 
-
 #----------------Test Dev Commands--------------------#
 
 add TestPlayer DevInventory
 
 
 add TestPlayer AdvancedItemTest
+
+
+add TestPlayer DevInvenotry_AKS74UAdvnacedItem
 
 
 add TestPlayer DevInventory_FullGear

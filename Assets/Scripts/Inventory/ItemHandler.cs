@@ -31,6 +31,7 @@ using static MainData.Main;
 using MainData;
 using System.IO;
 using UnityEngine.UI;
+using Assets.Scripts.Inventory;
 
 
 namespace ItemHandler
@@ -170,7 +171,7 @@ namespace ItemHandler
         }
         public void Modification()
         {
-
+            InGameUI.PlayerInventory.GetComponent<WindowManager>().CreateModificationPanel(this);
         }
         public void Reload()
         {

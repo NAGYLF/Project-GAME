@@ -9,6 +9,8 @@ using ItemHandler;
 using Assets.Scripts.Inventory;
 using NaturalInventorys;
 using static ItemHandler.InventorySystem;
+using NPOI.SS.Formula.Functions;
+using Unity.VisualScripting;
 
 namespace PlayerInventoryClass
 {
@@ -278,6 +280,9 @@ namespace PlayerInventoryClass
         
         public void CloseInventory()
         {
+            //!!! a fejlesztes soran valtozhat , figyelmet igenylehet
+            GetComponent<WindowManager>().ClearWindowManager();
+
             for (int i = EquipmentsPanelObject.GetComponent<PanelMain>().Equipments.transform.childCount - 1; i >= 0; i--)
             {
                 if (EquipmentsPanelObject.GetComponent<PanelMain>().Equipments.transform.GetChild(i).GetComponent<ItemObject>())

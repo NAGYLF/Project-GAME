@@ -17,13 +17,17 @@ public class MainMenu : MonoBehaviour
     {
         //Aplication Start
         Debug.Log("Aplication Start");
+        //beallitjuk a target fps-t
         Application.targetFrameRate = Main.targetFPS;
+        //ez az az obecjtum amely a new game startra kattintva a fekete elhomalyosodasert felel
         GameObject.Find("FadeOutScreen").GetComponentInChildren<UnityEngine.UI.Image>().enabled = false;
+        //ez a bejelentkezesi kis felugro menu ami alapbol inactiv
         secondMenu = GameObject.Find("SecondMenu");
         secondMenu.SetActive(false);
+        //a player adatait a MainLoadScreenben betoltottuk. Itt a profil objectumon beallitjuk a profil kezdobetujet ami a TestPlayernel: T
         UIFunctions.ProfileBTStyle();
     }
-
+    //az elhomályosodás eljarasa
     private IEnumerator StartFadeOutScreen(VideoPlayer videoPlayer,GameObject fadeOutScreen)
     {
         float startVolume = videoPlayer.GetDirectAudioVolume(0); ; // Kezdõ hangerõ
@@ -58,7 +62,7 @@ public class MainMenu : MonoBehaviour
         image.color = new Color(0, 0, 0, 255);
         SceneManager.LoadScene("NewGameCutScene");
     }
-
+    //uj jatek kezdete
     public void NewGameBt()
     {
         if (Main.logged)

@@ -453,8 +453,6 @@ namespace ItemHandler
                 //"TestFront" => new AK103().Set(),
                 //"TestBack" => new AK103().Set(),
 
-
-
                 //Weapon Bodys
                 "AKS-74U_Body" => new AKS74UBody().Set(),
 
@@ -847,10 +845,10 @@ namespace ItemHandler
 
             for (int i = 0; i < ConnectionPoints.Length; i++)
             {
-                ConnectionPoints[i] = new ConnectionPoint(PartData.CPs[i],this);
+                ConnectionPoints[i] = new ConnectionPoint(PartData.CPs[i], this);
             }
         }
-        public void SetLive(GameObject AdvancedItemObejct)
+        public void SetLive(GameObject ParentObject)
         {
             GameObject Part = CreatePrefab(AdvancedItemHandler.PartPath);
             PartObject = Part;
@@ -858,7 +856,7 @@ namespace ItemHandler
             Part.GetComponent<PartObject>().SelfData = this;
 
             //!!! Ez változhat a fejlesztes soran szoval oda kell ra figyelni !!!
-            Part.transform.SetParent(AdvancedItemObejct.GetComponent<ItemObject>().ItemCompound.GetComponent<ItemImgFitter>().fitter.transform);
+            Part.transform.SetParent(ParentObject.transform);
 
             //!!! Ez változhat a fejlesztes soran szoval oda kell ra figyelni !!!
             Sprite sprite = Resources.Load<Sprite>(PartData.ImagePath);
@@ -868,7 +866,7 @@ namespace ItemHandler
             Texture2D texture = Resources.Load<Texture2D>(PartData.ImagePath);
             float imgWidth = texture.width;
             float imgHeight = texture.height;
-            Part.GetComponent<RectTransform>().sizeDelta = new Vector2(imgWidth,imgHeight);
+            Part.GetComponent<RectTransform>().sizeDelta = new Vector2(imgWidth, imgHeight);
             Part.transform.GetChild(0).GetComponent<RectTransform>().sizeDelta = new Vector2(imgWidth, imgHeight);
         }
     }

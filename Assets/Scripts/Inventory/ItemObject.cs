@@ -22,6 +22,7 @@ public class ItemObject : MonoBehaviour, IPointerDownHandler, IPointerUpHandler,
     //public List<GameObject> ItemObjectParts;//opcionálisan használandó
     private GameObject Window;
     public Item ActualData { get; private set; }
+    bool IsTemporary = false;
 
     private Transform originalParent;
     private Vector3 originalPosition;
@@ -147,8 +148,15 @@ public class ItemObject : MonoBehaviour, IPointerDownHandler, IPointerUpHandler,
         else
         {
             //ha nem sikerul elhelyzni akkor eredeti allpotaba kerul
-            ActualData.RotateDegree = originalRotation;
-            SelfVisualisation();
+            if (IsTemporary)
+            {
+                //visszateres az eredeti advanced itembe
+            }
+            else
+            {
+                ActualData.RotateDegree = originalRotation;
+                SelfVisualisation();
+            }
         }
     }
     private void Start()
@@ -244,7 +252,7 @@ public class ItemObject : MonoBehaviour, IPointerDownHandler, IPointerUpHandler,
                 if (part.PartObject == null)
                 {
                     //Resources.UnloadUnusedAssets();
-                    part.SetLive(ActualData.SelfGameobject);
+                    part.SetLive(ActualData.SelfGameobject.GetComponent<ItemObject>().ItemCompound.GetComponent<ItemImgFitter>().fitter.gameObject);
                     foreach (ConnectionPoint cp in part.ConnectionPoints)
                     {
                         cp.SetLive();

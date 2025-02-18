@@ -18,6 +18,13 @@ namespace Magasines
                 SizeY = 2,//az item slotokban elfoglalt magassaga
 
                 Ergonomy = 2,//a célzás során a célkereszt mozog ha 0 akkor nagyon mozog ha 100 akkor egyáltalán nem.
+
+                SizeChanger = new SizeChanger()
+                {
+                    Plus = 1,//mekkora meretet adjon hozza
+                    MaxPlus = 2,//mekkora a maximalis size amelyikbe novelhet
+                    Direction = "D",//menyik iranyba adja hozza a meretet
+                }
             };
         }
     }
@@ -37,6 +44,13 @@ namespace Magasines
                 SizeY = 2,//az item slotokban elfoglalt magassaga
 
                 Ergonomy = -5,//a célzás során a célkereszt mozog ha 0 akkor nagyon mozog ha 100 akkor egyáltalán nem.
+
+                SizeChanger = new SizeChanger()
+                {
+                    Plus = 1,//mekkora meretet adjon hozza
+                    MaxPlus = 2,//mekkora a maximalis size amelyikbe novelhet
+                    Direction = "D",//menyik iranyba adja hozza a meretet
+                }
             };
         }
     }

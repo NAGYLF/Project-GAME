@@ -17,6 +17,13 @@ namespace Stoks
                 SizeY = 1,//az item slotokban elfoglalt magassaga
 
                 Ergonomy = 3,//a célzás során a célkereszt mozog ha 0 akkor nagyon mozog ha 100 akkor egyáltalán nem.
+
+                SizeChanger = new SizeChanger()
+                {
+                    Plus = 2,//mekkora meretet adjon hozza
+                    MaxPlus = 4,//mekkora a maximalis size amelyikbe novelhet
+                    Direction = "R",//menyik iranyba adja hozza a meretet
+                }
             };
         }
     }

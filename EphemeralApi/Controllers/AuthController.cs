@@ -10,6 +10,7 @@ using Microsoft.EntityFrameworkCore;
 using EphemeralApi.Models.Dtos;
 using Org.BouncyCastle.Crypto.Generators;
 using System;
+using System.Text.RegularExpressions;
 
 [Route("api/auth")]
 [ApiController]
@@ -27,8 +28,31 @@ public class AuthController : ControllerBase
     [HttpPost("register")]
     public async Task<IActionResult> Register([FromBody] CreatePlayerDto request)
     {
+        if (!request.Email.Contains("@") || !request.Email.Contains("."))
+        {
+            return BadRequest("Hibás Email. Ügyeljen a @-ra és a . karakterre.");
+        }
+
+        var passwordRegex = new Regex(@"^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[\W_]).+$");
+        if (!passwordRegex.IsMatch(request.Password))
+        {
+            return BadRequest("Hibás jelszó. Ügyeljen ezekre: legyen benne kis és nagy betű, szám és speciális karakter.");
+        }
+
+        if (request.Password.Length < 7)
+        {
+            return BadRequest("A jelszónak legalább 7 karakter hosszúnak kell lennie.");
+        }
+
+        if (request.Name.Length > 10)
+        {
+            return BadRequest("A név nem lehet hosszabb 10 karakternél.");
+        }
+
         if (await _context.Players.AnyAsync(p => p.Email == request.Email))
-            return BadRequest("Email already in use.");
+        {
+            return BadRequest("Ezt az emailt már regisztrálták.");
+        }
 
         string passwordHash = BCrypt.Net.BCrypt.HashPassword(request.Password);
 
@@ -43,7 +67,7 @@ public class AuthController : ControllerBase
         _context.Players.Add(newUser);
         await _context.SaveChangesAsync();
 
-        return Ok("User registered successfully.");
+        return Ok("Sikeres regisztráció.");
     }
 
     [HttpPost("login")]

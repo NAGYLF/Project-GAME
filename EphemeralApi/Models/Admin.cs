@@ -9,5 +9,7 @@ public partial class Admin
 
     public int PlayerId { get; set; }
 
+    public bool DevConsole { get; set; }
+
     public virtual Player Player { get; set; } = null!;
 }

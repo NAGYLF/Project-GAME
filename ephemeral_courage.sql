@@ -1,11 +1,11 @@
 -- phpMyAdmin SQL Dump
--- version 5.2.1
+-- version 5.1.1
 -- https://www.phpmyadmin.net/
 --
 -- Gép: 127.0.0.1
--- Létrehozás ideje: 2025. Feb 12. 00:16
--- Kiszolgáló verziója: 10.4.32-MariaDB
--- PHP verzió: 8.2.12
+-- Létrehozás ideje: 2025. Feb 20. 08:36
+-- Kiszolgáló verziója: 10.4.20-MariaDB
+-- PHP verzió: 7.3.29
 
 SET SQL_MODE = "NO_AUTO_VALUE_ON_ZERO";
 START TRANSACTION;
@@ -35,7 +35,7 @@ CREATE TABLE `achievement` (
   `FirstBlood` tinyint(1) DEFAULT 0,
   `RookieWork` tinyint(1) DEFAULT 0,
   `YouAreOnYourOwnNow` tinyint(1) DEFAULT 0
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
 
 --
 -- A tábla adatainak kiíratása `achievement`
@@ -54,15 +54,16 @@ INSERT INTO `achievement` (`Id`, `PlayerId`, `FirstBlood`, `RookieWork`, `YouAre
 
 CREATE TABLE `admin` (
   `Id` int(11) NOT NULL,
-  `PlayerId` int(11) NOT NULL
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+  `PlayerId` int(11) NOT NULL,
+  `DevConsole` tinyint(1) NOT NULL DEFAULT 0
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
 
 --
 -- A tábla adatainak kiíratása `admin`
 --
 
-INSERT INTO `admin` (`Id`, `PlayerId`) VALUES
-(1, 1);
+INSERT INTO `admin` (`Id`, `PlayerId`, `DevConsole`) VALUES
+(1, 1, 0);
 
 -- --------------------------------------------------------
 
@@ -76,7 +77,7 @@ CREATE TABLE `player` (
   `Password` varchar(255) NOT NULL,
   `Email` varchar(255) NOT NULL,
   `IsAdmin` tinyint(1) NOT NULL DEFAULT 0
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
 
 --
 -- A tábla adatainak kiíratása `player`
@@ -99,7 +100,7 @@ CREATE TABLE `statistic` (
   `DeathCount` int(11) DEFAULT 0,
   `Score` int(11) DEFAULT 0,
   `EnemiesKilled` int(11) DEFAULT 0
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
 
 --
 -- A tábla adatainak kiíratása `statistic`

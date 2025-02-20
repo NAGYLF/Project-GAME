@@ -1,6 +1,5 @@
 ﻿using Ammunition;
 using Armors;
-using Assets.Scripts;
 using Backpacks;
 using Boots;
 using Fingers;
@@ -24,6 +23,7 @@ using Modgrips;
 using Muzzles;
 using Sights;
 using Stoks;
+using Assets.Scripts;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text.RegularExpressions;
@@ -90,10 +90,10 @@ namespace ItemHandler
         //system variables
         #region SelfRefVariables
         public LevelManager LevelManagerRef;
-        public List<ItemSlotData> ItemSlotDataRef = new List<ItemSlotData>();
+        public List<ItemSlotData> ItemSlotsDataRef = new List<ItemSlotData>();
         public List<Item> ContainerItemListRef = new List<Item>();
         public HotKey hotKeyRef;
-        public List<GameObject> ItemSlotObjectRef = new List<GameObject>();
+        public List<GameObject> ItemSlotObjectsRef = new List<GameObject>();
         #endregion
         public PlacerStruct GivePlacer { get; set; }
         public List<Part> Parts { get; set; }//az item darabjai
@@ -253,32 +253,29 @@ namespace ItemHandler
             }
             return true;
         }
-        public (bool, List<Part>) PartCut(Part part)
+        public List<Part> PartCut(Part part)
         {
-            ConnectionPoint CPStand = Parts.SelectMany(x => x.ConnectionPoints).First(y => y.ConnectedPoint.SelfPart == part);
-            ConnectionPoint CPOff = Parts.SelectMany(x => x.ConnectionPoints).First(y => y.SelfPart == part);
+            //Debug.LogWarning(Parts.SelectMany(x => x.ConnectionPoints).ToArray().Last().ConnectedPoint.SelfPart != null);
+            ConnectionPoint CPStand = Parts.SelectMany(x => x.ConnectionPoints).FirstOrDefault(y => y.ConnectedPoint?.SelfPart == part);
+            ConnectionPoint CPOff = Parts.SelectMany(x => x.ConnectionPoints).FirstOrDefault(y => y.SelfPart == part);
             CPStand.Disconnect();
-            Parts.Remove(part);
             List<Part> parts = new()
             {
                 part
             };
-            RemovingPart(part, parts);
-            return (true, parts);
-        }
-        private void RemovingPart(Part part, List<Part> list)
-        {
-            foreach (ConnectionPoint cp in part.ConnectionPoints)
+            part.GetConnectedPartsTree(parts);
+            //Debug.LogWarning("-----------------------------PartCut-------------------------------");
+            foreach (Part part_ in parts)
             {
-                if (cp.ConnectedPoint != null)
-                {
-                    list.Add(cp.ConnectedPoint.SelfPart);
-                    Parts.Remove(part);
-                    RemovingPart(cp.ConnectedPoint.SelfPart, list);
-                }
+                Parts.Remove(part_);
+                //Debug.LogWarning(part_.PartData.PartName);
             }
+            //Debug.LogWarning("------------------------------------------------------------");
+            Parts.OrderBy(part => part.HierarhicPlace);
+            parts.OrderBy(part => part.HierarhicPlace);
+            return parts;
         }
-        private void AdvancedItemContsruct()
+        public void AdvancedItemContsruct()
         {
             ObjectPath = AdvancedItemObjectParth;
 
@@ -326,7 +323,7 @@ namespace ItemHandler
                                 SizeY = sizeChanger.MaxPlus;
                             }
                         }
-                        Debug.Log($"{SizeX} x {SizeY}");
+                        //Debug.Log($"{SizeX} x {SizeY}");
                     }
                     if (item.IsDropAble)
                     {
@@ -791,7 +788,7 @@ namespace ItemHandler
         {
             ConnectedPoint.Used = false;
             ConnectedPoint.ConnectedPoint = null;
-            Used = true;
+            Used = false;
             ConnectedPoint = null;
         }
         public void SetLive()
@@ -850,8 +847,11 @@ namespace ItemHandler
         }
         public void SetLive(GameObject ParentObject)
         {
+            //Debug.LogWarning($"Set {PartData.PartName}");
             GameObject Part = CreatePrefab(AdvancedItemHandler.PartPath);
+            //Debug.LogWarning($"creted obejct {Part.GetInstanceID()}");
             PartObject = Part;
+            //Debug.LogWarning($"referalt obejct {PartObject.GetInstanceID()}");
             Part.name = PartData.PartName;
             Part.GetComponent<PartObject>().SelfData = this;
 
@@ -868,6 +868,27 @@ namespace ItemHandler
             float imgHeight = texture.height;
             Part.GetComponent<RectTransform>().sizeDelta = new Vector2(imgWidth, imgHeight);
             Part.transform.GetChild(0).GetComponent<RectTransform>().sizeDelta = new Vector2(imgWidth, imgHeight);
+        }
+        public void UnSetLive()
+        {
+            //Debug.LogWarning($"UnsetPart {PartData.PartName}");
+            if (PartObject != null)
+            {
+                //Debug.LogWarning($"deleted obejct {PartObject.GetInstanceID()}");
+                PartObject.transform.SetParent(null);
+                UnityEngine.Object.Destroy(PartObject);
+            }
+        }
+        public void GetConnectedPartsTree(List<Part> parts)
+        {
+            foreach (ConnectionPoint cp in ConnectionPoints)
+            {
+                if (cp.Used && cp.ConnectedPoint.SelfPart.HierarhicPlace > HierarhicPlace)
+                {
+                    parts.Add(cp.ConnectedPoint.SelfPart);
+                    cp.ConnectedPoint.SelfPart.GetConnectedPartsTree(parts);
+                }
+            }
         }
     }
     public class BulletType
@@ -1210,7 +1231,7 @@ namespace ItemHandler
                     if (Data.SlotUse.Contains(slot.SlotName))
                     {
                         slot.PartOfItemData = Data;
-                        Data.ItemSlotDataRef.Add(slot);//ref
+                        Data.ItemSlotsDataRef.Add(slot);//ref
                     }
                 }
             }
@@ -1310,7 +1331,7 @@ namespace ItemHandler
                     if (Data.SlotUse.Contains(slot.SlotName))
                     {
                         slot.PartOfItemData = Data;
-                        Data.ItemSlotDataRef.Add(slot);//ref
+                        Data.ItemSlotsDataRef.Add(slot);//ref
                     }
                 }
             }
@@ -1324,7 +1345,7 @@ namespace ItemHandler
                         if (Data.SlotUse.Contains(slot.name))
                         {
                             slot.GetComponent<ItemSlot>().PartOfItemObject = Data.SelfGameobject;
-                            Data.ItemSlotObjectRef.Add(slot);//ref
+                            Data.ItemSlotObjectsRef.Add(slot);//ref
                         }
                     }
                 }
@@ -1421,7 +1442,7 @@ namespace ItemHandler
                     if (Data.SlotUse.Contains(slot.SlotName))
                     {
                         slot.PartOfItemData = Data;
-                        Data.ItemSlotDataRef.Add(slot);//ref
+                        Data.ItemSlotsDataRef.Add(slot);//ref
                     }
                 }
             }
@@ -1435,7 +1456,7 @@ namespace ItemHandler
                         if (Data.SlotUse.Contains(slot.name))
                         {
                             slot.GetComponent<ItemSlot>().PartOfItemObject = Data.SelfGameobject;
-                            Data.ItemSlotObjectRef.Add(slot);//ref
+                            Data.ItemSlotObjectsRef.Add(slot);//ref
                         }
                     }
                 }
@@ -1492,16 +1513,16 @@ namespace ItemHandler
             Data.Lvl = ++lvl;
 
             #region Local Remove
-            foreach (ItemSlotData slotData in Data.ItemSlotDataRef)
+            foreach (ItemSlotData slotData in Data.ItemSlotsDataRef)
             {
                 slotData.PartOfItemData = null;//remove
             }
-            Data.ItemSlotDataRef.Clear();//ref delete
-            foreach (GameObject slotObject in Data.ItemSlotObjectRef)
+            Data.ItemSlotsDataRef.Clear();//ref delete
+            foreach (GameObject slotObject in Data.ItemSlotObjectsRef)
             {
                 slotObject.GetComponent<ItemSlot>().PartOfItemObject = null;//remove
             }
-            Data.ItemSlotObjectRef.Clear();//ref delete
+            Data.ItemSlotObjectsRef.Clear();//ref delete
             #endregion
 
             #region Transfer To New Segment if it nesesary (Player Equipments , Player Invenotry , Out of Player Inventory)
@@ -1557,7 +1578,7 @@ namespace ItemHandler
                     if (Data.SlotUse.Contains(slot.SlotName))
                     {
                         slot.PartOfItemData = Data;
-                        Data.ItemSlotDataRef.Add(slot);//ref
+                        Data.ItemSlotsDataRef.Add(slot);//ref
                     }
                 }
             }
@@ -1570,7 +1591,7 @@ namespace ItemHandler
                         if (Data.SlotUse.Contains(slot.name))
                         {
                             slot.GetComponent<ItemSlot>().PartOfItemObject = Data.SelfGameobject;
-                            Data.ItemSlotObjectRef.Add(slot);//ref
+                            Data.ItemSlotObjectsRef.Add(slot);//ref
                         }
                     }
                 }
@@ -1665,24 +1686,24 @@ namespace ItemHandler
                 Data.hotKeyRef.UnSetHotKey();
             }
             //item sectorbol valo törles
-            foreach (ItemSlotData slotData in Data.ItemSlotDataRef)
+            foreach (ItemSlotData slotData in Data.ItemSlotsDataRef)
             {
                 slotData.PartOfItemData = null;//remove
             }
-            Data.ItemSlotDataRef.Clear();//ref delete
+            Data.ItemSlotsDataRef.Clear();//ref delete
 
             //item listabol valo torles
             Data.ContainerItemListRef.Remove(Data);//remove
             Data.ContainerItemListRef = null;//ref delete
 
             //gameobject törlese
-            if (Data.ItemSlotObjectRef != null)
+            if (Data.ItemSlotObjectsRef != null)
             {
-                foreach (GameObject slotObject in Data.ItemSlotObjectRef)
+                foreach (GameObject slotObject in Data.ItemSlotObjectsRef)
                 {
                     slotObject.GetComponent<ItemSlot>().PartOfItemObject = null;//remove
                 }
-                Data.ItemSlotObjectRef.Clear();//ref delete
+                Data.ItemSlotObjectsRef.Clear();//ref delete
                 if (Data.SelfGameobject != null)
                 {
                     Data.SelfGameobject.GetComponent<ItemObject>().DestroyContainer();

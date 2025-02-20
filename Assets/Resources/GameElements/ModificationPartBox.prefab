@@ -125,6 +125,7 @@ GameObject:
   - component: {fileID: 6287815200909007410}
   - component: {fileID: 6013988775611962602}
   - component: {fileID: 1805603974573205358}
+  - component: {fileID: 3073505358540331195}
   m_Layer: 0
   m_Name: ModificationPartBox
   m_TagString: Untagged
@@ -204,3 +205,17 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   fitter: {fileID: 246232843998109478}
+--- !u!114 &3073505358540331195
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 8539493238260382947}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: c440edc922369e944bc148503f71cf08, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  Window: {fileID: 0}
+  PartName: 

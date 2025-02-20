@@ -22,7 +22,6 @@ public class ItemObject : MonoBehaviour, IPointerDownHandler, IPointerUpHandler,
     //public List<GameObject> ItemObjectParts;//opcionálisan használandó
     private GameObject Window;
     public Item ActualData { get; private set; }
-    bool IsTemporary = false;
 
     private Transform originalParent;
     private Vector3 originalPosition;
@@ -128,9 +127,9 @@ public class ItemObject : MonoBehaviour, IPointerDownHandler, IPointerUpHandler,
             #endregion
         }
     }
-    private void Placing(bool placementCanStart,PlacerStruct placer)
+    public void Placing(bool placementCanStart, PlacerStruct placer)
     {
-        if (placer.ActiveItemSlots != null && (placer.ActiveItemSlots.Count == ActualData.SizeX*ActualData.SizeY || (placer.ActiveItemSlots.Count == 1 && placer.ActiveItemSlots[0].GetComponent<ItemSlot>().IsEquipment)))
+        if (placer.ActiveItemSlots != null && (placer.ActiveItemSlots.Count == ActualData.SizeX * ActualData.SizeY || (placer.ActiveItemSlots.Count == 1 && placer.ActiveItemSlots[0].GetComponent<ItemSlot>().IsEquipment)))
         {
             if (Input.GetKey(KeyCode.LeftControl) && !placer.ActiveItemSlots.Exists(slot => slot.GetComponent<ItemSlot>().PartOfItemObject != null && slot.GetComponent<ItemSlot>().PartOfItemObject.GetInstanceID() == gameObject.GetInstanceID()))//split  (azt ellenorizzuk hogy meg lett e nyomva a ctrl és nincs olyan slot amelyet az item tartlamaz ezzel saját magéba nem slpitelhet ezzel megsporoljuk a felesleges szamitasokat)
             {
@@ -148,15 +147,8 @@ public class ItemObject : MonoBehaviour, IPointerDownHandler, IPointerUpHandler,
         else
         {
             //ha nem sikerul elhelyzni akkor eredeti allpotaba kerul
-            if (IsTemporary)
-            {
-                //visszateres az eredeti advanced itembe
-            }
-            else
-            {
-                ActualData.RotateDegree = originalRotation;
-                SelfVisualisation();
-            }
+            ActualData.RotateDegree = originalRotation;
+            SelfVisualisation();
         }
     }
     private void Start()
@@ -227,7 +219,7 @@ public class ItemObject : MonoBehaviour, IPointerDownHandler, IPointerUpHandler,
                 ActualData.RotateDegree = 0f;
             }
             transform.rotation = Quaternion.Euler(0, 0, ActualData.RotateDegree);
-            Debug.LogWarning(ActualData.RotateDegree);
+            //Debug.LogWarning(ActualData.RotateDegree);
         }
     }
     private void ObjectMovement()
@@ -244,41 +236,33 @@ public class ItemObject : MonoBehaviour, IPointerDownHandler, IPointerUpHandler,
     {
         if (ActualData.IsAdvancedItem)//modifikálható item
         {
+
+            for (int i = ItemCompound.GetComponent<ItemImgFitter>().fitter.transform.childCount - 1; i >= 0; i--)
+            {
+                Transform child = ItemCompound.GetComponent<ItemImgFitter>().fitter.transform.GetChild(i);
+                child.SetParent(null);
+                Object.Destroy(child.gameObject);
+            }
+
+
             ItemCompound.GetComponent<ItemImgFitter>().ResetFitter();
-            GameObject fitter = ItemCompound.GetComponent<ItemImgFitter>().fitter.gameObject;
+
             foreach (Part part in ActualData.Parts)
             {
-                GameObject PartObject = null;
-                if (part.PartObject == null)
+                part.SetLive(ActualData.SelfGameobject.GetComponent<ItemObject>().ItemCompound.GetComponent<ItemImgFitter>().fitter.gameObject);
+                foreach (ConnectionPoint cp in part.ConnectionPoints)
                 {
-                    //Resources.UnloadUnusedAssets();
-                    part.SetLive(ActualData.SelfGameobject.GetComponent<ItemObject>().ItemCompound.GetComponent<ItemImgFitter>().fitter.gameObject);
-                    foreach (ConnectionPoint cp in part.ConnectionPoints)
-                    {
-                        cp.SetLive();
-                    }
-                    PartObject = part.PartObject;
-                }
-                else
-                {
-                    //!!! miert valtozik a scale ez elott meg?
-                    part.PartObject.GetComponent<RectTransform>().localScale = Vector3.one;
-                    
-                    PartObject = part.PartObject;
+                    cp.SetLive();
                 }
             }
             foreach (Part part in ActualData.Parts)
             {
-                //Debug.LogWarning($"CP part ###########  {part.item_s_Part.ItemName}");
                 foreach (ConnectionPoint connectionPoint in part.ConnectionPoints)
                 {
-                    //Debug.LogWarning($"CP connected   {connectionPoint.ConnectedPoint != null}");
                     if (connectionPoint.ConnectedPoint != null)
                     {
                         if (connectionPoint.SelfPart.HierarhicPlace < connectionPoint.ConnectedPoint.SelfPart.HierarhicPlace)
                         {
-
-                            //Debug.LogWarning($"{connectionPoint.SelfPart.item_s_Part.ItemName} CP action   -------------------+++++++++++++++++++++++");
                             // 1. Referenciapontok lekérése és kiíratása
                             RectTransform targetPoint1 = connectionPoint.RefPoint1.GetComponent<RectTransform>();
                             RectTransform targetPoint2 = connectionPoint.RefPoint2.GetComponent<RectTransform>();
@@ -364,7 +348,7 @@ public class ItemObject : MonoBehaviour, IPointerDownHandler, IPointerUpHandler,
         Vector3 minPosition = Vector3.positiveInfinity;
         Vector3 maxPosition = Vector3.negativeInfinity;
 
-        ActualData.ItemSlotObjectRef.Clear();//remove
+        ActualData.ItemSlotObjectsRef.Clear();//remove
         foreach (DataGrid dataGrid in ActualData.ParentItem.SectorDataGrid)
         {
             foreach (RowData rowData in dataGrid.col)
@@ -374,13 +358,13 @@ public class ItemObject : MonoBehaviour, IPointerDownHandler, IPointerUpHandler,
                     if (ActualData.SlotUse.Contains(slot.name))
                     {
                         slot.GetComponent<ItemSlot>().PartOfItemObject = gameObject;
-                        ActualData.ItemSlotObjectRef.Add(slot);//ref
+                        ActualData.ItemSlotObjectsRef.Add(slot);//ref
                     }
                 }
             }
         }
 
-        foreach (GameObject rect in ActualData.ItemSlotObjectRef)
+        foreach (GameObject rect in ActualData.ItemSlotObjectsRef)
         {
             Vector3 rectMin = rect.GetComponent<RectTransform>().localPosition - new Vector3(rect.GetComponent<RectTransform>().rect.width / 2, rect.GetComponent<RectTransform>().rect.height / 2, 0);
             Vector3 rectMax = rect.GetComponent<RectTransform>().localPosition + new Vector3(rect.GetComponent<RectTransform>().rect.width / 2, rect.GetComponent<RectTransform>().rect.height / 2, 0);
@@ -389,7 +373,7 @@ public class ItemObject : MonoBehaviour, IPointerDownHandler, IPointerUpHandler,
             maxPosition = Vector3.Max(maxPosition, rectMax);
         }
 
-        gameObject.transform.SetParent(ActualData.ItemSlotObjectRef.First().transform.parent, false);
+        gameObject.transform.SetParent(ActualData.ItemSlotObjectsRef.First().transform.parent, false);
 
         if (ActualData.IsEquipment)
         {

@@ -1,22 +1,28 @@
 using Assets.Scripts.Inventory;
 using ItemHandler;
 using MainData;
+using System;
 using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
 using UI;
+using Unity.VisualScripting;
 using UnityEngine;
 using UnityEngine.EventSystems;
 using UnityEngine.UI;
 
-public class ModificationWindow : MonoBehaviour, IPointerDownHandler, IDragHandler
+public class ModificationWindow : MonoBehaviour, IPointerDownHandler
 {
     //!!! a fejlesztes soran valtozhat igy odafigylest igenyel !!!
     private const string ModificationPartBoxPath = "GameElements/ModificationPartBox";
 
-    public Item item;
+    public Item AdvancedItem;
     public GameObject PartsPanel;
     public GameObject ItemPanel;
+
+    private List<GameObject> Boxes;
+    private List<Part> cloneParts2;
+    private List<Part> cloneParts;
 
     private Vector3 offset; // A különbség az objektum pozíciója és a kattintás világkoordinátája között
     private Camera mainCamera;
@@ -27,7 +33,10 @@ public class ModificationWindow : MonoBehaviour, IPointerDownHandler, IDragHandl
     }
     public void Openwindow(Item item)
     {
-        this.item = item;
+        this.AdvancedItem = item;
+        cloneParts = new();
+        cloneParts2 = new();
+        Boxes = new();
         ItemPartTrasformation();
     }
     public void CloseWindow()
@@ -45,54 +54,53 @@ public class ModificationWindow : MonoBehaviour, IPointerDownHandler, IDragHandl
         // Számoljuk ki az offset-et
         offset = transform.position - mainCamera.ScreenToWorldPoint(mousePoint);
     }
-
-    public void OnDrag(PointerEventData eventData)
-    {
-        //Debug.LogWarning("DragMouse");
-        Vector3 mousePoint = Input.mousePosition;
-        mousePoint.z = mainCamera.WorldToScreenPoint(transform.position).z;
-        // Frissítjük az objektum pozícióját úgy, hogy a megfogott pont (offset-tel együtt) kövessen
-        transform.position = mainCamera.ScreenToWorldPoint(mousePoint) + offset;
-    }
     public void ItemPartTrasformation()
     {
-        if (item.IsAdvancedItem)//modifikálható item
+        if (AdvancedItem.IsAdvancedItem)//modifikálható item
         {
-            //1. lépés az Advanced item vizualizációja
             ItemPanel.GetComponent<ItemImgFitter>().ResetFitter();
-            GameObject fitter = ItemPanel.GetComponent<ItemImgFitter>().fitter.gameObject;
-            List<Part> virtualParts = new();
+            //parts panel !!!
 
-            foreach (Part part in item.Parts)
+            // 1. unset live all part
+            foreach (Part part in cloneParts)
             {
-                Part virtualPart = new(part.item_s_Part)
+                part.UnSetLive();
+            }
+
+            // 2. clear all part
+            cloneParts.Clear();
+
+            // 3. create new parts (a parts-okat az Advanced Item referenciaja alpjan keszitjuk)
+            foreach (Part part in AdvancedItem.Parts)
+            {
+                Part clonePart = new(part.item_s_Part)
                 {
                     HierarhicPlace = part.HierarhicPlace
                 };
-                virtualParts.Add(virtualPart);
+                cloneParts.Add(clonePart);
             }
 
-            ConnectionPoint[] connectionPoints = virtualParts.SelectMany(x => x.ConnectionPoints).ToArray();
-            ConnectionPoint[] connectionPointsRef = item.Parts.SelectMany(x => x.ConnectionPoints).ToArray();
+            ConnectionPoint[] connectionPoints = cloneParts.SelectMany(x => x.ConnectionPoints).ToArray();
+            ConnectionPoint[] connectionPointsRef = AdvancedItem.Parts.SelectMany(x => x.ConnectionPoints).ToArray();
 
+            // 4. CP connecting a referncia alapjan
+            //lenyege hogy a connectionpointok masolatat hozzacsatlakoztassuk egy masik masolat cp hez a connectionpoints referencia szerint
             for (int i = 0; i < connectionPoints.Length; i++)
             {
-                if (!connectionPoints[i].Used)
+                if (!connectionPoints[i].Used && connectionPointsRef[i].ConnectedPoint != null)
                 {
-                    //Debug.LogWarning($"Try connection: {connectionPoints[i].SelfPart.PartData.PartName} --> {connectionPointsRef[i].ConnectedPoint.SelfPart.PartData.PartName}");
-                    ConnectionPoint ConnectablePoint = connectionPoints.FirstOrDefault(item => item.SelfPart.PartData.PartName == connectionPointsRef[i].ConnectedPoint.SelfPart.PartData.PartName);
-                    if (ConnectablePoint != null)
-                    {
-                        connectionPoints[i].Connect(ConnectablePoint);
-                        //Debug.LogWarning($"{connectionPoints[i].SelfPart.PartData.PartName} / {connectionPoints[i].CPData.PointName}  Connected To {connectionPoints[i].ConnectedPoint.SelfPart.PartData.PartName} / {connectionPoints[i].ConnectedPoint.CPData.PointName}");
-                    }
+                    //Debug.LogWarning($"Try connection: {connectionPoints[i].SelfPart != null} --> {connectionPointsRef[i].ConnectedPoint != null}");
+                    ConnectionPoint ConnectablePoint = connectionPoints[Array.IndexOf(connectionPointsRef, connectionPointsRef[i].ConnectedPoint)];/* connectionPoints.FirstOrDefault(item => item.SelfPart.PartData.PartName ==.SelfPart.PartData.PartName);*/
+                    connectionPoints[i].Connect(ConnectablePoint);
+                    //Debug.LogWarning($"{connectionPoints[i].SelfPart.PartData.PartName} / {connectionPoints[i].CPData.PointName}  Connected To {connectionPoints[i].ConnectedPoint.SelfPart.PartData.PartName} / {connectionPoints[i].ConnectedPoint.CPData.PointName}");
                 }
             }
 
             //egyebkent feltetelezheto hogy rendezve kerul el idaig de biztonsagi okokbol rendezzuk
-            virtualParts.OrderBy(part => part.HierarhicPlace);
+            //cloneParts.OrderBy(part => part.HierarhicPlace);
 
-            foreach (Part part in virtualParts)
+            // 5. CP set live
+            foreach (Part part in cloneParts)
             {
                 part.SetLive(ItemPanel.GetComponent<ItemImgFitter>().fitter.gameObject);
                 foreach (ConnectionPoint cp in part.ConnectionPoints)
@@ -100,7 +108,9 @@ public class ModificationWindow : MonoBehaviour, IPointerDownHandler, IDragHandl
                     cp.SetLive();
                 }
             }
-            foreach (Part part in virtualParts)
+
+            // 6. a partokat pozitcionaljuk egymashoz
+            foreach (Part part in cloneParts)
             {
                 //Debug.LogWarning($"part CP fitting Start: {part.item_s_Part.ItemName}");
                 foreach (ConnectionPoint connectionPoint in part.ConnectionPoints)
@@ -150,48 +160,58 @@ public class ModificationWindow : MonoBehaviour, IPointerDownHandler, IDragHandl
 
 
 
-            //2. lépés az item partBox-ok vizualizációja
-            List<Part> virtualParts2 = new();
+            // 8. unset all live part
 
-            foreach (Part part in item.Parts)
+            foreach (GameObject box in Boxes)
             {
-                Part virtualPart2 = new(part.item_s_Part)
+                Destroy(box);
+            }
+
+            // 9. clear all part
+            Boxes.Clear();
+            cloneParts2.Clear();
+
+            foreach (Part part in AdvancedItem.Parts)
+            {
+                Part clonePart2 = new(part.item_s_Part)
                 {
                     HierarhicPlace = part.HierarhicPlace
                 };
-                virtualParts2.Add(virtualPart2);
+                cloneParts2.Add(part);
             }
 
-            float itemBoxSize = CalculateBoxSize(virtualParts2.Count, PartsPanel.GetComponent<RectTransform>());
-            ConnectionPoint[] connectionPoints2 = virtualParts.SelectMany(x => x.ConnectionPoints).ToArray();
-
+            // 8. kiszamoljuk az itembox meretet
+            float itemBoxSize = CalculateBoxSize(cloneParts2.Count, PartsPanel.GetComponent<RectTransform>());
+            ConnectionPoint[] connectionPoints2 = cloneParts2.SelectMany(x => x.ConnectionPoints).ToArray();
 
             for (int i = 0; i < connectionPoints2.Length; i++)
             {
-                if (!connectionPoints2[i].Used)
+                if (!connectionPoints2[i].Used && connectionPointsRef[i].ConnectedPoint != null)
                 {
                     //Debug.LogWarning($"Try connection: {connectionPoints[i].SelfPart.PartData.PartName} --> {connectionPointsRef[i].ConnectedPoint.SelfPart.PartData.PartName}");
-                    ConnectionPoint ConnectablePoint2 = connectionPoints2.FirstOrDefault(item => item.SelfPart.PartData.PartName == connectionPointsRef[i].ConnectedPoint.SelfPart.PartData.PartName);
-                    if (ConnectablePoint2 != null)
-                    {
-                        connectionPoints2[i].Connect(ConnectablePoint2);
-                        //Debug.LogWarning($"{connectionPoints[i].SelfPart.PartData.PartName} / {connectionPoints[i].CPData.PointName}  Connected To {connectionPoints[i].ConnectedPoint.SelfPart.PartData.PartName} / {connectionPoints[i].ConnectedPoint.CPData.PointName}");
-                    }
+                    ConnectionPoint ConnectablePoint2 = connectionPoints2[Array.IndexOf(connectionPointsRef, connectionPointsRef[i].ConnectedPoint)];
+                    connectionPoints2[i].Connect(ConnectablePoint2);
+                    //Debug.LogWarning($"{connectionPoints[i].SelfPart.PartData.PartName} / {connectionPoints[i].CPData.PointName}  Connected To {connectionPoints[i].ConnectedPoint.SelfPart.PartData.PartName} / {connectionPoints[i].ConnectedPoint.CPData.PointName}");
                 }
             }
 
-            PartsPanel.GetComponent<GridLayoutGroup>().cellSize = new Vector2(itemBoxSize,itemBoxSize);
+            PartsPanel.GetComponent<GridLayoutGroup>().cellSize = new Vector2(itemBoxSize, itemBoxSize);
 
             //egyebkent feltetelezheto hogy rendezve kerul el idaig de biztonsagi okokbol rendezzuk
-            virtualParts2.OrderBy(part => part.HierarhicPlace);
-        
-            foreach (Part part in virtualParts2)
+            //cloneParts2.OrderBy(part => part.HierarhicPlace);
+
+            //vizualizaljuk a box-okat
+            for (int i = 0; i < cloneParts2.Count; i++)
             {
                 GameObject box = SupportScripts.CreatePrefab(ModificationPartBoxPath);
-                box.name = part.item_s_Part.ItemName;
+                Boxes.Add(box);
+                box.name = cloneParts2[i].item_s_Part.ItemName;
+                box.GetComponent<ModificationPartBox>().window = this;
+                box.GetComponent<ModificationPartBox>().AdvancedItem = AdvancedItem;
+                box.GetComponent<ModificationPartBox>().PartIndex = i;
                 box.transform.SetParent(PartsPanel.transform);
                 box.GetComponent<RectTransform>().sizeDelta = new Vector2(itemBoxSize, itemBoxSize);
-                part.SetLive(box.GetComponent<ItemImgFitter>().fitter.gameObject);
+                cloneParts2[i].SetLive(box.GetComponent<ItemImgFitter>().fitter.gameObject);
                 box.GetComponent<ItemImgFitter>().Fitting();
             }
         }
@@ -202,7 +222,7 @@ public class ModificationWindow : MonoBehaviour, IPointerDownHandler, IDragHandl
             ItemPanel.GetComponent<RectTransform>().sizeDelta = new Vector2(ItemPanel.GetComponent<RectTransform>().sizeDelta.x * Scale, ItemPanel.GetComponent<RectTransform>().sizeDelta.y * Scale);
         }
     }
-    private  float CalculateBoxSize(int totalItems, RectTransform containerRect)
+    private float CalculateBoxSize(int totalItems, RectTransform containerRect)
     {
         // A konténer méretei (feltételezzük, hogy ezek a rendelkezésre álló területet adják meg)
         float containerWidth = containerRect.rect.width;

@@ -7,10 +7,6 @@ public class ItemImgFitter : MonoBehaviour
     // majd a szülõhöz skálázunk.
     public RectTransform fitter;
 
-    /// <summary>
-    /// Alaphelyzetbe állítja a fittert.
-    /// Beállítja a scale, anchor, pivot, anchoredPosition és egy ideiglenes sizeDelta értékét.
-    /// </summary>
     public void ResetFitter()
     {
         fitter.localScale = Vector3.one;
@@ -21,11 +17,6 @@ public class ItemImgFitter : MonoBehaviour
         fitter.sizeDelta = new Vector2(100, 100); // Ideiglenes alapméret
     }
 
-    /// <summary>
-    /// A fittert úgy méretezi át, hogy lefedje az összes gyermekét,
-    /// majd arányosan skálázza magát, hogy pontosan beleférjen a szülõ RectTransform-ba.
-    /// A gyermekeket eltolja, hogy a tartalom (bounding box) középre kerüljön.
-    /// </summary>
     public void Fitting()
     {
         RectTransform parentRect = GetComponent<RectTransform>();

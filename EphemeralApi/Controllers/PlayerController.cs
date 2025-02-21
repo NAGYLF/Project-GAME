@@ -100,6 +100,7 @@ namespace EphemeralApi.Controllers
             player.Name = playerDto.Name;
             player.Email = playerDto.Email;
             player.IsAdmin = playerDto.IsAdmin;
+            
 
             // Ha a felhasználó megadott új jelszót, hasheljük
             if (!string.IsNullOrWhiteSpace(playerDto.Password))

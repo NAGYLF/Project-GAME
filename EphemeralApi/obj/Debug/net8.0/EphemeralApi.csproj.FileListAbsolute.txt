@@ -504,3 +504,4 @@ C:\Users\Tanulo\Desktop\Project-GAME-API\EphemeralApi\obj\Debug\net8.0\refint\Ep
 C:\Users\Tanulo\Desktop\Project-GAME-API\EphemeralApi\obj\Debug\net8.0\EphemeralApi.pdb
 C:\Users\Tanulo\Desktop\Project-GAME-API\EphemeralApi\obj\Debug\net8.0\EphemeralApi.genruntimeconfig.cache
 C:\Users\Tanulo\Desktop\Project-GAME-API\EphemeralApi\obj\Debug\net8.0\ref\EphemeralApi.dll
+C:\Users\arpig\Desktop\EphemeralAPI\EphemeralApi\EphemeralApi\obj\Debug\net8.0\EphemeralApi.sourcelink.json

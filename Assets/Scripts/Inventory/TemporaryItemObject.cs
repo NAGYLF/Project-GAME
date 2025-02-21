@@ -69,7 +69,6 @@ public class TemporaryItemObject : MonoBehaviour, IPointerUpHandler
         #endregion
 
         #region Set Targeting Mode 
-        gameObject.GetComponent<Rigidbody2D>().bodyType = RigidbodyType2D.Dynamic;
         transform.GetComponent<BoxCollider2D>().size = transform.GetComponent<RectTransform>().rect.size;
         #endregion
 
@@ -118,7 +117,30 @@ public class TemporaryItemObject : MonoBehaviour, IPointerUpHandler
         transform.position = new Vector3(mousePosition.x, mousePosition.y, transform.position.z);
         if (Input.GetMouseButtonUp(0))
         {
-            OnPointerUp(null); // vagy külön metódusban kezeled a felengedést
+            //OnPointerUp(null); // vagy külön metódusban kezeled a felengedést
+
+            // Mozgatás leállítása, amikor elengedjük az egeret
+            //#region unSet Moveable position
+            //transform.SetParent(originalParent, false);
+            //#endregion
+
+            GameObject ItemObject = SupportScripts.CreatePrefab(ActualData.ObjectPath);
+
+            #region unSet Targeting Mode
+            ItemObject.transform.SetParent(InventoryObjectRef.transform, false);
+            ItemObject.GetComponent<Rigidbody2D>().bodyType = RigidbodyType2D.Static;
+            ItemObject.GetComponent<BoxCollider2D>().size = transform.GetComponent<RectTransform>().rect.size;
+            #endregion
+
+            #region unSet Dragable mod
+            InventoryObjectRef.GetComponent<PlayerInventory>().SlotPanelObject.GetComponent<PanelSlots>().ScrollPanel.GetComponent<ScrollRect>().enabled = true;
+            Placer = AvaiableNewParentObject.GetComponent<ContainerObject>().ActualData.GivePlacer;
+            ItemObject.GetComponent<ItemObject>().SetDataRoute(ActualData,Placer.NewParentItem);
+            ItemObject.GetComponent<ItemObject>().ActualData.SelfGameobject = ItemObject;
+            ItemObject.GetComponent<ItemObject>().Placing(InventorySystem.CanBePlace(ActualData, Placer), Placer);
+            ItemObject.GetComponent<ItemObject>().BuildContainer();
+            #endregion
+            Destroy(gameObject);
         }
     }
     public void ItemPartTrasformation()
@@ -265,7 +287,7 @@ public class TemporaryItemObject : MonoBehaviour, IPointerUpHandler
         itemObjectRigibody2D.angularDrag = 0;
         itemObjectRigibody2D.gravityScale = 0;
         itemObjectRigibody2D.constraints = RigidbodyConstraints2D.FreezeAll;
-        itemObjectRigibody2D.bodyType = RigidbodyType2D.Static;
+        //itemObjectRigibody2D.bodyType = RigidbodyType2D.Static;
 
         RectTransform itemObjectRectTransform = gameObject.GetComponent<RectTransform>();
 

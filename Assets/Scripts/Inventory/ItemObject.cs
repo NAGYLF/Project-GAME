@@ -153,9 +153,9 @@ public class ItemObject : MonoBehaviour, IPointerDownHandler, IPointerUpHandler,
     }
     private void Start()
     {
-        DataLoad();
+        DataLoad();//ez automatikusan vegrehajtodik
     }
-    public void DataLoad()
+    public void DataLoad()//manualisan és automatikusan is vegrehajtodik, elofodulaht hogy za obejctuma meg nem letezik és az is hogy letezik
     {
         ActualData.SelfGameobject = gameObject;
         if (!ActualData.IsAdvancedItem)
@@ -164,7 +164,10 @@ public class ItemObject : MonoBehaviour, IPointerDownHandler, IPointerUpHandler,
             ItemCompound.GetComponent<Image>().sprite = sprite;
             ItemCompound.GetComponent<RectTransform>().sizeDelta = new Vector2(sprite.rect.width, sprite.rect.height);
         }
-        SelfVisualisation();
+        if (ActualData.SelfGameobject != null)
+        {
+            SelfVisualisation();
+        }
     }
     public void SetDataRoute(Item Data, Item Parent)
     {

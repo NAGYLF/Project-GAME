@@ -1627,6 +1627,7 @@ namespace ItemHandler
             }
 
             #region Visual Refresh
+            //Debug.LogWarning(Data.SelfGameobject != null);
             Data.SelfGameobject.GetComponent<ItemObject>().SelfVisualisation();
             #endregion
         }

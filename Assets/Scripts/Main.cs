@@ -27,7 +27,69 @@ namespace MainData
         public string name;
         public string email;
         public string password;
+        bool IsAdmin;
+        public Achievement[] achievements;
+        public Admin admin;
+        public Statistics[] statistics;
     }
+    public class Achievement
+    {
+        public int id;
+        public int playerId;
+        public bool firstBlood;
+        public bool rookieWork;
+        public bool youAreOnYourOwnNow;
+        public string player;
+    }
+    public class Admin
+    {
+        public int id;
+        public int playerId;
+        public bool devConsole;
+        public string player;
+    }
+    public class Statistics
+    {
+        public int id;
+        public int playerId;
+        public int deathCount;
+        public int score;
+        public int enemiesKilled;
+        public string player;
+    }
+    /*{
+  "id": 0,
+  "name": "string",
+  "password": "string",
+  "email": "string",
+  "isAdmin": true,
+  "achievements": [
+    {
+      "id": 0,
+      "playerId": 0,
+      "firstBlood": true,
+      "rookieWork": true,
+      "youAreOnYourOwnNow": true,
+      "player": "string"
+    }
+  ],
+  "admin": {
+    "id": 0,
+    "playerId": 0,
+    "devConsole": true,
+    "player": "string"
+  },
+  "statistics": [
+    {
+      "id": 0,
+      "playerId": 0,
+      "deathCount": 0,
+      "score": 0,
+      "enemiesKilled": 0,
+      "player": "string"
+    }
+  ]
+}*/
     [System.Serializable]
     public class PlayersArray
     {
@@ -37,7 +99,7 @@ namespace MainData
     {
         public static IEnumerator GetData(string name, string password, PlayerData playerData)
         {
-            string url = $"http://localhost:5269/UnityController/{name},{password}";
+            string url = $"https://localhost:5269/api/Player/GetByName/{name}";
 
             using (UnityWebRequest webRequest = UnityWebRequest.Get(url))
             {

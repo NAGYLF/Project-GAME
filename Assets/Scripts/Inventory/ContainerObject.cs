@@ -26,7 +26,6 @@ public class ContainerObject : MonoBehaviour
     //Ezen változók szükségesek ahoz, hogy egy itemet helyezni tudjunk slotokból slotokba
     [HideInInspector] public List<GameObject> activeSlots;
     [HideInInspector] public GameObject PlaceableObject;
-    private int activeSlotsCount = 0;
     #endregion
 
     #region Active Slot Handler
@@ -36,21 +35,31 @@ public class ContainerObject : MonoBehaviour
         if (activeSlots.Count > 0)
         {
             PlaceableObject = activeSlots.First().GetComponent<ItemSlot>().ActualPartOfItemObject;
-            if ((activeSlots.First().GetComponent<ItemSlot>().IsEquipment && activeSlots.Count == 1) || (activeSlots.Count == PlaceableObject.GetComponent<ItemObject>().ActualData.SizeX * PlaceableObject.GetComponent<ItemObject>().ActualData.SizeY))
+            if (PlaceableObject.GetComponent<ItemObject>() != null)
             {
-                PlacerStruct placer = new PlacerStruct(activeSlots,ActualData);
-                ActualData.GivePlacer = placer;
-                PlaceableObject.GetComponent<ItemObject>().AvaiableNewParentObject = gameObject;
+                if ((activeSlots.First().GetComponent<ItemSlot>().IsEquipment && activeSlots.Count == 1) || (activeSlots.Count == PlaceableObject.GetComponent<ItemObject>().ActualData.SizeX * PlaceableObject.GetComponent<ItemObject>().ActualData.SizeY))
+                {
+                    PlacerStruct placer = new PlacerStruct(activeSlots, ActualData);
+                    ActualData.GivePlacer = placer;
+                    PlaceableObject.GetComponent<ItemObject>().AvaiableNewParentObject = gameObject;
+                }
             }
+            else if(PlaceableObject.GetComponent<TemporaryItemObject>() != null)
+            {
+                if ((activeSlots.First().GetComponent<ItemSlot>().IsEquipment && activeSlots.Count == 1) || (activeSlots.Count == PlaceableObject.GetComponent<TemporaryItemObject>().ActualData.SizeX * PlaceableObject.GetComponent<TemporaryItemObject>().ActualData.SizeY))
+                {
+                    PlacerStruct placer = new PlacerStruct(activeSlots, ActualData);
+                    ActualData.GivePlacer = placer;
+                    PlaceableObject.GetComponent<TemporaryItemObject>().AvaiableNewParentObject = gameObject;
+                }
+            }
+
         }
         yield return null;
     }
     private void Update()
     {
-        if (activeSlots.Count != activeSlotsCount)
-        {
-            StartCoroutine(Targeting());
-        }
+        StartCoroutine(Targeting());
     }
     private void Awake()
     {

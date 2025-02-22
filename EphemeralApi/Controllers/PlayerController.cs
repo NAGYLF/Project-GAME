@@ -88,6 +88,27 @@ namespace EphemeralApi.Controllers
             return Ok(player);
         }
 
+        [HttpGet("GetByEmailAndName")]
+        public async Task<ActionResult<Player>> GetPlayerByEmailAndName([FromQuery] string email, [FromQuery] string name)
+        {
+            if (string.IsNullOrWhiteSpace(email) || string.IsNullOrWhiteSpace(name))
+            {
+                return BadRequest("Mind az email, mind a név megadása kötelező.");
+            }
+
+            var player = await _context.Players
+                .Where(p => p.Email.ToLower() == email.ToLower() && p.Name.ToLower() == name.ToLower())
+                .FirstOrDefaultAsync();
+
+            if (player == null)
+            {
+                return NotFound("A játékos nem található.");
+            }
+
+            return Ok(player);
+        }
+
+
         [HttpPut("{id}")]
         public async Task<IActionResult> UpdatePlayer(int id, UpdatePlayerDto playerDto)
         {
@@ -102,10 +123,10 @@ namespace EphemeralApi.Controllers
             player.IsAdmin = playerDto.IsAdmin;
             
 
-            // Ha a felhasználó megadott új jelszót, hasheljük
+            
             if (!string.IsNullOrWhiteSpace(playerDto.Password))
             {
-                player.Password = BCrypt.Net.BCrypt.HashPassword(playerDto.Password); // Hashelés BCrypt-tel
+                player.Password = BCrypt.Net.BCrypt.HashPassword(playerDto.Password);
             }
 
             _context.Players.Update(player);
@@ -123,7 +144,7 @@ namespace EphemeralApi.Controllers
                 return Unauthorized("Token is missing.");
             }
 
-            // Ellenőrzés: Token validálása
+            
             var isValid = ValidateToken(token);
 
             if (!isValid)
@@ -145,7 +166,7 @@ namespace EphemeralApi.Controllers
 
         private bool ValidateToken(string token)
         {
-            // Token validálás logikája
+            
             try
             {
                 var tokenHandler = new JwtSecurityTokenHandler();
@@ -153,7 +174,7 @@ namespace EphemeralApi.Controllers
 
                 if (jsonToken == null) return false;
 
-                return jsonToken.ValidTo > DateTime.UtcNow; // Lejárati idő ellenőrzése
+                return jsonToken.ValidTo > DateTime.UtcNow;
             }
             catch
             {

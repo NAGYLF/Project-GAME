@@ -18,7 +18,7 @@ namespace EphemeralApi.Controllers
             _context = context;
         }
 
-        // GET: api/admin
+        
         [HttpGet]
         public async Task<ActionResult<IEnumerable<Admin>>> GetAdmins()
         {
@@ -26,7 +26,7 @@ namespace EphemeralApi.Controllers
             return Ok(admins);
         }
 
-        // PUT: api/admin/{id}
+       
         [HttpPut("{id}")]
         public async Task<IActionResult> UpdateDevConsole(int id, [FromBody] DevConsoleUpdateDto updateDto)
         {
@@ -36,11 +36,11 @@ namespace EphemeralApi.Controllers
                 return NotFound(new { message = "Admin not found" });
             }
 
-            // Csak a DevConsole mezőt frissítjük
+            
             admin.DevConsole = updateDto.DevConsole;
             await _context.SaveChangesAsync();
 
-            return NoContent(); // 204 No Content (sikeres, de nincs visszatérő adat)
+            return NoContent();
         }
     }
 

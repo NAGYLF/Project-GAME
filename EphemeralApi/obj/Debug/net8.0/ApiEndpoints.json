@@ -162,6 +162,37 @@
   },
   {
     "ContainingType": "EphemeralApi.Controllers.PlayerController",
+    "Method": "GetPlayerByEmailAndName",
+    "RelativePath": "api/Player/GetByEmailAndName",
+    "HttpMethod": "GET",
+    "IsController": true,
+    "Order": 0,
+    "Parameters": [
+      {
+        "Name": "email",
+        "Type": "System.String",
+        "IsRequired": false
+      },
+      {
+        "Name": "name",
+        "Type": "System.String",
+        "IsRequired": false
+      }
+    ],
+    "ReturnTypes": [
+      {
+        "Type": "EphemeralApi.Models.Player",
+        "MediaTypes": [
+          "text/plain",
+          "application/json",
+          "text/json"
+        ],
+        "StatusCode": 200
+      }
+    ]
+  },
+  {
+    "ContainingType": "EphemeralApi.Controllers.PlayerController",
     "Method": "GetPlayerByName",
     "RelativePath": "api/Player/GetByName/{name}",
     "HttpMethod": "GET",

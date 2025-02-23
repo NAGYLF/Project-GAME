@@ -6,6 +6,7 @@ using Microsoft.AspNetCore.Mvc;
 [ApiController]
 public class EmailController : ControllerBase
 {
+    // E-mail küldése
     [HttpPost]
     public IActionResult SendEmail([FromBody] EmailRequest request)
     {
@@ -16,6 +17,7 @@ public class EmailController : ControllerBase
             message.To.Add(new MailboxAddress("Címzett", request.To));
             message.Subject = request.Subject;
 
+            // E-mail törzsének beállítása
             message.Body = new TextPart("plain")
             {
                 Text = request.Body
@@ -24,7 +26,7 @@ public class EmailController : ControllerBase
             using (var client = new SmtpClient())
             {
                 client.Connect("smtp.gmail.com", 587, false);
-                client.Authenticate("ephemeralcourage@gmail.com", "mrkj yclq zkhr gyiq");
+                client.Authenticate("ephemeralcourage@gmail.com", "mrkj yclq zkhr gyiq"); // ⚠️ KÜLÖN KEZELD A JELSZÓT
                 client.Send(message);
                 client.Disconnect(true);
             }
@@ -38,6 +40,7 @@ public class EmailController : ControllerBase
     }
 }
 
+// DTO az e-mail kéréshez
 public class EmailRequest
 {
     public string To { get; set; }

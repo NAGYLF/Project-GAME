@@ -19,17 +19,20 @@ namespace EphemeralApi.Controllers
     {
         private readonly EphemeralCourageContext _context;
 
+        // Konstruktor, amely befecskendezi az adatbázis kontextust a vezérlőbe
         public PlayerController(EphemeralCourageContext context)
         {
             _context = context;
         }
 
+        // Lekéri az összes játékost az adatbázisból
         [HttpGet]
         public async Task<ActionResult<IEnumerable<Player>>> GetPlayers()
         {
             return await _context.Players.ToListAsync();
         }
 
+        // Lekéri a játékos statisztikáit és teljesítményeit az ID alapján
         [HttpGet("stats/{playerId}")]
         public async Task<IActionResult> GetPlayerStats(int playerId)
         {
@@ -41,11 +44,13 @@ namespace EphemeralApi.Controllers
                 .Where(a => a.PlayerId == playerId)
                 .FirstOrDefaultAsync();
 
+            // Ha a statisztika vagy a teljesítmény nem található, hibaüzenet visszaadása
             if (statistics == null || achievements == null)
             {
                 return NotFound(new { message = "Nem található a játékos statisztikája ." });
             }
 
+            // A statisztikák és teljesítmények DTO-ba történő leképezése
             var playerStatsDto = new PlayerStatsDto
             {
                 PlayerId = playerId,
@@ -60,6 +65,7 @@ namespace EphemeralApi.Controllers
             return Ok(playerStatsDto);
         }
 
+        // Lekéri a játékos adatait az ID alapján
         [HttpGet("/GetbyId/{id}")]
         public async Task<IActionResult> GetPlayerById(int id)
         {
@@ -73,6 +79,7 @@ namespace EphemeralApi.Controllers
             return Ok(player);
         }
 
+        // Lekéri a játékos adatait a neve alapján
         [HttpGet("GetByName/{name}")]
         public async Task<ActionResult<Player>> GetPlayerByName(string name)
         {
@@ -88,6 +95,7 @@ namespace EphemeralApi.Controllers
             return Ok(player);
         }
 
+        // Lekéri a játékos adatait az email és név kombinációja alapján
         [HttpGet("GetByEmailAndName")]
         public async Task<ActionResult<Player>> GetPlayerByEmailAndName([FromQuery] string email, [FromQuery] string name)
         {
@@ -108,7 +116,7 @@ namespace EphemeralApi.Controllers
             return Ok(player);
         }
 
-
+        // A játékos adatainak frissítése az ID alapján, UpdatePlayerDto használatával az új adatokhoz
         [HttpPut("{id}")]
         public async Task<IActionResult> UpdatePlayer(int id, UpdatePlayerDto playerDto)
         {
@@ -121,9 +129,8 @@ namespace EphemeralApi.Controllers
             player.Name = playerDto.Name;
             player.Email = playerDto.Email;
             player.IsAdmin = playerDto.IsAdmin;
-            
 
-            
+            // Ha jelszó is van, akkor az új jelszót hash-eljük
             if (!string.IsNullOrWhiteSpace(playerDto.Password))
             {
                 player.Password = BCrypt.Net.BCrypt.HashPassword(playerDto.Password);
@@ -135,7 +142,7 @@ namespace EphemeralApi.Controllers
             return NoContent();
         }
 
-
+        // A játékos törlése az ID alapján, token validálással az engedélyezéshez
         [HttpDelete("{id}")]
         public async Task<IActionResult> DeletePlayer(int id, [FromQuery] string token)
         {
@@ -144,7 +151,6 @@ namespace EphemeralApi.Controllers
                 return Unauthorized("Token is missing.");
             }
 
-            
             var isValid = ValidateToken(token);
 
             if (!isValid)
@@ -164,9 +170,9 @@ namespace EphemeralApi.Controllers
             return NoContent();
         }
 
+        // A token validálása, hogy érvényes-e még
         private bool ValidateToken(string token)
         {
-            
             try
             {
                 var tokenHandler = new JwtSecurityTokenHandler();
@@ -182,8 +188,7 @@ namespace EphemeralApi.Controllers
             }
         }
 
-
-
+        // Generál egy időalapú egyszeri jelszót (TOTP)
         [HttpGet("code")]
         public ActionResult<object> GetTotpCode()
         {

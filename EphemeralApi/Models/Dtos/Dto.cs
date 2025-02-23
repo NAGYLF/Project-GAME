@@ -20,12 +20,10 @@
     {
         public int PlayerId { get; set; }
 
-        // Statisztika
         public int DeathCount { get; set; }
         public int Score { get; set; }
         public int EnemiesKilled { get; set; }
 
-        // Achievementek
         public bool FirstBlood { get; set; }
         public bool RookieWork { get; set; }
         public bool YouAreOnYourOwnNow { get; set; }

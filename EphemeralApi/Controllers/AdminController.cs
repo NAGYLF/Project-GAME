@@ -18,32 +18,25 @@ namespace EphemeralApi.Controllers
             _context = context;
         }
 
-        
+        // Összes admin lekérése
         [HttpGet]
         public async Task<ActionResult<IEnumerable<Admin>>> GetAdmins()
         {
-            var admins = await _context.Admins.ToListAsync();
-            return Ok(admins);
+            return Ok(await _context.Admins.ToListAsync());
         }
 
-       
+        // Admin DevConsole beállításának frissítése
         [HttpPut("{id}")]
         public async Task<IActionResult> UpdateDevConsole(int id, [FromBody] DevConsoleUpdateDto updateDto)
         {
             var admin = await _context.Admins.FindAsync(id);
             if (admin == null)
-            {
                 return NotFound(new { message = "Admin not found" });
-            }
 
-            
             admin.DevConsole = updateDto.DevConsole;
             await _context.SaveChangesAsync();
 
             return NoContent();
         }
     }
-
-    // DTO osztály, hogy csak a DevConsole mező érkezzen be
-   
 }

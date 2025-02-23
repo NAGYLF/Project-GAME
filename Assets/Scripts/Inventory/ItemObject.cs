@@ -257,6 +257,7 @@ public class ItemObject : MonoBehaviour, IPointerDownHandler, IPointerUpHandler,
                 {
                     cp.SetLive();
                 }
+                part.PartObject.transform.localRotation = Quaternion.Euler(0, 0, 0);
             }
             foreach (Part part in ActualData.Parts)
             {

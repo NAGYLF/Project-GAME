@@ -25,20 +25,41 @@ namespace Assets.Scripts
         #endregion
         private void OnCollisionEnter2D(Collision2D collision)
         {
-            if ((PartOfItemObject == null || (PartOfItemObject.GetInstanceID() == collision.gameObject.GetInstanceID())) && (SlotType == "" || SlotType.Contains(collision.gameObject.GetComponent<ItemObject>().ActualData.ItemType)))
+            if (collision.gameObject.GetComponent<ItemObject>() != null)
             {
-                ActualPartOfItemObject = collision.gameObject;
-                ParentObject.GetComponent<ContainerObject>().activeSlots.Add(gameObject);
-                color = Background.color;
-                Background.color = Color.yellow;
+                if ((PartOfItemObject == null || (PartOfItemObject.GetInstanceID() == collision.gameObject.GetInstanceID())) && (SlotType == "" || SlotType.Contains(collision.gameObject.GetComponent<ItemObject>().ActualData.ItemType)))
+                {
+                    ActualPartOfItemObject = collision.gameObject;
+                    ParentObject.GetComponent<ContainerObject>().activeSlots.Add(gameObject);
+                    color = Background.color;
+                    Background.color = Color.yellow;
+                }
+                else if (PartOfItemObject != null && PartOfItemObject.GetComponent<ItemObject>().ActualData.ItemName == collision.gameObject.GetComponent<ItemObject>().ActualData.ItemName && PartOfItemObject.GetComponent<ItemObject>().ActualData.Quantity != PartOfItemObject.GetComponent<ItemObject>().ActualData.MaxStackSize)
+                {
+                    ActualPartOfItemObject = collision.gameObject;
+                    color = Background.color;
+                    Background.color = Color.yellow;
+                    CountAddAvaiable = true;
+                    ParentObject.GetComponent<ContainerObject>().activeSlots.Add(gameObject);
+                }
             }
-            else if (PartOfItemObject != null && PartOfItemObject.GetComponent<ItemObject>().ActualData.ItemName == collision.gameObject.GetComponent<ItemObject>().ActualData.ItemName && PartOfItemObject.GetComponent<ItemObject>().ActualData.Quantity != PartOfItemObject.GetComponent<ItemObject>().ActualData.MaxStackSize)
+            else if (collision.gameObject.GetComponent<TemporaryItemObject>() != null)
             {
-                ActualPartOfItemObject = collision.gameObject;
-                color = Background.color;
-                Background.color = Color.yellow;
-                CountAddAvaiable = true;
-                ParentObject.GetComponent<ContainerObject>().activeSlots.Add(gameObject);
+                if ((PartOfItemObject == null || (PartOfItemObject.GetInstanceID() == collision.gameObject.GetInstanceID())) && (SlotType == "" || SlotType.Contains(collision.gameObject.GetComponent<TemporaryItemObject>().ActualData.ItemType)))
+                {
+                    ActualPartOfItemObject = collision.gameObject;
+                    ParentObject.GetComponent<ContainerObject>().activeSlots.Add(gameObject);
+                    color = Background.color;
+                    Background.color = Color.yellow;
+                }
+                else if (PartOfItemObject != null && PartOfItemObject.GetComponent<ItemObject>().ActualData.ItemName == collision.gameObject.GetComponent<TemporaryItemObject>().ActualData.ItemName && PartOfItemObject.GetComponent<ItemObject>().ActualData.Quantity != PartOfItemObject.GetComponent<TemporaryItemObject>().ActualData.MaxStackSize)
+                {
+                    ActualPartOfItemObject = collision.gameObject;
+                    color = Background.color;
+                    Background.color = Color.yellow;
+                    CountAddAvaiable = true;
+                    ParentObject.GetComponent<ContainerObject>().activeSlots.Add(gameObject);
+                }
             }
             else
             {

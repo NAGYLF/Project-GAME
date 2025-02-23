@@ -61,7 +61,12 @@ public class ContainerObject : MonoBehaviour
     {
         StartCoroutine(Targeting());
     }
-    private void Awake()
+    #endregion
+    private void Start()
+    {
+        Inicialisation();
+    }
+    public void Inicialisation()//az objecktum létrehozásának elsõ pillanatában töltõdik be
     {
         for (int sector = 0; sector < Sectors.Count; sector++)
         {
@@ -74,14 +79,7 @@ public class ContainerObject : MonoBehaviour
             }
         }
         activeSlots = new List<GameObject>();
-    }
-    #endregion
-    private void Start()
-    {
-        DataLoad();
-    }
-    public void DataLoad()//az objecktum létrehozásának elsõ pillanatában töltõdik be
-    {
+
         if (ActualData.IsEquipment)
         {
             VisualisationToSlotPanel();

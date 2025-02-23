@@ -316,7 +316,7 @@ namespace PlayerInventoryClass
             {
                 gameObject.transform.GetChild(i).gameObject.SetActive(true);
             }
-            gameObject.GetComponent<ContainerObject>().DataLoad();
+            gameObject.GetComponent<ContainerObject>().Inicialisation();
         }
         public void LootCreate()
         {

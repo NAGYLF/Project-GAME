@@ -61,10 +61,15 @@ public class ContainerObject : MonoBehaviour
     {
         StartCoroutine(Targeting());
     }
+    public void SetDataRoute(Item Data)//(ezen eljárás ezen objektum játékbakerülése elõtt zajlik le)    Célja, hogy a gyökérbõl továbbított és egyben ennek az objektumnak szánt adatokat ezen VCP megkapja
+    {
+        ActualData = Data;
+    }
     #endregion
-    private void Start()
+    public void Start()
     {
         Inicialisation();
+        LoadItemObjects();
     }
     public void Inicialisation()//az objecktum létrehozásának elsõ pillanatában töltõdik be
     {
@@ -88,18 +93,15 @@ public class ContainerObject : MonoBehaviour
         {
             VisualisationToLootPanel();
         }
+    }
+    private void LoadItemObjects()
+    {
         for (int i = 0; i < ActualData.Container.Items.Count; i++)//létrehozzuk itemObjektumait
         {
-            Debug.Log($"{ActualData.Container.Items[i].ItemName} creating into {ActualData.ItemName}'s container");
-            GameObject itemObject;
-            itemObject = CreatePrefab(ActualData.Container.Items[i].ObjectPath);
-            itemObject.name = ActualData.Container.Items[i].ItemName;
-            itemObject.GetComponent<ItemObject>().SetDataRoute(ActualData.Container.Items[i],ActualData);//Létrehozzuk a szikronizálási utat ezen VirtualParentObject és a VirtualChildrenObject között
+            //Debug.Log($"{ActualData.Container.Items[i].ItemName} creating into {ActualData.ItemName}'s container");
+            GameObject itemObject = CreatePrefab(ActualData.Container.Items[i].ObjectPath);
+            itemObject.GetComponent<ItemObject>().SetDataRoute(ActualData.Container.Items[i], ActualData);//Létrehozzuk a szikronizálási utat ezen VirtualParentObject és a VirtualChildrenObject között
         }
-    }
-    public void SetDataRoute(Item Data)//(ezen eljárás ezen objektum játékbakerülése elõtt zajlik le)    Célja, hogy a gyökérbõl továbbított és egyben ennek az objektumnak szánt adatokat ezen VCP megkapja
-    {
-        ActualData = Data;
     }
     private void VisualisationToLootPanel()
     {

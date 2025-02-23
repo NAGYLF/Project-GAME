@@ -684,7 +684,7 @@ namespace ItemHandler
                 //fügvény ami az össze spart ertekeit az advanced valtozoba tölti és adja össze
                 AdvancedItemContsruct();
 
-                Debug.LogWarning($"Item(A) created {completedItem.ItemName}");
+                //Debug.LogWarning($"Item(A) created {completedItem.ItemName}");
             }
             else
             {

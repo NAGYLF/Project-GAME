@@ -42,6 +42,11 @@ namespace Assets.Scripts
                     CountAddAvaiable = true;
                     ParentObject.GetComponent<ContainerObject>().activeSlots.Add(gameObject);
                 }
+                else
+                {
+                    color = Background.color;
+                    Background.color = Color.red;
+                }
             }
             else if (collision.gameObject.GetComponent<TemporaryItemObject>() != null)
             {
@@ -60,11 +65,11 @@ namespace Assets.Scripts
                     CountAddAvaiable = true;
                     ParentObject.GetComponent<ContainerObject>().activeSlots.Add(gameObject);
                 }
-            }
-            else
-            {
-                color = Background.color;
-                Background.color = Color.red;
+                else
+                {
+                    color = Background.color;
+                    Background.color = Color.red;
+                }
             }
         }
         private void OnCollisionExit2D(Collision2D collision)

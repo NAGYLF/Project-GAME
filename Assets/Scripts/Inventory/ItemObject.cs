@@ -153,21 +153,33 @@ public class ItemObject : MonoBehaviour, IPointerDownHandler, IPointerUpHandler,
     }
     private void Start()
     {
-        DataLoad();//ez automatikusan vegrehajtodik
+        Inicialisation();//ez automatikusan vegrehajtodik
     }
-    public void DataLoad()//manualisan és automatikusan is vegrehajtodik, elofodulaht hogy za obejctuma meg nem letezik és az is hogy letezik
+    public void Inicialisation()//manualisan és automatikusan is vegrehajtodik, elofodulaht hogy za obejctuma meg nem letezik és az is hogy letezik
     {
+        ActualData.ItemSlotObjectsRef.Clear();//remove
+        foreach (DataGrid dataGrid in ActualData.ParentItem.SectorDataGrid)
+        {
+            foreach (RowData rowData in dataGrid.col)
+            {
+                foreach (GameObject slot in rowData.row)
+                {
+                    if (ActualData.SlotUse.Contains(slot.name))
+                    {
+                        slot.GetComponent<ItemSlot>().PartOfItemObject = gameObject;
+                        ActualData.ItemSlotObjectsRef.Add(slot);//ref
+                    }
+                }
+            }
+        }
+
+        gameObject.name = ActualData.ItemName;
+
         ActualData.SelfGameobject = gameObject;
-        if (!ActualData.IsAdvancedItem)
-        {
-            Sprite sprite = Resources.Load<Sprite>(gameObject.GetComponent<ItemObject>().ActualData.ImgPath);//az itemobjektum megkapja képét
-            ItemCompound.GetComponent<Image>().sprite = sprite;
-            ItemCompound.GetComponent<RectTransform>().sizeDelta = new Vector2(sprite.rect.width, sprite.rect.height);
-        }
-        if (ActualData.SelfGameobject != null)
-        {
-            SelfVisualisation();
-        }
+
+        BuildContainer();
+
+        SelfVisualisation();
     }
     public void SetDataRoute(Item Data, Item Parent)
     {
@@ -235,18 +247,83 @@ public class ItemObject : MonoBehaviour, IPointerDownHandler, IPointerUpHandler,
             transform.position = new Vector3(mousePosition.x, mousePosition.y, transform.position.z);
         }
     }
-    public void ItemPartTrasformation()
+    public void SelfVisualisation()//az adatok alapjan vizualizalja az itemet
     {
-        if (ActualData.IsAdvancedItem)//modifikálható item
+        #region Titles Writing
+        NamePlate.text = ActualData.ItemName;
+        if (ActualData.Quantity == 1)
         {
+            Counter.text = "";
+        }
+        else
+        {
+            Counter.text = ActualData.Quantity.ToString();
+        }
+        if (ActualData.HotKey != "")
+        {
+            HotKeyPlate.text = ActualData.HotKey.ToString();
+        }
+        else
+        {
+            HotKeyPlate.text = "";
+        }
+        if (ActualData.AmmoType != "")
+        {
+            AmmoPlate.text = ActualData.AmmoType;
+        }
+        else
+        {
+            AmmoPlate.text = "";
+        }
+        #endregion
 
+        #region Positioning and Scaling
+        gameObject.transform.SetParent(ActualData.ItemSlotObjectsRef.First().transform.parent, false);
+
+        Vector3 minPosition = Vector3.positiveInfinity;
+        Vector3 maxPosition = Vector3.negativeInfinity;
+
+        foreach (GameObject rect in ActualData.ItemSlotObjectsRef)
+        {
+            Vector3 rectMin = rect.GetComponent<RectTransform>().localPosition - new Vector3(rect.GetComponent<RectTransform>().rect.width / 2, rect.GetComponent<RectTransform>().rect.height / 2, 0);
+            Vector3 rectMax = rect.GetComponent<RectTransform>().localPosition + new Vector3(rect.GetComponent<RectTransform>().rect.width / 2, rect.GetComponent<RectTransform>().rect.height / 2, 0);
+
+            minPosition = Vector3.Min(minPosition, rectMin);
+            maxPosition = Vector3.Max(maxPosition, rectMax);
+        }
+
+        RectTransform itemObjectRectTransform = gameObject.GetComponent<RectTransform>();
+
+        if (ActualData.IsEquipment)
+        {
+            itemObjectRectTransform.sizeDelta = maxPosition - minPosition;
+        }
+        else
+        {
+            itemObjectRectTransform.sizeDelta = new Vector2(ActualData.SizeX * Main.DefaultItemSlotSize, ActualData.SizeY * Main.DefaultItemSlotSize);
+        }
+
+        itemObjectRectTransform.localPosition = (minPosition + maxPosition) / 2;
+        #endregion
+
+        #region Image Setting
+        if (!ActualData.IsAdvancedItem)
+        {
+            Sprite sprite = Resources.Load<Sprite>(gameObject.GetComponent<ItemObject>().ActualData.ImgPath);//az itemobjektum megkapja képét
+            ItemCompound.GetComponent<Image>().sprite = sprite;
+            ItemCompound.GetComponent<RectTransform>().sizeDelta = new Vector2(sprite.rect.width, sprite.rect.height);
+
+            float Scale = Mathf.Min(itemObjectRectTransform.rect.height / ItemCompound.GetComponent<RectTransform>().sizeDelta.y, itemObjectRectTransform.rect.width / ItemCompound.GetComponent<RectTransform>().sizeDelta.x);
+            ItemCompound.GetComponent<RectTransform>().sizeDelta = new Vector2(ItemCompound.GetComponent<RectTransform>().sizeDelta.x * Scale, ItemCompound.GetComponent<RectTransform>().sizeDelta.y * Scale);
+        }
+        else
+        {
             for (int i = ItemCompound.GetComponent<ItemImgFitter>().fitter.transform.childCount - 1; i >= 0; i--)
             {
                 Transform child = ItemCompound.GetComponent<ItemImgFitter>().fitter.transform.GetChild(i);
                 child.SetParent(null);
                 Object.Destroy(child.gameObject);
             }
-
 
             ItemCompound.GetComponent<ItemImgFitter>().ResetFitter();
 
@@ -302,103 +379,13 @@ public class ItemObject : MonoBehaviour, IPointerDownHandler, IPointerUpHandler,
             }
             ItemCompound.GetComponent<ItemImgFitter>().Fitting();
         }
-        else//nem modifikálhazó item
-        {
-            RectTransform itemObjectRectTransform = gameObject.GetComponent<RectTransform>();
-            float Scale = Mathf.Min(itemObjectRectTransform.rect.height / ItemCompound.GetComponent<RectTransform>().sizeDelta.y, itemObjectRectTransform.rect.width / ItemCompound.GetComponent<RectTransform>().sizeDelta.x);
-            ItemCompound.GetComponent<RectTransform>().sizeDelta = new Vector2(ItemCompound.GetComponent<RectTransform>().sizeDelta.x * Scale, ItemCompound.GetComponent<RectTransform>().sizeDelta.y * Scale);
-        }
-
-    }
-    public void SelfVisualisation()//ha az item equipment slotban van
-    {
-        NamePlate.text = ActualData.ItemName;
-        if (ActualData.Quantity == 1)
-        {
-            Counter.text = "";
-        }
-        else
-        {
-            Counter.text = ActualData.Quantity.ToString();
-        }
-        if (ActualData.HotKey != "")
-        {
-            HotKeyPlate.text = ActualData.HotKey.ToString();
-        }
-        else
-        {
-            HotKeyPlate.text = "";
-        }
-        if (ActualData.AmmoType != "")
-        {
-            AmmoPlate.text = ActualData.AmmoType;
-        }
-        else
-        {
-            AmmoPlate.text = "";
-        }
-
-        Rigidbody2D itemObjectRigibody2D = gameObject.GetComponent<Rigidbody2D>();
-
-        itemObjectRigibody2D.mass = 0;
-        itemObjectRigibody2D.drag = 0;
-        itemObjectRigibody2D.angularDrag = 0;
-        itemObjectRigibody2D.gravityScale = 0;
-        itemObjectRigibody2D.constraints = RigidbodyConstraints2D.FreezeAll;
-        itemObjectRigibody2D.bodyType = RigidbodyType2D.Static;
-
-        RectTransform itemObjectRectTransform = gameObject.GetComponent<RectTransform>();
-
-        Vector3 minPosition = Vector3.positiveInfinity;
-        Vector3 maxPosition = Vector3.negativeInfinity;
-
-        ActualData.ItemSlotObjectsRef.Clear();//remove
-        foreach (DataGrid dataGrid in ActualData.ParentItem.SectorDataGrid)
-        {
-            foreach (RowData rowData in dataGrid.col)
-            {
-                foreach (GameObject slot in rowData.row)
-                {
-                    if (ActualData.SlotUse.Contains(slot.name))
-                    {
-                        slot.GetComponent<ItemSlot>().PartOfItemObject = gameObject;
-                        ActualData.ItemSlotObjectsRef.Add(slot);//ref
-                    }
-                }
-            }
-        }
-
-        foreach (GameObject rect in ActualData.ItemSlotObjectsRef)
-        {
-            Vector3 rectMin = rect.GetComponent<RectTransform>().localPosition - new Vector3(rect.GetComponent<RectTransform>().rect.width / 2, rect.GetComponent<RectTransform>().rect.height / 2, 0);
-            Vector3 rectMax = rect.GetComponent<RectTransform>().localPosition + new Vector3(rect.GetComponent<RectTransform>().rect.width / 2, rect.GetComponent<RectTransform>().rect.height / 2, 0);
-
-            minPosition = Vector3.Min(minPosition, rectMin);
-            maxPosition = Vector3.Max(maxPosition, rectMax);
-        }
-
-        gameObject.transform.SetParent(ActualData.ItemSlotObjectsRef.First().transform.parent, false);
-
-        if (ActualData.IsEquipment)
-        {
-            itemObjectRectTransform.sizeDelta = maxPosition - minPosition;
-        }
-        else
-        {
-            itemObjectRectTransform.sizeDelta = new Vector2(ActualData.SizeX * Main.DefaultItemSlotSize, ActualData.SizeY * Main.DefaultItemSlotSize);
-        }
-
-        itemObjectRectTransform.localPosition = (minPosition + maxPosition) / 2;
-
-        ItemPartTrasformation();
-
-        gameObject.transform.rotation = Quaternion.Euler(0, 0, ActualData.RotateDegree);
+        #endregion
 
         BoxCollider2D itemObjectBoxCollider2D = gameObject.GetComponent<BoxCollider2D>();
         itemObjectBoxCollider2D.size = itemObjectRectTransform.rect.size;
 
-        InventoryObjectRef.GetComponent<PlayerInventory>().SlotPanelObject.GetComponent<PanelSlots>().ReFresh();
+        gameObject.transform.rotation = Quaternion.Euler(0, 0, ActualData.RotateDegree);
 
-        BuildContainer();
+        InventoryObjectRef.GetComponent<PlayerInventory>().SlotPanelObject.GetComponent<PanelSlots>().ReFresh();
     }
 }

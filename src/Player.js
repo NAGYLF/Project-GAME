@@ -41,7 +41,7 @@ export default function Player({ texts, language, token, isAdmin, showAlert }) {
   return (
     <div className='content'>
       <div className='box' style={{ height: '50vh', width: "50vw", position: 'relative' }}>
-        <h3>{language === "hu" ? `${name} statisztikái` : 'Players statistics'}</h3>
+        <h3>{language === "hu" ? `${name} statisztikái` : `${name} statistics`}</h3>
         <hr />
         <div className="left">
           <p>{language === "hu" ? 'Pontok: ' : 'Score: '}{stats.score == null ? "0" : stats.score}</p>

@@ -1,14 +1,25 @@
-import React, { useEffect } from 'react';
+import React, { useEffect, useState } from 'react';
 import { useLocation, useNavigate } from 'react-router-dom';
+import axios from 'axios';
 
 const Admin = ({ texts, language, code ,secondsLeft ,setSecondsLeft, admincode }) => {
   const location = useLocation();
   const navigate = useNavigate();
+  const [devConsole, setDevConsole] = useState(false);
 
   //Kód
   useEffect(() => {
     admincode();
-  }, []);
+    getDevConsole();
+  }, []
+);
+
+const getDevConsole=()=>{
+  axios.get("http://localhost:5269/api/Admin").then(res => {
+    setDevConsole(res.data[0].devConsole)
+  })
+}
+
 
   return (
     <div
@@ -44,6 +55,7 @@ const Admin = ({ texts, language, code ,secondsLeft ,setSecondsLeft, admincode }
               className="form-check-input"
               type="checkbox"
               id="debugMode"
+              checked={devConsole}
             />
             <label className="form-check-label" htmlFor="debugMode">
             {language === "hu" ? 'Debug mód engedélyezése' : 'Enable debug mode'}

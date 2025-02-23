@@ -167,9 +167,15 @@ img, a{
 .center-logo {
   position: absolute;
   left: 50%;
-  bottom: 0%;
+  bottom: 15%;
   margin: 1px;
   transform: translateX(-50%);
+}
+
+#badge{
+  height: 30px;
+  bottom: -50%;
+  pointer-events: none;
 }
 
 .footer {
@@ -261,6 +267,15 @@ img, a{
     justify-content: center;
     width: 100%;
     max-height: 50px;
+  }
+
+  #badge{
+    height: 25px!important;
+    bottom: -25%;
+  }
+  
+  #kep{
+    margin-top: 15px;
   }
 
   body{

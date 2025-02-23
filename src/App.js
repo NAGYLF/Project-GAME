@@ -30,6 +30,7 @@ function App() {
      setToken(localStorage.getItem('token'));
       if (token) {
         const decodedToken = jwtDecode(token);
+        setUsername(decodedToken.Username);
         setIsLoggedIn(true);
         setIsAdmin(decodedToken.IsAdmin === "True" ? true : false);
         setId(decodedToken.UserId);

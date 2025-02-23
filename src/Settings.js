@@ -7,6 +7,7 @@ const Settings = ({ texts, language, id, token, logout, showAlert }) => {
   const [newEmail, setNewEmail] = useState("");
   const [newPassword, setNewPassword] = useState("");
   const [newPasswordAgain, setNewPasswordAgain] = useState("");
+  const [IsAdmin, setIsAdmin] = useState(false);
   const location = useLocation();
   const navigate = useNavigate();
 
@@ -23,10 +24,12 @@ const Settings = ({ texts, language, id, token, logout, showAlert }) => {
       name: newName,
       email: newEmail,
       password: newPassword,
+      isAdmin: IsAdmin
       }, 
     )
   .then(() => {
     showAlert(language === "hu" ? "Fiók módosítva!" : "Account modified!" , "success");
+    console.log(IsAdmin)
     navigate("/");
   })
   .catch((error) => {
@@ -38,6 +41,7 @@ const Settings = ({ texts, language, id, token, logout, showAlert }) => {
       axios.get(`http://localhost:5269/GetbyId/${id}`).then((res) => {
         setNewName(res.data.name);
         setNewEmail(res.data.email);
+        setIsAdmin(res.data.isAdmin);
       }).catch((error) => {
         showAlert(language === "hu" ? "Hiba történt az adatok lekérésekor!" : "Error fetching data!", "error");
         console.error('Error fetching data:', error);

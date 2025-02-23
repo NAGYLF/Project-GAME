@@ -35,12 +35,14 @@
     margin-top: 20px;
     font-weight: 300;
     font-size: 15px;
+    cursor: default;
   }
   
   .name-client span {
     display: block;
     font-weight: 300;
     font-size: 14px;
+    cursor: default;
   }
   
   .social-media:before {

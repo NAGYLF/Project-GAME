@@ -3,6 +3,7 @@ import { Link } from 'react-router-dom'; // Import Link from react-router-dom
 import Video from './video/video.mp4';
 import Logo from './img/logo.png';
 import Kep from './img/profilkep.jpg';
+import AdminKep from './img/admin.png';
 import './Nav.css';
 
 function Nav({ language, setLanguage, texts, isLoggedIn, setIsLoggedIn, isAdmin, username, logout }) {
@@ -81,9 +82,11 @@ function Nav({ language, setLanguage, texts, isLoggedIn, setIsLoggedIn, isAdmin,
                         id='kep'
                         src={Kep}
                         alt="Profil"
-                        style={{ width: '30px', height: '30px', borderRadius: '50%' }}
+                        style={{ width: '30px', height: '30px', borderRadius: '50%'}}
                       />
+                      {isAdmin ? <img src={AdminKep} alt='badge' id="badge" className="center-logo"></img> : null}
                     </button>
+                    <p style={{marginBottom:-2, marginTop: 5, fontSize:"16px", cursor:"default", color: "azure"}}>{username}</p>
                     <ul className="dropdown-menu" aria-labelledby="dropdownMenuButton" style={{ position: 'absolute', top: '100%' }}>
                       {isAdmin && (
                         <li>

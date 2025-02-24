@@ -6,7 +6,9 @@
         public string Password { get; set; } = null!;
         public string Email { get; set; } = null!;
         public bool IsAdmin { get; set; }
+        public bool IsBanned { get; set; }
     }
+
     public class UpdatePlayerDto
     {
         public string Name { get; set; } = null!;
@@ -14,6 +16,7 @@
         public bool IsAdmin { get; set; }
         public bool DevConsole { get; set; }
         public string Password { get; set; } = null!;
+        public bool IsBanned { get; set; }
     }
 
     public class PlayerStatsDto

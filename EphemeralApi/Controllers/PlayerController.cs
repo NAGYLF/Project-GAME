@@ -142,6 +142,24 @@ namespace EphemeralApi.Controllers
 
             return NoContent();
         }
+        [HttpPut("{id}/ban")]
+        public async Task<IActionResult> UpdatePlayerBan(int id, UpdatePlayerBanDto banDto)
+        {
+            var player = await _context.Players.FindAsync(id);
+            if (player == null)
+            {
+                return NotFound();
+            }
+
+            // Csak az IsBanned mezőt frissítjük
+            player.IsBanned = banDto.IsBanned;
+
+            _context.Players.Update(player);
+            await _context.SaveChangesAsync();
+
+            return NoContent();
+        }
+
 
 
         // A játékos törlése az ID alapján, token validálással az engedélyezéshez

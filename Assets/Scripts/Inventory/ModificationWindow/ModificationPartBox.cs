@@ -27,7 +27,6 @@ public class ModificationPartBox : MonoBehaviour, IPointerDownHandler
         //}
         //Debug.LogWarning($" Advanced Item PartCut delete from part:  {AdvancedItem.Parts.First(part => part.PartData.PartName == PartName).PartData.PartName}");
         List<Part> parts = AdvancedItem.PartCut(AdvancedItem.Parts[PartIndex]);
-        AdvancedItem.AdvancedItemContsruct();
         AdvancedItem.SelfGameobject.GetComponent<ItemObject>().SelfVisualisation();
 
         window.ItemPartTrasformation();
@@ -53,5 +52,7 @@ public class ModificationPartBox : MonoBehaviour, IPointerDownHandler
         }
         newAdvancedItem.AdvancedItemContsruct();
         temporaryAdvancedItemObject.GetComponent<TemporaryItemObject>().SetDataRoute(newAdvancedItem);
+        temporaryAdvancedItemObject.GetComponent<TemporaryItemObject>().AdvancedItem = AdvancedItem;
+        temporaryAdvancedItemObject.GetComponent<TemporaryItemObject>().window = window;
     }
 }

@@ -215,6 +215,7 @@ namespace ItemHandler
                         int baseHierarhicPlace = SCP.SelfPart.HierarhicPlace;
                         int IncomingCPPlace = ICP.SelfPart.HierarhicPlace;
                         int hierarhicPlaceChanger = 0;
+
                         if (baseHierarhicPlace<IncomingCPPlace)
                         {
                             hierarhicPlaceChanger = (IncomingCPPlace-(++baseHierarhicPlace))*-1;
@@ -240,6 +241,7 @@ namespace ItemHandler
                         InventorySystem.Delete(AdvancedItem);//törli az advanced itemet amely a partokat tartalmazta
 
                         AdvancedItemContsruct();
+
                         goto EndSearch;
                     }
                 }
@@ -271,6 +273,9 @@ namespace ItemHandler
             //Debug.LogWarning("------------------------------------------------------------");
             Parts.OrderBy(part => part.HierarhicPlace);
             parts.OrderBy(part => part.HierarhicPlace);
+
+            AdvancedItemContsruct();
+
             return parts;
         }
         public void AdvancedItemContsruct()
@@ -422,6 +427,7 @@ namespace ItemHandler
             MaxStackSize = 1;
             IsModificationAble = true;
             IsAdvancedItem = true;
+            ObjectPath = FirstItem.ObjectPath;
 
             //if (originalSizeX != SizeX || originalSizeY != SizeY)
             //{

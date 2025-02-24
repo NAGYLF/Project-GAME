@@ -53,7 +53,6 @@ public class ContainerObject : MonoBehaviour
                     PlaceableObject.GetComponent<TemporaryItemObject>().AvaiableNewParentObject = gameObject;
                 }
             }
-
         }
         yield return null;
     }

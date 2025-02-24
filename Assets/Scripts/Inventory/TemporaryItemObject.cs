@@ -9,6 +9,7 @@ using static PlayerInventoryClass.PlayerInventory;
 using TMPro;
 using UnityEngine.EventSystems;
 using PlayerInventoryClass;
+using UnityEditor.PackageManager.UI;
 
 public class TemporaryItemObject : MonoBehaviour, IPointerUpHandler
 {
@@ -20,6 +21,8 @@ public class TemporaryItemObject : MonoBehaviour, IPointerUpHandler
     public string ObjectTask = "";
     //public List<GameObject> ItemObjectParts;//opcionálisan használandó
     public Item ActualData { get; private set; }
+    public Item AdvancedItem { get; set; }
+    public ModificationWindow window;
 
     [HideInInspector] public GameObject AvaiableNewParentObject;
     public PlacerStruct Placer;
@@ -124,22 +127,36 @@ public class TemporaryItemObject : MonoBehaviour, IPointerUpHandler
             //transform.SetParent(originalParent, false);
             //#endregion
 
-            GameObject ItemObject = SupportScripts.CreatePrefab(ActualData.ObjectPath);
-
-            #region unSet Targeting Mode
-            ItemObject.transform.SetParent(InventoryObjectRef.transform, false);
-            ItemObject.GetComponent<Rigidbody2D>().bodyType = RigidbodyType2D.Static;
-            ItemObject.GetComponent<BoxCollider2D>().size = transform.GetComponent<RectTransform>().rect.size;
-            #endregion
-
-            #region unSet Dragable mod
             InventoryObjectRef.GetComponent<PlayerInventory>().SlotPanelObject.GetComponent<PanelSlots>().ScrollPanel.GetComponent<ScrollRect>().enabled = true;
-            Placer = AvaiableNewParentObject.GetComponent<ContainerObject>().ActualData.GivePlacer;
-            ItemObject.GetComponent<ItemObject>().SetDataRoute(ActualData,Placer.NewParentItem);
-            ItemObject.GetComponent<ItemObject>().ActualData.SelfGameobject = ItemObject;
-            ItemObject.GetComponent<ItemObject>().Placing(InventorySystem.CanBePlace(ActualData, Placer), Placer);
-            ItemObject.GetComponent<ItemObject>().BuildContainer();
-            #endregion
+
+            if (AvaiableNewParentObject != null)
+            {
+                Placer = AvaiableNewParentObject.GetComponent<ContainerObject>().ActualData.GivePlacer;
+
+                if (Placer.ActiveItemSlots.Count != 0)
+                {
+                    GameObject ItemObject = SupportScripts.CreatePrefab(ActualData.ObjectPath);
+                    ItemObject.transform.SetParent(InventoryObjectRef.transform, false);
+                    ItemObject.GetComponent<Rigidbody2D>().bodyType = RigidbodyType2D.Static;
+                    ItemObject.GetComponent<BoxCollider2D>().size = transform.GetComponent<RectTransform>().rect.size;
+                    ItemObject.GetComponent<ItemObject>().SetDataRoute(ActualData, Placer.NewParentItem);
+                    ItemObject.GetComponent<ItemObject>().ActualData.SelfGameobject = ItemObject;
+                    ItemObject.GetComponent<ItemObject>().Placing(InventorySystem.CanBePlace(ActualData, Placer), Placer);
+                    ItemObject.GetComponent<ItemObject>().BuildContainer();
+                }
+                else
+                {
+                    AdvancedItem.PartPut(ActualData);
+                    AdvancedItem.SelfGameobject.GetComponent<ItemObject>().SelfVisualisation();
+                    window.ItemPartTrasformation();
+                }
+            }
+            else
+            {
+                AdvancedItem.PartPut(ActualData);
+                AdvancedItem.SelfGameobject.GetComponent<ItemObject>().SelfVisualisation();
+                window.ItemPartTrasformation();
+            }
             Destroy(gameObject);
         }
     }

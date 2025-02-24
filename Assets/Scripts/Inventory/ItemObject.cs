@@ -141,14 +141,41 @@ public class ItemObject : MonoBehaviour, IPointerDownHandler, IPointerUpHandler,
             }
             if (placementCanStart)
             {
-                InventorySystem.RePlaceLive(ActualData, placer);
+                //InventorySystem.RePlaceLive(ActualData, placer);
+
+                //eltavolitjuk a regi helyerol
+                InventorySystem.NonLive_Remove(ActualData);
+                InventorySystem.Live_Remove(ActualData);
+                InventorySystem.UnsetParent(ActualData,ActualData.ParentItem);
+
+                //az uj parent itemjehez allitjuk
+                InventorySystem.SetParent(ActualData, placer.NewParentItem);
+
+                //beallitjuk a slot use-t mivel a nonlive es a live add ezt hasznalja fel
+                InventorySystem.Live_SetSlotUse(ActualData, placer);
+
+                InventorySystem.NonLive_AddTo(ActualData, placer.NewParentItem);
+                InventorySystem.Live_AddTo(ActualData, placer.NewParentItem);
+
+                //be allitjuk a hotkey-t a status elott mivel a hot key rendszernek a regi hot key status kell
+                InventorySystem.SetHotKey(ActualData, placer.NewParentItem);
+                InventorySystem.SetStatus(ActualData, placer.NewParentItem);
+                //vegul ha kell eltavolitjuk vagy hozzadjuk a playerInventoryhoz ezt pedig a status hatarozza meg
+                InventorySystem.InspectPlayerInventory(ActualData, placer.NewParentItem);
+
+                SelfVisualisation();
+
+                BuildContainer();
             }
         }
         else
         {
             //ha nem sikerul elhelyzni akkor eredeti allpotaba kerul
             ActualData.RotateDegree = originalRotation;
+
             SelfVisualisation();
+
+            BuildContainer();
         }
     }
     private void Start()
@@ -157,29 +184,16 @@ public class ItemObject : MonoBehaviour, IPointerDownHandler, IPointerUpHandler,
     }
     public void Inicialisation()//manualisan és automatikusan is vegrehajtodik, elofodulaht hogy za obejctuma meg nem letezik és az is hogy letezik
     {
-        ActualData.ItemSlotObjectsRef.Clear();//remove
-        foreach (DataGrid dataGrid in ActualData.ParentItem.SectorDataGrid)
-        {
-            foreach (RowData rowData in dataGrid.col)
-            {
-                foreach (GameObject slot in rowData.row)
-                {
-                    if (ActualData.SlotUse.Contains(slot.name))
-                    {
-                        slot.GetComponent<ItemSlot>().PartOfItemObject = gameObject;
-                        ActualData.ItemSlotObjectsRef.Add(slot);//ref
-                    }
-                }
-            }
-        }
-
         gameObject.name = ActualData.ItemName;
 
         ActualData.SelfGameobject = gameObject;
 
+        InventorySystem.LiveCleaning(ActualData);
+        InventorySystem.Live_AddTo(ActualData, ActualData.ParentItem);
+
         BuildContainer();
 
-        SelfVisualisation();
+        SelfVisualisation();//itt nem allitunk be referenciat
     }
     public void SetDataRoute(Item Data, Item Parent)
     {

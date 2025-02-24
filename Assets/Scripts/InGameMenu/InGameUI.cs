@@ -16,7 +16,7 @@ namespace UI
 
         public int Key;
 
-        public bool IsInPlayerHand = false;//ha a player kezeben van
+        public bool IsInPlayerHand = false;//ha a player kezeben van not working
 
         public HotKey(int key)
         {

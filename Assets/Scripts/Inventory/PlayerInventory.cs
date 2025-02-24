@@ -48,7 +48,7 @@ namespace PlayerInventoryClass
                 {
                     if (item.ParentItem == null && !item.IsRoot)
                     {
-                        InventorySystem.DataDelete(item);
+                        InventorySystem.Delete(item);
                     }
                 }
             }
@@ -85,7 +85,8 @@ namespace PlayerInventoryClass
                 IsInPlayerInventory = true,
                 Container = new Container("GameElements/PlayerInventory"),
                 ContainerObject = gameObject,
-                SectorDataGrid = gameObject.GetComponent<ContainerObject>().Sectors
+                SectorDataGrid = gameObject.GetComponent<ContainerObject>().Sectors,
+                SelfGameobject = gameObject,
             };
             levelManager = new LevelManager();
             levelManager.Items.Add(RootData);
@@ -161,8 +162,13 @@ namespace PlayerInventoryClass
                             {
                                 if ((itemsOfLvl[itemIndex].Container.Sectors[sectorIndex][Y, X].SlotType.Contains(Data.ItemType) || itemsOfLvl[itemIndex].Container.Sectors[sectorIndex][Y, X].SlotType == "") && itemsOfLvl[itemIndex].Container.Sectors[sectorIndex][Y, X].PartOfItemData == null && (CanBePlace(itemsOfLvl[itemIndex].Container.Sectors[sectorIndex], Y, X, Data) || itemsOfLvl[itemIndex].IsRoot))//ha a slot nem tagja egy itemnek sem akkor target
                                 {
-                                    AddDataNonLive(Y,X, sectorIndex, itemsOfLvl[itemIndex], Data);
                                     //Debug.Log($"Item Added in container");
+                                    NonLive_SetSlotUse(Y, X, sectorIndex, Data, itemsOfLvl[itemIndex]);
+                                    SetParent(Data, itemsOfLvl[itemIndex]);
+                                    InspectPlayerInventory(Data, itemsOfLvl[itemIndex]);
+                                    SetHotKey(Data, itemsOfLvl[itemIndex]);
+                                    SetStatus(Data, itemsOfLvl[itemIndex]);
+                                    NonLive_AddTo(Data, itemsOfLvl[itemIndex]);
                                     return true;
                                 }
                             }
@@ -189,7 +195,12 @@ namespace PlayerInventoryClass
                             {
                                 if ((itemsOfLvl[itemIndex].Container.Sectors[sectorIndex][Y, X].SlotType.Contains(Data.ItemType) || itemsOfLvl[itemIndex].Container.Sectors[sectorIndex][Y, X].SlotType == "") && itemsOfLvl[itemIndex].Container.Sectors[sectorIndex][Y, X].PartOfItemData == null && (CanBePlace(itemsOfLvl[itemIndex].Container.Sectors[sectorIndex], Y, X, Data) || itemsOfLvl[itemIndex].IsRoot))//ha a slot nem tagja egy itemnek sem akkor target
                                 {
-                                    AddDataNonLive(Y, X, sectorIndex, itemsOfLvl[itemIndex], Data);
+                                    NonLive_SetSlotUse(Y, X, sectorIndex, Data, itemsOfLvl[itemIndex]);
+                                    SetParent(Data, itemsOfLvl[itemIndex]);
+                                    InspectPlayerInventory(Data, itemsOfLvl[itemIndex]);
+                                    SetHotKey(Data, itemsOfLvl[itemIndex]);
+                                    SetStatus(Data, itemsOfLvl[itemIndex]);
+                                    NonLive_AddTo(Data, itemsOfLvl[itemIndex]);
                                     (Data.SizeX, Data.SizeY) = (Data.SizeY, Data.SizeX);
                                     //Debug.Log($"Item Added in container");
                                     return true;
@@ -247,13 +258,13 @@ namespace PlayerInventoryClass
                     else if (itemsOfLvl[itemIndex].Quantity == 0)
                     {
                         ItemRemoved = true;
-                        DataDelete(itemsOfLvl[itemIndex]);
+                        Delete(itemsOfLvl[itemIndex]);
                     }
                     else
                     {
                         count = Math.Abs(itemsOfLvl[itemIndex].Quantity);
                         Data.Quantity = count;
-                        DataDelete(itemsOfLvl[itemIndex]);
+                        Delete(itemsOfLvl[itemIndex]);
                     }
                 }
             }

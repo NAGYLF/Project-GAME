@@ -40,6 +40,8 @@ using static MainData.Main;
 using UnityEngine.UI;
 using Assets.Scripts.Inventory;
 using System.Drawing.Drawing2D;
+using NPOI.SS.Formula.PTG;
+using NPOI.POIFS.Properties;
 
 
 namespace ItemHandler
@@ -148,7 +150,7 @@ namespace ItemHandler
         {
             if (IsRemoveAble)
             {
-                InventorySystem.DataDelete(this);
+                InventorySystem.Delete(this);
                 if (SelfGameobject)
                 {
                     SelfGameobject.GetComponent<ItemObject>().DestroyContainer();
@@ -163,7 +165,7 @@ namespace ItemHandler
                 UseLeft--;
                 if (UseLeft == 0)
                 {
-                    InventorySystem.DataDelete(this);
+                    InventorySystem.Delete(this);
                     if (SelfGameobject)
                     {
                         SelfGameobject.GetComponent<ItemObject>().DestroyContainer();
@@ -239,7 +241,7 @@ namespace ItemHandler
 
                         Parts.OrderBy(part => part.HierarhicPlace);
 
-                        InventorySystem.DataDelete(AdvancedItem);//törli az advanced itemet amely a partokat tartalmazta
+                        InventorySystem.Delete(AdvancedItem);//törli az advanced itemet amely a partokat tartalmazta
 
                         AdvancedItemContsruct();
                         goto EndSearch;
@@ -869,7 +871,7 @@ namespace ItemHandler
             Part.GetComponent<RectTransform>().sizeDelta = new Vector2(imgWidth, imgHeight);
             Part.transform.GetChild(0).GetComponent<RectTransform>().sizeDelta = new Vector2(imgWidth, imgHeight);
         }
-        public void UnSetLive()
+        public void UnSetLive()//out of order
         {
             //Debug.LogWarning($"UnsetPart {PartData.PartName}");
             if (PartObject != null)
@@ -1018,6 +1020,128 @@ namespace ItemHandler
     }
     public static class InventorySystem
     {
+        #region Special
+        public static void Delete(Item item)
+        {
+            UnsetHotKey(item);
+
+            NonLive_Remove(item);
+
+            if (item.ParentItem != null)
+            {
+                UnsetParent(item, item.ParentItem);
+            }
+
+            if (item.IsInPlayerInventory)
+            {
+                RemovePlayerInventory(item);
+            }
+
+            if (item.ItemSlotObjectsRef != null)
+            {
+                Live_Remove(item);
+                if (item.SelfGameobject != null)
+                {
+                    item.SelfGameobject.GetComponent<ItemObject>().DestroyContainer();
+                    GameObject.Destroy(item.SelfGameobject);
+                }
+            }
+        }
+        public static bool Split(Item Data, PlacerStruct placer)
+        {
+            (int smaller, int larger) = SplitInteger(Data.Quantity);
+
+            if (placer.ActiveItemSlots.Exists(slot => slot.GetComponent<ItemSlot>().CountAddAvaiable))//split and megre
+            {
+                GameObject MergeObject = placer.ActiveItemSlots.Find(slot => slot.GetComponent<ItemSlot>().CountAddAvaiable).GetComponent<ItemSlot>().PartOfItemObject;
+                MergeObject.GetComponent<ItemObject>().ActualData.Quantity += larger;
+                Data.Quantity = smaller;
+                if (MergeObject.GetComponent<ItemObject>().ActualData.Quantity > MergeObject.GetComponent<ItemObject>().ActualData.MaxStackSize)//ha a split több mint a maximalis stacksize
+                {
+                    Data.Quantity += (MergeObject.GetComponent<ItemObject>().ActualData.Quantity - MergeObject.GetComponent<ItemObject>().ActualData.MaxStackSize);
+                    MergeObject.GetComponent<ItemObject>().ActualData.Quantity = MergeObject.GetComponent<ItemObject>().ActualData.MaxStackSize;
+                    MergeObject.GetComponent<ItemObject>().SelfVisualisation();
+                    Data.SelfGameobject.GetComponent<ItemObject>().SelfVisualisation();
+                    return true;
+                }
+                else//ha nem több a split mint a maximális stacksize
+                {
+                    Data.Quantity = smaller;
+                    MergeObject.GetComponent<ItemObject>().SelfVisualisation();
+                    if (Data.Quantity < 1)
+                    {
+                        Delete(Data);
+                    }
+                    else
+                    {
+                        Data.SelfGameobject.GetComponent<ItemObject>().SelfVisualisation();
+                    }
+                    return true;
+                }
+            }
+            else if ((placer.ActiveItemSlots.Count == Data.SizeY * Data.SizeX) || (placer.ActiveItemSlots.Count == 1 && placer.ActiveItemSlots.First().GetComponent<ItemSlot>().IsEquipment))//egy specialis objektumlétrehozási folyamat ez akkor lép érvénybe ha üres slotba kerül az item
+            {
+                Item newItem = new(Data.ItemName, larger);
+
+                GameObject itemObject = CreatePrefab(Data.ObjectPath);
+                itemObject.name = newItem.ItemName;
+                newItem.SelfGameobject = itemObject;
+                newItem.ParentItem = placer.NewParentItem;
+                itemObject.GetComponent<ItemObject>().SetDataRoute(newItem, newItem.ParentItem);
+
+                SetParent(newItem, placer.NewParentItem);
+                Live_SetSlotUse(newItem, placer);
+
+                NonLive_AddTo(newItem, placer.NewParentItem);
+                Live_AddTo(newItem, placer.NewParentItem);
+
+                SetHotKey(newItem, placer.NewParentItem);
+                SetStatus(newItem, placer.NewParentItem);
+                InspectPlayerInventory(newItem, placer.NewParentItem);
+
+                Data.Quantity = smaller;
+                if (Data.Quantity < 1)
+                {
+                    Delete(Data);
+                }
+                else
+                {
+                    Data.SelfGameobject.GetComponent<ItemObject>().SelfVisualisation();
+                }
+                return true;
+            }
+            return false;
+        }
+        public static bool Merge(Item Data, PlacerStruct placer)
+        {
+            /*
+             * 1. lekerjuk a placeren kersztul azt az itemet amibe mergelni kellene
+             * 
+             * 2. kiszámoljuk azt, hogy menyi egyseget kepes befogadni a cél item
+             * és hozzáadjuk
+             * 
+             * 3./a ha van maradék akkor azt visszakapja az itemunk
+             * 
+             * 3./b ha nincs maradék akkor itemunk megsemmisítésre kerul
+             */
+            Item MergeItem = placer.ActiveItemSlots.Find(slot => slot.GetComponent<ItemSlot>().CountAddAvaiable).GetComponent<ItemSlot>().PartOfItemObject.GetComponent<ItemObject>().ActualData;
+            int count = MergeItem.Quantity;
+            MergeItem.Quantity += Data.Quantity;
+            if (MergeItem.Quantity > MergeItem.MaxStackSize)
+            {
+                Data.Quantity = MergeItem.Quantity - MergeItem.MaxStackSize;
+                MergeItem.Quantity = MergeItem.MaxStackSize;
+                MergeItem.SelfGameobject.GetComponent<ItemObject>().SelfVisualisation();
+                Data.SelfGameobject.GetComponent<ItemObject>().SelfVisualisation();
+                return true;
+            }
+            else
+            {
+                MergeItem.SelfGameobject.GetComponent<ItemObject>().SelfVisualisation();
+                Delete(Data);
+                return true;
+            }
+        }
         public static bool CanBePlace(Item Data, PlacerStruct placer)
         {
             //az itemslotok szama egynelo az item meretevel és mindegyik slot ugyan abban a sectorban van     vagy a placer aktiv slotjaiban egy elem van ami egy equipmentslot
@@ -1047,62 +1171,256 @@ namespace ItemHandler
                 return false;
             }
         }
-        public static bool Split(Item Data, PlacerStruct placer)
+        public static void InspectPlayerInventory(Item item, Item StatusParent)
         {
-            (int smaller, int larger) = SplitInteger(Data.Quantity);
-
-            if (placer.ActiveItemSlots.Exists(slot => slot.GetComponent<ItemSlot>().CountAddAvaiable))//split and megre
+            if (!item.IsInPlayerInventory && StatusParent.IsInPlayerInventory)
             {
-                GameObject MergeObject = placer.ActiveItemSlots.Find(slot => slot.GetComponent<ItemSlot>().CountAddAvaiable).GetComponent<ItemSlot>().PartOfItemObject;
-                MergeObject.GetComponent<ItemObject>().ActualData.Quantity += larger;
-                Data.Quantity = smaller;
-                if (MergeObject.GetComponent<ItemObject>().ActualData.Quantity > MergeObject.GetComponent<ItemObject>().ActualData.MaxStackSize)//ha a split több mint a maximalis stacksize
+                AddPlayerInventory(item);
+            }
+            else if (item.IsInPlayerInventory && !StatusParent.IsInPlayerInventory)
+            {
+                RemovePlayerInventory(item);
+            }
+        }
+        public static void LiveCleaning(Item item)//ha az inventory-t bezarjuk akkor megsemisulnek a refernciak es egy nullokkal teli lista lesz, ez ezt hivatott orvosolni
+        {
+            item.ItemSlotObjectsRef.Clear();
+        }
+        #endregion
+
+        #region Data Manipulation
+        public static void Live_AddTo(Item item, Item AddTo)
+        {
+            if (item.SelfGameobject == null)
+                throw new ArgumentNullException(nameof(item), "Az 'item.SelfGameobject' nem lehet null.");
+
+            if (AddTo.SelfGameobject == null)
+                throw new ArgumentNullException(nameof(AddTo), "A 'AddTo.SelfGameobject' nem lehet null.");
+
+            foreach (DataGrid dataGrid in AddTo.SectorDataGrid)
+            {
+                foreach (RowData rowData in dataGrid.col)
                 {
-                    Data.Quantity += (MergeObject.GetComponent<ItemObject>().ActualData.Quantity - MergeObject.GetComponent<ItemObject>().ActualData.MaxStackSize);
-                    MergeObject.GetComponent<ItemObject>().ActualData.Quantity = MergeObject.GetComponent<ItemObject>().ActualData.MaxStackSize;
-                    MergeObject.GetComponent<ItemObject>().SelfVisualisation();
-                    Data.SelfGameobject.GetComponent<ItemObject>().SelfVisualisation();
-                    return true;
-                }
-                else//ha nem több a split mint a maximális stacksize
-                {
-                    Data.Quantity = smaller;
-                    MergeObject.GetComponent<ItemObject>().SelfVisualisation();
-                    if (Data.Quantity < 1)
+                    foreach (GameObject slot in rowData.row)
                     {
-                        DataDelete(Data);
+                        if (item.SlotUse.Contains(slot.name))
+                        {
+                            slot.GetComponent<ItemSlot>().PartOfItemObject = item.SelfGameobject;
+                            item.ItemSlotObjectsRef.Add(slot);//set ref
+                        }
                     }
-                    else
-                    {
-                        Data.SelfGameobject.GetComponent<ItemObject>().SelfVisualisation();
-                    }
-                    return true;
                 }
             }
-            else if ((placer.ActiveItemSlots.Count == Data.SizeY * Data.SizeX) || (placer.ActiveItemSlots.Count == 1 && placer.ActiveItemSlots.First().GetComponent<ItemSlot>().IsEquipment))//egy specialis objektumlétrehozási folyamat ez akkor lép érvénybe ha üres slotba kerül az item
+        }
+        public static void Live_Remove(Item item)
+        {
+            //if (item.SelfGameobject == null)
+            //    throw new ArgumentNullException(nameof(item), "Az 'item.SelfGameobject' nem lehet null.");
+
+            //if (item.ItemSlotObjectsRef == null)
+            //    throw new ArgumentNullException(nameof(item.ItemSlotObjectsRef), "A 'item.ItemSlotObjectsRef' nem lehet null.");
+
+            foreach (GameObject slotObject in item.ItemSlotObjectsRef)
             {
-                Item newItem = new(Data.ItemName, larger);
-
-                GameObject itemObject = CreatePrefab(Data.ObjectPath);
-                itemObject.name = newItem.ItemName;
-                newItem.SelfGameobject = itemObject;
-                newItem.ParentItem = placer.NewParentItem;
-                itemObject.GetComponent<ItemObject>().SetDataRoute(newItem, newItem.ParentItem);
-
-                AddDataLive(newItem, placer);
-
-                Data.Quantity = smaller;
-                if (Data.Quantity < 1)
-                {
-                    DataDelete(Data);
-                }
-                else
-                {
-                    Data.SelfGameobject.GetComponent<ItemObject>().SelfVisualisation();
-                }
-                return true;
+                slotObject.GetComponent<ItemSlot>().PartOfItemObject = null;
             }
-            return false;
+            item.ItemSlotObjectsRef.Clear();//unset ref
+        }
+        public static void NonLive_AddTo(Item item, Item AddTo)
+        {
+            if (item.ParentItem != AddTo)
+                throw new ArgumentNullException(nameof(item.ParentItem), "Az 'item.ParentItem != AddTo'.");
+
+            if (AddTo.Container == null)
+                throw new ArgumentNullException(nameof(AddTo.Container), "A 'AddTo.Container' nem lehet null.");
+
+            foreach (ItemSlotData[,] sector in AddTo.Container.Sectors)
+            {
+                foreach (ItemSlotData slot in sector)
+                {
+                    if (item.SlotUse.Contains(slot.SlotName))
+                    {
+                        slot.PartOfItemData = item;
+                        item.ItemSlotsDataRef.Add(slot);//set ref
+                    }
+                }
+            }
+        }
+        public static void NonLive_Remove(Item item)
+        {
+            if (item == null)
+                throw new ArgumentNullException(nameof(item), "Az 'item' nem lehet null.");
+
+            if (item.ItemSlotsDataRef == null)
+                throw new ArgumentNullException(nameof(item.ItemSlotsDataRef), "A 'item.ItemSlotsDataRef' nem lehet null.");
+
+            foreach (ItemSlotData slotData in item.ItemSlotsDataRef)
+            {
+                slotData.PartOfItemData = null;//remove
+            }
+            item.ItemSlotsDataRef.Clear();//unset ref
+        }
+        public static void AddPlayerInventory(Item item)
+        {
+            if (item.IsInPlayerInventory)
+                throw new ArgumentNullException(nameof(item.IsInPlayerInventory), "Az 'item.IsInPlayerInventory' nem lehet false.");
+
+            InventoryObjectRef.GetComponent<PlayerInventory>().levelManager.Items.Add(item);
+            InventoryObjectRef.GetComponent<PlayerInventory>().levelManager.SetMaxLVL_And_Sort();
+            item.LevelManagerRef = InventoryObjectRef.GetComponent<PlayerInventory>().levelManager;//set ref
+        }
+        public static void RemovePlayerInventory(Item item)
+        {
+            if (item.LevelManagerRef == null)
+                throw new ArgumentNullException(nameof(item.LevelManagerRef), "Az 'item.LevelManagerRef' nem lehet null.");
+
+            item.LevelManagerRef.Items.Remove(item);
+            item.LevelManagerRef.SetMaxLVL_And_Sort();
+            item.LevelManagerRef = null;//unset ref
+        }
+        #endregion
+
+        #region Status and Data Transfer Inicialisation
+        public static void SetParent(Item item, Item Parent)
+        {
+            item.ParentItem = Parent;
+            Parent.Container.Items.Add(item);
+            item.ContainerItemListRef = Parent.Container.Items;//set ref
+        }
+        public static void UnsetParent(Item item, Item Parent)
+        {
+            item.ParentItem = null;
+            Parent.Container.Items.Remove(item);
+            item.ContainerItemListRef = null;//unset ref
+        }
+        public static void NonLive_SetSlotUse(int Y, int X, int sectorIndex, Item item, Item Parent)
+        {
+            item.SlotUse.Clear();
+            if (Parent.IsEquipmentRoot)
+            {
+                item.SlotUse.Add(Parent.Container.Sectors[sectorIndex][Y, X].SlotName);//ez alapjan azonositunk egy itemslotot
+            }
+            else
+            {
+                for (int y = Y; y < Y + item.SizeY; y++)
+                {
+                    for (int x = X; x < X + item.SizeX; x++)
+                    {
+                        item.SlotUse.Add(Parent.Container.Sectors[sectorIndex][y, x].SlotName);//ez alapjan azonositunk egy itemslotot
+                    }
+                }
+            }
+            item.SetSlotUse();
+        }
+        public static void Live_SetSlotUse(Item item, PlacerStruct placer)
+        {
+            item.SlotUse.Clear();
+            for (int i = 0; i < placer.ActiveItemSlots.Count; i++)
+            {
+                item.SlotUse.Add(placer.ActiveItemSlots[i].name);
+            }
+            item.SetSlotUse();//beallitjuk a slotuse azonositot
+        }
+        public static void SetStatus(Item item, Item StatusParent)
+        {
+            if (!item.IsEquipment && StatusParent.IsEquipmentRoot)
+            {
+                item.IsEquipment = true;
+                item.RotateDegree = 0;//nem a legjobb heylen van
+            }
+            else if (item.IsEquipment && !StatusParent.IsEquipmentRoot)
+            {
+                item.IsEquipment = false;
+            }
+
+            if (!item.IsInPlayerInventory && StatusParent.IsInPlayerInventory)
+            {
+                item.IsInPlayerInventory = true;
+            }
+            else if (item.IsInPlayerInventory && !StatusParent.IsInPlayerInventory)
+            {
+                item.IsInPlayerInventory = false;
+            }
+
+            StatusIsInPlayerInventory(item);
+            SetHierarhicLVL(item,StatusParent);
+        }
+        public static void SetHotKey(Item item, Item StatusParent)
+        {
+            if (item.hotKeyRef != null)
+            {
+                if ((item.IsEquipment && !StatusParent.IsEquipmentRoot) ||//ha equipmentből inventoryba kerul
+                    (!StatusParent.IsInPlayerInventory) ||//ha inventoryn kivulre kerul
+                    (!item.IsEquipment && StatusParent.IsEquipmentRoot) ||//ha iventorybol equipmentbe kerul
+                    (item.IsEquipment && StatusParent.IsEquipmentRoot)//ha equipmentbol equipmentbe
+                    )
+                {
+                    item.hotKeyRef.UnSetHotKey();
+                }
+            }
+            if (StatusParent.IsEquipmentRoot)
+            {
+                AutoSetHotKey(item);
+            }
+        }
+        public static void UnsetHotKey(Item item)
+        {
+            if (item.hotKeyRef != null)
+            {
+                item.hotKeyRef.UnSetHotKey();
+            }
+        }
+        #endregion
+
+        #region Inventory-System Support Scripts
+        private static void StatusIsInPlayerInventory(Item Data)
+        {
+            if (Data.Container != null)
+            {
+                foreach (Item item in Data.Container.Items)
+                {
+                    if (Data.IsInPlayerInventory)
+                    {
+                        AddPlayerInventory(item);
+                    }
+                    else if (!Data.IsInPlayerInventory)
+                    {
+                        RemovePlayerInventory(item);
+                    }
+                    if (item.SelfGameobject != null)
+                    {
+                        item.SelfGameobject.GetComponent<ItemObject>().SelfVisualisation();
+                        item.SelfGameobject.GetComponent<ItemObject>().BuildContainer();
+                    }
+                    SetHierarhicLVL(item, Data);
+                    StatusIsInPlayerInventory(item);
+                }
+            }
+        }
+        private static void SetHierarhicLVL(Item item, Item Parent)
+        {
+            int lvl = Parent.Lvl;
+            item.Lvl = ++lvl;
+        }
+        private static void AutoSetHotKey(Item SetIn)
+        {
+            switch (SetIn.LowestSlotUseNumber)
+            {
+                case 10:
+                    InGameUI.HotKey1.SetHotKey(SetIn);
+                    break;
+                case 11:
+                    InGameUI.HotKey2.SetHotKey(SetIn);
+                    break;
+                case 12:
+                    InGameUI.HotKey3.SetHotKey(SetIn);
+                    break;
+                case 13:
+                    InGameUI.HotKey4.SetHotKey(SetIn);
+                    break;
+                default:
+                    break;
+            }
         }
         private static (int smaller, int larger) SplitInteger(int number)
         {
@@ -1116,36 +1434,16 @@ namespace ItemHandler
                 return (half, half + 1);
             }
         }
-        public static bool Merge(Item Data, PlacerStruct placer)
-        {
-            /*
-             * 1. lekerjuk a placeren kersztul azt az itemet amibe mergelni kellene
-             * 
-             * 2. kiszámoljuk azt, hogy menyi egyseget kepes befogadni a cél item
-             * és hozzáadjuk
-             * 
-             * 3./a ha van maradék akkor azt visszakapja az itemunk
-             * 
-             * 3./b ha nincs maradék akkor itemunk megsemmisítésre kerul
-             */
-            Item MergeItem = placer.ActiveItemSlots.Find(slot => slot.GetComponent<ItemSlot>().CountAddAvaiable).GetComponent<ItemSlot>().PartOfItemObject.GetComponent<ItemObject>().ActualData;
-            int count = MergeItem.Quantity;
-            MergeItem.Quantity += Data.Quantity;
-            if (MergeItem.Quantity > MergeItem.MaxStackSize)
-            {
-                Data.Quantity = MergeItem.Quantity - MergeItem.MaxStackSize;
-                MergeItem.Quantity = MergeItem.MaxStackSize;
-                MergeItem.SelfGameobject.GetComponent<ItemObject>().SelfVisualisation();
-                Data.SelfGameobject.GetComponent<ItemObject>().SelfVisualisation();
-                return true;
-            }
-            else
-            {
-                MergeItem.SelfGameobject.GetComponent<ItemObject>().SelfVisualisation();
-                DataDelete(Data);
-                return true;
-            }
-        }
+        #endregion
+
+
+
+
+
+
+
+
+
         public static void AddDataNonLive(int Y, int X, int sectorIndex, Item PlaceInto, Item Data)
         {
             /*
@@ -1244,483 +1542,418 @@ namespace ItemHandler
             }
             #endregion
         }
-        public static void AddDataLive(int Y, int X, int sectorIndex, Item PlaceInto, Item Data)//out of order
-        {
-            /*
-             * 1. Beallitjuk a hierarhikus szintjét;
-             * Létrehozzuk a slotuseId-jat
-             * 
-             * 2. beallitjuk a parent itemjét és hozzadjuk a:
-             * -Lista
-             * 
-             * 3. ha szukseges hozzadjuk a player inventoryhoz
-             * -közben frissitjuk állapotvaltozoit:
-             *  -IsInPlayerinventory
-             *  -IsEqipment
-             *  
-             * 4.lokálisan is hozzáadjuk
-             * -Sector
-             * -Live Sector
-             * 
-             * 5. ha szukseges allitu8nk be automatikusan beallitott hotkey-t
-             * 
-             * 6. mivel ez egy live eljaras ezert vizualizalunk
-             */
-            #region Set SlotUseId
-            //hierarhikus szint
-            int lvl = PlaceInto.Lvl;
-            Data.Lvl = ++lvl;
+        //public static void AddDataLive(int Y, int X, int sectorIndex, Item PlaceInto, Item Data)//out of order
+        //{
+        //    /*
+        //     * 1. Beallitjuk a hierarhikus szintjét;
+        //     * Létrehozzuk a slotuseId-jat
+        //     * 
+        //     * 2. beallitjuk a parent itemjét és hozzadjuk a:
+        //     * -Lista
+        //     * 
+        //     * 3. ha szukseges hozzadjuk a player inventoryhoz
+        //     * -közben frissitjuk állapotvaltozoit:
+        //     *  -IsInPlayerinventory
+        //     *  -IsEqipment
+        //     *  
+        //     * 4.lokálisan is hozzáadjuk
+        //     * -Sector
+        //     * -Live Sector
+        //     * 
+        //     * 5. ha szukseges allitu8nk be automatikusan beallitott hotkey-t
+        //     * 
+        //     * 6. mivel ez egy live eljaras ezert vizualizalunk
+        //     */
+        //    #region Set SlotUseId
+        //    //hierarhikus szint
+        //    int lvl = PlaceInto.Lvl;
+        //    Data.Lvl = ++lvl;
 
-            //slotUseId beallitasa
-            Data.SlotUse.Clear();
-            if (PlaceInto.IsEquipmentRoot)
-            {
-                Data.SlotUse.Add(PlaceInto.Container.Sectors[sectorIndex][Y, X].SlotName);//ez alapjan azonositunk egy itemslotot
-            }
-            else
-            {
-                for (int y = Y; y < Y + Data.SizeY; y++)
-                {
-                    for (int x = X; x < X + Data.SizeX; x++)
-                    {
-                        Data.SlotUse.Add(PlaceInto.Container.Sectors[sectorIndex][y, x].SlotName);//ez alapjan azonositunk egy itemslotot
-                    }
-                }
-            }
-            Data.SetSlotUse();
-            #endregion
+        //    //slotUseId beallitasa
+        //    Data.SlotUse.Clear();
+        //    if (PlaceInto.IsEquipmentRoot)
+        //    {
+        //        Data.SlotUse.Add(PlaceInto.Container.Sectors[sectorIndex][Y, X].SlotName);//ez alapjan azonositunk egy itemslotot
+        //    }
+        //    else
+        //    {
+        //        for (int y = Y; y < Y + Data.SizeY; y++)
+        //        {
+        //            for (int x = X; x < X + Data.SizeX; x++)
+        //            {
+        //                Data.SlotUse.Add(PlaceInto.Container.Sectors[sectorIndex][y, x].SlotName);//ez alapjan azonositunk egy itemslotot
+        //            }
+        //        }
+        //    }
+        //    Data.SetSlotUse();
+        //    #endregion
 
-            #region Data Transfer
-            //megadjuk a parent itemet
-            Data.ParentItem = PlaceInto;
+        //    #region Data Transfer
+        //    //megadjuk a parent itemet
+        //    Data.ParentItem = PlaceInto;
 
-            //a paretn itemlistájához is hozzáadjuk
-            PlaceInto.Container.Items.Add(Data);
-            Data.ContainerItemListRef = PlaceInto.Container.Items;//ref
+        //    //a paretn itemlistájához is hozzáadjuk
+        //    PlaceInto.Container.Items.Add(Data);
+        //    Data.ContainerItemListRef = PlaceInto.Container.Items;//ref
 
-            //ha a player inventory-jának része lesz akkor hozzáadjuk a levelmanagerhez is.
-            if (PlaceInto.IsInPlayerInventory)
-            {
-                Data.IsInPlayerInventory = true;
-                StatusIsInPlayerInventory(Data);
-                InventoryObjectRef.GetComponent<PlayerInventory>().levelManager.Items.Add(Data);
-                InventoryObjectRef.GetComponent<PlayerInventory>().levelManager.SetMaxLVL_And_Sort();
-                Data.LevelManagerRef = InventoryObjectRef.GetComponent<PlayerInventory>().levelManager;//ref
-            }
-            else
-            {
-                Data.IsInPlayerInventory = false;
-                StatusIsInPlayerInventory(Data);
-            }
-            if (!Data.IsEquipment && PlaceInto.IsEquipmentRoot)
-            {
-                Data.IsEquipment = true;
-            }
-            else
-            {
-                Data.IsEquipment = false;
-            }
-            #endregion
+        //    //ha a player inventory-jának része lesz akkor hozzáadjuk a levelmanagerhez is.
+        //    if (PlaceInto.IsInPlayerInventory)
+        //    {
+        //        Data.IsInPlayerInventory = true;
+        //        StatusIsInPlayerInventory(Data);
+        //        InventoryObjectRef.GetComponent<PlayerInventory>().levelManager.Items.Add(Data);
+        //        InventoryObjectRef.GetComponent<PlayerInventory>().levelManager.SetMaxLVL_And_Sort();
+        //        Data.LevelManagerRef = InventoryObjectRef.GetComponent<PlayerInventory>().levelManager;//ref
+        //    }
+        //    else
+        //    {
+        //        Data.IsInPlayerInventory = false;
+        //        StatusIsInPlayerInventory(Data);
+        //    }
+        //    if (!Data.IsEquipment && PlaceInto.IsEquipmentRoot)
+        //    {
+        //        Data.IsEquipment = true;
+        //    }
+        //    else
+        //    {
+        //        Data.IsEquipment = false;
+        //    }
+        //    #endregion
 
-            #region Local Add
-            //a parentitem slot adataiba beleszervezzuk az item adatait
-            foreach (ItemSlotData[,] sector in PlaceInto.Container.Sectors)
-            {
-                foreach (ItemSlotData slot in sector)
-                {
-                    if (Data.SlotUse.Contains(slot.SlotName))
-                    {
-                        slot.PartOfItemData = Data;
-                        Data.ItemSlotsDataRef.Add(slot);//ref
-                    }
-                }
-            }
+        //    #region Local Add
+        //    //a parentitem slot adataiba beleszervezzuk az item adatait
+        //    foreach (ItemSlotData[,] sector in PlaceInto.Container.Sectors)
+        //    {
+        //        foreach (ItemSlotData slot in sector)
+        //        {
+        //            if (Data.SlotUse.Contains(slot.SlotName))
+        //            {
+        //                slot.PartOfItemData = Data;
+        //                Data.ItemSlotsDataRef.Add(slot);//ref
+        //            }
+        //        }
+        //    }
 
-            foreach (DataGrid dataGrid in PlaceInto.SectorDataGrid)
-            {
-                foreach (RowData rowData in dataGrid.col)
-                {
-                    foreach (GameObject slot in rowData.row)
-                    {
-                        if (Data.SlotUse.Contains(slot.name))
-                        {
-                            slot.GetComponent<ItemSlot>().PartOfItemObject = Data.SelfGameobject;
-                            Data.ItemSlotObjectsRef.Add(slot);//ref
-                        }
-                    }
-                }
-            }
-            #endregion
+        //    foreach (DataGrid dataGrid in PlaceInto.SectorDataGrid)
+        //    {
+        //        foreach (RowData rowData in dataGrid.col)
+        //        {
+        //            foreach (GameObject slot in rowData.row)
+        //            {
+        //                if (Data.SlotUse.Contains(slot.name))
+        //                {
+        //                    slot.GetComponent<ItemSlot>().PartOfItemObject = Data.SelfGameobject;
+        //                    Data.ItemSlotObjectsRef.Add(slot);//ref
+        //                }
+        //            }
+        //        }
+        //    }
+        //    #endregion
 
-            #region HotKey ReFresh
-            if (Data.ParentItem.IsEquipmentRoot)
-            {
-                AutoSetHotKey(Data);
-            }
-            #endregion
+        //    #region HotKey ReFresh
+        //    if (Data.ParentItem.IsEquipmentRoot)
+        //    {
+        //        AutoSetHotKey(Data);
+        //    }
+        //    #endregion
 
-            #region Visual Refresh
-            Data.SelfGameobject.GetComponent<ItemObject>().SelfVisualisation();
-            #endregion
-        }
-        public static void AddDataLive(Item Data, PlacerStruct placer)
-        {
-            /*
-             * 1. Deklarálunk egy szukseges valtozot
-             * Beallitjuk a hierarhikus szintjét;
-             * Létrehozzuk a slotuseId-jat
-             * 
-             * 2. beallitjuk a parent itemjét és hozzadjuk a:
-             * -Lista
-             * 
-             * 3. ha szukseges hozzadjuk a player inventoryhoz
-             * -közben frissitjuk állapotvaltozoit:
-             *  -IsInPlayerinventory
-             *  -IsEqipment
-             *  
-             * 4.lokálisan is hozzáadjuk
-             * -Sector
-             * -Live Sector
-             * 
-             * 5. ha szukseges allitu8nk be automatikusan beallitott hotkey-t
-             * 
-             * 6. mivel ez egy live eljaras ezert vizualizalunk
-             */
-            Item PlaceInto = placer.NewParentItem;
-            #region Set SlotUseId
-            //hierarhikus szint
-            int lvl = PlaceInto.Lvl;
-            Data.Lvl = ++lvl;
+        //    #region Visual Refresh
+        //    Data.SelfGameobject.GetComponent<ItemObject>().SelfVisualisation();
+        //    #endregion
+        //}
+        //public static void AddDataLive(Item Data, PlacerStruct placer)
+        //{
+        //    /*
+        //     * 1. Deklarálunk egy szukseges valtozot
+        //     * Beallitjuk a hierarhikus szintjét;
+        //     * Létrehozzuk a slotuseId-jat
+        //     * 
+        //     * 2. beallitjuk a parent itemjét és hozzadjuk a:
+        //     * -Lista
+        //     * 
+        //     * 3. ha szukseges hozzadjuk a player inventoryhoz
+        //     * -közben frissitjuk állapotvaltozoit:
+        //     *  -IsInPlayerinventory
+        //     *  -IsEqipment
+        //     *  
+        //     * 4.lokálisan is hozzáadjuk
+        //     * -Sector
+        //     * -Live Sector
+        //     * 
+        //     * 5. ha szukseges allitu8nk be automatikusan beallitott hotkey-t
+        //     * 
+        //     * 6. mivel ez egy live eljaras ezert vizualizalunk
+        //     */
+        //    Item PlaceInto = placer.NewParentItem;
+        //    #region Set SlotUseId
+        //    //hierarhikus szint
+        //    int lvl = PlaceInto.Lvl;
+        //    Data.Lvl = ++lvl;
 
-            //slotUseId beallitasa
-            Data.SlotUse.Clear();
-            foreach (GameObject slot in placer.ActiveItemSlots)
-            {
-                Data.SlotUse.Add(slot.name);//ez alapjan azonositunk egy itemslotot
-            }
-            Data.SetSlotUse();
-            #endregion
+        //    //slotUseId beallitasa
+        //    Data.SlotUse.Clear();
+        //    foreach (GameObject slot in placer.ActiveItemSlots)
+        //    {
+        //        Data.SlotUse.Add(slot.name);//ez alapjan azonositunk egy itemslotot
+        //    }
+        //    Data.SetSlotUse();
+        //    #endregion
 
-            #region Data Transfer
-            //megadjuk a parent itemet
-            Data.ParentItem = PlaceInto;
+        //    #region Data Transfer
+        //    //megadjuk a parent itemet
+        //    Data.ParentItem = PlaceInto;
 
-            //a paretn itemlistájához is hozzáadjuk
-            PlaceInto.Container.Items.Add(Data);
-            Data.ContainerItemListRef = PlaceInto.Container.Items;//ref
+        //    //a paretn itemlistájához is hozzáadjuk
+        //    PlaceInto.Container.Items.Add(Data);
+        //    Data.ContainerItemListRef = PlaceInto.Container.Items;//ref
 
-            //ha a player inventory-jának része lesz akkor hozzáadjuk a levelmanagerhez is.
-            if (PlaceInto.IsInPlayerInventory)
-            {
-                Data.IsInPlayerInventory = true;
-                StatusIsInPlayerInventory(Data);
-                InventoryObjectRef.GetComponent<PlayerInventory>().levelManager.Items.Add(Data);
-                InventoryObjectRef.GetComponent<PlayerInventory>().levelManager.SetMaxLVL_And_Sort();
-                Data.LevelManagerRef = InventoryObjectRef.GetComponent<PlayerInventory>().levelManager;//ref
-            }
-            else
-            {
-                Data.IsInPlayerInventory = false;
-                StatusIsInPlayerInventory(Data);
-            }
-            if (!Data.IsEquipment && PlaceInto.IsEquipmentRoot)
-            {
-                Data.IsEquipment = true;
-            }
-            else
-            {
-                Data.IsEquipment = false;
-            }
-            #endregion
+        //    //ha a player inventory-jának része lesz akkor hozzáadjuk a levelmanagerhez is.
+        //    if (PlaceInto.IsInPlayerInventory)
+        //    {
+        //        Data.IsInPlayerInventory = true;
+        //        StatusIsInPlayerInventory(Data);
+        //        InventoryObjectRef.GetComponent<PlayerInventory>().levelManager.Items.Add(Data);
+        //        InventoryObjectRef.GetComponent<PlayerInventory>().levelManager.SetMaxLVL_And_Sort();
+        //        Data.LevelManagerRef = InventoryObjectRef.GetComponent<PlayerInventory>().levelManager;//ref
+        //    }
+        //    else
+        //    {
+        //        Data.IsInPlayerInventory = false;
+        //        StatusIsInPlayerInventory(Data);
+        //    }
+        //    if (!Data.IsEquipment && PlaceInto.IsEquipmentRoot)
+        //    {
+        //        Data.IsEquipment = true;
+        //    }
+        //    else
+        //    {
+        //        Data.IsEquipment = false;
+        //    }
+        //    #endregion
 
-            #region Local Add
-            //a parentitem slot adataiba beleszervezzuk az item adatait
-            foreach (ItemSlotData[,] sector in PlaceInto.Container.Sectors)
-            {
-                foreach (ItemSlotData slot in sector)
-                {
-                    if (Data.SlotUse.Contains(slot.SlotName))
-                    {
-                        slot.PartOfItemData = Data;
-                        Data.ItemSlotsDataRef.Add(slot);//ref
-                    }
-                }
-            }
+        //    #region Local Add
+        //    //a parentitem slot adataiba beleszervezzuk az item adatait
+        //    foreach (ItemSlotData[,] sector in PlaceInto.Container.Sectors)
+        //    {
+        //        foreach (ItemSlotData slot in sector)
+        //        {
+        //            if (Data.SlotUse.Contains(slot.SlotName))
+        //            {
+        //                slot.PartOfItemData = Data;
+        //                Data.ItemSlotsDataRef.Add(slot);//ref
+        //            }
+        //        }
+        //    }
 
-            foreach (DataGrid dataGrid in PlaceInto.SectorDataGrid)
-            {
-                foreach (RowData rowData in dataGrid.col)
-                {
-                    foreach (GameObject slot in rowData.row)
-                    {
-                        if (Data.SlotUse.Contains(slot.name))
-                        {
-                            slot.GetComponent<ItemSlot>().PartOfItemObject = Data.SelfGameobject;
-                            Data.ItemSlotObjectsRef.Add(slot);//ref
-                        }
-                    }
-                }
-            }
-            #endregion
+        //    foreach (DataGrid dataGrid in PlaceInto.SectorDataGrid)
+        //    {
+        //        foreach (RowData rowData in dataGrid.col)
+        //        {
+        //            foreach (GameObject slot in rowData.row)
+        //            {
+        //                if (Data.SlotUse.Contains(slot.name))
+        //                {
+        //                    slot.GetComponent<ItemSlot>().PartOfItemObject = Data.SelfGameobject;
+        //                    Data.ItemSlotObjectsRef.Add(slot);//ref
+        //                }
+        //            }
+        //        }
+        //    }
+        //    #endregion
 
-            #region HotKey ReFresh
-            if (Data.ParentItem.IsEquipmentRoot)
-            {
-                AutoSetHotKey(Data);
-            }
-            #endregion
+        //    #region HotKey ReFresh
+        //    if (Data.ParentItem.IsEquipmentRoot)
+        //    {
+        //        AutoSetHotKey(Data);
+        //    }
+        //    #endregion
 
-            #region Visual Refresh
-            Data.SelfGameobject.GetComponent<ItemObject>().SelfVisualisation();
-            #endregion
-        }
-        public static void RePlaceLive(Item Data,PlacerStruct placer)
-        {
-            /*
-             * 1. hazsnalando adatok deklarálása
-             * 2.eltavolitjuka a parent itemjebol ha masik parentbe helyezzuk
-             * -Sectors
-             * -Live Sectors (olny Inventory LIVE)
-             * 
-             * 3./a ha van uj parent item
-             * -töröljük a regi paretn itemlistajabol
-             * -hozzadjuk az uj parent listajahoz
-             * -ha az uj parent nem a player inventory resze akkor eltavolitjuk a palyer invenotrybol is
-             * 
-             * 3./a/2 Frissitjuk az IsInPlayerInventory allapot valtozot
-             * -IsInPlayerInventory true = benne van false = kivul van
-             * 
-             * 3./b ha nincs uj parent akkor nem teszunk semmit
-             * 
-             * 4. a parentjaban localisan is pozitcionaljuk
-             * -Beallitjuk a SlotUseId-jat
-             * 
-             * 5. hozzadjuk a kovetkezokhoz:
-             * -Sectors
-             * -Live Sectors
-             * 
-             * 6. beallitjuk a hotkey-eket (azert itt mivel az eredeti equipment allapot valtozora van szukseg nem a modositottra)
-             * -IsEquipment állapotvaltzot is itt allitjuk be 
-             * 
-             * 6. mivel Live metodus ezert vizualizaljuk az itemet
-             */
+        //    #region Visual Refresh
+        //    Data.SelfGameobject.GetComponent<ItemObject>().SelfVisualisation();
+        //    #endregion
+        //}
+        //public static void RePlaceLive(Item Data,PlacerStruct placer)
+        //{
+        //    /*
+        //     * 1. hazsnalando adatok deklarálása
+        //     * 2.eltavolitjuka a parent itemjebol ha masik parentbe helyezzuk
+        //     * -Sectors
+        //     * -Live Sectors (olny Inventory LIVE)
+        //     * 
+        //     * 3./a ha van uj parent item
+        //     * -töröljük a regi paretn itemlistajabol
+        //     * -hozzadjuk az uj parent listajahoz
+        //     * -ha az uj parent nem a player inventory resze akkor eltavolitjuk a palyer invenotrybol is
+        //     * 
+        //     * 3./a/2 Frissitjuk az IsInPlayerInventory allapot valtozot
+        //     * -IsInPlayerInventory true = benne van false = kivul van
+        //     * 
+        //     * 3./b ha nincs uj parent akkor nem teszunk semmit
+        //     * 
+        //     * 4. a parentjaban localisan is pozitcionaljuk
+        //     * -Beallitjuk a SlotUseId-jat
+        //     * 
+        //     * 5. hozzadjuk a kovetkezokhoz:
+        //     * -Sectors
+        //     * -Live Sectors
+        //     * 
+        //     * 6. beallitjuk a hotkey-eket (azert itt mivel az eredeti equipment allapot valtozora van szukseg nem a modositottra)
+        //     * -IsEquipment állapotvaltzot is itt allitjuk be 
+        //     * 
+        //     * 6. mivel Live metodus ezert vizualizaljuk az itemet
+        //     */
 
-            Item TransferToItem = placer.NewParentItem;
-            List<GameObject> activeSlots = placer.ActiveItemSlots;
+        //    Item TransferToItem = placer.NewParentItem;
+        //    List<GameObject> activeSlots = placer.ActiveItemSlots;
 
-            //synch-ronizáljuk a hierachikus szinthez
-            int lvl = TransferToItem.Lvl;
-            Data.Lvl = ++lvl;
+        //    //synch-ronizáljuk a hierachikus szinthez
+        //    int lvl = TransferToItem.Lvl;
+        //    Data.Lvl = ++lvl;
 
-            #region Local Remove
-            foreach (ItemSlotData slotData in Data.ItemSlotsDataRef)
-            {
-                slotData.PartOfItemData = null;//remove
-            }
-            Data.ItemSlotsDataRef.Clear();//ref delete
-            foreach (GameObject slotObject in Data.ItemSlotObjectsRef)
-            {
-                slotObject.GetComponent<ItemSlot>().PartOfItemObject = null;//remove
-            }
-            Data.ItemSlotObjectsRef.Clear();//ref delete
-            #endregion
+        //    #region Local Remove
+        //    foreach (ItemSlotData slotData in Data.ItemSlotsDataRef)
+        //    {
+        //        slotData.PartOfItemData = null;//remove
+        //    }
+        //    Data.ItemSlotsDataRef.Clear();//ref delete
+        //    foreach (GameObject slotObject in Data.ItemSlotObjectsRef)
+        //    {
+        //        slotObject.GetComponent<ItemSlot>().PartOfItemObject = null;//remove
+        //    }
+        //    Data.ItemSlotObjectsRef.Clear();//ref delete
+        //    #endregion
 
-            #region Transfer To New Segment if it nesesary (Player Equipments , Player Invenotry , Out of Player Inventory)
-            //ha uj a parent
-            if (Data.ParentItem != TransferToItem)
-            {
-                //itemlistabol valo törles
-                Data.ContainerItemListRef.Remove(Data);//remove
-                Data.ContainerItemListRef = null;//ref delete
+        //    #region Transfer To New Segment if it nesesary (Player Equipments , Player Invenotry , Out of Player Inventory)
+        //    //ha uj a parent
+        //    if (Data.ParentItem != TransferToItem)
+        //    {
+        //        //itemlistabol valo törles
+        //        Data.ContainerItemListRef.Remove(Data);//remove
+        //        Data.ContainerItemListRef = null;//ref delete
 
-                //a paretn itemlistájához is hozzáadjuk
-                TransferToItem.Container.Items.Add(Data);
-                Data.ContainerItemListRef = TransferToItem.Container.Items;//ref
+        //        //a paretn itemlistájához is hozzáadjuk
+        //        TransferToItem.Container.Items.Add(Data);
+        //        Data.ContainerItemListRef = TransferToItem.Container.Items;//ref
 
-                Data.ParentItem = TransferToItem;//megváltoztatjuk a parent item-jét
+        //        Data.ParentItem = TransferToItem;//megváltoztatjuk a parent item-jét
 
-                //ha a player inventory-jának része lesz akkor hozzáadjuk a levelmanagerhez is.
-                if (!Data.IsInPlayerInventory && TransferToItem.IsInPlayerInventory)
-                {
-                    Data.IsInPlayerInventory = true;
-                    StatusIsInPlayerInventory(Data);
-                    InventoryObjectRef.GetComponent<PlayerInventory>().levelManager.Items.Add(Data);
-                    InventoryObjectRef.GetComponent<PlayerInventory>().levelManager.SetMaxLVL_And_Sort();
-                    Data.LevelManagerRef = InventoryObjectRef.GetComponent<PlayerInventory>().levelManager;//ref
-                }
-                //ha nem lesz tagja az inventorynak akkor töröljük onnan
-                if (Data.IsInPlayerInventory && !TransferToItem.IsInPlayerInventory)
-                {
-                    Data.IsInPlayerInventory = false;
-                    StatusIsInPlayerInventory(Data);
-                    Data.LevelManagerRef.Items.Remove(Data);//remove
-                    Data.LevelManagerRef.SetMaxLVL_And_Sort();
-                    Data.LevelManagerRef = null;//ref delete
-                }
-            }
-            #endregion
+        //        //ha a player inventory-jának része lesz akkor hozzáadjuk a levelmanagerhez is.
+        //        if (!Data.IsInPlayerInventory && TransferToItem.IsInPlayerInventory)
+        //        {
+        //            Data.IsInPlayerInventory = true;
+        //            StatusIsInPlayerInventory(Data);
+        //            InventoryObjectRef.GetComponent<PlayerInventory>().levelManager.Items.Add(Data);
+        //            InventoryObjectRef.GetComponent<PlayerInventory>().levelManager.SetMaxLVL_And_Sort();
+        //            Data.LevelManagerRef = InventoryObjectRef.GetComponent<PlayerInventory>().levelManager;//ref
+        //        }
+        //        //ha nem lesz tagja az inventorynak akkor töröljük onnan
+        //        if (Data.IsInPlayerInventory && !TransferToItem.IsInPlayerInventory)
+        //        {
+        //            Data.IsInPlayerInventory = false;
+        //            StatusIsInPlayerInventory(Data);
+        //            Data.LevelManagerRef.Items.Remove(Data);//remove
+        //            Data.LevelManagerRef.SetMaxLVL_And_Sort();
+        //            Data.LevelManagerRef = null;//ref delete
+        //        }
+        //    }
+        //    #endregion
 
-            #region Local Positioning
-            //slot use beallitasa az az slotokba valo helyezes
-            Data.SlotUse.Clear();
-            for (int i = 0; i < activeSlots.Count; i++)
-            {
-                Data.SlotUse.Add(activeSlots[i].name);
-            }
-            Data.SetSlotUse();//beallitjuk a slotuse azonositot
-            #endregion
+        //    #region Local Positioning
+        //    //slot use beallitasa az az slotokba valo helyezes
+        //    Data.SlotUse.Clear();
+        //    for (int i = 0; i < activeSlots.Count; i++)
+        //    {
+        //        Data.SlotUse.Add(activeSlots[i].name);
+        //    }
+        //    Data.SetSlotUse();//beallitjuk a slotuse azonositot
+        //    #endregion
 
-            #region Local Add
-            foreach (ItemSlotData[,] sector in TransferToItem.Container.Sectors)
-            {
-                foreach (ItemSlotData slot in sector)
-                {
-                    if (Data.SlotUse.Contains(slot.SlotName))
-                    {
-                        slot.PartOfItemData = Data;
-                        Data.ItemSlotsDataRef.Add(slot);//ref
-                    }
-                }
-            }
-            foreach (DataGrid dataGrid in TransferToItem.SectorDataGrid)
-            {
-                foreach (RowData rowData in dataGrid.col)
-                {
-                    foreach (GameObject slot in rowData.row)
-                    {
-                        if (Data.SlotUse.Contains(slot.name))
-                        {
-                            slot.GetComponent<ItemSlot>().PartOfItemObject = Data.SelfGameobject;
-                            Data.ItemSlotObjectsRef.Add(slot);//ref
-                        }
-                    }
-                }
-            }
-            #endregion
+        //    #region Local Add
+        //    foreach (ItemSlotData[,] sector in TransferToItem.Container.Sectors)
+        //    {
+        //        foreach (ItemSlotData slot in sector)
+        //        {
+        //            if (Data.SlotUse.Contains(slot.SlotName))
+        //            {
+        //                slot.PartOfItemData = Data;
+        //                Data.ItemSlotsDataRef.Add(slot);//ref
+        //            }
+        //        }
+        //    }
+        //    foreach (DataGrid dataGrid in TransferToItem.SectorDataGrid)
+        //    {
+        //        foreach (RowData rowData in dataGrid.col)
+        //        {
+        //            foreach (GameObject slot in rowData.row)
+        //            {
+        //                if (Data.SlotUse.Contains(slot.name))
+        //                {
+        //                    slot.GetComponent<ItemSlot>().PartOfItemObject = Data.SelfGameobject;
+        //                    Data.ItemSlotObjectsRef.Add(slot);//ref
+        //                }
+        //            }
+        //        }
+        //    }
+        //    #endregion
 
-            #region HotKey ReFresh
-            if (Data.hotKeyRef != null)
-            {
-                if ((Data.IsEquipment && !TransferToItem.IsEquipmentRoot) ||//ha equipmentből inventoryba kerul
-                    (!TransferToItem.IsInPlayerInventory) ||//ha inventoryn kivulre kerul
-                    (!Data.IsEquipment && TransferToItem.IsEquipmentRoot) ||//ha iventorybol equipmentbe kerul
-                    (Data.IsEquipment && TransferToItem.IsEquipmentRoot)//ha equipmentbol equipmentbe
-                    )
-                {
-                    Data.hotKeyRef.UnSetHotKey();
-                }
-            }
-            if (TransferToItem.IsEquipmentRoot)
-            {
-                AutoSetHotKey(Data);
-            }
-            #endregion
+        //    #region HotKey ReFresh
 
-            if (!Data.IsEquipment && TransferToItem.IsEquipmentRoot)
-            {
-                Data.IsEquipment = true;
-                Data.RotateDegree = 0;
-            }
-            else if (Data.IsEquipment && !TransferToItem.IsEquipmentRoot)
-            {
-                Data.IsEquipment = false;
-            }
+        //    #endregion
 
-            #region Visual Refresh
-            //Debug.LogWarning(Data.SelfGameobject != null);
-            Data.SelfGameobject.GetComponent<ItemObject>().SelfVisualisation();
-            #endregion
-        }
-        private static void AutoSetHotKey(Item SetIn)
-        {
-            switch (SetIn.LowestSlotUseNumber)
-            {
-                case 10:
-                    InGameUI.HotKey1.SetHotKey(SetIn);
-                    break;
-                case 11:
-                    InGameUI.HotKey2.SetHotKey(SetIn);
-                    break;
-                case 12:
-                    InGameUI.HotKey3.SetHotKey(SetIn);
-                    break;
-                case 13:
-                    InGameUI.HotKey4.SetHotKey(SetIn);
-                    break;
-                default:
-                    break;
-            }
-        }
-        private static void StatusIsInPlayerInventory(Item Data)
-        {
-            if (Data.Container != null)
-            {
-                foreach (Item item in Data.Container.Items)
-                {
-                    if (!item.IsInPlayerInventory && Data.IsInPlayerInventory)
-                    {
-                        item.IsInPlayerInventory = true;
-                        InventoryObjectRef.GetComponent<PlayerInventory>().levelManager.Items.Add(item);
-                        item.LevelManagerRef = InventoryObjectRef.GetComponent<PlayerInventory>().levelManager;//ref
-                    }
-                    else if (item.IsInPlayerInventory && !Data.IsInPlayerInventory)
-                    {
-                        item.IsInPlayerInventory = false;
-                        item.LevelManagerRef.Items.Remove(item);//remove
-                        item.LevelManagerRef = null;//ref delete
-                    }
-                    if (item.SelfGameobject != null)
-                    {
-                        item.SelfGameobject.GetComponent<ItemObject>().SelfVisualisation();
-                    }
-                    int lvl = Data.Lvl;
-                    Data.Lvl = ++lvl;
-                    StatusIsInPlayerInventory(item);
-                }
-            }
-        }
-        public static void DataDelete(Item Data)//Teljes törlést végez az egesz itemen, de a child itemeit nem torli
-        {
-            //hotkeybol valo torles
-            if (Data.hotKeyRef != null)
-            {
-                Data.hotKeyRef.UnSetHotKey();
-            }
-            //item sectorbol valo törles
-            foreach (ItemSlotData slotData in Data.ItemSlotsDataRef)
-            {
-                slotData.PartOfItemData = null;//remove
-            }
-            Data.ItemSlotsDataRef.Clear();//ref delete
+        //    if (!Data.IsEquipment && TransferToItem.IsEquipmentRoot)
+        //    {
+        //        Data.IsEquipment = true;
+        //        Data.RotateDegree = 0;//!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+        //    }
+        //    else if (Data.IsEquipment && !TransferToItem.IsEquipmentRoot)
+        //    {
+        //        Data.IsEquipment = false;
+        //    }
 
-            //item listabol valo torles
-            Data.ContainerItemListRef.Remove(Data);//remove
-            Data.ContainerItemListRef = null;//ref delete
+        //    #region Visual Refresh
+        //    //Debug.LogWarning(Data.SelfGameobject != null);
+        //    Data.SelfGameobject.GetComponent<ItemObject>().SelfVisualisation();
+        //    #endregion
+        //}
+        //public static void Delete(Item Data)//Teljes törlést végez az egesz itemen, de a child itemeit nem torli
+        //{
+        //    //hotkeybol valo torles
+        //    UnsetHotKey(Data);
+        //    //item sectorbol valo törles
+        //    foreach (ItemSlotData slotData in Data.ItemSlotsDataRef)
+        //    {
+        //        slotData.PartOfItemData = null;//remove
+        //    }
+        //    Data.ItemSlotsDataRef.Clear();//ref delete
 
-            //gameobject törlese
-            if (Data.ItemSlotObjectsRef != null)
-            {
-                foreach (GameObject slotObject in Data.ItemSlotObjectsRef)
-                {
-                    slotObject.GetComponent<ItemSlot>().PartOfItemObject = null;//remove
-                }
-                Data.ItemSlotObjectsRef.Clear();//ref delete
-                if (Data.SelfGameobject != null)
-                {
-                    Data.SelfGameobject.GetComponent<ItemObject>().DestroyContainer();
-                    GameObject.Destroy(Data.SelfGameobject);
-                }
-            }
+        //    //item listabol valo torles
+        //    Data.ContainerItemListRef.Remove(Data);//remove
+        //    Data.ContainerItemListRef = null;//ref delete
 
-            //playerinventorybol valo torles
-            if (Data.IsInPlayerInventory)
-            {
-                Data.IsInPlayerInventory = false;
-                Data.LevelManagerRef.Items.Remove(Data);//remove
-                Data.LevelManagerRef.SetMaxLVL_And_Sort();
-                Data.LevelManagerRef.Cleaning();
-                Data.LevelManagerRef = null;//ref delete
-            }
-        }
+        //    //gameobject törlese
+        //    if (Data.ItemSlotObjectsRef != null)
+        //    {
+        //        foreach (GameObject slotObject in Data.ItemSlotObjectsRef)
+        //        {
+        //            slotObject.GetComponent<ItemSlot>().PartOfItemObject = null;//remove
+        //        }
+        //        Data.ItemSlotObjectsRef.Clear();//ref delete
+        //        if (Data.SelfGameobject != null)
+        //        {
+        //            Data.SelfGameobject.GetComponent<ItemObject>().DestroyContainer();
+        //            GameObject.Destroy(Data.SelfGameobject);
+        //        }
+        //    }
+
+        //    //playerinventorybol valo torles
+        //    if (Data.IsInPlayerInventory)
+        //    {
+        //        Data.IsInPlayerInventory = false;
+        //        Data.LevelManagerRef.Items.Remove(Data);//remove
+        //        Data.LevelManagerRef.SetMaxLVL_And_Sort();
+        //        Data.LevelManagerRef.Cleaning();
+        //        Data.LevelManagerRef = null;//ref delete
+        //    }
+        //}
     }
 }

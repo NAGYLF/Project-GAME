@@ -20,6 +20,7 @@ namespace NaturalInventorys
             Root.IsRoot = true;
             Root.IsLoot = true;
             Root.Container = new Container(PrefabPath);
+            Root.SelfGameobject = gameObject;
             LootRandomizer.FillSimpleInvenotry(GetComponent<SimpleInventory>(),PaletteName,Fullness);
         }
         public void InventoryAdd(Item Data)
@@ -37,7 +38,13 @@ namespace NaturalInventorys
                             {
                                 if (Root.Container.Sectors[sectorIndex][Y, X].PartOfItemData == null && CanBePlace(Root.Container.Sectors[sectorIndex], Y, X, Data))//ha a slot nem tagja egy itemnek sem akkor target
                                 {
-                                    AddDataNonLive(Y,X,sectorIndex,Root,Data);
+                                    //AddDataNonLive(Y,X,sectorIndex,Root,Data);
+                                    SetParent(Data, Root);
+                                    NonLive_SetSlotUse(Y,X,sectorIndex,Data,Root);
+                                    NonLive_AddTo(Data, Root);
+                                    SetHotKey(Data, Root);
+                                    SetStatus(Data, Root);
+                                    InspectPlayerInventory(Data, Root);
                                     ItemAdded = true;
                                 }
                             }

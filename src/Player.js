@@ -3,6 +3,8 @@ import axios from 'axios';
 import { useNavigate, useParams } from 'react-router-dom';
 
 export default function Player({ texts, language, token, isAdmin, showAlert }) {
+  const [isItAdmin, setIsItAdmin] = useState("false");
+
   const { id } = useParams();
   const [stats, setStats] = useState({
     score: 0,
@@ -19,6 +21,7 @@ export default function Player({ texts, language, token, isAdmin, showAlert }) {
         const data = response.data;
         if (data.name) {
           setName(data.name);
+          setIsItAdmin(data.isAdmin);
           console.log(data.name);
         }
       })
@@ -48,12 +51,12 @@ export default function Player({ texts, language, token, isAdmin, showAlert }) {
           <p>{language === "hu" ? 'Megölt ellenfelek: ' : 'Enemies killed: '}{stats.enemiesKilled == null ? "0" : stats.enemiesKilled}</p>
           <p>{language === "hu" ? 'Halálok: ' : 'Deaths: '}{stats.deathCount == null ? "0" : stats.deathCount}</p>
         </div>
-        {isAdmin ?
-          <button className='btn btn-danger' style={{ position: 'absolute', bottom: '15px', right: '15px' }} onClick={() => {
+        {isAdmin && !isItAdmin ?
+          <button className='btn btn-danger' style={{ position: 'absolute', bottom: '15px', right: '15px', height: '40px' }} onClick={() => {
             if (window.confirm(language === "hu" ? 'Biztosan törölni szeretnéd a fiókot?' : 'Are you sure you want to delete this account?')) {
               axios.delete(`http://localhost:5269/api/Player/${id}?token=${token}`)
                 .then(() => {
-                  showAlert(language === "hu" ? "Fiók sikeresen törölve!" : "Account deleted successfully!" , "success");
+                  showAlert(language === "hu" ? "Fiók sikeresen törölve!" : "Account deleted successfully!", "success");
                   navigate("/search");
                 })
                 .catch(error => console.error('Error deleting player:', error));
@@ -63,7 +66,21 @@ export default function Player({ texts, language, token, isAdmin, showAlert }) {
               <path d="M14.5 3a1 1 0 0 1-1 1H13v9a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V4h-.5a1 1 0 0 1-1-1V2a1 1 0 0 1 1-1H6a1 1 0 0 1 1-1h2a1 1 0 0 1 1 1h3.5a1 1 0 0 1 1 1zM4.118 4 4 4.059V13a1 1 0 0 0 1 1h6a1 1 0 0 0 1-1V4.059L11.882 4zM2.5 3h11V2h-11z" />
             </svg>
           </button> : null}
-
+        {isAdmin && !isItAdmin ?
+          <button className='btn btn-danger' style={{ position: 'absolute', bottom: '15px', left: '15px', height: '40px' }} onClick={() => {
+            if (window.confirm(language === "hu" ? 'Biztosan bannolni szeretnéd a fiókot?' : 'Are you sure you want to ban this account?')) {
+              axios.put(`http://localhost:5269/api/Player/${id}`, {
+                isBanned: true
+              },)
+                .then(() => {
+                  showAlert(language === "hu" ? "Fiók sikeresen bannolva!" : "Account banned successfully!", "success");
+                  navigate("/search");
+                })
+                .catch(error => console.error('Error deleting player:', error))
+                showAlert(language === "hu" ? "Hiba!" : "Error!", "error");;
+            }
+          }}>{language === "hu" ? "Játékos bannolása" : "Ban player"}
+          </button> : null}
       </div>
     </div>
   )

@@ -1,25 +1,65 @@
 import React, { useEffect, useState } from 'react';
-import { useLocation, useNavigate } from 'react-router-dom';
 import axios from 'axios';
+import { useLocation, useNavigate } from 'react-router-dom';
 
-const Admin = ({ texts, language, code ,secondsLeft ,setSecondsLeft, admincode }) => {
+const Admin = ({ texts, language, code, secondsLeft, id }) => {
   const location = useLocation();
   const navigate = useNavigate();
-  const [devConsole, setDevConsole] = useState(false);
+  
+  const [generatedCode, setGeneratedCode] = useState(code);
+  const [seconds, setSeconds] = useState(secondsLeft);
+  const [DevConsole, setDevConsole] = useState(false);
 
-  //Kód
+  const GetAdminCode = () => {
+    axios.get('http://localhost:5269/api/Player/code')
+      .then(res => {
+        setGeneratedCode(res.data.code);
+        setSeconds(res.data.secondsLeft);
+      })
+      .catch(err => console.error(err));
+  };
+
+  // ManageDevConsole a checkbox változásakor
+  const ManageDevConsole = (e) => {
+    const newDevConsoleState = e.target.checked; // A checkbox új állapota
+    setDevConsole(newDevConsoleState);
+    
+    // API hívás a debug mód állapotának módosításához
+    axios.put(`http://localhost:5269/api/Admin/${id}`, {
+      devConsole: newDevConsoleState
+    })
+    .catch(err => console.error(err));
+  };
+
+  const getDevConsole = () => {
+    console.log(id);
+    axios.get(`http://localhost:5269/api/Admin/${id}`).then(res => {
+      setDevConsole(res.data.devConsole);
+    });
+  };
+
   useEffect(() => {
-    admincode();
+    if (!generatedCode) {
+      GetAdminCode();
+    }
+
+    const interval = setInterval(() => {
+      setSeconds(prev => {
+        if (prev > 1) {
+          return prev - 1;
+        } else {
+          GetAdminCode();
+          return 30;
+        }
+      });
+    }, 1000);
+
+    return () => clearInterval(interval);
+  }, [generatedCode]);
+
+  useEffect(() => {
     getDevConsole();
-  }, []
-);
-
-const getDevConsole=()=>{
-  axios.get("http://localhost:5269/api/Admin").then(res => {
-    setDevConsole(res.data[0].devConsole)
-  })
-}
-
+  }, [id]);
 
   return (
     <div
@@ -48,35 +88,36 @@ const getDevConsole=()=>{
             ></button>
           </div>
           <div className="modal-body">
-          <form>
-          {/* Debug mód beállítás */}
-          <div className="form-check mb-3">
-            <input
-              className="form-check-input"
-              type="checkbox"
-              id="debugMode"
-              checked={devConsole}
-            />
-            <label className="form-check-label" htmlFor="debugMode">
-            {language === "hu" ? 'Debug mód engedélyezése' : 'Enable debug mode'}
-            </label>
-          </div>
+            <form>
+              {/* Debug mód beállítás */}
+              <div className="form-check mb-3">
+                <input
+                  className="form-check-input"
+                  type="checkbox"
+                  id="debugMode"
+                  onChange={ManageDevConsole} // Itt csak a funkciót hívjuk, nem egyből
+                  checked={DevConsole} // A checkbox státusza
+                />
+                <label className="form-check-label" htmlFor="debugMode">
+                  {language === "hu" ? 'Debug mód engedélyezése' : 'Enable debug mode'}
+                </label>
+              </div>
 
-          {/* Új admin jelszó generálása */}
+              {/* Új admin jelszó generálása */}
               <div className="mb-3">
                 <label htmlFor="newAdminPassword" className="form-label">
-                {language === "hu" ? 'Új admin jelszó' : 'New admin password'}
+                  {language === "hu" ? 'Új admin jelszó' : 'New admin password'}
                 </label>
                 <input
                   type="text"
-                  style={{margin:"5px", width:"90px"}}
-                  value={code}
+                  style={{ margin: "5px", width: "90px" }}
+                  value={generatedCode}
                   className="form-control"
                   id="newAdminPassword"
                   readOnly
                 />
                 <label>
-                  {language === "hu" ? 'Az új jelszó változni fog: ' : 'New password in: '}{secondsLeft}
+                  {language === "hu" ? 'Az új jelszó változni fog: ' : 'New password in: '}{seconds}
                 </label>
               </div>
             </form>

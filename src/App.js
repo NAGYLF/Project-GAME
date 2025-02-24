@@ -160,8 +160,8 @@ function App() {
         <Route path="/login" element={<Login language={language} texts={texts} isLoggedIn={isLoggedIn} setIsLoggedIn={setIsLoggedIn} setIsAdmin={setIsAdmin} login={login} showAlert={showAlert}/>} />
         <Route path="/register" element={<Register language={language} texts={texts} isLoggedIn={isLoggedIn} setIsLoggedIn={setIsLoggedIn} code={code} login={login} showAlert={showAlert} admincode={admincode}/>} />
         <Route path="/settings" element={<Settings texts={texts} language={language} id={id} token={token} logout={logout} showAlert={showAlert}/>} />
-        <Route path="/admin" element={<Admin texts={texts} language={language} code={code} setCode={setCode} secondsLeft={secondsLeft} setSecondsLeft={setSecondsLeft} admincode={admincode}/>} />
-        <Route path="/search" element={<Search texts={texts} language={language}/>} />
+        <Route path="/admin" element={<Admin texts={texts} language={language} id={id} code={code} setCode={setCode} secondsLeft={secondsLeft} setSecondsLeft={setSecondsLeft} admincode={admincode}/>} />
+        <Route path="/search" element={<Search texts={texts} language={language} isAdmin={isAdmin}/>} />
         <Route path="/player/:id" element={<Player texts={texts} language={language} token={token} isAdmin={isAdmin} showAlert={showAlert}/>} />
       </Routes>
       <Footer 

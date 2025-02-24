@@ -21,7 +21,7 @@
 
     public class PlayerStatsDto
     {
-        public int PlayerId { get; set; }
+        //public int PlayerId { get; set; }
 
         public int DeathCount { get; set; }
         public int Score { get; set; }
@@ -41,6 +41,12 @@
     {
         public bool DevConsole { get; set; }
     }
+    public class AdminDto
+    {
+        public int Id { get; set; }
+        public bool DevConsole { get; set; }
+    }
+
 
 
 }

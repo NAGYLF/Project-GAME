@@ -15,6 +15,8 @@ public partial class Player
 
     public bool IsAdmin { get; set; }
 
+    public bool IsBanned { get; set; }
+
     public virtual ICollection<Achievement> Achievements { get; set; } = new List<Achievement>();
 
     public virtual Admin? Admin { get; set; }

@@ -25,6 +25,20 @@ namespace EphemeralApi.Controllers
             return Ok(await _context.Admins.ToListAsync());
         }
 
+        [HttpGet("{id}")]
+        public async Task<ActionResult<Admin>> GetAdminById(int id)
+        {
+            var admin = await _context.Admins
+                .FirstOrDefaultAsync(a => a.Id == id); // Csak az Admin adatokat kérjük le
+
+            if (admin == null)
+            {
+                return NotFound(new { message = "Admin not found" });
+            }
+
+            return Ok(admin);
+        }
+
         // Admin DevConsole beállításának frissítése
         [HttpPut("{id}")]
         public async Task<IActionResult> UpdateDevConsole(int id, [FromBody] DevConsoleUpdateDto updateDto)

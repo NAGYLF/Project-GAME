@@ -1,11 +1,11 @@
 -- phpMyAdmin SQL Dump
--- version 5.1.1
+-- version 5.2.1
 -- https://www.phpmyadmin.net/
 --
 -- Gép: 127.0.0.1
--- Létrehozás ideje: 2025. Feb 20. 08:36
--- Kiszolgáló verziója: 10.4.20-MariaDB
--- PHP verzió: 7.3.29
+-- Létrehozás ideje: 2025. Feb 24. 13:31
+-- Kiszolgáló verziója: 10.4.32-MariaDB
+-- PHP verzió: 8.0.30
 
 SET SQL_MODE = "NO_AUTO_VALUE_ON_ZERO";
 START TRANSACTION;
@@ -35,7 +35,7 @@ CREATE TABLE `achievement` (
   `FirstBlood` tinyint(1) DEFAULT 0,
   `RookieWork` tinyint(1) DEFAULT 0,
   `YouAreOnYourOwnNow` tinyint(1) DEFAULT 0
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
 --
 -- A tábla adatainak kiíratása `achievement`
@@ -56,7 +56,7 @@ CREATE TABLE `admin` (
   `Id` int(11) NOT NULL,
   `PlayerId` int(11) NOT NULL,
   `DevConsole` tinyint(1) NOT NULL DEFAULT 0
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
 --
 -- A tábla adatainak kiíratása `admin`
@@ -76,17 +76,18 @@ CREATE TABLE `player` (
   `Name` varchar(255) NOT NULL,
   `Password` varchar(255) NOT NULL,
   `Email` varchar(255) NOT NULL,
-  `IsAdmin` tinyint(1) NOT NULL DEFAULT 0
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
+  `IsAdmin` tinyint(1) NOT NULL DEFAULT 0,
+  `IsBanned` tinyint(1) NOT NULL DEFAULT 0
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
 --
 -- A tábla adatainak kiíratása `player`
 --
 
-INSERT INTO `player` (`Id`, `Name`, `Password`, `Email`, `IsAdmin`) VALUES
-(1, 'AdminUser', 'adminpass', 'admin@example.com', 1),
-(2, 'RegularUser', 'userpass', 'user@example.com', 0),
-(3, 'ZSAAAAA', 'mewmeow', '@supernut@gmail.com', 0);
+INSERT INTO `player` (`Id`, `Name`, `Password`, `Email`, `IsAdmin`, `IsBanned`) VALUES
+(1, 'AdminUser', 'adminpass', 'admin@example.com', 1, 0),
+(2, 'RegularUser', 'userpass', 'user@example.com', 0, 0),
+(3, 'string', '$2a$11$EOSXi35klHy7a3KZvQc0NuPRVpOoOMLhNfQ6F4I91HFl5n06QfQ2y', 'string@.com', 0, 1);
 
 -- --------------------------------------------------------
 
@@ -100,7 +101,7 @@ CREATE TABLE `statistic` (
   `DeathCount` int(11) DEFAULT 0,
   `Score` int(11) DEFAULT 0,
   `EnemiesKilled` int(11) DEFAULT 0
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
 --
 -- A tábla adatainak kiíratása `statistic`

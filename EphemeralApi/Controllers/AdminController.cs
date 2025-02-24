@@ -26,17 +26,24 @@ namespace EphemeralApi.Controllers
         }
 
         [HttpGet("{id}")]
-        public async Task<ActionResult<Admin>> GetAdminById(int id)
+        public async Task<ActionResult<AdminDto>> GetAdminById(int id)
         {
             var admin = await _context.Admins
                 .FirstOrDefaultAsync(a => a.Id == id); // Csak az Admin adatokat kérjük le
 
             if (admin == null)
             {
-                return NotFound(new { message = "Admin not found" });
+                return NotFound(new { message = "Nincs ilyen Admin" });
             }
 
-            return Ok(admin);
+            // Admin objektumot DTO-ra leképezés
+            var adminDto = new AdminDto
+            {
+                Id = admin.Id,
+                DevConsole = admin.DevConsole
+            };
+
+            return Ok(adminDto);
         }
 
         // Admin DevConsole beállításának frissítése

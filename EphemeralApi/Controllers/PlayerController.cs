@@ -53,7 +53,7 @@ namespace EphemeralApi.Controllers
             // A statisztikák és teljesítmények DTO-ba történő leképezése
             var playerStatsDto = new PlayerStatsDto
             {
-                PlayerId = playerId,
+                
                 DeathCount = statistics.DeathCount ?? 0,
                 Score = statistics.Score ?? 0,
                 EnemiesKilled = statistics.EnemiesKilled ?? 0,

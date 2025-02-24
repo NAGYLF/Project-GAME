@@ -25,7 +25,6 @@ public class AuthController : ControllerBase
         _config = config;
     }
 
-    // Felhasználó regisztrációja
     [HttpPost("register")]
     public async Task<IActionResult> Register([FromBody] CreatePlayerDto request)
     {
@@ -75,8 +74,23 @@ public class AuthController : ControllerBase
         _context.Players.Add(newUser);
         await _context.SaveChangesAsync();
 
+        // Ha admin felhasználót regisztrálunk, hozzunk létre egy Admin rekordot is
+        if (request.IsAdmin)
+        {
+            var newAdmin = new Admin
+            {
+                PlayerId = newUser.Id, // A PlayerId és az Id most ugyanaz lesz
+                DevConsole = false      // Alapértelmezetten false
+            };
+
+            _context.Admins.Add(newAdmin);
+            await _context.SaveChangesAsync();
+        }
+
         return Ok("Sikeres regisztráció.");
     }
+
+
 
     // Felhasználó bejelentkezése
     [HttpPost("login")]

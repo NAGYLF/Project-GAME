@@ -129,6 +129,7 @@ namespace EphemeralApi.Controllers
             player.Name = playerDto.Name;
             player.Email = playerDto.Email;
             player.IsAdmin = playerDto.IsAdmin;
+            player.IsBanned = playerDto.IsBanned;
 
             // Ha jelszó is van, akkor az új jelszót hash-eljük
             if (!string.IsNullOrWhiteSpace(playerDto.Password))
@@ -141,6 +142,7 @@ namespace EphemeralApi.Controllers
 
             return NoContent();
         }
+
 
         // A játékos törlése az ID alapján, token validálással az engedélyezéshez
         [HttpDelete("{id}")]

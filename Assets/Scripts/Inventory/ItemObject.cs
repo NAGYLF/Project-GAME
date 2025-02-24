@@ -141,27 +141,19 @@ public class ItemObject : MonoBehaviour, IPointerDownHandler, IPointerUpHandler,
             }
             if (placementCanStart)
             {
-                //InventorySystem.RePlaceLive(ActualData, placer);
-
-                //eltavolitjuk a regi helyerol
-                InventorySystem.NonLive_Remove(ActualData);
-                InventorySystem.Live_Remove(ActualData);
-                InventorySystem.UnsetParent(ActualData,ActualData.ParentItem);
-
-                //az uj parent itemjehez allitjuk
-                InventorySystem.SetParent(ActualData, placer.NewParentItem);
-
-                //beallitjuk a slot use-t mivel a nonlive es a live add ezt hasznalja fel
-                InventorySystem.Live_SetSlotUse(ActualData, placer);
-
-                InventorySystem.NonLive_AddTo(ActualData, placer.NewParentItem);
-                InventorySystem.Live_AddTo(ActualData, placer.NewParentItem);
-
-                //be allitjuk a hotkey-t a status elott mivel a hot key rendszernek a regi hot key status kell
-                InventorySystem.SetHotKey(ActualData, placer.NewParentItem);
-                InventorySystem.SetStatus(ActualData, placer.NewParentItem);
-                //vegul ha kell eltavolitjuk vagy hozzadjuk a playerInventoryhoz ezt pedig a status hatarozza meg
+                InventorySystem.Remove(ActualData, ActualData.ParentItem);
+                InventorySystem.Add(ActualData, placer.NewParentItem);
                 InventorySystem.InspectPlayerInventory(ActualData, placer.NewParentItem);
+
+                InventorySystem.NonLive_UnPlacing(ActualData);
+                InventorySystem.Live_UnPlacing(ActualData);
+
+                InventorySystem.Live_Positioning(ActualData, placer);
+
+                InventorySystem.NonLive_Placing(ActualData, placer.NewParentItem);
+                InventorySystem.Live_Placing(ActualData, placer.NewParentItem);
+                
+                InventorySystem.SetStatus_And_HotKey(ActualData, placer.NewParentItem);
 
                 SelfVisualisation();
 
@@ -189,7 +181,7 @@ public class ItemObject : MonoBehaviour, IPointerDownHandler, IPointerUpHandler,
         ActualData.SelfGameobject = gameObject;
 
         InventorySystem.LiveCleaning(ActualData);
-        InventorySystem.Live_AddTo(ActualData, ActualData.ParentItem);
+        InventorySystem.Live_Placing(ActualData, ActualData.ParentItem);
 
         BuildContainer();
 
@@ -209,7 +201,7 @@ public class ItemObject : MonoBehaviour, IPointerDownHandler, IPointerUpHandler,
             GameObject containerObject = CreatePrefab(ActualData.Container.PrefabPath);
             containerObject.GetComponent<ContainerObject>().SetDataRoute(ActualData);
             ActualData.ContainerObject = containerObject;
-            ActualData.SectorDataGrid = ActualData.ContainerObject.GetComponent<ContainerObject>().Sectors;
+            ActualData.Container.Live_Sector = ActualData.ContainerObject.GetComponent<ContainerObject>().Sectors;
         }
     }
     public void DestroyContainer()

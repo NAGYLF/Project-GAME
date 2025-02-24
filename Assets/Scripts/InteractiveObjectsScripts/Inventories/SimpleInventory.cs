@@ -28,23 +28,22 @@ namespace NaturalInventorys
             bool ItemAdded = false;
             if (!ItemAdded)//container
             {
-                for (int sectorIndex = 0; sectorIndex < Root.Container.Sectors.Length && !ItemAdded; sectorIndex++)//mivel a szector 2D array-okat tartalmaz ezert a sectorokon az az ezen 2D arrayokon iteralunk vegig
+                for (int sectorIndex = 0; sectorIndex < Root.Container.NonLive_Sectors.Length && !ItemAdded; sectorIndex++)//mivel a szector 2D array-okat tartalmaz ezert a sectorokon az az ezen 2D arrayokon iteralunk vegig
                 {
-                    if (Root.Container.Sectors[sectorIndex].GetLength(1) >= Data.SizeX && Root.Container.Sectors[sectorIndex].GetLength(0) >= Data.SizeY)//egy gyors ellenörzést végzünk, hogy az itemunk a feltetelezett teljesen ures sectorba belefér e, ha nem kihadjuk
+                    if (Root.Container.NonLive_Sectors[sectorIndex].GetLength(1) >= Data.SizeX && Root.Container.NonLive_Sectors[sectorIndex].GetLength(0) >= Data.SizeY)//egy gyors ellenörzést végzünk, hogy az itemunk a feltetelezett teljesen ures sectorba belefér e, ha nem kihadjuk
                     {
-                        for (int Y = 0; Y < Root.Container.Sectors[sectorIndex].GetLength(0) && !ItemAdded; Y++)//vegig iterálunk a sorokon
+                        for (int Y = 0; Y < Root.Container.NonLive_Sectors[sectorIndex].GetLength(0) && !ItemAdded; Y++)//vegig iterálunk a sorokon
                         {
-                            for (int X = 0; X < Root.Container.Sectors[sectorIndex].GetLength(1) && !ItemAdded; X++)//a sorokon belul az oszlopokon
+                            for (int X = 0; X < Root.Container.NonLive_Sectors[sectorIndex].GetLength(1) && !ItemAdded; X++)//a sorokon belul az oszlopokon
                             {
-                                if (Root.Container.Sectors[sectorIndex][Y, X].PartOfItemData == null && CanBePlace(Root.Container.Sectors[sectorIndex], Y, X, Data))//ha a slot nem tagja egy itemnek sem akkor target
+                                if (Root.Container.NonLive_Sectors[sectorIndex][Y, X].PartOfItemData == null && CanBePlace(Root.Container.NonLive_Sectors[sectorIndex], Y, X, Data))//ha a slot nem tagja egy itemnek sem akkor target
                                 {
                                     //AddDataNonLive(Y,X,sectorIndex,Root,Data);
-                                    SetParent(Data, Root);
-                                    NonLive_SetSlotUse(Y,X,sectorIndex,Data,Root);
-                                    NonLive_AddTo(Data, Root);
-                                    SetHotKey(Data, Root);
-                                    SetStatus(Data, Root);
+                                    Add(Data, Root);
                                     InspectPlayerInventory(Data, Root);
+                                    NonLive_Positioning(Y,X,sectorIndex,Data,Root);
+                                    NonLive_Placing(Data, Root);
+                                    SetStatus_And_HotKey(Data, Root);
                                     ItemAdded = true;
                                 }
                             }

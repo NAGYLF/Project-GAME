@@ -85,6 +85,9 @@ public class ContainerObject : MonoBehaviour
         }
         activeSlots = new List<GameObject>();
 
+        ActualData.ContainerObject = gameObject;
+        ActualData.Container.Live_Sector = gameObject.GetComponent<ContainerObject>().Sectors;
+
         if (ActualData.IsEquipment)
         {
             VisualisationToSlotPanel();
@@ -111,8 +114,8 @@ public class ContainerObject : MonoBehaviour
         {
             sector.GetComponent<RectTransform>().localScale *= Main.SectorScale;
         }
-        ActualData.ContainerObject = gameObject;
-        ActualData.SectorDataGrid = gameObject.GetComponent<ContainerObject>().Sectors;
+        //ActualData.ContainerObject = gameObject;
+        //ActualData.Container.Live_Sector = gameObject.GetComponent<ContainerObject>().Sectors;
     }
     private void VisualisationToSlotPanel()
     {

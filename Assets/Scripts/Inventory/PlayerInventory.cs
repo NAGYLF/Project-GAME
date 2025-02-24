@@ -83,9 +83,11 @@ namespace PlayerInventoryClass
                 IsRoot = true,
                 IsEquipmentRoot = true,
                 IsInPlayerInventory = true,
-                Container = new Container("GameElements/PlayerInventory"),
+                Container = new Container("GameElements/PlayerInventory")
+                {
+                    Live_Sector = gameObject.GetComponent<ContainerObject>().Sectors,
+                },
                 ContainerObject = gameObject,
-                SectorDataGrid = gameObject.GetComponent<ContainerObject>().Sectors,
                 SelfGameobject = gameObject,
             };
             levelManager = new LevelManager();
@@ -152,23 +154,22 @@ namespace PlayerInventoryClass
             List<Item> itemsOfLvl = levelManager.Items.Where(Item => Item.Lvl == lvl && Item.Container != null).ToList();
             for (int itemIndex = 0; itemIndex < itemsOfLvl.Count; itemIndex++)
             {
-                for (int sectorIndex = 0; sectorIndex < itemsOfLvl[itemIndex].Container.Sectors.Length; sectorIndex++)//mivel a szector 2D array-okat tartalmaz ezert a sectorokon az az ezen 2D arrayokon iteralunk vegig
+                for (int sectorIndex = 0; sectorIndex < itemsOfLvl[itemIndex].Container.NonLive_Sectors.Length; sectorIndex++)//mivel a szector 2D array-okat tartalmaz ezert a sectorokon az az ezen 2D arrayokon iteralunk vegig
                 {
-                    if (itemsOfLvl[itemIndex].IsRoot || (itemsOfLvl[itemIndex].Container.Sectors[sectorIndex].GetLength(1) >= Data.SizeX && itemsOfLvl[itemIndex].Container.Sectors[sectorIndex].GetLength(0) >= Data.SizeY))
+                    if (itemsOfLvl[itemIndex].IsRoot || (itemsOfLvl[itemIndex].Container.NonLive_Sectors[sectorIndex].GetLength(1) >= Data.SizeX && itemsOfLvl[itemIndex].Container.NonLive_Sectors[sectorIndex].GetLength(0) >= Data.SizeY))
                     {
-                        for (int Y = 0; Y < itemsOfLvl[itemIndex].Container.Sectors[sectorIndex].GetLength(0); Y++)//vegig iterálunk a sorokon
+                        for (int Y = 0; Y < itemsOfLvl[itemIndex].Container.NonLive_Sectors[sectorIndex].GetLength(0); Y++)//vegig iterálunk a sorokon
                         {
-                            for (int X = 0; X < itemsOfLvl[itemIndex].Container.Sectors[sectorIndex].GetLength(1); X++)//a sorokon belul az oszlopokon
+                            for (int X = 0; X < itemsOfLvl[itemIndex].Container.NonLive_Sectors[sectorIndex].GetLength(1); X++)//a sorokon belul az oszlopokon
                             {
-                                if ((itemsOfLvl[itemIndex].Container.Sectors[sectorIndex][Y, X].SlotType.Contains(Data.ItemType) || itemsOfLvl[itemIndex].Container.Sectors[sectorIndex][Y, X].SlotType == "") && itemsOfLvl[itemIndex].Container.Sectors[sectorIndex][Y, X].PartOfItemData == null && (CanBePlace(itemsOfLvl[itemIndex].Container.Sectors[sectorIndex], Y, X, Data) || itemsOfLvl[itemIndex].IsRoot))//ha a slot nem tagja egy itemnek sem akkor target
+                                if ((itemsOfLvl[itemIndex].Container.NonLive_Sectors[sectorIndex][Y, X].SlotType.Contains(Data.ItemType) || itemsOfLvl[itemIndex].Container.NonLive_Sectors[sectorIndex][Y, X].SlotType == "") && itemsOfLvl[itemIndex].Container.NonLive_Sectors[sectorIndex][Y, X].PartOfItemData == null && (CanBePlace(itemsOfLvl[itemIndex].Container.NonLive_Sectors[sectorIndex], Y, X, Data) || itemsOfLvl[itemIndex].IsRoot))//ha a slot nem tagja egy itemnek sem akkor target
                                 {
                                     //Debug.Log($"Item Added in container");
-                                    NonLive_SetSlotUse(Y, X, sectorIndex, Data, itemsOfLvl[itemIndex]);
-                                    SetParent(Data, itemsOfLvl[itemIndex]);
+                                    Add(Data, itemsOfLvl[itemIndex]);
                                     InspectPlayerInventory(Data, itemsOfLvl[itemIndex]);
-                                    SetHotKey(Data, itemsOfLvl[itemIndex]);
-                                    SetStatus(Data, itemsOfLvl[itemIndex]);
-                                    NonLive_AddTo(Data, itemsOfLvl[itemIndex]);
+                                    NonLive_Positioning(Y, X, sectorIndex, Data, itemsOfLvl[itemIndex]);
+                                    NonLive_Placing(Data, itemsOfLvl[itemIndex]);
+                                    SetStatus_And_HotKey(Data, itemsOfLvl[itemIndex]);
                                     return true;
                                 }
                             }
@@ -185,22 +186,21 @@ namespace PlayerInventoryClass
             List<Item> itemsOfLvl = levelManager.Items.Where(Item => Item.Lvl == lvl && Item.Container != null).ToList();
             for (int itemIndex = 0; itemIndex < itemsOfLvl.Count; itemIndex++)
             {
-                for (int sectorIndex = 0; sectorIndex < itemsOfLvl[itemIndex].Container.Sectors.Length; sectorIndex++)//mivel a szector 2D array-okat tartalmaz ezert a sectorokon az az ezen 2D arrayokon iteralunk vegig
+                for (int sectorIndex = 0; sectorIndex < itemsOfLvl[itemIndex].Container.NonLive_Sectors.Length; sectorIndex++)//mivel a szector 2D array-okat tartalmaz ezert a sectorokon az az ezen 2D arrayokon iteralunk vegig
                 {
-                    if (itemsOfLvl[itemIndex].IsRoot || (itemsOfLvl[itemIndex].Container.Sectors[sectorIndex].GetLength(1) >= Data.SizeX && itemsOfLvl[itemIndex].Container.Sectors[sectorIndex].GetLength(0) >= Data.SizeY))
+                    if (itemsOfLvl[itemIndex].IsRoot || (itemsOfLvl[itemIndex].Container.NonLive_Sectors[sectorIndex].GetLength(1) >= Data.SizeX && itemsOfLvl[itemIndex].Container.NonLive_Sectors[sectorIndex].GetLength(0) >= Data.SizeY))
                     {
-                        for (int Y = 0; Y < itemsOfLvl[itemIndex].Container.Sectors[sectorIndex].GetLength(0); Y++)//vegig iterálunk a sorokon
+                        for (int Y = 0; Y < itemsOfLvl[itemIndex].Container.NonLive_Sectors[sectorIndex].GetLength(0); Y++)//vegig iterálunk a sorokon
                         {
-                            for (int X = 0; X < itemsOfLvl[itemIndex].Container.Sectors[sectorIndex].GetLength(1); X++)//a sorokon belul az oszlopokon
+                            for (int X = 0; X < itemsOfLvl[itemIndex].Container.NonLive_Sectors[sectorIndex].GetLength(1); X++)//a sorokon belul az oszlopokon
                             {
-                                if ((itemsOfLvl[itemIndex].Container.Sectors[sectorIndex][Y, X].SlotType.Contains(Data.ItemType) || itemsOfLvl[itemIndex].Container.Sectors[sectorIndex][Y, X].SlotType == "") && itemsOfLvl[itemIndex].Container.Sectors[sectorIndex][Y, X].PartOfItemData == null && (CanBePlace(itemsOfLvl[itemIndex].Container.Sectors[sectorIndex], Y, X, Data) || itemsOfLvl[itemIndex].IsRoot))//ha a slot nem tagja egy itemnek sem akkor target
+                                if ((itemsOfLvl[itemIndex].Container.NonLive_Sectors[sectorIndex][Y, X].SlotType.Contains(Data.ItemType) || itemsOfLvl[itemIndex].Container.NonLive_Sectors[sectorIndex][Y, X].SlotType == "") && itemsOfLvl[itemIndex].Container.NonLive_Sectors[sectorIndex][Y, X].PartOfItemData == null && (CanBePlace(itemsOfLvl[itemIndex].Container.NonLive_Sectors[sectorIndex], Y, X, Data) || itemsOfLvl[itemIndex].IsRoot))//ha a slot nem tagja egy itemnek sem akkor target
                                 {
-                                    NonLive_SetSlotUse(Y, X, sectorIndex, Data, itemsOfLvl[itemIndex]);
-                                    SetParent(Data, itemsOfLvl[itemIndex]);
+                                    Add(Data, itemsOfLvl[itemIndex]);
                                     InspectPlayerInventory(Data, itemsOfLvl[itemIndex]);
-                                    SetHotKey(Data, itemsOfLvl[itemIndex]);
-                                    SetStatus(Data, itemsOfLvl[itemIndex]);
-                                    NonLive_AddTo(Data, itemsOfLvl[itemIndex]);
+                                    NonLive_Positioning(Y, X, sectorIndex, Data, itemsOfLvl[itemIndex]);
+                                    NonLive_Placing(Data, itemsOfLvl[itemIndex]);
+                                    SetStatus_And_HotKey(Data, itemsOfLvl[itemIndex]);
                                     (Data.SizeX, Data.SizeY) = (Data.SizeY, Data.SizeX);
                                     //Debug.Log($"Item Added in container");
                                     return true;

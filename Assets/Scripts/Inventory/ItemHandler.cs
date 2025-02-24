@@ -39,9 +39,6 @@ using static TestModulartItems.TestModularItems;
 using static MainData.Main;
 using UnityEngine.UI;
 using Assets.Scripts.Inventory;
-using System.Drawing.Drawing2D;
-using NPOI.SS.Formula.PTG;
-using NPOI.POIFS.Properties;
 
 
 namespace ItemHandler
@@ -104,7 +101,6 @@ namespace ItemHandler
         public Item ParentItem { get; set; }//az az item ami tárolja ezt az itemet
         public GameObject SelfGameobject { get; set; }// a parent objectum
         public GameObject ContainerObject { get; set; }//conainer objectum
-        public List<DataGrid> SectorDataGrid { get; set; }//ezek referanca pontokat atralamaznak amelyeken kersztul a tenyleges gameobjectumokat manipulalhatjuk
         public int Lvl { get; set; }
         public string HotKey { get; set; } = "";
 
@@ -279,7 +275,13 @@ namespace ItemHandler
         }
         public void AdvancedItemContsruct()
         {
-            ObjectPath = AdvancedItemObjectParth;
+            //List<SizeChanger> OriginalsizeChangers = new();
+            //foreach (Part part in Parts)
+            //{
+            //    OriginalsizeChangers.Add(part.item_s_Part.SizeChanger);
+            //}
+
+            //int originalSizeX = SizeX, originalSizeY = SizeY;
 
             Item FirstItem = Parts.First().item_s_Part;
 
@@ -421,7 +423,13 @@ namespace ItemHandler
             IsModificationAble = true;
             IsAdvancedItem = true;
 
+            //if (originalSizeX != SizeX || originalSizeY != SizeY)
+            //{
+            //    foreach (SizeChanger changer in OriginalsizeChangers)
+            //    {
 
+            //    }
+            //}
         }
         //action (Only Live Inventory)
         public void Shoot()
@@ -906,22 +914,23 @@ namespace ItemHandler
         //a kostructora az igy megkapott prefabPath-ből lekerdezi a Sectorokat
         public List<Item> Items { get; set; }
         public string PrefabPath;
-        public ItemSlotData[][,] Sectors { get; set; }
+        public ItemSlotData[][,] NonLive_Sectors { get; set; }
+        public List<DataGrid> Live_Sector { get; set; }//ezek referanca pontokat atralamaznak amelyeken kersztul a tenyleges gameobjectumokat manipulalhatjuk
         public Container(string prefabPath)
         {
             PrefabPath = prefabPath;
             Items = new List<Item>();
             List<DataGrid> DataGrid = Resources.Load(prefabPath).GetComponent<ContainerObject>().Sectors;
-            Sectors = new ItemSlotData[DataGrid.Count][,];
-            for (int sector = 0; sector < Sectors.Length; sector++)
+            NonLive_Sectors = new ItemSlotData[DataGrid.Count][,];
+            for (int sector = 0; sector < NonLive_Sectors.Length; sector++)
             {
                 int index = 0;
-                Sectors[sector] = new ItemSlotData[DataGrid[sector].columnNumber, DataGrid[sector].rowNumber];
-                for (int col = 0; col < Sectors[sector].GetLength(0); col++)
+                NonLive_Sectors[sector] = new ItemSlotData[DataGrid[sector].columnNumber, DataGrid[sector].rowNumber];
+                for (int col = 0; col < NonLive_Sectors[sector].GetLength(0); col++)
                 {
-                    for (int row = 0; row < Sectors[sector].GetLength(1); row++)
+                    for (int row = 0; row < NonLive_Sectors[sector].GetLength(1); row++)
                     {
-                        Sectors[sector][col, row] = new ItemSlotData(DataGrid[sector].col[col].row[row].GetComponent<ItemSlot>().name, DataGrid[sector].col[col].row[row].GetComponent<ItemSlot>().SlotType);
+                        NonLive_Sectors[sector][col, row] = new ItemSlotData(DataGrid[sector].col[col].row[row].GetComponent<ItemSlot>().name, DataGrid[sector].col[col].row[row].GetComponent<ItemSlot>().SlotType);
                         index++;
                     }
                 }
@@ -995,7 +1004,7 @@ namespace ItemHandler
         public static void FillSimpleInvenotry(SimpleInventory simpleInventory, string PaletteName, float Fullness)
         {
             float MaxSlotNumber = 0;
-            foreach (ItemSlotData[,] row in simpleInventory.Root.Container.Sectors)
+            foreach (ItemSlotData[,] row in simpleInventory.Root.Container.NonLive_Sectors)
             {
                 foreach (ItemSlotData slot in row)
                 {
@@ -1025,11 +1034,11 @@ namespace ItemHandler
         {
             UnsetHotKey(item);
 
-            NonLive_Remove(item);
+            NonLive_UnPlacing(item);
 
             if (item.ParentItem != null)
             {
-                UnsetParent(item, item.ParentItem);
+                Remove(item, item.ParentItem);
             }
 
             if (item.IsInPlayerInventory)
@@ -1039,7 +1048,7 @@ namespace ItemHandler
 
             if (item.ItemSlotObjectsRef != null)
             {
-                Live_Remove(item);
+                Live_UnPlacing(item);
                 if (item.SelfGameobject != null)
                 {
                     item.SelfGameobject.GetComponent<ItemObject>().DestroyContainer();
@@ -1089,14 +1098,13 @@ namespace ItemHandler
                 newItem.ParentItem = placer.NewParentItem;
                 itemObject.GetComponent<ItemObject>().SetDataRoute(newItem, newItem.ParentItem);
 
-                SetParent(newItem, placer.NewParentItem);
-                Live_SetSlotUse(newItem, placer);
+                Add(newItem, placer.NewParentItem);
+                Live_Positioning(newItem, placer);
 
-                NonLive_AddTo(newItem, placer.NewParentItem);
-                Live_AddTo(newItem, placer.NewParentItem);
+                NonLive_Placing(newItem, placer.NewParentItem);
+                Live_Placing(newItem, placer.NewParentItem);
 
-                SetHotKey(newItem, placer.NewParentItem);
-                SetStatus(newItem, placer.NewParentItem);
+                SetStatus_And_HotKey(newItem, placer.NewParentItem);
                 InspectPlayerInventory(newItem, placer.NewParentItem);
 
                 Data.Quantity = smaller;
@@ -1189,15 +1197,67 @@ namespace ItemHandler
         #endregion
 
         #region Data Manipulation
-        public static void Live_AddTo(Item item, Item AddTo)
+        public static void Add(Item item, Item Parent)
         {
-            if (item.SelfGameobject == null)
-                throw new ArgumentNullException(nameof(item), "Az 'item.SelfGameobject' nem lehet null.");
+            item.ParentItem = Parent;
+            Parent.Container.Items.Add(item);
+            item.ContainerItemListRef = Parent.Container.Items;//set ref
+        }
+        public static void Remove(Item item, Item Parent)
+        {
+            item.ParentItem = null;
+            Parent.Container.Items.Remove(item);
+            item.ContainerItemListRef = null;//unset ref
+        }
+        public static void AddPlayerInventory(Item item)
+        {
+            InventoryObjectRef.GetComponent<PlayerInventory>().levelManager.Items.Add(item);
+            InventoryObjectRef.GetComponent<PlayerInventory>().levelManager.SetMaxLVL_And_Sort();
+            item.LevelManagerRef = InventoryObjectRef.GetComponent<PlayerInventory>().levelManager;//set ref
+        }
+        public static void RemovePlayerInventory(Item item)
+        {
+            item.LevelManagerRef.Items.Remove(item);
+            item.LevelManagerRef.SetMaxLVL_And_Sort();
+            item.LevelManagerRef = null;//unset ref
+        }
+        #endregion
 
-            if (AddTo.SelfGameobject == null)
-                throw new ArgumentNullException(nameof(AddTo), "A 'AddTo.SelfGameobject' nem lehet null.");
+        #region Positioning
+        public static void NonLive_Positioning(int Y, int X, int sectorIndex, Item item, Item Parent)
+        {
+            item.SlotUse.Clear();
+            if (Parent.IsEquipmentRoot)
+            {
+                item.SlotUse.Add(Parent.Container.NonLive_Sectors[sectorIndex][Y, X].SlotName);//ez alapjan azonositunk egy itemslotot
+            }
+            else
+            {
+                for (int y = Y; y < Y + item.SizeY; y++)
+                {
+                    for (int x = X; x < X + item.SizeX; x++)
+                    {
+                        item.SlotUse.Add(Parent.Container.NonLive_Sectors[sectorIndex][y, x].SlotName);//ez alapjan azonositunk egy itemslotot
+                    }
+                }
+            }
+            item.SetSlotUse();
+        }
+        public static void Live_Positioning(Item item, PlacerStruct placer)
+        {
+            item.SlotUse.Clear();
+            for (int i = 0; i < placer.ActiveItemSlots.Count; i++)
+            {
+                item.SlotUse.Add(placer.ActiveItemSlots[i].name);
+            }
+            item.SetSlotUse();//beallitjuk a slotuse azonositot
+        }
+        #endregion
 
-            foreach (DataGrid dataGrid in AddTo.SectorDataGrid)
+        #region Placing
+        public static void Live_Placing(Item item, Item PlacingInto)
+        {
+            foreach (DataGrid dataGrid in PlacingInto.Container.Live_Sector)
             {
                 foreach (RowData rowData in dataGrid.col)
                 {
@@ -1212,7 +1272,7 @@ namespace ItemHandler
                 }
             }
         }
-        public static void Live_Remove(Item item)
+        public static void Live_UnPlacing(Item item)
         {
             //if (item.SelfGameobject == null)
             //    throw new ArgumentNullException(nameof(item), "Az 'item.SelfGameobject' nem lehet null.");
@@ -1226,7 +1286,7 @@ namespace ItemHandler
             }
             item.ItemSlotObjectsRef.Clear();//unset ref
         }
-        public static void NonLive_AddTo(Item item, Item AddTo)
+        public static void NonLive_Placing(Item item, Item AddTo)
         {
             if (item.ParentItem != AddTo)
                 throw new ArgumentNullException(nameof(item.ParentItem), "Az 'item.ParentItem != AddTo'.");
@@ -1234,7 +1294,7 @@ namespace ItemHandler
             if (AddTo.Container == null)
                 throw new ArgumentNullException(nameof(AddTo.Container), "A 'AddTo.Container' nem lehet null.");
 
-            foreach (ItemSlotData[,] sector in AddTo.Container.Sectors)
+            foreach (ItemSlotData[,] sector in AddTo.Container.NonLive_Sectors)
             {
                 foreach (ItemSlotData slot in sector)
                 {
@@ -1246,7 +1306,7 @@ namespace ItemHandler
                 }
             }
         }
-        public static void NonLive_Remove(Item item)
+        public static void NonLive_UnPlacing(Item item)
         {
             if (item == null)
                 throw new ArgumentNullException(nameof(item), "Az 'item' nem lehet null.");
@@ -1260,92 +1320,10 @@ namespace ItemHandler
             }
             item.ItemSlotsDataRef.Clear();//unset ref
         }
-        public static void AddPlayerInventory(Item item)
-        {
-            if (item.IsInPlayerInventory)
-                throw new ArgumentNullException(nameof(item.IsInPlayerInventory), "Az 'item.IsInPlayerInventory' nem lehet false.");
-
-            InventoryObjectRef.GetComponent<PlayerInventory>().levelManager.Items.Add(item);
-            InventoryObjectRef.GetComponent<PlayerInventory>().levelManager.SetMaxLVL_And_Sort();
-            item.LevelManagerRef = InventoryObjectRef.GetComponent<PlayerInventory>().levelManager;//set ref
-        }
-        public static void RemovePlayerInventory(Item item)
-        {
-            if (item.LevelManagerRef == null)
-                throw new ArgumentNullException(nameof(item.LevelManagerRef), "Az 'item.LevelManagerRef' nem lehet null.");
-
-            item.LevelManagerRef.Items.Remove(item);
-            item.LevelManagerRef.SetMaxLVL_And_Sort();
-            item.LevelManagerRef = null;//unset ref
-        }
         #endregion
 
-        #region Status and Data Transfer Inicialisation
-        public static void SetParent(Item item, Item Parent)
-        {
-            item.ParentItem = Parent;
-            Parent.Container.Items.Add(item);
-            item.ContainerItemListRef = Parent.Container.Items;//set ref
-        }
-        public static void UnsetParent(Item item, Item Parent)
-        {
-            item.ParentItem = null;
-            Parent.Container.Items.Remove(item);
-            item.ContainerItemListRef = null;//unset ref
-        }
-        public static void NonLive_SetSlotUse(int Y, int X, int sectorIndex, Item item, Item Parent)
-        {
-            item.SlotUse.Clear();
-            if (Parent.IsEquipmentRoot)
-            {
-                item.SlotUse.Add(Parent.Container.Sectors[sectorIndex][Y, X].SlotName);//ez alapjan azonositunk egy itemslotot
-            }
-            else
-            {
-                for (int y = Y; y < Y + item.SizeY; y++)
-                {
-                    for (int x = X; x < X + item.SizeX; x++)
-                    {
-                        item.SlotUse.Add(Parent.Container.Sectors[sectorIndex][y, x].SlotName);//ez alapjan azonositunk egy itemslotot
-                    }
-                }
-            }
-            item.SetSlotUse();
-        }
-        public static void Live_SetSlotUse(Item item, PlacerStruct placer)
-        {
-            item.SlotUse.Clear();
-            for (int i = 0; i < placer.ActiveItemSlots.Count; i++)
-            {
-                item.SlotUse.Add(placer.ActiveItemSlots[i].name);
-            }
-            item.SetSlotUse();//beallitjuk a slotuse azonositot
-        }
-        public static void SetStatus(Item item, Item StatusParent)
-        {
-            if (!item.IsEquipment && StatusParent.IsEquipmentRoot)
-            {
-                item.IsEquipment = true;
-                item.RotateDegree = 0;//nem a legjobb heylen van
-            }
-            else if (item.IsEquipment && !StatusParent.IsEquipmentRoot)
-            {
-                item.IsEquipment = false;
-            }
-
-            if (!item.IsInPlayerInventory && StatusParent.IsInPlayerInventory)
-            {
-                item.IsInPlayerInventory = true;
-            }
-            else if (item.IsInPlayerInventory && !StatusParent.IsInPlayerInventory)
-            {
-                item.IsInPlayerInventory = false;
-            }
-
-            StatusIsInPlayerInventory(item);
-            SetHierarhicLVL(item,StatusParent);
-        }
-        public static void SetHotKey(Item item, Item StatusParent)
+        #region Status
+        public static void SetStatus_And_HotKey(Item item, Item StatusParent)
         {
             if (item.hotKeyRef != null)
             {
@@ -1362,6 +1340,27 @@ namespace ItemHandler
             {
                 AutoSetHotKey(item);
             }
+
+            if (!item.IsEquipment && StatusParent.IsEquipmentRoot)
+            {
+                item.IsEquipment = true;
+            }
+            else if (item.IsEquipment && !StatusParent.IsEquipmentRoot)
+            {
+                item.IsEquipment = false;
+            }
+
+            if (!item.IsInPlayerInventory && StatusParent.IsInPlayerInventory)
+            {
+                item.IsInPlayerInventory = true;
+            }
+            else if (item.IsInPlayerInventory && !StatusParent.IsInPlayerInventory)
+            {
+                item.IsInPlayerInventory = false;
+            }
+
+            SetHierarhicLVL(item, StatusParent);
+            StatusIsInPlayerInventory(item);
         }
         public static void UnsetHotKey(Item item)
         {
@@ -1473,7 +1472,7 @@ namespace ItemHandler
             Data.SlotUse.Clear();
             if (PlaceInto.IsEquipmentRoot)
             {
-                Data.SlotUse.Add(PlaceInto.Container.Sectors[sectorIndex][Y, X].SlotName);//ez alapjan azonositunk egy itemslotot
+                Data.SlotUse.Add(PlaceInto.Container.NonLive_Sectors[sectorIndex][Y, X].SlotName);//ez alapjan azonositunk egy itemslotot
             }
             else
             {
@@ -1481,7 +1480,7 @@ namespace ItemHandler
                 {
                     for (int x = X; x < X + Data.SizeX; x++)
                     {
-                        Data.SlotUse.Add(PlaceInto.Container.Sectors[sectorIndex][y, x].SlotName);//ez alapjan azonositunk egy itemslotot
+                        Data.SlotUse.Add(PlaceInto.Container.NonLive_Sectors[sectorIndex][y, x].SlotName);//ez alapjan azonositunk egy itemslotot
                     }
                 }
             }
@@ -1522,7 +1521,7 @@ namespace ItemHandler
 
             #region Local Add
             //a parentitem slot adataiba beleszervezzuk az item adatait
-            foreach (ItemSlotData[,] sector in PlaceInto.Container.Sectors)
+            foreach (ItemSlotData[,] sector in PlaceInto.Container.NonLive_Sectors)
             {
                 foreach (ItemSlotData slot in sector)
                 {

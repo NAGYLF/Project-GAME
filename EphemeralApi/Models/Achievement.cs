@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Text.Json.Serialization;
 
 namespace EphemeralApi.Models;
 
@@ -7,7 +8,8 @@ public partial class Achievement
 {
     public int Id { get; set; }
 
-    public int PlayerId { get; set; }
+    [JsonIgnore]
+    public int PlayerId { get; set; } 
 
     public bool? FirstBlood { get; set; }
 

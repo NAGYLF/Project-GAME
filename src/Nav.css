@@ -178,6 +178,17 @@ img, a{
   pointer-events: none;
 }
 
+#badgesrc{
+  position: absolute;
+  height: 30px!important;
+  width: 30px!important;
+  left: 50%;
+  bottom: 15%;
+  margin: 1px;
+  transform: translateX(-50%);
+  pointer-events: none;
+}
+
 .footer {
   position: fixed;
   bottom: 0;
@@ -272,6 +283,11 @@ img, a{
   #badge{
     height: 25px!important;
     bottom: -25%;
+  }
+
+  #badgesrc{
+    width: 25px!important;
+    height: 25px!important;
   }
   
   #kep{

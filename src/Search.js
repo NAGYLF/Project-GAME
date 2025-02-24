@@ -36,7 +36,6 @@ const Search = ({ texts, language, isAdmin }) => {
 
   // A játékosokat soronként rendezzük
   const renderPlayers = () => {
-    console.log(isAdmin)
     const rows = [];
     for (let i = 0; i < players.length; i += 3) {
       rows.push(
@@ -44,7 +43,7 @@ const Search = ({ texts, language, isAdmin }) => {
           {players.slice(i, i + 3).map((player) => (
             <Link to={`/player/${player.id}`} className="styled-link" key={player.id} style={{ flex: '1 1 0', textAlign: 'center', margin: '0 10px' }}>
               <img src={Kep} alt={`${player.name} kep`} />
-              {player.isAdmin ? <img src={AdminKep} alt='badge' id="badge" className="center-logo" style={{marginBottom: "80px", height: "25px", width: "25px"}}></img> : null}
+              {player.isAdmin ? <img src={AdminKep} alt='badge' id="badgesrc"></img> : null}
               <div className="player-name">{player.name}</div>
             </Link>
           ))}

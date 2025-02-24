@@ -46,6 +46,11 @@
         public int Id { get; set; }
         public bool DevConsole { get; set; }
     }
+    public class UpdatePlayerBanDto
+    {
+        public bool IsBanned { get; set; }
+    }
+
 
 
 

@@ -10,6 +10,31 @@
 /*--------*/
 
 /* Oldal */
+#loader {
+  position: absolute;
+  left: 50%;
+  top: 50%;
+  z-index: 1;
+  width: 120px;
+  height: 120px;
+  margin: -76px 0 0 -76px;
+  border: 16px solid rgba(50, 50, 50);
+  border-radius: 50%;
+  border-top: 16px solid azure;
+  -webkit-animation: spin 2s linear infinite;
+  animation: spin 2s linear infinite;
+}
+
+@-webkit-keyframes spin {
+  0% { -webkit-transform: rotate(0deg); }
+  100% { -webkit-transform: rotate(360deg); }
+}
+
+@keyframes spin {
+  0% { transform: rotate(0deg); }
+  100% { transform: rotate(360deg); }
+}
+
 .content {
   display: flex;
   justify-content: center;
@@ -31,22 +56,28 @@
   color:azure;
   width: 50%;
   user-select: none;
+  overflow: hidden;
+  overflow-y: scroll;
 }
 
 .left{
   float: left;
   text-align: left;
-  margin: 10px;
-  font-size: 20px;
-  text-decoration: underline;
+  margin: 2.5px;
+  font-size: 18px;
+  width: 100%;
+  height: 65%;
+  overflow: hidden;
+  overflow-y: scroll;
 }
 
 .left p{
-  margin-bottom: 35px;
+  margin-bottom: 5px;
 }
 
 img, a{
   -webkit-user-drag: none;
+  user-select: none;
 }
 /*--------*/
 
@@ -146,6 +177,7 @@ img, a{
 #languagechanger{
   background-color: rgb(10,10,10);
   border-radius: 5px;
+  border: none;
   color:azure;
   width: 90px!important;
   text-align: center;
@@ -153,6 +185,24 @@ img, a{
   transition: 0.5s;
   font-size: 14px;
   min-height: 35.6px;
+}
+
+#languagechanger:focus-visible {
+  box-shadow: none!important;
+  border: none!important;
+}
+
+input:focus{
+  box-shadow: none!important;
+  border: 1px solid azure!important;
+}
+
+#search:focus{
+  border: none!important;
+}
+
+#newAdminPassword{
+  cursor: default;
 }
 
 .custom-nav{
@@ -172,18 +222,25 @@ img, a{
   transform: translateX(-50%);
 }
 
+.center-badge {
+  position: absolute;
+  left: 30%;
+  margin: 1px;
+  transform: translateX(-50%);
+}
+
 #badge{
-  height: 30px;
-  bottom: -50%;
+  height: 22.5px;
+  bottom: -40%;
   pointer-events: none;
 }
 
 #badgesrc{
   position: absolute;
-  height: 30px!important;
-  width: 30px!important;
-  left: 50%;
-  bottom: 15%;
+  height: 22.5px!important;
+  width: 22.5px!important;
+  left: 40%;
+  bottom: 25%;
   margin: 1px;
   transform: translateX(-50%);
   pointer-events: none;
@@ -219,6 +276,7 @@ img, a{
   left: 50%;
   bottom: 30px;
   font-size: 17px;
+  user-select: none;
   transform: translateX(-50%);
 }
 
@@ -229,11 +287,13 @@ img, a{
 }
 
 #snackbar.success {
-  background-color: green;
+  background-color: #28a745;
+  color: azure;
 }
 
 #snackbar.error {
-  background-color: red;
+  background-color: #dc3545;
+  color: azure;
 }
 
 @-webkit-keyframes fadein {
@@ -280,14 +340,22 @@ img, a{
     max-height: 50px;
   }
 
+  #searchbox{
+    height: 80%;
+  }
+
+  .left{
+    height: 50%;
+  }
+
   #badge{
     height: 25px!important;
     bottom: -25%;
   }
 
   #badgesrc{
-    width: 25px!important;
-    height: 25px!important;
+    width: 15px!important;
+    height: 15px!important;
   }
   
   #kep{
@@ -374,6 +442,10 @@ img, a{
 }
 
 @media (max-width: 380px){
+  #searchbox{
+    height: 80%;
+  }
+
   #searchbox .row .styled-link {
     min-width: 20%;
     max-width: 20%;

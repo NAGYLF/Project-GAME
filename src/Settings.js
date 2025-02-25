@@ -2,7 +2,7 @@ import axios from "axios";
 import React, { useEffect, useState } from "react";
 import { useLocation, useNavigate } from "react-router-dom";
 
-const Settings = ({ texts, language, id, token, logout, showAlert }) => {
+const Settings = ({ texts, language, id, token, logout, showAlert, setUsername }) => {
   const [newName, setNewName] = useState("");
   const [newEmail, setNewEmail] = useState("");
   const [newPassword, setNewPassword] = useState("");
@@ -29,7 +29,7 @@ const Settings = ({ texts, language, id, token, logout, showAlert }) => {
     )
   .then(() => {
     showAlert(language === "hu" ? "Fiók módosítva!" : "Account modified!" , "success");
-    console.log(IsAdmin)
+    setUsername(newName);
     navigate("/");
   })
   .catch((error) => {

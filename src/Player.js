@@ -5,6 +5,7 @@ import { useNavigate, useParams } from 'react-router-dom';
 export default function Player({ texts, language, token, isAdmin, showAlert }) {
   const [isItAdmin, setIsItAdmin] = useState(false);
   const [isItBanned, setIsItBanned] = useState(false);
+  const [loading, setLoading] = useState(true);
 
   const { id } = useParams();
   const [stats, setStats] = useState({
@@ -39,8 +40,13 @@ export default function Player({ texts, language, token, isAdmin, showAlert }) {
           });
         }
       })
-      .catch(error => console.error('Error fetching player statistics:', error));
+      .catch(error => console.error('Error fetching player statistics:', error))
+      .finally(() => setLoading(false));
   }, [id]);
+
+  if (loading) {
+    return <div id="loader"></div>;
+  }
 
   return (
     <div className='content'>
@@ -48,11 +54,13 @@ export default function Player({ texts, language, token, isAdmin, showAlert }) {
         <h3>{language === "hu" ? `${name} statisztikái` : `${name} statistics`}</h3>
         <hr />
         <div className="left">
+          {isItBanned ? <p style={{ color: '#dc3545' }}>{language === "hu" ? 'Ez a játékos bannolva van!' : 'This player is banned!'}</p> : null}
           <p>{language === "hu" ? 'Pontok: ' : 'Score: '}{stats.score == null ? "0" : stats.score}</p>
           <p>{language === "hu" ? 'Megölt ellenfelek: ' : 'Enemies killed: '}{stats.enemiesKilled == null ? "0" : stats.enemiesKilled}</p>
           <p>{language === "hu" ? 'Halálok: ' : 'Deaths: '}{stats.deathCount == null ? "0" : stats.deathCount}</p>
         </div>
-        {isAdmin && !isItAdmin ?
+
+        {isAdmin && !isItAdmin ? (
           <button className='btn btn-danger' style={{ position: 'absolute', bottom: '15px', right: '15px', height: '40px' }} onClick={() => {
             if (window.confirm(language === "hu" ? 'Biztosan törölni szeretnéd a fiókot?' : 'Are you sure you want to delete this account?')) {
               axios.delete(`http://localhost:5269/api/Player/${id}?token=${token}`)
@@ -62,42 +70,48 @@ export default function Player({ texts, language, token, isAdmin, showAlert }) {
                 })
                 .catch(error => console.error('Error deleting player:', error));
             }
-          }}><svg xmlns="http://www.w3.org/2000/svg" width="25" height="25" fill="currentColor" class="bi bi-trash" viewBox="0 0 16 16">
+          }}>
+            <svg xmlns="http://www.w3.org/2000/svg" width="25" height="25" fill="currentColor" class="bi bi-trash" viewBox="0 0 16 16">
               <path d="M5.5 5.5A.5.5 0 0 1 6 6v6a.5.5 0 0 1-1 0V6a.5.5 0 0 1 .5-.5m2.5 0a.5.5 0 0 1 .5.5v6a.5.5 0 0 1-1 0V6a.5.5 0 0 1 .5-.5m3 .5a.5.5 0 0 0-1 0v6a.5.5 0 0 0 1 0z" />
               <path d="M14.5 3a1 1 0 0 1-1 1H13v9a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V4h-.5a1 1 0 0 1-1-1V2a1 1 0 0 1 1-1H6a1 1 0 0 1 1-1h2a1 1 0 0 1 1 1h3.5a1 1 0 0 1 1 1zM4.118 4 4 4.059V13a1 1 0 0 0 1 1h6a1 1 0 0 0 1-1V4.059L11.882 4zM2.5 3h11V2h-11z" />
             </svg>
-          </button> : null}
-        {isAdmin && !isItAdmin && !isItBanned ?
+          </button>
+        ) : null}
+
+        {isAdmin && !isItAdmin && !isItBanned ? (
           <button className='btn btn-danger' style={{ position: 'absolute', bottom: '15px', left: '15px', height: '40px' }} onClick={() => {
             if (window.confirm(language === "hu" ? 'Biztosan bannolni szeretnéd a fiókot?' : 'Are you sure you want to ban this account?')) {
               axios.put(`http://localhost:5269/api/Player/${id}/ban`, {
                 isBanned: true
-              },)
+              })
                 .then(() => {
                   showAlert(language === "hu" ? "Fiók sikeresen bannolva!" : "Account banned successfully!", "success");
                   navigate("/search");
                 })
-                .catch(error => console.error('Error deleting player:', error))
-                showAlert(language === "hu" ? "Hiba!" : "Error!", "error");;
+                .catch(error => console.error('Error banning player:', error));
             }
-          }}>{language === "hu" ? "Játékos bannolása" : "Ban player"}
-          </button> : null}
-          {isAdmin && !isItAdmin && isItBanned ?
-          <button className='btn btn-success' style={{ position: 'absolute', bottom: '15px', left: '15px', height: '40px' }} onClick={() => {
+          }}>
+            {language === "hu" ? "Játékos bannolása" : "Ban player"}
+          </button>
+        ) : null}
+
+        {isAdmin && !isItAdmin && isItBanned ? (
+          <button className='btn btn-light' style={{ position: 'absolute', bottom: '15px', left: '15px', height: '40px' }} onClick={() => {
             if (window.confirm(language === "hu" ? 'Biztosan unbannolni szeretnéd a fiókot?' : 'Are you sure you want to unban this account?')) {
               axios.put(`http://localhost:5269/api/Player/${id}/ban`, {
                 isBanned: false
-              },)
+              })
                 .then(() => {
                   showAlert(language === "hu" ? "Fiók sikeresen unbannolva!" : "Account unbanned successfully!", "success");
                   navigate("/search");
                 })
-                .catch(error => console.error('Error deleting player:', error))
-                showAlert(language === "hu" ? "Hiba!" : "Error!", "error");
+                .catch(error => console.error('Error unbanning player:', error));
             }
-          }}>{language === "hu" ? "Játékos unbannolása" : "Unban player"}
-          </button> : null}
+          }}>
+            {language === "hu" ? "Játékos unbannolása" : "Unban player"}
+          </button>
+        ) : null}
       </div>
     </div>
-  )
+  );
 }

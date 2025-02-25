@@ -84,7 +84,7 @@ function Nav({ language, setLanguage, texts, isLoggedIn, setIsLoggedIn, isAdmin,
                         alt="Profil"
                         style={{ width: '30px', height: '30px', borderRadius: '50%'}}
                       />
-                      {isAdmin ? <img src={AdminKep} alt='badge' id="badge" className="center-logo"></img> : null}
+                      {isAdmin ? <img src={AdminKep} alt='badge' id="badge" className="center-badge"></img> : null}
                     </button>
                     <p style={{marginBottom:-2, marginTop: 5, fontSize:"16px", cursor:"default", color: "azure"}}>{username}</p>
                     <ul className="dropdown-menu" aria-labelledby="dropdownMenuButton" style={{ position: 'absolute', top: '100%' }}>

@@ -68,7 +68,8 @@ public class AuthController : ControllerBase
             Name = request.Name,
             Email = request.Email,
             Password = passwordHash,
-            IsAdmin = request.IsAdmin
+            IsAdmin = request.IsAdmin,
+            IsBanned = request.IsBanned,
         };
 
         _context.Players.Add(newUser);
@@ -79,8 +80,8 @@ public class AuthController : ControllerBase
         {
             var newAdmin = new Admin
             {
-                PlayerId = newUser.Id, // A PlayerId és az Id most ugyanaz lesz
-                DevConsole = false      // Alapértelmezetten false
+                PlayerId = newUser.Id, 
+                DevConsole = false
             };
 
             _context.Admins.Add(newAdmin);
@@ -115,7 +116,8 @@ public class AuthController : ControllerBase
             new Claim("UserId", user.Id.ToString()),
             new Claim("Email", user.Email),
             new Claim("IsAdmin", user.IsAdmin.ToString()),
-            new Claim("Username", user.Name)
+            new Claim("Username", user.Name),
+            new Claim("IsBanned", user.IsBanned.ToString()),
         };
 
         var token = new JwtSecurityToken(

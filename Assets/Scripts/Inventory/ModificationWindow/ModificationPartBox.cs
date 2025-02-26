@@ -26,7 +26,6 @@ public class ModificationPartBox : MonoBehaviour, IPointerDownHandler
         ((int X, int Y) ChangedSize, Dictionary<char, int> Directions) Effect = InventorySystem.AdvancedItem_SizeChanger_EffectDetermination(AdvancedItem, parts_, false);
         (HashSet<(int X, int Y)> NonLiveCoordinates, int SectorIndex, bool IsPositionAble) NewPosition = InventorySystem.Try_PartPositioning(AdvancedItem, Effect.ChangedSize, Effect.Directions);
 
-        Debug.LogWarning($" pozitcionalhato {NewPosition.IsPositionAble}");
         List<Part> parts = AdvancedItem.PartCut(AdvancedItem.Parts[PartIndex]);
 
         if (NewPosition.IsPositionAble)
@@ -81,23 +80,3 @@ public class ModificationPartBox : MonoBehaviour, IPointerDownHandler
         temporaryAdvancedItemObject.GetComponent<TemporaryItemObject>().window = window;
     }
 }
-/*using NPOI.SS.Formula.Functions;
-using System.Collections;
-using System.Collections.Generic;
-using UnityEngine;
-using UnityEngine.EventSystems;
-using static MainData.SupportScripts;
-using ItemHandler;
-using System.Linq;
-
-public class ModificationPartBox : MonoBehaviour, IPointerDownHandler
-{
-
-    public void OnPointerDown(PointerEventData eventData)
-    {
-
-
-
-    }
-}
-*/

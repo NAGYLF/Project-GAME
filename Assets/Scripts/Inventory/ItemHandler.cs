@@ -1105,13 +1105,13 @@ namespace ItemHandler
                 itemObject.GetComponent<ItemObject>().SetDataRoute(newItem, newItem.ParentItem);
 
                 Add(newItem, placer.NewParentItem);
+                InspectPlayerInventory(newItem, placer.NewParentItem);
                 Live_Positioning(newItem, placer);
 
                 NonLive_Placing(newItem, placer.NewParentItem);
                 Live_Placing(newItem, placer.NewParentItem);
 
                 HotKey_SetStatus_SupplementaryTransformation(newItem, placer.NewParentItem);
-                InspectPlayerInventory(newItem, placer.NewParentItem);
 
                 Data.Quantity = smaller;
                 if (Data.Quantity < 1)

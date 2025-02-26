@@ -39,8 +39,7 @@ public class ContainerObject : MonoBehaviour
             {
                 if ((activeSlots.First().GetComponent<ItemSlot>().IsEquipment && activeSlots.Count == 1) || (activeSlots.Count == PlaceableObject.GetComponent<ItemObject>().ActualData.SizeX * PlaceableObject.GetComponent<ItemObject>().ActualData.SizeY))
                 {
-                    PlacerStruct placer = new PlacerStruct(activeSlots, ActualData);
-                    ActualData.GivePlacer = placer;
+                    ActualData.GivePlacer = new PlacerStruct(activeSlots, ActualData);
                     PlaceableObject.GetComponent<ItemObject>().AvaiableNewParentObject = gameObject;
                 }
             }
@@ -48,8 +47,7 @@ public class ContainerObject : MonoBehaviour
             {
                 if ((activeSlots.First().GetComponent<ItemSlot>().IsEquipment && activeSlots.Count == 1) || (activeSlots.Count == PlaceableObject.GetComponent<TemporaryItemObject>().ActualData.SizeX * PlaceableObject.GetComponent<TemporaryItemObject>().ActualData.SizeY))
                 {
-                    PlacerStruct placer = new PlacerStruct(activeSlots, ActualData);
-                    ActualData.GivePlacer = placer;
+                    ActualData.GivePlacer = new PlacerStruct(activeSlots, ActualData);
                     PlaceableObject.GetComponent<TemporaryItemObject>().AvaiableNewParentObject = gameObject;
                 }
             }
@@ -79,6 +77,7 @@ public class ContainerObject : MonoBehaviour
                 for (int row = 0; row < Sectors[sector].rowNumber; row++)
                 {
                     Sectors[sector].col[col].row[row].GetComponent<ItemSlot>().ParentObject = gameObject;
+                    Sectors[sector].col[col].row[row].GetComponent<ItemSlot>().sectorId = sector;
                 }
             }
         }

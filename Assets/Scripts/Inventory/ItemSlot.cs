@@ -11,8 +11,9 @@ namespace Assets.Scripts
         #endregion
 
         [HideInInspector] public GameObject ParentObject;//a saját sectora ezzel végezteti az adatszinkronizációt és a az item elhelyezés azon problemajat,
-                                                   //hogyha nem egy szektoron belün, de egyszere anyi itemcontainer kerülne targetba ami eleglenne az item tarolasakor,
-                                                   //ekkor az item ellenorzi, hogy a tergetek egy sectorba tartoznak e.
+                                                         //hogyha nem egy szektoron belün, de egyszere anyi itemcontainer kerülne targetba ami eleglenne az item tarolasakor,
+                                                         //ekkor az item ellenorzi, hogy a tergetek egy sectorba tartoznak e.
+        [HideInInspector] public int sectorId;
         public string SlotType;//azon tipusok melyeket befogadhat, ha nincs megadva akkor mindent.
 
         #region  Runtime Instantiated Objects Datas

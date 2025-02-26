@@ -74,18 +74,21 @@ namespace ItemHandler
     {
         public string SlotName;
         public string SlotType;
+        public int SectorID;
         public Item PartOfItemData;
-        public ItemSlotData(string SlotName = "", string SlotType = "", Item PartOfItemData = null)
+        public ItemSlotData(string SlotName = "", string SlotType = "",int SectorID = 0, Item PartOfItemData = null)
         {
             this.SlotName = SlotName;
             this.SlotType = SlotType;
+            this.SectorID = SectorID;
             this.PartOfItemData = PartOfItemData;
         }
     }
     public class Item : NonGeneralItemProperties
     {
-        private static string SimpleItemObjectParth = "GameElements/SimpleItemObject";
-        private static string AdvancedItemObjectParth = "GameElements/AdvancedItemObject";
+        public const string SimpleItemObjectParth = "GameElements/SimpleItemObject";
+        public const string AdvancedItemObjectParth = "GameElements/AdvancedItemObject";
+        public const string TemporaryItemObjectPath = "GameElements/TemporaryAdvancedItemObject";
         //system variables
         #region SelfRefVariables
         public LevelManager LevelManagerRef;
@@ -125,7 +128,7 @@ namespace ItemHandler
         public List<string> SlotUse = new();
         public void SetSlotUse()
         {
-            SlotUse.OrderBy(slotname => int.Parse(Regex.Match(slotname, @"\((\d+)\)").Groups[1].Value));
+            SlotUse = SlotUse.OrderBy(slotname => int.Parse(Regex.Match(slotname, @"\((\d+)\)").Groups[1].Value)).ToList();
             LowestSlotUseNumber = Regex.Match(SlotUse.FirstOrDefault() ?? string.Empty, @"\((\d+)\)").Success ? int.Parse(Regex.Match(SlotUse.FirstOrDefault(), @"\((\d+)\)").Groups[1].Value) : 0;
             HighestSlotUseNumber = Regex.Match(SlotUse.LastOrDefault() ?? string.Empty, @"\((\d+)\)").Success ? int.Parse(Regex.Match(SlotUse.LastOrDefault(), @"\((\d+)\)").Groups[1].Value) : 0;
         }
@@ -236,7 +239,7 @@ namespace ItemHandler
 
                         Parts.AddRange(AdvancedItem.Parts);
 
-                        Parts.OrderBy(part => part.HierarhicPlace);
+                        Parts = Parts.OrderBy(part => part.HierarhicPlace).ToList();
 
                         InventorySystem.Delete(AdvancedItem);//törli az advanced itemet amely a partokat tartalmazta
 
@@ -271,8 +274,8 @@ namespace ItemHandler
                 //Debug.LogWarning(part_.PartData.PartName);
             }
             //Debug.LogWarning("------------------------------------------------------------");
-            Parts.OrderBy(part => part.HierarhicPlace);
-            parts.OrderBy(part => part.HierarhicPlace);
+            Parts = Parts.OrderBy(part => part.HierarhicPlace).ToList();
+            parts = parts.OrderBy(part => part.HierarhicPlace).ToList();
 
             AdvancedItemContsruct();
 
@@ -280,14 +283,6 @@ namespace ItemHandler
         }
         public void AdvancedItemContsruct()
         {
-            //List<SizeChanger> OriginalsizeChangers = new();
-            //foreach (Part part in Parts)
-            //{
-            //    OriginalsizeChangers.Add(part.item_s_Part.SizeChanger);
-            //}
-
-            //int originalSizeX = SizeX, originalSizeY = SizeY;
-
             Item FirstItem = Parts.First().item_s_Part;
 
             ItemType = "AdvancedItem";//ez alapján kerülhet be egy slotba ugyan is vannak pecifikus slotok melyeknek typusváltozójában benen kell, hogy legyen.
@@ -429,6 +424,10 @@ namespace ItemHandler
             IsAdvancedItem = true;
             ObjectPath = FirstItem.ObjectPath;
 
+            if (SelfGameobject != null)
+            {
+
+            }
             //if (originalSizeX != SizeX || originalSizeY != SizeY)
             //{
             //    foreach (SizeChanger changer in OriginalsizeChangers)
@@ -895,14 +894,14 @@ namespace ItemHandler
                 UnityEngine.Object.Destroy(PartObject);
             }
         }
-        public void GetConnectedPartsTree(List<Part> parts)
+        public void GetConnectedPartsTree(List<Part> FillableList)
         {
             foreach (ConnectionPoint cp in ConnectionPoints)
             {
                 if (cp.Used && cp.ConnectedPoint.SelfPart.HierarhicPlace > HierarhicPlace)
                 {
-                    parts.Add(cp.ConnectedPoint.SelfPart);
-                    cp.ConnectedPoint.SelfPart.GetConnectedPartsTree(parts);
+                    FillableList.Add(cp.ConnectedPoint.SelfPart);
+                    cp.ConnectedPoint.SelfPart.GetConnectedPartsTree(FillableList);
                 }
             }
         }
@@ -936,7 +935,8 @@ namespace ItemHandler
                 {
                     for (int row = 0; row < NonLive_Sectors[sector].GetLength(1); row++)
                     {
-                        NonLive_Sectors[sector][col, row] = new ItemSlotData(DataGrid[sector].col[col].row[row].GetComponent<ItemSlot>().name, DataGrid[sector].col[col].row[row].GetComponent<ItemSlot>().SlotType);
+                        ItemSlot slot = DataGrid[sector].col[col].row[row].GetComponent<ItemSlot>();
+                        NonLive_Sectors[sector][col, row] = new ItemSlotData(slot.name, slot.SlotType,slot.sectorId);
                         index++;
                     }
                 }
@@ -1110,7 +1110,7 @@ namespace ItemHandler
                 NonLive_Placing(newItem, placer.NewParentItem);
                 Live_Placing(newItem, placer.NewParentItem);
 
-                SetStatus_And_HotKey(newItem, placer.NewParentItem);
+                HotKey_SetStatus_SupplementaryTransformation(newItem, placer.NewParentItem);
                 InspectPlayerInventory(newItem, placer.NewParentItem);
 
                 Data.Quantity = smaller;
@@ -1200,6 +1200,79 @@ namespace ItemHandler
         {
             item.ItemSlotObjectsRef.Clear();
         }
+        //public static bool TryPositioning(Item item, SizeChanger[] originalSizeChangers)
+        //{
+        //    /*
+        //     * lenyege hogy ha megvaltozik egy part merete
+        //     * akkor megnezzuk melyik iranyba és a slotuse ja it atmeretezzuk
+        //     */
+        //    int originalSizeX = item.SizeX;
+        //    int originalSizeY = item.SizeY;
+
+        //    item.SizeX = item.Parts.First().item_s_Part.SizeX;
+        //    item.SizeY = item.Parts.First().item_s_Part.SizeY;
+        //    List<SizeChanger> actualSizeChangers = new();
+
+        //    foreach (Part part in item.Parts)
+        //    {
+        //        Item partItem = part.item_s_Part;
+        //        if (partItem.SizeChanger != null)
+        //        {
+        //            string direction = partItem.SizeChanger.Direction;
+        //            SizeChanger sizeChanger = partItem.SizeChanger;
+        //            actualSizeChangers.Add(sizeChanger);
+        //            if (direction == "R" || direction == "L")
+        //            {
+        //                item.SizeX += sizeChanger.Plus;
+        //                if (item.SizeX > sizeChanger.MaxPlus)
+        //                {
+        //                    item.SizeX = sizeChanger.MaxPlus;
+        //                }
+        //            }
+        //            else
+        //            {
+        //                item.SizeY += sizeChanger.Plus;
+        //                if (item.SizeY > sizeChanger.MaxPlus)
+        //                {
+        //                    item.SizeY = sizeChanger.MaxPlus;
+        //                }
+        //            }
+        //        }
+        //    }
+        //    if (originalSizeX != item.SizeX || originalSizeY != item.SizeY)
+        //    {
+        //        SizeChanger DifferentSizeChanger = originalSizeChangers.First(changer => actualSizeChangers.Contains(changer) == false);
+        //        string[,] grid;
+        //        if (item.RotateDegree == 90 || item.RotateDegree == 270)
+        //        {
+        //            grid = new string[item.SizeY,item.SizeX];
+        //            for (int y = 0, index = 0; y < item.SizeY; y++)
+        //            {
+        //                for (int x = 0; x < item.SizeX; x++)
+        //                {
+        //                    grid[y, x] = item.SlotUse[index++];
+        //                }
+        //            }
+        //        }
+        //        else
+        //        {
+        //            grid = new string[item.SizeX, item.SizeY];
+        //            for (int x = 0, index = 0; x < item.SizeY; x++)
+        //            {
+        //                for (int y = 0; y < item.SizeX; y++)
+        //                {
+        //                    grid[x, y] = item.SlotUse[index++];
+        //                }
+        //            }
+
+        //        }
+        //        return true;
+        //    }
+        //    else
+        //    {
+        //        return false;
+        //    }
+        //}//out if order
         #endregion
 
         #region Data Manipulation
@@ -1215,6 +1288,7 @@ namespace ItemHandler
             Parent.Container.Items.Remove(item);
             item.ContainerItemListRef = null;//unset ref
         }
+
         public static void AddPlayerInventory(Item item)
         {
             InventoryObjectRef.GetComponent<PlayerInventory>().levelManager.Items.Add(item);
@@ -1258,6 +1332,607 @@ namespace ItemHandler
             }
             item.SetSlotUse();//beallitjuk a slotuse azonositot
         }
+
+        //elotte ellenorizni kell hogy tortenik e valtozas a differencel ha nem akkor ezt nem hajtjuk vegre
+        public static ((int X,int Y) ChangedSize, Dictionary<char,int> Directions) AdvancedItem_SizeChanger_EffectDetermination(Item AdvancedItem,List<Part> IncomingParts,bool Add)
+        {
+            /*
+             * meghaatrozza, hogy a megadott sizechanger az advanced itememet merre és menyivel mozgatja
+             * 
+             * visszadja az uj meretet és a valtozott directiont
+             * 
+             * ha a sizechangert tartalmazza akkor torli ha nem akkor hozzadja
+             */
+            if (Add)//add
+            {
+                Dictionary<char, int> Directions = new();
+
+                (int X, int Y) ChangedSize = new(AdvancedItem.SizeX, AdvancedItem.SizeY);
+
+                List<Part> ChangerParts = IncomingParts.Where(part => part.item_s_Part.SizeChanger != null).OrderBy(part => part.item_s_Part.SizeChanger.MaxPlus).ToList();
+
+                foreach (Part part in ChangerParts)
+                {
+                    SizeChanger sizeChanger = part.item_s_Part.SizeChanger;
+
+                    if (sizeChanger.Direction == "R" && ChangedSize.X < sizeChanger.MaxPlus)
+                    {
+                        if ((sizeChanger.Plus + ChangedSize.X) > sizeChanger.MaxPlus)
+                        {
+                            Directions['R'] += sizeChanger.MaxPlus - ChangedSize.X;
+                            ChangedSize.X = sizeChanger.MaxPlus;
+
+                        }
+                        else
+                        {
+                            ChangedSize.X += sizeChanger.Plus;
+                            Directions['R'] += sizeChanger.Plus;
+                        }
+                    }
+                    else if (sizeChanger.Direction == "L" && ChangedSize.X < sizeChanger.MaxPlus)
+                    {
+                        if ((sizeChanger.Plus + ChangedSize.X) > sizeChanger.MaxPlus)
+                        {
+                            Directions['L'] += sizeChanger.MaxPlus - ChangedSize.X;
+                            ChangedSize.X = sizeChanger.MaxPlus;
+
+                        }
+                        else
+                        {
+                            ChangedSize.X += sizeChanger.Plus;
+                            Directions['L'] += sizeChanger.Plus;
+                        }
+                    }
+                    else if (sizeChanger.Direction == "U" && ChangedSize.Y < sizeChanger.MaxPlus)
+                    {
+                        if ((sizeChanger.Plus + ChangedSize.Y) > sizeChanger.MaxPlus)
+                        {
+                            Directions['U'] += sizeChanger.MaxPlus - ChangedSize.Y;
+                            ChangedSize.Y = sizeChanger.MaxPlus;
+
+                        }
+                        else
+                        {
+                            ChangedSize.Y += sizeChanger.Plus;
+                            Directions['U'] += sizeChanger.Plus;
+                        }
+                    }
+                    else if (sizeChanger.Direction == "D" && ChangedSize.Y < sizeChanger.MaxPlus)
+                    {
+                        if ((sizeChanger.Plus + ChangedSize.Y) > sizeChanger.MaxPlus)
+                        {
+                            Directions['D'] += sizeChanger.MaxPlus - ChangedSize.Y;
+                            ChangedSize.Y = sizeChanger.MaxPlus;
+
+                        }
+                        else
+                        {
+                            ChangedSize.Y += sizeChanger.Plus;
+                            Directions['D'] += sizeChanger.Plus;
+                        }
+                    }
+                }
+
+                return (ChangedSize,Directions);
+            }
+            else//delete
+            {
+                Dictionary<char, int> Directions = new();
+
+                (int X, int Y) ChangedSize = new(AdvancedItem.Parts.First().item_s_Part.SizeX, AdvancedItem.Parts.First().item_s_Part.SizeY);
+
+                List<Part> StandParts = AdvancedItem.Parts.Where(part=> !IncomingParts.Contains(part) && part.item_s_Part.SizeChanger != null).OrderBy(part=>part.item_s_Part.SizeChanger.MaxPlus).ToList();
+
+                List<Part> ChangerParts = IncomingParts.Where(part => part.item_s_Part.SizeChanger != null).OrderBy(part => part.item_s_Part.SizeChanger.MaxPlus).ToList();
+
+                foreach (Part part in StandParts)
+                {
+                    SizeChanger sizeChanger = part.item_s_Part.SizeChanger;
+
+                    if (sizeChanger.Direction == "R" && ChangedSize.X < sizeChanger.MaxPlus)
+                    {
+                        if ((sizeChanger.Plus + ChangedSize.X) > sizeChanger.MaxPlus)
+                        {
+                            ChangedSize.X = sizeChanger.MaxPlus;
+                        }
+                        else
+                        {
+                            ChangedSize.X += sizeChanger.Plus;
+                        }
+                    }
+                    else if (sizeChanger.Direction == "L" && ChangedSize.X < sizeChanger.MaxPlus)
+                    {
+                        if ((sizeChanger.Plus + ChangedSize.X) > sizeChanger.MaxPlus)
+                        {
+                            ChangedSize.X = sizeChanger.MaxPlus;
+                        }
+                        else
+                        {
+                            ChangedSize.X += sizeChanger.Plus;
+                        }
+                    }
+                    else if (sizeChanger.Direction == "U" && ChangedSize.Y < sizeChanger.MaxPlus)
+                    {
+                        if ((sizeChanger.Plus + ChangedSize.Y) > sizeChanger.MaxPlus)
+                        {
+                            ChangedSize.Y = sizeChanger.MaxPlus;
+                        }
+                        else
+                        {
+                            ChangedSize.Y += sizeChanger.Plus;
+                        }
+                    }
+                    else if (sizeChanger.Direction == "D" && ChangedSize.Y < sizeChanger.MaxPlus)
+                    {
+                        if ((sizeChanger.Plus + ChangedSize.Y) > sizeChanger.MaxPlus)
+                        {
+                            ChangedSize.Y = sizeChanger.MaxPlus;
+                        }
+                        else
+                        {
+                            ChangedSize.Y += sizeChanger.Plus;
+                        }
+                    }
+                }
+
+                foreach (Part part in ChangerParts)
+                {
+                    SizeChanger sizeChanger = part.item_s_Part.SizeChanger;
+
+                    if (sizeChanger.Direction == "R" && ChangedSize.X < sizeChanger.MaxPlus)
+                    {
+                        if ((sizeChanger.Plus + ChangedSize.X) > sizeChanger.MaxPlus)
+                        {
+                            if (Directions.ContainsKey('R'))
+                            {
+                                Directions['R'] += sizeChanger.MaxPlus - ChangedSize.X;
+                            }
+                            else
+                            {
+                                Directions['R'] = sizeChanger.MaxPlus - ChangedSize.X;
+                            }
+                            ChangedSize.X = sizeChanger.MaxPlus;
+                        }
+                        else
+                        {
+                            ChangedSize.X += sizeChanger.Plus;
+                            if (Directions.ContainsKey('R'))
+                            {
+                                Directions['R'] += sizeChanger.Plus;
+                            }
+                            else
+                            {
+                                Directions['R'] = sizeChanger.Plus;
+                            }
+                        }
+                    }
+                    else if (sizeChanger.Direction == "L" && ChangedSize.X < sizeChanger.MaxPlus)
+                    {
+                        if ((sizeChanger.Plus + ChangedSize.X) > sizeChanger.MaxPlus)
+                        {
+                            ChangedSize.X = sizeChanger.MaxPlus;
+                            if (Directions.ContainsKey('L'))
+                            {
+                                Directions['L'] += sizeChanger.MaxPlus - ChangedSize.X;
+                            }
+                            else
+                            {
+                                Directions['L'] = sizeChanger.MaxPlus - ChangedSize.X;
+                            }
+                        }
+                        else
+                        {
+                            ChangedSize.X += sizeChanger.Plus;
+                            if (Directions.ContainsKey('L'))
+                            {
+                                Directions['L'] += sizeChanger.Plus;
+                            }
+                            else
+                            {
+                                Directions['L'] = sizeChanger.Plus;
+                            }
+                        }
+                    }
+                    else if (sizeChanger.Direction == "U" && ChangedSize.Y < sizeChanger.MaxPlus)
+                    {
+                        if ((sizeChanger.Plus + ChangedSize.Y) > sizeChanger.MaxPlus)
+                        {
+                            if (Directions.ContainsKey('U'))
+                            {
+                                Directions['U'] += sizeChanger.MaxPlus - ChangedSize.Y;
+                            }
+                            else
+                            {
+                                Directions['U'] = sizeChanger.MaxPlus - ChangedSize.Y;
+                            }
+                            ChangedSize.Y = sizeChanger.MaxPlus;
+
+                        }
+                        else
+                        {
+                            ChangedSize.Y += sizeChanger.Plus;
+                            if (Directions.ContainsKey('U'))
+                            {
+                                Directions['U'] += sizeChanger.Plus;
+                            }
+                            else
+                            {
+                                Directions['U'] = sizeChanger.Plus;
+                            }
+                        }
+                    }
+                    else if (sizeChanger.Direction == "D" && ChangedSize.Y < sizeChanger.MaxPlus)
+                    {
+                        if ((sizeChanger.Plus + ChangedSize.Y) > sizeChanger.MaxPlus)
+                        {
+                            if (Directions.ContainsKey('D'))
+                            {
+                                Directions['D'] += sizeChanger.MaxPlus - ChangedSize.Y;
+                            }
+                            else
+                            {
+                                Directions['D'] = sizeChanger.MaxPlus - ChangedSize.Y;
+                            }
+                            ChangedSize.Y = sizeChanger.MaxPlus;
+
+                        }
+                        else
+                        {
+                            ChangedSize.Y += sizeChanger.Plus;
+                            if (Directions.ContainsKey('D'))
+                            {
+                                Directions['D'] += sizeChanger.Plus;
+                            }
+                            else
+                            {
+                                Directions['D'] = sizeChanger.Plus;
+                            }
+                        }
+                    }
+                }
+
+                //fix helye
+                foreach (Part part in StandParts)
+                {
+                    if (part.item_s_Part.SizeX > ChangedSize.X)
+                    {
+                        int Correction = part.item_s_Part.SizeX - ChangedSize.X;
+                        if (Directions.ContainsKey('R') && Directions['R'] > 0)
+                        {
+                            Directions['R'] -= Correction;
+                            if (Directions['R'] <= 0)
+                            {
+                                Correction = Directions['R'] * (-1);
+                                ChangedSize.X += Correction;
+                                Directions.Remove('R');
+                            }
+                            else
+                            {
+                                ChangedSize.X += Correction;
+                            }
+                        }
+                    }
+
+                    if (part.item_s_Part.SizeX > ChangedSize.X)
+                    {
+                        int Correction = part.item_s_Part.SizeX - ChangedSize.X;
+                        if (Directions.ContainsKey('L') && Directions['L'] > 0)
+                        {
+                            Directions['L'] -= Correction;
+                            if (Directions['L'] <= 0)
+                            {
+                                Correction = Directions['L'] * (-1);
+                                ChangedSize.X += Correction;
+                                Directions.Remove('L');
+                            }
+                            else
+                            {
+                                ChangedSize.X += Correction;
+                            }
+                        }
+                    }
+
+                    if (part.item_s_Part.SizeY > ChangedSize.Y)
+                    {
+                        int Correction = part.item_s_Part.SizeY - ChangedSize.Y;
+                        if (Directions.ContainsKey('U') && Directions['U'] > 0)
+                        {
+                            Directions['U'] -= Correction;
+                            if (Directions['U'] <= 0)
+                            {
+                                Correction = Directions['U'] * (-1);
+                                ChangedSize.Y += Correction;
+                                Directions.Remove('U');
+                            }
+                        }
+                        else
+                        {
+                            ChangedSize.Y += Correction;
+                        }
+                    }
+
+                    if (part.item_s_Part.SizeY > ChangedSize.Y)
+                    {
+                        int Correction = part.item_s_Part.SizeY - ChangedSize.Y;
+                        if (Directions.ContainsKey('D') && Directions['D'] > 0)
+                        {
+                            Directions['D'] -= Correction;
+                            if (Directions['D'] <= 0)
+                            {
+                                Correction = Directions['D'] * (-1);
+                                ChangedSize.Y += Correction;
+                                Directions.Remove('D');
+                            }
+                        }
+                        else
+                        {
+                            ChangedSize.Y += Correction;
+                        }
+                    }
+
+                }
+
+                return (ChangedSize, Directions);
+            }
+
+            //int UMax = 0;
+            //int DMax = 0;
+            //int RMax = 0;
+            //int LMax = 0;
+
+            //int U = 0;
+            //int D = 0;
+            //int R = 0;
+            //int L = 0;
+
+            //List<char> Diractions = new();   
+
+            //foreach (Part part in AdvancedItem.Parts)
+            //{
+            //    if (part.item_s_Part.SizeChanger != null)
+            //    {
+            //        SizeChanger sizeChanger = part.item_s_Part.SizeChanger;
+
+            //    }
+            //}
+
+            //if (Add)//add
+            //{
+            //    foreach (Part part in parts)
+            //    {
+            //        if (part.item_s_Part.SizeChanger != null)
+            //        {
+            //            SizeChanger sizeChanger = part.item_s_Part.SizeChanger;
+
+            //            if (sizeChanger.Direction == "R")
+            //            {
+            //                R += sizeChanger.Plus;
+            //                if (RMax < sizeChanger.MaxPlus)
+            //                {
+            //                    Directions['R'] += sizeChanger.MaxPlus - RMax;
+            //                    RMax = sizeChanger.MaxPlus;
+            //                }
+            //            }
+            //            else if (sizeChanger.Direction == "L")
+            //            {
+            //                L += sizeChanger.Plus;
+            //                if (LMax < sizeChanger.MaxPlus)
+            //                {
+            //                    Directions['L'] += sizeChanger.MaxPlus - LMax;
+            //                    LMax = sizeChanger.MaxPlus;
+            //                }
+            //            }
+            //            else if (sizeChanger.Direction == "U")
+            //            {
+            //                U += sizeChanger.Plus;
+            //                if (UMax < sizeChanger.MaxPlus)
+            //                {
+            //                    Directions['U'] += sizeChanger.MaxPlus - UMax;
+            //                    UMax = sizeChanger.MaxPlus;
+            //                }
+            //            }
+            //            else if (sizeChanger.Direction == "D")
+            //            {
+            //                D += sizeChanger.Plus;
+            //                if (DMax < sizeChanger.MaxPlus)
+            //                {
+            //                    Directions['D'] += sizeChanger.MaxPlus - DMax;
+            //                    DMax = sizeChanger.MaxPlus;
+            //                }
+            //            }
+            //        }
+            //    }
+
+            //    if (RMax < R)
+            //    {
+            //        R = RMax;
+            //        ChangedSize.X += R;
+            //    }
+            //    else if (R < RMax && (ChangedSize.X + R) < RMax)
+            //    {
+            //        ChangedSize.X += R;
+            //    }
+
+            //    if (LMax<L)
+            //    {
+            //        L = LMax;
+            //        ChangedSize.X += L;
+            //    }
+            //    else if (L < LMax && (ChangedSize.X + L) < LMax)
+            //    {
+            //        ChangedSize.X += L;
+            //    }
+
+            //    if (UMax < U)
+            //    {
+            //        U = UMax;
+            //        ChangedSize.Y += U;
+            //    }
+            //    else if (U < UMax && (ChangedSize.X + U) < UMax)
+            //    {
+            //        ChangedSize.Y += U;
+            //    }
+
+            //    if (DMax < D)
+            //    {
+            //        D = DMax;
+            //        ChangedSize.Y += D;
+            //    }
+            //    else if (D < DMax && (ChangedSize.Y + D) < DMax)
+            //    {
+            //        ChangedSize.Y += D;
+            //    }
+
+            //    return (ChangedSize,Directions);
+
+            //    //nem lesz jo
+            //}
+            //else//delete
+            //{
+            //    return (ChangedSize, Directions);
+            //}
+
+            //if (SizeChanger == null)
+            //{
+            //    if (sizeChangers.Contains(SizeChanger))//Delete
+            //    {
+            //        if (SizeChanger.Direction == "R" && RMax < SizeChanger.MaxPlus)
+            //        {
+            //            return ((SizeX, SizeY -= (SizeChanger.MaxPlus - RMax)), "R");
+            //        }
+            //        else if (SizeChanger.Direction == "L" && LMax < SizeChanger.MaxPlus)
+            //        {
+            //            return ((SizeX, SizeY -= (SizeChanger.MaxPlus - LMax)), "L");
+            //        }
+            //        else if (SizeChanger.Direction == "U" && UMax < SizeChanger.MaxPlus)
+            //        {
+            //            return ((SizeX -= (SizeChanger.MaxPlus - UMax), SizeY), "U");
+            //        }
+            //        else if (SizeChanger.Direction == "D" && DMax < SizeChanger.MaxPlus)
+            //        {
+            //            return ((SizeX -= (SizeChanger.MaxPlus - DMax), SizeY), "D");
+            //        }
+            //    }
+            //    else//Add
+            //    {
+            //        if (SizeChanger.Direction == "R" && RMax < SizeChanger.MaxPlus)
+            //        {
+            //            return ((SizeX, SizeY += (SizeChanger.MaxPlus - RMax)), "R");
+            //        }
+            //        else if (SizeChanger.Direction == "L" && LMax < SizeChanger.MaxPlus)
+            //        {
+            //            return ((SizeX, SizeY += (SizeChanger.MaxPlus - LMax)), "L");
+            //        }
+            //        else if (SizeChanger.Direction == "U" && UMax < SizeChanger.MaxPlus)
+            //        {
+            //            return ((SizeX += (SizeChanger.MaxPlus - UMax), SizeY), "U");
+            //        }
+            //        else if (SizeChanger.Direction == "D" && DMax < SizeChanger.MaxPlus)
+            //        {
+            //            return ((SizeX += (SizeChanger.MaxPlus - DMax), SizeY), "D");
+            //        }
+            //    }
+            //    return ((SizeX, SizeY), "U");
+            //}
+            //else
+            //{
+            //    return ((SizeX, SizeY), new List<char> {'O'});
+            //}
+        }
+        public static (HashSet<(int X, int Y)> NonLiveCoordinates,int SectorIndex, bool IsPositionAble) Try_PartPositioning(Item AdvancedItem, (int X, int Y) ChangedSize, Dictionary<char, int> Directions)
+        {
+            /*
+             * egy megvaltoztataott referncia meretbol meghatarozza hogy az advanced itemet kicsinyiteni kell e vagy nagyobbitani
+             * a directionbol meghatarozza hogy melyik iranyba novekszik vagy csokken
+             * 
+             * visszatereskor a vegezetul lefogalat coordianatak adja vissza és azt hogy a koordinatakra valo athelyezes lehetseges e
+             */
+            if (Directions != null)
+            {
+                bool IsPositionAble = true;
+                int sectorindex = 0;
+                HashSet<(int X, int Y)> ExtendCoordinates = new();
+
+                ItemSlotData[,] NonLiveGrid = AdvancedItem.ParentItem.Container.NonLive_Sectors[sectorindex];
+
+                //sectorIndex keresese
+                int index = 0;
+                foreach (ItemSlotData[,] sector in AdvancedItem.ParentItem.Container.NonLive_Sectors)
+                {
+                    foreach (ItemSlotData slot in sector)
+                    {
+                        if (slot.PartOfItemData == AdvancedItem)
+                        {
+                            sectorindex = index;
+                        }
+                    }
+                    index++;
+                }
+
+                //itemcoordinata grid létrehozasa forgatas szerint
+                (int X, int Y)[,] ItemCoordinates;
+
+                if (AdvancedItem.RotateDegree == 0 || AdvancedItem.RotateDegree == 180)
+                {
+                    ItemCoordinates = new (int X, int Y)[AdvancedItem.SizeX, AdvancedItem.SizeY];
+                }
+                else
+                {
+                    ItemCoordinates = new (int X, int Y)[AdvancedItem.SizeY, AdvancedItem.SizeX];
+                }
+
+                //item coordinátáinak megkeresese a NonLive Gridben
+                for (int x = 0; x < NonLiveGrid.GetLength(0); x++)
+                {
+                    for (int y = 0; y < NonLiveGrid.GetLength(1); y++)
+                    {
+                        if (NonLiveGrid[x, y].PartOfItemData == AdvancedItem)
+                        {
+                            ExtendCoordinates.Add((x, y));
+                        }
+                    }
+                }
+
+                //item megkeresett koordinatainak beépítése annak gridjébe
+                for (int x = 0, index_ = 0; x < ItemCoordinates.GetLength(0); x++)
+                {
+                    for (int y = 0; y < ItemCoordinates.GetLength(1); y++)
+                    {
+                        ItemCoordinates[x, y] = ExtendCoordinates.ElementAt(index_++);
+                    }
+                }
+
+                foreach (KeyValuePair<char, int> direction in Directions)
+                {
+                    if (direction.Key == 'U')
+                    {
+                        IsPositionAble = Try_UpWayScaling(AdvancedItem, NonLiveGrid, AdvancedItem.SizeY - ChangedSize.Y, ExtendCoordinates);
+                    }
+                    else if (direction.Key == 'D')
+                    {
+                        IsPositionAble = Try_DownWayScaling(AdvancedItem, NonLiveGrid, ChangedSize.Y - AdvancedItem.SizeY, ExtendCoordinates);
+                    }
+                    else if (direction.Key == 'L')
+                    {
+                        IsPositionAble = Try_LeftWayScaling(AdvancedItem, NonLiveGrid, ChangedSize.X - AdvancedItem.SizeX, ExtendCoordinates);
+                    }
+                    else if (direction.Key == 'R')
+                    {
+                        IsPositionAble = Try_RightWayScaling(AdvancedItem, NonLiveGrid, ChangedSize.X - AdvancedItem.SizeX, ExtendCoordinates);
+                    }
+
+                }
+
+                ExtendCoordinates.OrderBy(coord => coord.X).ThenBy(coord => coord.Y);
+
+                return (ExtendCoordinates, sectorindex, IsPositionAble);
+            }
+            else
+            {
+                return (null, 0, false);
+            }
+           
+        }
         #endregion
 
         #region Placing
@@ -1292,6 +1967,7 @@ namespace ItemHandler
             }
             item.ItemSlotObjectsRef.Clear();//unset ref
         }
+
         public static void NonLive_Placing(Item item, Item AddTo)
         {
             if (item.ParentItem != AddTo)
@@ -1329,8 +2005,9 @@ namespace ItemHandler
         #endregion
 
         #region Status
-        public static void SetStatus_And_HotKey(Item item, Item StatusParent)
+        public static void HotKey_SetStatus_SupplementaryTransformation(Item item, Item StatusParent)
         {
+            #region Hotkey
             if (item.hotKeyRef != null)
             {
                 if ((item.IsEquipment && !StatusParent.IsEquipmentRoot) ||//ha equipmentből inventoryba kerul
@@ -1346,7 +2023,9 @@ namespace ItemHandler
             {
                 AutoSetHotKey(item);
             }
+            #endregion
 
+            #region Status
             if (!item.IsEquipment && StatusParent.IsEquipmentRoot)
             {
                 item.IsEquipment = true;
@@ -1367,6 +2046,14 @@ namespace ItemHandler
 
             SetHierarhicLVL(item, StatusParent);
             StatusIsInPlayerInventory(item);
+            #endregion
+
+            #region Supplementary Transformations
+            if (item.IsEquipment)
+            {
+                item.RotateDegree = 0;
+            }
+            #endregion
         }
         public static void UnsetHotKey(Item item)
         {
@@ -1378,6 +2065,151 @@ namespace ItemHandler
         #endregion
 
         #region Inventory-System Support Scripts
+        private static bool Try_UpWayScaling(Item AdvancedItem, ItemSlotData[,] NonLiveGrid, int ChangedSize, HashSet<(int X, int Y)> ExtendCoordinates)
+        {
+            (int X, int Y)[] UpperLine = new (int, int)[ExtendCoordinates.Max(coordiante=>coordiante.X)];
+
+            bool AllCoordianateIsEmpty = true;
+
+            if (ChangedSize > 0)
+            {
+                for (int plus = 1; plus <= ChangedSize; plus++)
+                {
+                    for (int j = 0; j < UpperLine.Length; j++)
+                    {
+                        if (UpperLine[j].Y - plus >= 0)
+                        {
+                            ExtendCoordinates.Add((UpperLine[j].X, UpperLine[j].Y - plus));
+                        }
+                        if (NonLiveGrid[UpperLine[j].X, UpperLine[j].Y - plus].PartOfItemData != null)
+                        {
+                            AllCoordianateIsEmpty = false;
+                        }
+                    }
+                }
+            }
+            else
+            {
+                for (int plus = -1; plus >= ChangedSize; plus--)
+                {
+                    for (int j = 0; j < UpperLine.Length; j++)
+                    {
+                        ExtendCoordinates.Remove((UpperLine[j].X, UpperLine[j].Y - plus));
+                    }
+                }
+            }
+
+            return AllCoordianateIsEmpty;
+        }
+        private static bool Try_DownWayScaling(Item AdvancedItem, ItemSlotData[,] NonLiveGrid, int ChangedSize, HashSet<(int X, int Y)> ExtendCoordinates)
+        {
+            (int X, int Y)[] ButtomLine = new (int, int)[ExtendCoordinates.Max(coordiante => coordiante.X)];
+
+            bool AllCoordianateIsEmpty = true;
+
+            if (ChangedSize > 0)
+            {
+                for (int plus = 1; plus <= ChangedSize; plus++)
+                {
+                    for (int j = 0; j < ButtomLine.Length; j++)
+                    {
+                        if (ButtomLine[j].Y + plus <= NonLiveGrid.GetLength(1))
+                        {
+                            ExtendCoordinates.Add((ButtomLine[j].X, ButtomLine[j].Y + plus));
+                        }
+                        if (NonLiveGrid[ButtomLine[j].X, ButtomLine[j].Y + plus].PartOfItemData != null)
+                        {
+                            AllCoordianateIsEmpty = false;
+                        }
+                    }
+                }
+            }
+            else
+            {
+                for (int plus = -1; plus >= ChangedSize; plus--)
+                {
+                    for (int j = 0; j < ButtomLine.Length; j++)
+                    {
+                        ExtendCoordinates.Remove((ButtomLine[j].X, ButtomLine[j].Y + plus));
+                    }
+                }
+            }
+
+            return AllCoordianateIsEmpty;
+        }
+        private static bool Try_RightWayScaling(Item AdvancedItem, ItemSlotData[,] NonLiveGrid, int ChangedSize, HashSet<(int X, int Y)> ExtendCoordinates)
+        {
+            (int X, int Y)[] RightLine = new (int, int)[ExtendCoordinates.Max(coordiante => coordiante.Y)];
+
+            bool AllCoordianateIsEmpty = true;
+
+            if (ChangedSize > 0)
+            {
+                for (int plus = 1; plus <= ChangedSize; plus++)
+                {
+                    for (int j = 0; j < RightLine.Length; j++)
+                    {
+                        if (RightLine[j].X + plus <= NonLiveGrid.GetLength(1))
+                        {
+                            ExtendCoordinates.Add((RightLine[j].X + plus, RightLine[j].Y));
+                        }
+                        if (NonLiveGrid[RightLine[j].X + plus, RightLine[j].Y].PartOfItemData != null)
+                        {
+                            AllCoordianateIsEmpty = false;
+                        }
+                    }
+                }
+            }
+            else
+            {
+                for (int plus = -1; plus >= ChangedSize; plus--)
+                {
+                    for (int j = 0; j < RightLine.Length; j++)
+                    {
+                        ExtendCoordinates.Remove((RightLine[j].X + plus, RightLine[j].Y));
+                    }
+                }
+            }
+
+            return AllCoordianateIsEmpty;
+        }
+        private static bool Try_LeftWayScaling(Item AdvancedItem, ItemSlotData[,] NonLiveGrid, int ChangedSize, HashSet<(int X, int Y)> ExtendCoordinates)
+        {
+            (int X, int Y)[] LeftLine = new (int, int)[ExtendCoordinates.Max(coordiante => coordiante.Y)];
+
+            bool AllCoordianateIsEmpty = true;
+
+            if (ChangedSize > 0)
+            {
+                for (int plus = 1; plus <= ChangedSize; plus++)
+                {
+                    for (int j = 0; j < LeftLine.Length; j++)
+                    {
+                        if (LeftLine[j].X - plus <= NonLiveGrid.GetLength(1))
+                        {
+                            ExtendCoordinates.Add((LeftLine[j].X - plus, LeftLine[j].Y));
+                        }
+                        if (NonLiveGrid[LeftLine[j].X - plus, LeftLine[j].Y].PartOfItemData != null)
+                        {
+                            AllCoordianateIsEmpty = false;
+                        }
+                    }
+                }
+            }
+            else
+            {
+                for (int plus = -1; plus >= ChangedSize; plus--)
+                {
+                    for (int j = 0; j < LeftLine.Length; j++)
+                    {
+                        ExtendCoordinates.Remove((LeftLine[j].X - plus, LeftLine[j].Y));
+                    }
+                }
+            }
+
+            return AllCoordianateIsEmpty;
+        }
+
         private static void StatusIsInPlayerInventory(Item Data)
         {
             if (Data.Container != null)
@@ -1440,525 +2272,5 @@ namespace ItemHandler
             }
         }
         #endregion
-
-
-
-
-
-
-
-
-
-        public static void AddDataNonLive(int Y, int X, int sectorIndex, Item PlaceInto, Item Data)
-        {
-            /*
-             * 1. Beallitjuk a hierarhikus szintjét;
-             * Létrehozzuk a slotuseId-jat
-             * 
-             * 2. beallitjuk a parent itemjét és hozzadjuk a:
-             * -Lista
-             * 
-             * 3. ha szukseges hozzadjuk a player inventoryhoz
-             * -közben frissitjuk állapotvaltozoit:
-             *  -IsInPlayerinventory
-             *  -IsEqipment
-             *  
-             * 4.lokálisan is hozzáadjuk
-             * -Sector
-             * 
-             * 5. ha szukseges allitunk be automatikusan beallitott hotkey-t
-             * 
-             */
-            #region Set SlotUseId
-            //hierarhikus szint
-            int lvl = PlaceInto.Lvl;
-            Data.Lvl = ++lvl;
-
-            //slotUseId beallitasa
-            Data.SlotUse.Clear();
-            if (PlaceInto.IsEquipmentRoot)
-            {
-                Data.SlotUse.Add(PlaceInto.Container.NonLive_Sectors[sectorIndex][Y, X].SlotName);//ez alapjan azonositunk egy itemslotot
-            }
-            else
-            {
-                for (int y = Y; y < Y + Data.SizeY; y++)
-                {
-                    for (int x = X; x < X + Data.SizeX; x++)
-                    {
-                        Data.SlotUse.Add(PlaceInto.Container.NonLive_Sectors[sectorIndex][y, x].SlotName);//ez alapjan azonositunk egy itemslotot
-                    }
-                }
-            }
-            Data.SetSlotUse();
-            #endregion
-
-            #region Data Transfer
-            //megadjuk a parent itemet
-            Data.ParentItem = PlaceInto;
-
-            //a paretn itemlistájához is hozzáadjuk
-            PlaceInto.Container.Items.Add(Data);
-            Data.ContainerItemListRef = PlaceInto.Container.Items;//ref
-
-            //ha a player inventory-jának része lesz akkor hozzáadjuk a levelmanagerhez is.
-            if (PlaceInto.IsInPlayerInventory)
-            {
-                Data.IsInPlayerInventory = true;
-                StatusIsInPlayerInventory(Data);
-                InventoryObjectRef.GetComponent<PlayerInventory>().levelManager.Items.Add(Data);
-                InventoryObjectRef.GetComponent<PlayerInventory>().levelManager.SetMaxLVL_And_Sort();
-                Data.LevelManagerRef = InventoryObjectRef.GetComponent<PlayerInventory>().levelManager;//ref
-            }
-            else
-            {
-                Data.IsInPlayerInventory = false;
-                StatusIsInPlayerInventory(Data);
-            }
-            if (!Data.IsEquipment && PlaceInto.IsEquipmentRoot)
-            {
-                Data.IsEquipment = true;
-            }
-            else
-            {
-                Data.IsEquipment = false;
-            }
-            #endregion
-
-            #region Local Add
-            //a parentitem slot adataiba beleszervezzuk az item adatait
-            foreach (ItemSlotData[,] sector in PlaceInto.Container.NonLive_Sectors)
-            {
-                foreach (ItemSlotData slot in sector)
-                {
-                    if (Data.SlotUse.Contains(slot.SlotName))
-                    {
-                        slot.PartOfItemData = Data;
-                        Data.ItemSlotsDataRef.Add(slot);//ref
-                    }
-                }
-            }
-            #endregion
-
-            #region HotKey ReFresh
-            if (Data.ParentItem.IsEquipmentRoot)
-            {
-                AutoSetHotKey(Data);
-            }
-            #endregion
-        }
-        //public static void AddDataLive(int Y, int X, int sectorIndex, Item PlaceInto, Item Data)//out of order
-        //{
-        //    /*
-        //     * 1. Beallitjuk a hierarhikus szintjét;
-        //     * Létrehozzuk a slotuseId-jat
-        //     * 
-        //     * 2. beallitjuk a parent itemjét és hozzadjuk a:
-        //     * -Lista
-        //     * 
-        //     * 3. ha szukseges hozzadjuk a player inventoryhoz
-        //     * -közben frissitjuk állapotvaltozoit:
-        //     *  -IsInPlayerinventory
-        //     *  -IsEqipment
-        //     *  
-        //     * 4.lokálisan is hozzáadjuk
-        //     * -Sector
-        //     * -Live Sector
-        //     * 
-        //     * 5. ha szukseges allitu8nk be automatikusan beallitott hotkey-t
-        //     * 
-        //     * 6. mivel ez egy live eljaras ezert vizualizalunk
-        //     */
-        //    #region Set SlotUseId
-        //    //hierarhikus szint
-        //    int lvl = PlaceInto.Lvl;
-        //    Data.Lvl = ++lvl;
-
-        //    //slotUseId beallitasa
-        //    Data.SlotUse.Clear();
-        //    if (PlaceInto.IsEquipmentRoot)
-        //    {
-        //        Data.SlotUse.Add(PlaceInto.Container.Sectors[sectorIndex][Y, X].SlotName);//ez alapjan azonositunk egy itemslotot
-        //    }
-        //    else
-        //    {
-        //        for (int y = Y; y < Y + Data.SizeY; y++)
-        //        {
-        //            for (int x = X; x < X + Data.SizeX; x++)
-        //            {
-        //                Data.SlotUse.Add(PlaceInto.Container.Sectors[sectorIndex][y, x].SlotName);//ez alapjan azonositunk egy itemslotot
-        //            }
-        //        }
-        //    }
-        //    Data.SetSlotUse();
-        //    #endregion
-
-        //    #region Data Transfer
-        //    //megadjuk a parent itemet
-        //    Data.ParentItem = PlaceInto;
-
-        //    //a paretn itemlistájához is hozzáadjuk
-        //    PlaceInto.Container.Items.Add(Data);
-        //    Data.ContainerItemListRef = PlaceInto.Container.Items;//ref
-
-        //    //ha a player inventory-jának része lesz akkor hozzáadjuk a levelmanagerhez is.
-        //    if (PlaceInto.IsInPlayerInventory)
-        //    {
-        //        Data.IsInPlayerInventory = true;
-        //        StatusIsInPlayerInventory(Data);
-        //        InventoryObjectRef.GetComponent<PlayerInventory>().levelManager.Items.Add(Data);
-        //        InventoryObjectRef.GetComponent<PlayerInventory>().levelManager.SetMaxLVL_And_Sort();
-        //        Data.LevelManagerRef = InventoryObjectRef.GetComponent<PlayerInventory>().levelManager;//ref
-        //    }
-        //    else
-        //    {
-        //        Data.IsInPlayerInventory = false;
-        //        StatusIsInPlayerInventory(Data);
-        //    }
-        //    if (!Data.IsEquipment && PlaceInto.IsEquipmentRoot)
-        //    {
-        //        Data.IsEquipment = true;
-        //    }
-        //    else
-        //    {
-        //        Data.IsEquipment = false;
-        //    }
-        //    #endregion
-
-        //    #region Local Add
-        //    //a parentitem slot adataiba beleszervezzuk az item adatait
-        //    foreach (ItemSlotData[,] sector in PlaceInto.Container.Sectors)
-        //    {
-        //        foreach (ItemSlotData slot in sector)
-        //        {
-        //            if (Data.SlotUse.Contains(slot.SlotName))
-        //            {
-        //                slot.PartOfItemData = Data;
-        //                Data.ItemSlotsDataRef.Add(slot);//ref
-        //            }
-        //        }
-        //    }
-
-        //    foreach (DataGrid dataGrid in PlaceInto.SectorDataGrid)
-        //    {
-        //        foreach (RowData rowData in dataGrid.col)
-        //        {
-        //            foreach (GameObject slot in rowData.row)
-        //            {
-        //                if (Data.SlotUse.Contains(slot.name))
-        //                {
-        //                    slot.GetComponent<ItemSlot>().PartOfItemObject = Data.SelfGameobject;
-        //                    Data.ItemSlotObjectsRef.Add(slot);//ref
-        //                }
-        //            }
-        //        }
-        //    }
-        //    #endregion
-
-        //    #region HotKey ReFresh
-        //    if (Data.ParentItem.IsEquipmentRoot)
-        //    {
-        //        AutoSetHotKey(Data);
-        //    }
-        //    #endregion
-
-        //    #region Visual Refresh
-        //    Data.SelfGameobject.GetComponent<ItemObject>().SelfVisualisation();
-        //    #endregion
-        //}
-        //public static void AddDataLive(Item Data, PlacerStruct placer)
-        //{
-        //    /*
-        //     * 1. Deklarálunk egy szukseges valtozot
-        //     * Beallitjuk a hierarhikus szintjét;
-        //     * Létrehozzuk a slotuseId-jat
-        //     * 
-        //     * 2. beallitjuk a parent itemjét és hozzadjuk a:
-        //     * -Lista
-        //     * 
-        //     * 3. ha szukseges hozzadjuk a player inventoryhoz
-        //     * -közben frissitjuk állapotvaltozoit:
-        //     *  -IsInPlayerinventory
-        //     *  -IsEqipment
-        //     *  
-        //     * 4.lokálisan is hozzáadjuk
-        //     * -Sector
-        //     * -Live Sector
-        //     * 
-        //     * 5. ha szukseges allitu8nk be automatikusan beallitott hotkey-t
-        //     * 
-        //     * 6. mivel ez egy live eljaras ezert vizualizalunk
-        //     */
-        //    Item PlaceInto = placer.NewParentItem;
-        //    #region Set SlotUseId
-        //    //hierarhikus szint
-        //    int lvl = PlaceInto.Lvl;
-        //    Data.Lvl = ++lvl;
-
-        //    //slotUseId beallitasa
-        //    Data.SlotUse.Clear();
-        //    foreach (GameObject slot in placer.ActiveItemSlots)
-        //    {
-        //        Data.SlotUse.Add(slot.name);//ez alapjan azonositunk egy itemslotot
-        //    }
-        //    Data.SetSlotUse();
-        //    #endregion
-
-        //    #region Data Transfer
-        //    //megadjuk a parent itemet
-        //    Data.ParentItem = PlaceInto;
-
-        //    //a paretn itemlistájához is hozzáadjuk
-        //    PlaceInto.Container.Items.Add(Data);
-        //    Data.ContainerItemListRef = PlaceInto.Container.Items;//ref
-
-        //    //ha a player inventory-jának része lesz akkor hozzáadjuk a levelmanagerhez is.
-        //    if (PlaceInto.IsInPlayerInventory)
-        //    {
-        //        Data.IsInPlayerInventory = true;
-        //        StatusIsInPlayerInventory(Data);
-        //        InventoryObjectRef.GetComponent<PlayerInventory>().levelManager.Items.Add(Data);
-        //        InventoryObjectRef.GetComponent<PlayerInventory>().levelManager.SetMaxLVL_And_Sort();
-        //        Data.LevelManagerRef = InventoryObjectRef.GetComponent<PlayerInventory>().levelManager;//ref
-        //    }
-        //    else
-        //    {
-        //        Data.IsInPlayerInventory = false;
-        //        StatusIsInPlayerInventory(Data);
-        //    }
-        //    if (!Data.IsEquipment && PlaceInto.IsEquipmentRoot)
-        //    {
-        //        Data.IsEquipment = true;
-        //    }
-        //    else
-        //    {
-        //        Data.IsEquipment = false;
-        //    }
-        //    #endregion
-
-        //    #region Local Add
-        //    //a parentitem slot adataiba beleszervezzuk az item adatait
-        //    foreach (ItemSlotData[,] sector in PlaceInto.Container.Sectors)
-        //    {
-        //        foreach (ItemSlotData slot in sector)
-        //        {
-        //            if (Data.SlotUse.Contains(slot.SlotName))
-        //            {
-        //                slot.PartOfItemData = Data;
-        //                Data.ItemSlotsDataRef.Add(slot);//ref
-        //            }
-        //        }
-        //    }
-
-        //    foreach (DataGrid dataGrid in PlaceInto.SectorDataGrid)
-        //    {
-        //        foreach (RowData rowData in dataGrid.col)
-        //        {
-        //            foreach (GameObject slot in rowData.row)
-        //            {
-        //                if (Data.SlotUse.Contains(slot.name))
-        //                {
-        //                    slot.GetComponent<ItemSlot>().PartOfItemObject = Data.SelfGameobject;
-        //                    Data.ItemSlotObjectsRef.Add(slot);//ref
-        //                }
-        //            }
-        //        }
-        //    }
-        //    #endregion
-
-        //    #region HotKey ReFresh
-        //    if (Data.ParentItem.IsEquipmentRoot)
-        //    {
-        //        AutoSetHotKey(Data);
-        //    }
-        //    #endregion
-
-        //    #region Visual Refresh
-        //    Data.SelfGameobject.GetComponent<ItemObject>().SelfVisualisation();
-        //    #endregion
-        //}
-        //public static void RePlaceLive(Item Data,PlacerStruct placer)
-        //{
-        //    /*
-        //     * 1. hazsnalando adatok deklarálása
-        //     * 2.eltavolitjuka a parent itemjebol ha masik parentbe helyezzuk
-        //     * -Sectors
-        //     * -Live Sectors (olny Inventory LIVE)
-        //     * 
-        //     * 3./a ha van uj parent item
-        //     * -töröljük a regi paretn itemlistajabol
-        //     * -hozzadjuk az uj parent listajahoz
-        //     * -ha az uj parent nem a player inventory resze akkor eltavolitjuk a palyer invenotrybol is
-        //     * 
-        //     * 3./a/2 Frissitjuk az IsInPlayerInventory allapot valtozot
-        //     * -IsInPlayerInventory true = benne van false = kivul van
-        //     * 
-        //     * 3./b ha nincs uj parent akkor nem teszunk semmit
-        //     * 
-        //     * 4. a parentjaban localisan is pozitcionaljuk
-        //     * -Beallitjuk a SlotUseId-jat
-        //     * 
-        //     * 5. hozzadjuk a kovetkezokhoz:
-        //     * -Sectors
-        //     * -Live Sectors
-        //     * 
-        //     * 6. beallitjuk a hotkey-eket (azert itt mivel az eredeti equipment allapot valtozora van szukseg nem a modositottra)
-        //     * -IsEquipment állapotvaltzot is itt allitjuk be 
-        //     * 
-        //     * 6. mivel Live metodus ezert vizualizaljuk az itemet
-        //     */
-
-        //    Item TransferToItem = placer.NewParentItem;
-        //    List<GameObject> activeSlots = placer.ActiveItemSlots;
-
-        //    //synch-ronizáljuk a hierachikus szinthez
-        //    int lvl = TransferToItem.Lvl;
-        //    Data.Lvl = ++lvl;
-
-        //    #region Local Remove
-        //    foreach (ItemSlotData slotData in Data.ItemSlotsDataRef)
-        //    {
-        //        slotData.PartOfItemData = null;//remove
-        //    }
-        //    Data.ItemSlotsDataRef.Clear();//ref delete
-        //    foreach (GameObject slotObject in Data.ItemSlotObjectsRef)
-        //    {
-        //        slotObject.GetComponent<ItemSlot>().PartOfItemObject = null;//remove
-        //    }
-        //    Data.ItemSlotObjectsRef.Clear();//ref delete
-        //    #endregion
-
-        //    #region Transfer To New Segment if it nesesary (Player Equipments , Player Invenotry , Out of Player Inventory)
-        //    //ha uj a parent
-        //    if (Data.ParentItem != TransferToItem)
-        //    {
-        //        //itemlistabol valo törles
-        //        Data.ContainerItemListRef.Remove(Data);//remove
-        //        Data.ContainerItemListRef = null;//ref delete
-
-        //        //a paretn itemlistájához is hozzáadjuk
-        //        TransferToItem.Container.Items.Add(Data);
-        //        Data.ContainerItemListRef = TransferToItem.Container.Items;//ref
-
-        //        Data.ParentItem = TransferToItem;//megváltoztatjuk a parent item-jét
-
-        //        //ha a player inventory-jának része lesz akkor hozzáadjuk a levelmanagerhez is.
-        //        if (!Data.IsInPlayerInventory && TransferToItem.IsInPlayerInventory)
-        //        {
-        //            Data.IsInPlayerInventory = true;
-        //            StatusIsInPlayerInventory(Data);
-        //            InventoryObjectRef.GetComponent<PlayerInventory>().levelManager.Items.Add(Data);
-        //            InventoryObjectRef.GetComponent<PlayerInventory>().levelManager.SetMaxLVL_And_Sort();
-        //            Data.LevelManagerRef = InventoryObjectRef.GetComponent<PlayerInventory>().levelManager;//ref
-        //        }
-        //        //ha nem lesz tagja az inventorynak akkor töröljük onnan
-        //        if (Data.IsInPlayerInventory && !TransferToItem.IsInPlayerInventory)
-        //        {
-        //            Data.IsInPlayerInventory = false;
-        //            StatusIsInPlayerInventory(Data);
-        //            Data.LevelManagerRef.Items.Remove(Data);//remove
-        //            Data.LevelManagerRef.SetMaxLVL_And_Sort();
-        //            Data.LevelManagerRef = null;//ref delete
-        //        }
-        //    }
-        //    #endregion
-
-        //    #region Local Positioning
-        //    //slot use beallitasa az az slotokba valo helyezes
-        //    Data.SlotUse.Clear();
-        //    for (int i = 0; i < activeSlots.Count; i++)
-        //    {
-        //        Data.SlotUse.Add(activeSlots[i].name);
-        //    }
-        //    Data.SetSlotUse();//beallitjuk a slotuse azonositot
-        //    #endregion
-
-        //    #region Local Add
-        //    foreach (ItemSlotData[,] sector in TransferToItem.Container.Sectors)
-        //    {
-        //        foreach (ItemSlotData slot in sector)
-        //        {
-        //            if (Data.SlotUse.Contains(slot.SlotName))
-        //            {
-        //                slot.PartOfItemData = Data;
-        //                Data.ItemSlotsDataRef.Add(slot);//ref
-        //            }
-        //        }
-        //    }
-        //    foreach (DataGrid dataGrid in TransferToItem.SectorDataGrid)
-        //    {
-        //        foreach (RowData rowData in dataGrid.col)
-        //        {
-        //            foreach (GameObject slot in rowData.row)
-        //            {
-        //                if (Data.SlotUse.Contains(slot.name))
-        //                {
-        //                    slot.GetComponent<ItemSlot>().PartOfItemObject = Data.SelfGameobject;
-        //                    Data.ItemSlotObjectsRef.Add(slot);//ref
-        //                }
-        //            }
-        //        }
-        //    }
-        //    #endregion
-
-        //    #region HotKey ReFresh
-
-        //    #endregion
-
-        //    if (!Data.IsEquipment && TransferToItem.IsEquipmentRoot)
-        //    {
-        //        Data.IsEquipment = true;
-        //        Data.RotateDegree = 0;//!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
-        //    }
-        //    else if (Data.IsEquipment && !TransferToItem.IsEquipmentRoot)
-        //    {
-        //        Data.IsEquipment = false;
-        //    }
-
-        //    #region Visual Refresh
-        //    //Debug.LogWarning(Data.SelfGameobject != null);
-        //    Data.SelfGameobject.GetComponent<ItemObject>().SelfVisualisation();
-        //    #endregion
-        //}
-        //public static void Delete(Item Data)//Teljes törlést végez az egesz itemen, de a child itemeit nem torli
-        //{
-        //    //hotkeybol valo torles
-        //    UnsetHotKey(Data);
-        //    //item sectorbol valo törles
-        //    foreach (ItemSlotData slotData in Data.ItemSlotsDataRef)
-        //    {
-        //        slotData.PartOfItemData = null;//remove
-        //    }
-        //    Data.ItemSlotsDataRef.Clear();//ref delete
-
-        //    //item listabol valo torles
-        //    Data.ContainerItemListRef.Remove(Data);//remove
-        //    Data.ContainerItemListRef = null;//ref delete
-
-        //    //gameobject törlese
-        //    if (Data.ItemSlotObjectsRef != null)
-        //    {
-        //        foreach (GameObject slotObject in Data.ItemSlotObjectsRef)
-        //        {
-        //            slotObject.GetComponent<ItemSlot>().PartOfItemObject = null;//remove
-        //        }
-        //        Data.ItemSlotObjectsRef.Clear();//ref delete
-        //        if (Data.SelfGameobject != null)
-        //        {
-        //            Data.SelfGameobject.GetComponent<ItemObject>().DestroyContainer();
-        //            GameObject.Destroy(Data.SelfGameobject);
-        //        }
-        //    }
-
-        //    //playerinventorybol valo torles
-        //    if (Data.IsInPlayerInventory)
-        //    {
-        //        Data.IsInPlayerInventory = false;
-        //        Data.LevelManagerRef.Items.Remove(Data);//remove
-        //        Data.LevelManagerRef.SetMaxLVL_And_Sort();
-        //        Data.LevelManagerRef.Cleaning();
-        //        Data.LevelManagerRef = null;//ref delete
-        //    }
-        //}
     }
 }

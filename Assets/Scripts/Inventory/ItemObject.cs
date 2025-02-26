@@ -33,7 +33,6 @@ public class ItemObject : MonoBehaviour, IPointerDownHandler, IPointerUpHandler,
 
     private bool isDragging = false;
     [HideInInspector] public GameObject AvaiableNewParentObject;
-    public PlacerStruct Placer;
     public void OnPointerEnter(PointerEventData eventData)
     {
         InGameUI.SetHotKeyWithMouse = true;
@@ -116,8 +115,8 @@ public class ItemObject : MonoBehaviour, IPointerDownHandler, IPointerUpHandler,
             isDragging = false;
             if (AvaiableNewParentObject != null)
             {
-                Placer = AvaiableNewParentObject.GetComponent<ContainerObject>().ActualData.GivePlacer;
-                Placing(InventorySystem.CanBePlace(ActualData, Placer), Placer);
+                PlacerStruct placer = AvaiableNewParentObject.GetComponent<ContainerObject>().ActualData.GivePlacer;
+                Placing(InventorySystem.CanBePlace(ActualData,placer ),placer);
                 BuildContainer();
             }
             else
@@ -153,7 +152,7 @@ public class ItemObject : MonoBehaviour, IPointerDownHandler, IPointerUpHandler,
                 InventorySystem.NonLive_Placing(ActualData, placer.NewParentItem);
                 InventorySystem.Live_Placing(ActualData, placer.NewParentItem);
                 
-                InventorySystem.SetStatus_And_HotKey(ActualData, placer.NewParentItem);
+                InventorySystem.HotKey_SetStatus_SupplementaryTransformation(ActualData, placer.NewParentItem);
 
                 SelfVisualisation();
 

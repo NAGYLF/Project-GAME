@@ -169,7 +169,7 @@ namespace PlayerInventoryClass
                                     InspectPlayerInventory(Data, itemsOfLvl[itemIndex]);
                                     NonLive_Positioning(Y, X, sectorIndex, Data, itemsOfLvl[itemIndex]);
                                     NonLive_Placing(Data, itemsOfLvl[itemIndex]);
-                                    SetStatus_And_HotKey(Data, itemsOfLvl[itemIndex]);
+                                    HotKey_SetStatus_SupplementaryTransformation(Data, itemsOfLvl[itemIndex]);
                                     return true;
                                 }
                             }
@@ -200,7 +200,7 @@ namespace PlayerInventoryClass
                                     InspectPlayerInventory(Data, itemsOfLvl[itemIndex]);
                                     NonLive_Positioning(Y, X, sectorIndex, Data, itemsOfLvl[itemIndex]);
                                     NonLive_Placing(Data, itemsOfLvl[itemIndex]);
-                                    SetStatus_And_HotKey(Data, itemsOfLvl[itemIndex]);
+                                    HotKey_SetStatus_SupplementaryTransformation(Data, itemsOfLvl[itemIndex]);
                                     (Data.SizeX, Data.SizeY) = (Data.SizeY, Data.SizeX);
                                     //Debug.Log($"Item Added in container");
                                     return true;

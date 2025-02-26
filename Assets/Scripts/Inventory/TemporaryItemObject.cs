@@ -11,7 +11,7 @@ using UnityEngine.EventSystems;
 using PlayerInventoryClass;
 using UnityEditor.PackageManager.UI;
 
-public class TemporaryItemObject : MonoBehaviour, IPointerUpHandler
+public class TemporaryItemObject : MonoBehaviour/*, IPointerUpHandler*/
 {
     public TextMeshProUGUI NamePlate;
     public TextMeshProUGUI AmmoPlate;
@@ -19,37 +19,37 @@ public class TemporaryItemObject : MonoBehaviour, IPointerUpHandler
     public TextMeshProUGUI Counter;
     public GameObject ItemCompound;
     public string ObjectTask = "";
-    //public List<GameObject> ItemObjectParts;//opcionálisan használandó
+
     public Item ActualData { get; private set; }
     public Item AdvancedItem { get; set; }
     public ModificationWindow window;
 
     [HideInInspector] public GameObject AvaiableNewParentObject;
-    public PlacerStruct Placer;
-    public void OnPointerUp(PointerEventData eventData)
-    {
-        // Mozgatás leállítása, amikor elengedjük az egeret
-        //Debug.LogWarning("temporary item mouse up");
-        #region unSet Dragable mod
-        //if (AvaiableNewParentObject != null)
-        //{
-        //    if (ActualData.SelfGameobject != null)
-        //    {
-        //        ActualData.SelfGameobject.GetComponent<ItemObject>().Placer = AvaiableNewParentObject.GetComponent<ContainerObject>().ActualData.GivePlacer;
-        //        ActualData.SelfGameobject.GetComponent<ItemObject>().Placing(InventorySystem.CanBePlace(ActualData, Placer), Placer);
-        //        ActualData.SelfGameobject.GetComponent<ItemObject>().SelfVisualisation();
-        //        ActualData.SelfGameobject.GetComponent<ItemObject>().BuildContainer();
-        //    }
-        //}
-        //else
-        //{
-        //    ActualData.SelfGameobject.GetComponent<ItemObject>().Placer = AvaiableNewParentObject.GetComponent<ContainerObject>().ActualData.GivePlacer;
-        //    ActualData.SelfGameobject.GetComponent<ItemObject>().Placing(InventorySystem.CanBePlace(ActualData, Placer), Placer);
-        //}
-        InventoryObjectRef.GetComponent<PlayerInventory>().SlotPanelObject.GetComponent<PanelSlots>().ScrollPanel.GetComponent<ScrollRect>().enabled = true;
-        Destroy(gameObject);
-        #endregion
-    }
+
+    //public void OnPointerUp(PointerEventData eventData)
+    //{
+    //    // Mozgatás leállítása, amikor elengedjük az egeret
+    //    //Debug.LogWarning("temporary item mouse up");
+    //    #region unSet Dragable mod
+    //    //if (AvaiableNewParentObject != null)
+    //    //{
+    //    //    if (ActualData.SelfGameobject != null)
+    //    //    {
+    //    //        ActualData.SelfGameobject.GetComponent<ItemObject>().Placer = AvaiableNewParentObject.GetComponent<ContainerObject>().ActualData.GivePlacer;
+    //    //        ActualData.SelfGameobject.GetComponent<ItemObject>().Placing(InventorySystem.CanBePlace(ActualData, Placer), Placer);
+    //    //        ActualData.SelfGameobject.GetComponent<ItemObject>().SelfVisualisation();
+    //    //        ActualData.SelfGameobject.GetComponent<ItemObject>().BuildContainer();
+    //    //    }
+    //    //}
+    //    //else
+    //    //{
+    //    //    ActualData.SelfGameobject.GetComponent<ItemObject>().Placer = AvaiableNewParentObject.GetComponent<ContainerObject>().ActualData.GivePlacer;
+    //    //    ActualData.SelfGameobject.GetComponent<ItemObject>().Placing(InventorySystem.CanBePlace(ActualData, Placer), Placer);
+    //    //}
+    //    InventoryObjectRef.GetComponent<PlayerInventory>().SlotPanelObject.GetComponent<PanelSlots>().ScrollPanel.GetComponent<ScrollRect>().enabled = true;
+    //    Destroy(gameObject);
+    //    #endregion
+    //}
     private void Start()
     {
         DataLoad();
@@ -65,14 +65,15 @@ public class TemporaryItemObject : MonoBehaviour, IPointerUpHandler
         }
         #region Set Moveable position
         transform.SetParent(InventoryObjectRef.transform, false);
-        transform.GetComponent<RectTransform>().pivot = new Vector2(0.5f, 0.5f);
-        transform.GetComponent<RectTransform>().anchorMin = new Vector2(0.5f, 0.5f);
-        transform.GetComponent<RectTransform>().anchorMax = new Vector2(0.5f, 0.5f);
-        transform.GetComponent<RectTransform>().sizeDelta = new Vector2(ActualData.SizeX * Main.SectorScale * Main.DefaultItemSlotSize, ActualData.SizeY * Main.SectorScale * Main.DefaultItemSlotSize);
+        //transform.GetComponent<RectTransform>().pivot = new Vector2(0.5f, 0.5f);
+        //transform.GetComponent<RectTransform>().anchorMin = new Vector2(0.5f, 0.5f);
+        //transform.GetComponent<RectTransform>().anchorMax = new Vector2(0.5f, 0.5f);
+        GetComponent<RectTransform>().sizeDelta = new Vector2(ActualData.SizeX * Main.SectorScale * Main.DefaultItemSlotSize, ActualData.SizeY * Main.SectorScale * Main.DefaultItemSlotSize);
         #endregion
 
         #region Set Targeting Mode 
-        transform.GetComponent<BoxCollider2D>().size = transform.GetComponent<RectTransform>().rect.size;
+        GetComponent<Rigidbody2D>().bodyType = RigidbodyType2D.Dynamic;
+        GetComponent<BoxCollider2D>().size = transform.GetComponent<RectTransform>().rect.size;
         #endregion
 
         #region Set Dragable mod
@@ -131,17 +132,17 @@ public class TemporaryItemObject : MonoBehaviour, IPointerUpHandler
 
             if (AvaiableNewParentObject != null)
             {
-                Placer = AvaiableNewParentObject.GetComponent<ContainerObject>().ActualData.GivePlacer;
+                PlacerStruct placer = AvaiableNewParentObject.GetComponent<ContainerObject>().ActualData.GivePlacer;
 
-                if (Placer.ActiveItemSlots.Count != 0)
+                if (placer.ActiveItemSlots.Count != 0)
                 {
                     GameObject ItemObject = SupportScripts.CreatePrefab(ActualData.ObjectPath);
                     ItemObject.transform.SetParent(InventoryObjectRef.transform, false);
                     ItemObject.GetComponent<Rigidbody2D>().bodyType = RigidbodyType2D.Static;
                     ItemObject.GetComponent<BoxCollider2D>().size = transform.GetComponent<RectTransform>().rect.size;
-                    ItemObject.GetComponent<ItemObject>().SetDataRoute(ActualData, Placer.NewParentItem);
+                    ItemObject.GetComponent<ItemObject>().SetDataRoute(ActualData, placer.NewParentItem);
                     ItemObject.GetComponent<ItemObject>().ActualData.SelfGameobject = ItemObject;
-                    ItemObject.GetComponent<ItemObject>().Placing(InventorySystem.CanBePlace(ActualData, Placer), Placer);
+                    ItemObject.GetComponent<ItemObject>().Placing(InventorySystem.CanBePlace(ActualData, placer), placer);
                     ItemObject.GetComponent<ItemObject>().BuildContainer();
                 }
                 else

@@ -43,7 +43,7 @@ namespace NaturalInventorys
                                     InspectPlayerInventory(Data, Root);
                                     NonLive_Positioning(Y,X,sectorIndex,Data,Root);
                                     NonLive_Placing(Data, Root);
-                                    SetStatus_And_HotKey(Data, Root);
+                                    HotKey_SetStatus_SupplementaryTransformation(Data, Root);
                                     ItemAdded = true;
                                 }
                             }

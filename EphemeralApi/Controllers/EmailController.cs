@@ -17,8 +17,8 @@ public class EmailController : ControllerBase
             message.To.Add(new MailboxAddress("Címzett", request.To));
             message.Subject = request.Subject;
 
-            // E-mail törzsének beállítása
-            message.Body = new TextPart("plain")
+            // E-mail törzsének beállítása HTML formátumban
+            message.Body = new TextPart("html")
             {
                 Text = request.Body
             };
@@ -26,7 +26,7 @@ public class EmailController : ControllerBase
             using (var client = new SmtpClient())
             {
                 client.Connect("smtp.gmail.com", 587, false);
-                client.Authenticate("ephemeralcourage@gmail.com", "mrkj yclq zkhr gyiq"); // ⚠️ KÜLÖN KEZELD A JELSZÓT
+                client.Authenticate("ephemeralcourage@gmail.com", "mrkj yclq zkhr gyiq");
                 client.Send(message);
                 client.Disconnect(true);
             }

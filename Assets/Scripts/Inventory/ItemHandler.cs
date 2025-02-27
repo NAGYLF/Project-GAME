@@ -1168,7 +1168,7 @@ namespace ItemHandler
                 }
                 return true;
             }
-            else if (placer.ActiveItemSlots != null && placer.ActiveItemSlots.Count == Data.SizeX * Data.SizeY && placer.ActiveItemSlots.Count == placer.ActiveItemSlots.FindAll(elem => elem.GetComponent<ItemSlot>().ParentObject == placer.ActiveItemSlots.First().GetComponent<ItemSlot>().ParentObject).Count)
+            else if (placer.ActiveItemSlots != null && placer.ActiveItemSlots.Count == Data.SizeX * Data.SizeY && placer.ActiveItemSlots.Count == placer.ActiveItemSlots.FindAll(item => item.GetComponent<ItemSlot>().ParentObject == placer.ActiveItemSlots.First().GetComponent<ItemSlot>().ParentObject && item.GetComponent<ItemSlot>().sectorId == placer.ActiveItemSlots.First().GetComponent<ItemSlot>().sectorId).Count)
             {
                 for (int i = 0; i < placer.ActiveItemSlots.Count; i++)
                 {

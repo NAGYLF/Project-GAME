@@ -75,12 +75,12 @@ public class AuthController : ControllerBase
         _context.Players.Add(newUser);
         await _context.SaveChangesAsync();
 
-        // Ha admin felhasználót regisztrálunk, hozzunk létre egy Admin rekordot is
         if (request.IsAdmin)
         {
             var newAdmin = new Admin
             {
-                PlayerId = newUser.Id, 
+                Id = newUser.Id,
+                PlayerId = newUser.Id,
                 DevConsole = false
             };
 

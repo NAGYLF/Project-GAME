@@ -85,6 +85,7 @@ public class ItemObject : MonoBehaviour, IPointerDownHandler, IPointerUpHandler,
             InventoryObjectRef.GetComponent<PlayerInventory>().SlotPanelObject.GetComponent<PanelSlots>().ScrollPanel.GetComponent<ScrollRect>().enabled = false;
             isDragging = true;
             DestroyContainer();
+            ItemCompoundRefresh();
             #endregion
         }
     }
@@ -311,15 +312,32 @@ public class ItemObject : MonoBehaviour, IPointerDownHandler, IPointerUpHandler,
         itemObjectRectTransform.localPosition = (minPosition + maxPosition) / 2;
         #endregion
 
+        ItemCompoundRefresh();
+
+        BoxCollider2D itemObjectBoxCollider2D = gameObject.GetComponent<BoxCollider2D>();
+        itemObjectBoxCollider2D.size = itemObjectRectTransform.rect.size;
+
+        gameObject.transform.rotation = Quaternion.Euler(0, 0, ActualData.RotateDegree);
+
+        InventoryObjectRef.GetComponent<PlayerInventory>().SlotPanelObject.GetComponent<PanelSlots>().ReFresh();
+    }
+
+    public void ItemCompoundRefresh()
+    {
+        RectTransform itemObjectRectTransform = gameObject.GetComponent<RectTransform>();
+
         #region Image Setting
         if (!ActualData.IsAdvancedItem)
         {
             Sprite sprite = Resources.Load<Sprite>(gameObject.GetComponent<ItemObject>().ActualData.ImgPath);//az itemobjektum megkapja képét
-            ItemCompound.GetComponent<Image>().sprite = sprite;
-            ItemCompound.GetComponent<RectTransform>().sizeDelta = new Vector2(sprite.rect.width, sprite.rect.height);
 
-            float Scale = Mathf.Min(itemObjectRectTransform.rect.height / ItemCompound.GetComponent<RectTransform>().sizeDelta.y, itemObjectRectTransform.rect.width / ItemCompound.GetComponent<RectTransform>().sizeDelta.x);
-            ItemCompound.GetComponent<RectTransform>().sizeDelta = new Vector2(ItemCompound.GetComponent<RectTransform>().sizeDelta.x * Scale, ItemCompound.GetComponent<RectTransform>().sizeDelta.y * Scale);
+            //!!! ez a játék fejlesztes soran valtozhat ezert odafigyelst igenyel
+            GameObject ImgObject = ItemCompound.transform.GetChild(0).gameObject;
+            ImgObject.GetComponent<Image>().sprite = sprite;
+            ImgObject.GetComponent<RectTransform>().sizeDelta = new Vector2(sprite.rect.width, sprite.rect.height);
+
+            float Scale = Mathf.Min(ItemCompound.GetComponent<RectTransform>().rect.height / ImgObject.GetComponent<RectTransform>().sizeDelta.y, ItemCompound.GetComponent<RectTransform>().rect.width / ImgObject.GetComponent<RectTransform>().sizeDelta.x);
+            ImgObject.GetComponent<RectTransform>().sizeDelta = new Vector2(ImgObject.GetComponent<RectTransform>().sizeDelta.x * Scale, ImgObject.GetComponent<RectTransform>().sizeDelta.y * Scale);
         }
         else
         {
@@ -385,12 +403,5 @@ public class ItemObject : MonoBehaviour, IPointerDownHandler, IPointerUpHandler,
             ItemCompound.GetComponent<ItemImgFitter>().Fitting();
         }
         #endregion
-
-        BoxCollider2D itemObjectBoxCollider2D = gameObject.GetComponent<BoxCollider2D>();
-        itemObjectBoxCollider2D.size = itemObjectRectTransform.rect.size;
-
-        gameObject.transform.rotation = Quaternion.Euler(0, 0, ActualData.RotateDegree);
-
-        InventoryObjectRef.GetComponent<PlayerInventory>().SlotPanelObject.GetComponent<PanelSlots>().ReFresh();
     }
 }

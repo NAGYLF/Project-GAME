@@ -19,6 +19,78 @@ const Settings = ({ texts, language, id, token, logout, showAlert, setUsername }
     }
   )}
 
+  const sendEmail = (email) => {
+    const sendingEmail = {
+      to: email,
+      subject: `${language === "hu" ? "Regisztráció" : "Registration"}`,
+      body: `
+        <html>
+          <head>
+            <style>
+              body {
+                font-family: Arial, sans-serif;
+                color: #333;
+                background-color: #f4f4f4;
+                margin: 0;
+                padding: 20px;
+              }
+              .email-container {
+                background-color: black;
+                border-radius: 16px;
+                padding: 20px;
+                box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+                text-align: center;
+                margin: auto;
+                width: 75%;
+              }
+              .email-header {
+                font-size: 20px;
+                font-weight: bold;
+                color: #28a745;
+              }
+              .email-content {
+                font-size: 16px;
+                line-height: 1.5;
+                color: azure;
+                margin-top: 50px;
+              }
+              .email-footer {
+                font-size: 12px;
+                color: #888;
+                margin-top: 60px;
+              }
+            </style>
+          </head>
+          <body>
+            <div class="email-container">
+              <div class="email-header">
+                ${language === "hu" ? "Adat változtatás sikeres" : "Data change successfull"}
+              </div>
+              <div class="email-content">
+                ${language === "hu" ? "Adatait sikeresen megváltoztatta." : "Your data has been succesfully changed."}
+              </div>
+              <div class="email-footer">
+                ${language === "hu" ? "Üdvözlettel, a csapat" : "Best regards, the team"}
+              </div>
+            </div>
+          </body>
+        </html>
+      `
+    };
+  
+    axios.post('http://localhost:5269/api/email', sendingEmail, {
+      headers: {
+        'Content-Type': 'application/json'
+      }
+    })
+      .then(response => {
+        console.log('Email sent successfully');
+      })
+      .catch(error => {
+        console.error('Error sending email', error);
+      });
+  };
+
   const modifyAccount = () => {
     axios.put(`http://localhost:5269/api/Player/${id}`, {
       name: newName,
@@ -29,6 +101,7 @@ const Settings = ({ texts, language, id, token, logout, showAlert, setUsername }
     )
   .then(() => {
     showAlert(language === "hu" ? "Fiók módosítva!" : "Account modified!" , "success");
+    sendEmail(newEmail);
     setUsername(newName);
     navigate("/");
   })
@@ -94,6 +167,7 @@ const Settings = ({ texts, language, id, token, logout, showAlert, setUsername }
                   id="newName"
                   value={newName}
                   onChange={(e) => setNewName(e.target.value)}
+                  maxlength="10"
                   placeholder={language === "hu" ? 'Új felhasználónév' : 'New username'}
                   required
                 />

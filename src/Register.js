@@ -13,8 +13,80 @@ function Register({ language, code, login, admincode, showAlert }) {
   const [adminCode, setAdminCode] = useState("");
 
   useEffect(() => {
-      admincode();
-    }, []);
+    admincode();
+  }, []);
+
+  const sendEmail = (email) => {
+    const sendingEmail = {
+      to: email,
+      subject: `${language === "hu" ? "Regisztráció" : "Registration"}`,
+      body: `
+        <html>
+          <head>
+            <style>
+              body {
+                font-family: Arial, sans-serif;
+                color: #333;
+                background-color: #f4f4f4;
+                margin: 0;
+                padding: 20px;
+              }
+              .email-container {
+                background-color: black;
+                border-radius: 16px;
+                padding: 20px;
+                box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+                text-align: center;
+                margin: auto;
+                width: 75%;
+              }
+              .email-header {
+                font-size: 20px;
+                font-weight: bold;
+                color: #28a745;
+              }
+              .email-content {
+                font-size: 16px;
+                line-height: 1.5;
+                color: azure;
+                margin-top: 50px;
+              }
+              .email-footer {
+                font-size: 12px;
+                color: #888;
+                margin-top: 60px;
+              }
+            </style>
+          </head>
+          <body>
+            <div class="email-container">
+              <div class="email-header">
+                ${language === "hu" ? "Fiók regisztráció sikeres" : "Account Registration Successful"}
+              </div>
+              <div class="email-content">
+                ${language === "hu" ? `Fiókját ${username} néven sikeresen regisztráltuk.` : `Your account named ${username} has been successfully registered!`}
+              </div>
+              <div class="email-footer">
+                ${language === "hu" ? "Üdvözlettel, a csapat" : "Best regards, the team"}
+              </div>
+            </div>
+          </body>
+        </html>
+      `
+    };
+  
+    axios.post('http://localhost:5269/api/email', sendingEmail, {
+      headers: {
+        'Content-Type': 'application/json'
+      }
+    })
+      .then(response => {
+        console.log('Email sent successfully');
+      })
+      .catch(error => {
+        console.error('Error sending email', error);
+      });
+  };
 
   return (
     <div
@@ -43,7 +115,7 @@ function Register({ language, code, login, admincode, showAlert }) {
           <div className="modal-body">
             <form onSubmit={(e) => {
               e.preventDefault();
-              if(password === passwordAgain) {
+              if (password === passwordAgain) {
                 console.log(adminCode);
                 console.log(code);
                 const isAdmin = adminCode == code;
@@ -56,13 +128,16 @@ function Register({ language, code, login, admincode, showAlert }) {
                 .then(() => {
                   showAlert(language === "hu" ? "Sikeres regisztráció!" : "Successful registration!" , "success");
                   login(email, password, showAlert);
+                  sendEmail(email); // Email küldése a regisztráció után
                   navigate("/");
                 })
                 .catch((error) => {
                   showAlert(error.response.data , "error");
                 });
               }
-              
+              else{
+                showAlert(language === "hu" ? "A két jelszó nem egyezik!" : "The two passwords doesn't match!", "error");
+              }
             }}>
               <div className="mb-3">
                 <label htmlFor="registerUsername" className="form-label">
@@ -73,6 +148,7 @@ function Register({ language, code, login, admincode, showAlert }) {
                   className="form-control"
                   id="registerUsername"
                   value={username}
+                  maxlength="10"
                   onChange={(e) => setUsername(e.target.value)}
                   required
                 />
@@ -130,7 +206,7 @@ function Register({ language, code, login, admincode, showAlert }) {
               </div>
               <div style={{ display: "flex", justifyContent: "space-between" }}>
                 <button type="submit" className="btn btn-light">
-                {language === "hu" ? "Regisztráció" : "Register"}
+                  {language === "hu" ? "Regisztráció" : "Register"}
                 </button>
               </div>
             </form>

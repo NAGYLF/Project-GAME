@@ -1,11 +1,11 @@
 -- phpMyAdmin SQL Dump
--- version 5.2.1
+-- version 5.1.1
 -- https://www.phpmyadmin.net/
 --
 -- Gép: 127.0.0.1
--- Létrehozás ideje: 2025. Feb 24. 13:31
--- Kiszolgáló verziója: 10.4.32-MariaDB
--- PHP verzió: 8.0.30
+-- Létrehozás ideje: 2025. Feb 27. 07:47
+-- Kiszolgáló verziója: 10.4.20-MariaDB
+-- PHP verzió: 7.3.29
 
 SET SQL_MODE = "NO_AUTO_VALUE_ON_ZERO";
 START TRANSACTION;
@@ -35,16 +35,17 @@ CREATE TABLE `achievement` (
   `FirstBlood` tinyint(1) DEFAULT 0,
   `RookieWork` tinyint(1) DEFAULT 0,
   `YouAreOnYourOwnNow` tinyint(1) DEFAULT 0
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
 
 --
 -- A tábla adatainak kiíratása `achievement`
 --
 
 INSERT INTO `achievement` (`Id`, `PlayerId`, `FirstBlood`, `RookieWork`, `YouAreOnYourOwnNow`) VALUES
-(1, 1, 1, 0, 0),
-(2, 2, 1, 1, 0),
-(3, 3, 0, 1, 1);
+(6, 6, 1, 1, 1),
+(7, 7, 1, 0, 1),
+(10, 10, 1, 1, 0),
+(11, 11, 0, 1, 0);
 
 -- --------------------------------------------------------
 
@@ -56,14 +57,15 @@ CREATE TABLE `admin` (
   `Id` int(11) NOT NULL,
   `PlayerId` int(11) NOT NULL,
   `DevConsole` tinyint(1) NOT NULL DEFAULT 0
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
 
 --
 -- A tábla adatainak kiíratása `admin`
 --
 
 INSERT INTO `admin` (`Id`, `PlayerId`, `DevConsole`) VALUES
-(1, 1, 0);
+(10, 10, 0),
+(11, 11, 1);
 
 -- --------------------------------------------------------
 
@@ -78,16 +80,17 @@ CREATE TABLE `player` (
   `Email` varchar(255) NOT NULL,
   `IsAdmin` tinyint(1) NOT NULL DEFAULT 0,
   `IsBanned` tinyint(1) NOT NULL DEFAULT 0
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
 
 --
 -- A tábla adatainak kiíratása `player`
 --
 
 INSERT INTO `player` (`Id`, `Name`, `Password`, `Email`, `IsAdmin`, `IsBanned`) VALUES
-(1, 'AdminUser', 'adminpass', 'admin@example.com', 1, 0),
-(2, 'RegularUser', 'userpass', 'user@example.com', 0, 0),
-(3, 'string', '$2a$11$EOSXi35klHy7a3KZvQc0NuPRVpOoOMLhNfQ6F4I91HFl5n06QfQ2y', 'string@.com', 0, 1);
+(6, 'TestPlayer', '$2a$11$NfmNe8sARCDRsctkGdzCLeC4FQ4TPyuxzNs4oSfA7yIMk7ul9Skcm', 'TestPlayer@Gmail.com', 0, 0),
+(7, 'TestBanned', '$2a$11$2TKoLiEfKSF9ukhGdRwaievtyn.wSisn5ZC6q6GYQ2rUQxCuwHCNy', 'TestPlayerBanned@Gmail.com', 0, 1),
+(10, 'TestAdmin', '$2a$11$FRnm7qqc1znlfdhSYY18SOX7ZyCEkqXC36wZ6ozM09ASoIcTEgPL2', 'TestAdmin@gmail.com', 1, 0),
+(11, 'TestDev', '$2a$11$Ngj0JZGzT5mEfB6uLkFN7uFLoV0G2R7K2IymVlPuhZfaWR1j7oZS2', 'TestDevConsole@gmail.com', 1, 0);
 
 -- --------------------------------------------------------
 
@@ -101,16 +104,17 @@ CREATE TABLE `statistic` (
   `DeathCount` int(11) DEFAULT 0,
   `Score` int(11) DEFAULT 0,
   `EnemiesKilled` int(11) DEFAULT 0
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
 
 --
 -- A tábla adatainak kiíratása `statistic`
 --
 
 INSERT INTO `statistic` (`Id`, `PlayerId`, `DeathCount`, `Score`, `EnemiesKilled`) VALUES
-(1, 1, 5, 1200, 20),
-(2, 2, 2, 800, 10),
-(3, 3, 7, 1500, 30);
+(6, 6, 10, 100, 13),
+(7, 7, 0, 99999, 99999),
+(10, 10, 1, 1000, 10000),
+(11, 11, 2, 12455, 1001);
 
 --
 -- Indexek a kiírt táblákhoz
@@ -152,25 +156,25 @@ ALTER TABLE `statistic`
 -- AUTO_INCREMENT a táblához `achievement`
 --
 ALTER TABLE `achievement`
-  MODIFY `Id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=4;
+  MODIFY `Id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=12;
 
 --
 -- AUTO_INCREMENT a táblához `admin`
 --
 ALTER TABLE `admin`
-  MODIFY `Id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=2;
+  MODIFY `Id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=12;
 
 --
 -- AUTO_INCREMENT a táblához `player`
 --
 ALTER TABLE `player`
-  MODIFY `Id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=6;
+  MODIFY `Id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=12;
 
 --
 -- AUTO_INCREMENT a táblához `statistic`
 --
 ALTER TABLE `statistic`
-  MODIFY `Id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=4;
+  MODIFY `Id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=12;
 
 --
 -- Megkötések a kiírt táblákhoz

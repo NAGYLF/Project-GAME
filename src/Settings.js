@@ -11,13 +11,14 @@ const Settings = ({ texts, language, id, token, logout, showAlert, setUsername }
   const location = useLocation();
   const navigate = useNavigate();
 
-  const deleteAccount = () =>{
+  const deleteAccount = () => {
     axios.delete(`http://localhost:5269/api/Player/${id}?token=${token}`).then(() => {
       logout();
-      showAlert(language === "hu" ? "Fiók sikeresen törölve!" : "User successfully deleted!" , "success");
+      showAlert(language === "hu" ? "Fiók sikeresen törölve!" : "User successfully deleted!", "success");
       navigate("/");
     }
-  )}
+    )
+  }
 
   const sendEmail = (email) => {
     const sendingEmail = {
@@ -25,59 +26,72 @@ const Settings = ({ texts, language, id, token, logout, showAlert, setUsername }
       subject: `${language === "hu" ? "Regisztráció" : "Registration"}`,
       body: `
         <html>
-          <head>
+        <head>
+            <meta charset="UTF-8">
+            <meta name="viewport" content="width=device-width, initial-scale=1.0">
+            <title>Ephemeral Courage - Adatmódosítás</title>
             <style>
-              body {
-                font-family: Arial, sans-serif;
-                color: #333;
-                background-color: #f4f4f4;
-                margin: 0;
-                padding: 20px;
-              }
-              .email-container {
-                background-color: black;
-                border-radius: 16px;
-                padding: 20px;
-                box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
-                text-align: center;
-                margin: auto;
-                width: 75%;
-              }
-              .email-header {
-                font-size: 20px;
-                font-weight: bold;
-                color: #28a745;
-              }
-              .email-content {
-                font-size: 16px;
-                line-height: 1.5;
-                color: azure;
-                margin-top: 50px;
-              }
-              .email-footer {
-                font-size: 12px;
-                color: #888;
-                margin-top: 60px;
-              }
-            </style>
-          </head>
-          <body>
-            <div class="email-container">
-              <div class="email-header">
-                ${language === "hu" ? "Adat változtatás sikeres" : "Data change successfull"}
-              </div>
-              <div class="email-content">
-                ${language === "hu" ? "Adatait sikeresen megváltoztatta." : "Your data has been succesfully changed."}
-              </div>
-              <div class="email-footer">
-                ${language === "hu" ? "Üdvözlettel, a csapat" : "Best regards, the team"}
-              </div>
+                body {
+            font-family: Arial, sans-serif;
+            background-color: #1A1A1A;
+            margin: 0;
+            padding: 0;
+            color: #D3D3D3;
+        }
+        .container {
+            max-width: 600px;
+            margin: 20px auto;
+            background-color: #252525;
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0px 4px 10px rgba(0, 0, 0, 0.5);
+        }
+        .header {
+            background-color: #111;
+            padding: 15px;
+            text-align: center;
+            border-radius: 8px 8px 0 0;
+        }
+        .header h1 {
+            font-size: 24px;
+            font-weight: bold;
+            text-transform: uppercase;
+            color: #D3D3D3;
+            letter-spacing: 2px;
+        }
+        .content {
+            padding: 20px;
+            text-align: center;
+            color: #D3D3D3;
+        }
+        .footer {
+            margin-top: 20px;
+            text-align: center;
+            font-size: 12px;
+            color: #A0A0A0;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>Ephemeral Courage</h1>
+        </div>
+                <div class="content">
+            <h2>${language === "hu" ? "Adataid sikeresen frissítve!" : "Your data has been successfully updated!"}</h2>
+            <p>${language === "hu" ? `Kedves <strong>${newName}</strong>, a fiókod adatai sikeresen módosítva lettek az` : `Dear <strong>${newName}</strong>, your account data has been successfully updated in the`} <strong>Ephemeral Courage</strong> ${language === "hu" ? "világában." : "world."}</p>
+            <p>${language === "hu" ? "Ha te végezted a módosítást, nincs további teendőd." : "If you made these changes, no further action is needed."}</p>
+            <p>${language === "hu" ? "Ha nem te kezdeményezted a változtatásokat, kérjük, lépj kapcsolatba az ügyfélszolgálattal!" : "If you did not initiate these changes, please contact customer support!"}</p>
+        </div>
+        <div class="footer">
+            &copy; 2025 Ephemeral Courage | ${language === "hu" ? "Minden jog fenntartva." : "All rights reserved."}
+        </div>
             </div>
-          </body>
+        </body>
         </html>
       `
     };
-  
+
     axios.post('http://localhost:5269/api/email', sendingEmail, {
       headers: {
         'Content-Type': 'application/json'
@@ -97,17 +111,18 @@ const Settings = ({ texts, language, id, token, logout, showAlert, setUsername }
       email: newEmail,
       password: newPassword,
       isAdmin: IsAdmin
-      }, 
+    },
     )
-  .then(() => {
-    showAlert(language === "hu" ? "Fiók módosítva!" : "Account modified!" , "success");
-    sendEmail(newEmail);
-    setUsername(newName);
-    navigate("/");
-  })
-  .catch((error) => {
-    showAlert(language === "hu" ? "Hiba!" : "Error!", "error");
-  })};
+      .then(() => {
+        showAlert(language === "hu" ? "Fiók módosítva!" : "Account modified!", "success");
+        sendEmail(newEmail);
+        setUsername(newName);
+        navigate("/");
+      })
+      .catch((error) => {
+        showAlert(language === "hu" ? "Hiba!" : "Error!", "error");
+      })
+  };
 
   useEffect(() => {
     if (id) {
@@ -146,17 +161,18 @@ const Settings = ({ texts, language, id, token, logout, showAlert, setUsername }
               onClick={() => navigate("/")}
             ></button>
           </div>
-          <p style={{textAlign: "center", margin: "auto", marginTop: "20px", cursor: "default"}}>{language === "hu" ? "A változtatni nem kívánt adatokat hagyd változtatlanul." : "Leave the data you don't want to change unchanged."}</p>
+          <p style={{ textAlign: "center", margin: "auto", marginTop: "20px", cursor: "default" }}>{language === "hu" ? "A változtatni nem kívánt adatokat hagyd változtatlanul." : "Leave the data you don't want to change unchanged."}</p>
           <div className="modal-body">
             <form onSubmit={(e) => {
               e.preventDefault();
-              if(newPassword === newPasswordAgain) {
-              modifyAccount();
-              navigate("/");
-            }
-            else{
-              showAlert(language === "hu" ? "A két jelszó nem egyezik!" : "The two password doesn't match!" , "error");
-            }}}>
+              if (newPassword === newPasswordAgain) {
+                modifyAccount();
+                navigate("/");
+              }
+              else {
+                showAlert(language === "hu" ? "A két jelszó nem egyezik!" : "The two password doesn't match!", "error");
+              }
+            }}>
               <div className="mb-3">
                 <label htmlFor="newName" className="form-label">
                   {language === "hu" ? 'Új felhasználónév' : 'New username'}
@@ -214,10 +230,10 @@ const Settings = ({ texts, language, id, token, logout, showAlert, setUsername }
               </div>
               <div className="d-flex justify-content-between">
                 <button type="submit" className="btn btn-light">
-                {language === "hu" ? 'Mentés' : 'Save'}
+                  {language === "hu" ? 'Mentés' : 'Save'}
                 </button>
                 <button type="button" className="btn btn-danger" onClick={() => (window.confirm("Biztosan törölni szeretnéd a fiókod?") ? deleteAccount() : null)}>
-                {language === "hu" ? 'Fiók törlése' : 'Delete account'}
+                  {language === "hu" ? 'Fiók törlése' : 'Delete account'}
                 </button>
               </div>
             </form>

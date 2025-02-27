@@ -22,59 +22,69 @@ function Register({ language, code, login, admincode, showAlert }) {
       subject: `${language === "hu" ? "Regisztráció" : "Registration"}`,
       body: `
         <html>
-          <head>
+        <head>
             <style>
-              body {
-                font-family: Arial, sans-serif;
-                color: #333;
-                background-color: #f4f4f4;
-                margin: 0;
-                padding: 20px;
-              }
-              .email-container {
-                background-color: black;
-                border-radius: 16px;
-                padding: 20px;
-                box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
-                text-align: center;
-                margin: auto;
-                width: 75%;
-              }
-              .email-header {
-                font-size: 20px;
-                font-weight: bold;
-                color: #28a745;
-              }
-              .email-content {
-                font-size: 16px;
-                line-height: 1.5;
-                color: azure;
-                margin-top: 50px;
-              }
-              .email-footer {
-                font-size: 12px;
-                color: #888;
-                margin-top: 60px;
-              }
-            </style>
-          </head>
-          <body>
-            <div class="email-container">
-              <div class="email-header">
-                ${language === "hu" ? "Fiók regisztráció sikeres" : "Account Registration Successful"}
-              </div>
-              <div class="email-content">
-                ${language === "hu" ? `Fiókját ${username} néven sikeresen regisztráltuk.` : `Your account named ${username} has been successfully registered!`}
-              </div>
-              <div class="email-footer">
-                ${language === "hu" ? "Üdvözlettel, a csapat" : "Best regards, the team"}
-              </div>
+                body {
+            font-family: Arial, sans-serif;
+            background-color: #1A1A1A;
+            margin: 0;
+            padding: 0;
+            color: #D3D3D3;
+        }
+        .container {
+            max-width: 600px;
+            margin: 20px auto;
+            background-color: #252525;
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0px 4px 10px rgba(0, 0, 0, 0.5);
+        }
+        .header {
+            background-color: #111;
+            padding: 15px;
+            text-align: center;
+            border-radius: 8px 8px 0 0;
+        }
+        .header h1 {
+            font-size: 24px;
+            font-weight: bold;
+            text-transform: uppercase;
+            color: #D3D3D3;
+            letter-spacing: 2px;
+        }
+        .content {
+            padding: 20px;
+            text-align: center;
+            color: #D3D3D3;
+        }
+        .footer {
+            margin-top: 20px;
+            text-align: center;
+            font-size: 12px;
+            color: #A0A0A0;
+        }
+        </style>
+      </head>
+      <body>
+        <div class="container">
+            <div class="header">
+                <h1>Ephemeral Courage</h1>
             </div>
-          </body>
+                <div class="content">
+            <h2>${language === "hu" ? "Üdvözlünk a csatamezőn!" : "Welcome to the battleground!"}</h2>
+            <p>${language === "hu" ? `Kedves <strong>${username}</strong>, a fiókod sikeresen regisztrálva lett az` : `Dear <strong>${username}</strong>, your account has been successfully registered in the`} <strong>Ephemeral Courage</strong> ${language === "hu" ? "világában." : "world."}</p>
+            <p>${language === "hu" ? "Készen állsz, hogy te legyél a legkiemelkedőbb játékos?" : "Are you ready to become the most outstanding player?"}</p>
+            <p>${language === "hu" ? "Jelentkezz be most, és kezdd meg az uralkodásodat!" : "Log in now and start your reign!"}</p>
+        </div>
+        <div class="footer">
+            &copy; 2025 Ephemeral Courage | ${language === "hu" ? "Minden jog fenntartva." : "All rights reserved."}
+        </div>
+            </div>
+        </body>
         </html>
       `
     };
-  
+
     axios.post('http://localhost:5269/api/email', sendingEmail, {
       headers: {
         'Content-Type': 'application/json'
@@ -119,23 +129,23 @@ function Register({ language, code, login, admincode, showAlert }) {
                 console.log(adminCode);
                 console.log(code);
                 const isAdmin = adminCode == code;
-                axios.post("http://localhost:5269/api/auth/register", { 
+                axios.post("http://localhost:5269/api/auth/register", {
                   name: username,
                   password: password,
                   email: email,
                   isAdmin: isAdmin
                 })
-                .then(() => {
-                  showAlert(language === "hu" ? "Sikeres regisztráció!" : "Successful registration!" , "success");
-                  login(email, password, showAlert);
-                  sendEmail(email); // Email küldése a regisztráció után
-                  navigate("/");
-                })
-                .catch((error) => {
-                  showAlert(error.response.data , "error");
-                });
+                  .then(() => {
+                    showAlert(language === "hu" ? "Sikeres regisztráció!" : "Successful registration!", "success");
+                    login(email, password, showAlert);
+                    sendEmail(email); // Email küldése a regisztráció után
+                    navigate("/");
+                  })
+                  .catch((error) => {
+                    showAlert(error.response.data, "error");
+                  });
               }
-              else{
+              else {
                 showAlert(language === "hu" ? "A két jelszó nem egyezik!" : "The two passwords doesn't match!", "error");
               }
             }}>

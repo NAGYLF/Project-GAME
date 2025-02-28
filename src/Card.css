@@ -111,7 +111,7 @@
     display: flex;
     justify-content: center;
     flex-wrap: wrap;
-    margin-top: 17.5vh;
+    margin-top: 7vh;
   }
 
   @media (max-width: 768px) {
@@ -125,6 +125,11 @@
 
     .content .cards{
         display: block;
-        margin-top: 60vh;
+        margin-top: 40vh;
+    }
+
+    .content{
+        height: 100vh;
+        overflow: auto;
     }
   }

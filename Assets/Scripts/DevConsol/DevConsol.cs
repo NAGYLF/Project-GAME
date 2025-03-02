@@ -6,6 +6,7 @@ using PlayerInventoryClass;
 using System;
 using System.Linq;
 using UI;
+using System.Collections.Generic;
 public class DevConsol : MonoBehaviour
 {
     public GameObject text;
@@ -195,7 +196,13 @@ public class DevConsol : MonoBehaviour
                 break;
             case "Clear":
                 Debug.Log($"{text.GetComponent<TMP_InputField>().text}");
+                List<Item> TemporaryItemList = new List<Item>(inventory.GetComponent<PlayerInventory>().levelManager.Items);
+                foreach (Item item in TemporaryItemList)
+                {
+                    InventorySystem.Delete(inventory.GetComponent<PlayerInventory>().levelManager.Items.Find(i=>i == item));
+                }
                 inventory.GetComponent<ContainerObject>().ActualData = null;
+                TemporaryItemList.Clear();
                 inventory.GetComponent<PlayerInventory>().levelManager.Items.Clear();
                 inventory.GetComponent<PlayerInventory>().CreateEmptyInvenotry();
                 break;

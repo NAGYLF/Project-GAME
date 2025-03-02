@@ -35,7 +35,7 @@ namespace PlayerInventoryClass
             public int MaxLVL { get; private set; }
             public void SetMaxLVL_And_Sort()
             {
-                MaxLVL = Items.Max(item => item.Lvl);
+                MaxLVL = Items.Select(item => item.Lvl).DefaultIfEmpty(-1).Max();
                 Items = Items.OrderBy(item => item.Lvl).ThenBy(item => item.LowestSlotUseNumber + ((item.ParentItem == null ? -1 : Items.IndexOf(item.ParentItem)) * 10000)).ToList();
             }
             public LevelManager()
@@ -182,7 +182,6 @@ namespace PlayerInventoryClass
         private bool AddingByNewItemByRotate(int lvl, Item Data)
         {
             Data.RotateDegree = 90;
-            (Data.SizeX, Data.SizeY) = (Data.SizeY, Data.SizeX);
             List<Item> itemsOfLvl = levelManager.Items.Where(Item => Item.Lvl == lvl && Item.Container != null).ToList();
             for (int itemIndex = 0; itemIndex < itemsOfLvl.Count; itemIndex++)
             {
@@ -201,7 +200,6 @@ namespace PlayerInventoryClass
                                     NonLive_Positioning(Y, X, sectorIndex, Data, itemsOfLvl[itemIndex]);
                                     NonLive_Placing(Data, itemsOfLvl[itemIndex]);
                                     HotKey_SetStatus_SupplementaryTransformation(Data, itemsOfLvl[itemIndex]);
-                                    (Data.SizeX, Data.SizeY) = (Data.SizeY, Data.SizeX);
                                     //Debug.Log($"Item Added in container");
                                     return true;
                                 }
@@ -211,7 +209,6 @@ namespace PlayerInventoryClass
                 }
             }
             Data.RotateDegree = 0;
-            (Data.SizeX, Data.SizeY) = (Data.SizeY, Data.SizeX);
             return false;
         }
         public void InventoryAdd(Item item)//az equipmentekbe nem ad count szerint.

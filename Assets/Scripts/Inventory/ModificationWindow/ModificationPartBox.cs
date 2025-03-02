@@ -30,6 +30,7 @@ public class ModificationPartBox : MonoBehaviour, IPointerDownHandler
 
         if (NewPosition.IsPositionAble)
         {
+            //fix ezt forditva mukodik elv
             InventorySystem.NonLive_Positioning(NewPosition.NonLiveCoordinates.First().Y, NewPosition.NonLiveCoordinates.First().X, NewPosition.SectorIndex, AdvancedItem, AdvancedItem.ParentItem);
 
             InventorySystem.NonLive_UnPlacing(AdvancedItem);

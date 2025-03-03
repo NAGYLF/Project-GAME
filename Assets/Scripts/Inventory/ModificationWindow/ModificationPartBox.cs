@@ -16,7 +16,6 @@ public class ModificationPartBox : MonoBehaviour, IPointerDownHandler
     {
         //Debug.LogWarning("DragMouse at box");
 
-
         List<Part> parts_ = new List<Part>()
         {
             AdvancedItem.Parts[PartIndex]
@@ -24,14 +23,14 @@ public class ModificationPartBox : MonoBehaviour, IPointerDownHandler
         AdvancedItem.Parts[PartIndex].GetConnectedPartsTree(parts_);
 
         ((int X, int Y) ChangedSize, Dictionary<char, int> Directions) Effect = InventorySystem.AdvancedItem_SizeChanger_EffectDetermination(AdvancedItem, parts_, false);
-        (HashSet<(int X, int Y)> NonLiveCoordinates, int SectorIndex, bool IsPositionAble) NewPosition = InventorySystem.Try_PartPositioning(AdvancedItem, Effect.ChangedSize, Effect.Directions);
+        (HashSet<(int Height, int Widht)> NonLiveCoordinates, int SectorIndex, bool IsPositionAble) NewPosition = InventorySystem.Try_PartPositioning(AdvancedItem, Effect.ChangedSize, Effect.Directions);
 
         List<Part> parts = AdvancedItem.PartCut(AdvancedItem.Parts[PartIndex]);
 
         if (NewPosition.IsPositionAble)
         {
             //fix ezt forditva mukodik elv
-            InventorySystem.NonLive_Positioning(NewPosition.NonLiveCoordinates.First().Y, NewPosition.NonLiveCoordinates.First().X, NewPosition.SectorIndex, AdvancedItem, AdvancedItem.ParentItem);
+            InventorySystem.NonLive_Positioning(NewPosition.NonLiveCoordinates.First().Height, NewPosition.NonLiveCoordinates.First().Widht, NewPosition.SectorIndex, AdvancedItem, AdvancedItem.ParentItem);
 
             InventorySystem.NonLive_UnPlacing(AdvancedItem);
             InventorySystem.NonLive_Placing(AdvancedItem, AdvancedItem.ParentItem);

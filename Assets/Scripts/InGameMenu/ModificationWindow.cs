@@ -201,7 +201,7 @@ public class ModificationWindow : MonoBehaviour, IPointerDownHandler
             //cloneParts2.OrderBy(part => part.HierarhicPlace);
 
             //vizualizaljuk a box-okat
-            for (int i = 0; i < cloneParts2.Count; i++)
+            for (int i = 1; i < cloneParts2.Count; i++)//1 tol kezd igy a hierarhiaban levo elso itemet nem lehet eltavolitani
             {
                 GameObject box = SupportScripts.CreatePrefab(ModificationPartBoxPath);
                 Boxes.Add(box);

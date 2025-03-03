@@ -40,7 +40,6 @@ using static MainData.Main;
 using UnityEngine.UI;
 using Assets.Scripts.Inventory;
 
-
 namespace ItemHandler
 {
     public struct MainItemPart
@@ -1273,7 +1272,6 @@ namespace ItemHandler
             item.SetSlotUse();//beallitjuk a slotuse azonositot
         }
 
-        //elotte ellenorizni kell hogy tortenik e valtozas a differencel ha nem akkor ezt nem hajtjuk vegre
         public static ((int X,int Y) ChangedSize, Dictionary<char,int> Directions) AdvancedItem_SizeChanger_EffectDetermination(Item AdvancedItem,List<Part> IncomingParts,bool Add)
         {
             /*
@@ -1285,6 +1283,7 @@ namespace ItemHandler
              */
             if (Add)//add
             {
+                //Debug.LogWarning($"DEtermination Add");
                 Dictionary<char, int> Directions = new();
 
                 (int X, int Y) ChangedSize = new(AdvancedItem.SizeX, AdvancedItem.SizeY);
@@ -1299,56 +1298,110 @@ namespace ItemHandler
                     {
                         if ((sizeChanger.Plus + ChangedSize.X) > sizeChanger.MaxPlus)
                         {
-                            Directions['R'] += sizeChanger.MaxPlus - ChangedSize.X;
+                            if (Directions.ContainsKey('R'))
+                            {
+                                Directions['R'] += sizeChanger.MaxPlus - ChangedSize.X;
+                            }
+                            else
+                            {
+                                Directions['R'] = sizeChanger.MaxPlus - ChangedSize.X;
+                            }
                             ChangedSize.X = sizeChanger.MaxPlus;
-
                         }
                         else
                         {
                             ChangedSize.X += sizeChanger.Plus;
-                            Directions['R'] += sizeChanger.Plus;
+                            if (Directions.ContainsKey('R'))
+                            {
+                                Directions['R'] += sizeChanger.Plus;
+                            }
+                            else
+                            {
+                                Directions['R'] = sizeChanger.Plus;
+                            }
                         }
                     }
                     else if (sizeChanger.Direction == "L" && ChangedSize.X < sizeChanger.MaxPlus)
                     {
                         if ((sizeChanger.Plus + ChangedSize.X) > sizeChanger.MaxPlus)
                         {
-                            Directions['L'] += sizeChanger.MaxPlus - ChangedSize.X;
+                            if (Directions.ContainsKey('L'))
+                            {
+                                Directions['L'] += sizeChanger.MaxPlus - ChangedSize.X;
+                            }
+                            else
+                            {
+                                Directions['L'] = sizeChanger.MaxPlus - ChangedSize.X;
+                            }
                             ChangedSize.X = sizeChanger.MaxPlus;
-
                         }
                         else
                         {
                             ChangedSize.X += sizeChanger.Plus;
-                            Directions['L'] += sizeChanger.Plus;
+                            if (Directions.ContainsKey('L'))
+                            {
+                                Directions['L'] += sizeChanger.Plus;
+                            }
+                            else
+                            {
+                                Directions['L'] = sizeChanger.Plus;
+                            }
                         }
                     }
                     else if (sizeChanger.Direction == "U" && ChangedSize.Y < sizeChanger.MaxPlus)
                     {
                         if ((sizeChanger.Plus + ChangedSize.Y) > sizeChanger.MaxPlus)
                         {
-                            Directions['U'] += sizeChanger.MaxPlus - ChangedSize.Y;
+                            if (Directions.ContainsKey('U'))
+                            {
+                                Directions['U'] += sizeChanger.MaxPlus - ChangedSize.Y;
+                            }
+                            else
+                            {
+                                Directions['U'] = sizeChanger.MaxPlus - ChangedSize.Y;
+                            }
                             ChangedSize.Y = sizeChanger.MaxPlus;
 
                         }
                         else
                         {
                             ChangedSize.Y += sizeChanger.Plus;
-                            Directions['U'] += sizeChanger.Plus;
+                            if (Directions.ContainsKey('U'))
+                            {
+                                Directions['U'] += sizeChanger.Plus;
+                            }
+                            else
+                            {
+                                Directions['U'] = sizeChanger.Plus;
+                            }
                         }
                     }
                     else if (sizeChanger.Direction == "D" && ChangedSize.Y < sizeChanger.MaxPlus)
                     {
                         if ((sizeChanger.Plus + ChangedSize.Y) > sizeChanger.MaxPlus)
                         {
-                            Directions['D'] += sizeChanger.MaxPlus - ChangedSize.Y;
+                            if (Directions.ContainsKey('D'))
+                            {
+                                Directions['D'] += sizeChanger.MaxPlus - ChangedSize.Y;
+                            }
+                            else
+                            {
+                                Directions['D'] = sizeChanger.MaxPlus - ChangedSize.Y;
+                            }
                             ChangedSize.Y = sizeChanger.MaxPlus;
 
                         }
                         else
                         {
                             ChangedSize.Y += sizeChanger.Plus;
-                            Directions['D'] += sizeChanger.Plus;
+                            if (Directions.ContainsKey('D'))
+                            {
+                                Directions['D'] += sizeChanger.Plus;
+                            }
+                            else
+                            {
+                                Directions['D'] = sizeChanger.Plus;
+                            }
                         }
                     }
                 }
@@ -1357,14 +1410,22 @@ namespace ItemHandler
             }
             else//delete
             {
+                //Debug.LogWarning($"DEtermination Remove");
                 Dictionary<char, int> Directions = new();
 
+                //az elso item szelessege és magassaga.
+                //a partoka hierarhiai pontjukn szerint novekvo sorrendben vannak
                 (int X, int Y) ChangedSize = new(AdvancedItem.Parts.First().item_s_Part.SizeX, AdvancedItem.Parts.First().item_s_Part.SizeY);
 
+                //azok a partok amelyek nincsneek az incoming partokba és rendelkeznek sizechangerrel rendezve Maxplus szerint
                 List<Part> StandParts = AdvancedItem.Parts.Where(part=> !IncomingParts.Contains(part) && part.item_s_Part.SizeChanger != null).OrderBy(part=>part.item_s_Part.SizeChanger.MaxPlus).ToList();
 
+                //azon incoming partok ameyleknek van sizechanger és rendezve vannak maxplus szeirtn
                 List<Part> ChangerParts = IncomingParts.Where(part => part.item_s_Part.SizeChanger != null).OrderBy(part => part.item_s_Part.SizeChanger.MaxPlus).ToList();
 
+                //vegig megyunk azokon a partokaon amelyek maradnak és nem tavolitodnak el tovabba rendelkeznek sizechangerrel
+                //tájolás szerint biraljuk el sizechangerjuket
+                //minden sizechanger csak annyit novelhet amekkorat maximum-ja enged.
                 foreach (Part part in StandParts)
                 {
                     SizeChanger sizeChanger = part.item_s_Part.SizeChanger;
@@ -1415,6 +1476,10 @@ namespace ItemHandler
                     }
                 }
 
+                //vegig megyunk az osszes a changer parton
+                //tájolás szeritn biráljuk el őket
+                //megnezzuk menyit novelne miden egyes cizechanger
+                //ezeket listazzuk tájolás szeirnt
                 foreach (Part part in ChangerParts)
                 {
                     SizeChanger sizeChanger = part.item_s_Part.SizeChanger;
@@ -1450,7 +1515,6 @@ namespace ItemHandler
                     {
                         if ((sizeChanger.Plus + ChangedSize.X) > sizeChanger.MaxPlus)
                         {
-                            ChangedSize.X = sizeChanger.MaxPlus;
                             if (Directions.ContainsKey('L'))
                             {
                                 Directions['L'] += sizeChanger.MaxPlus - ChangedSize.X;
@@ -1459,6 +1523,7 @@ namespace ItemHandler
                             {
                                 Directions['L'] = sizeChanger.MaxPlus - ChangedSize.X;
                             }
+                            ChangedSize.X = sizeChanger.MaxPlus;
                         }
                         else
                         {
@@ -1532,6 +1597,10 @@ namespace ItemHandler
                 }
 
                 //fix helye
+                //vegigmeygunk az osszes parton ami marad
+                //elofordulhat hogy egy partnak nincs sizechangerja, de a part nagyobb mint a sizechangerek altal meghatarozott meret
+                //ilynekor vissza kell korrigálni.
+                //amelyik directionba változas tortent ott vissza korrigáhato a size
                 foreach (Part part in StandParts)
                 {
                     if (part.item_s_Part.SizeX > ChangedSize.X)
@@ -1612,174 +1681,22 @@ namespace ItemHandler
 
                 }
 
+                foreach (var key in Directions.Keys.ToList()) // Másolat készítés, hogy ne módosítsunk közvetlen iteráció közben
+                {
+                    Directions[key] *= -1;
+                }
+
+                //Debug.LogWarning($" Determination: changedSize:{ChangedSize} ------Directions:------");
+                //foreach (KeyValuePair<char,int> item in Directions)
+                //{
+                //    Debug.LogWarning($"key: {item.Key}    value: {item.Value}");
+                //}
+                //Debug.LogWarning("---------------------------");
+
                 return (ChangedSize, Directions);
             }
-
-            //int UMax = 0;
-            //int DMax = 0;
-            //int RMax = 0;
-            //int LMax = 0;
-
-            //int U = 0;
-            //int D = 0;
-            //int R = 0;
-            //int L = 0;
-
-            //List<char> Diractions = new();   
-
-            //foreach (Part part in AdvancedItem.Parts)
-            //{
-            //    if (part.item_s_Part.SizeChanger != null)
-            //    {
-            //        SizeChanger sizeChanger = part.item_s_Part.SizeChanger;
-
-            //    }
-            //}
-
-            //if (Add)//add
-            //{
-            //    foreach (Part part in parts)
-            //    {
-            //        if (part.item_s_Part.SizeChanger != null)
-            //        {
-            //            SizeChanger sizeChanger = part.item_s_Part.SizeChanger;
-
-            //            if (sizeChanger.Direction == "R")
-            //            {
-            //                R += sizeChanger.Plus;
-            //                if (RMax < sizeChanger.MaxPlus)
-            //                {
-            //                    Directions['R'] += sizeChanger.MaxPlus - RMax;
-            //                    RMax = sizeChanger.MaxPlus;
-            //                }
-            //            }
-            //            else if (sizeChanger.Direction == "L")
-            //            {
-            //                L += sizeChanger.Plus;
-            //                if (LMax < sizeChanger.MaxPlus)
-            //                {
-            //                    Directions['L'] += sizeChanger.MaxPlus - LMax;
-            //                    LMax = sizeChanger.MaxPlus;
-            //                }
-            //            }
-            //            else if (sizeChanger.Direction == "U")
-            //            {
-            //                U += sizeChanger.Plus;
-            //                if (UMax < sizeChanger.MaxPlus)
-            //                {
-            //                    Directions['U'] += sizeChanger.MaxPlus - UMax;
-            //                    UMax = sizeChanger.MaxPlus;
-            //                }
-            //            }
-            //            else if (sizeChanger.Direction == "D")
-            //            {
-            //                D += sizeChanger.Plus;
-            //                if (DMax < sizeChanger.MaxPlus)
-            //                {
-            //                    Directions['D'] += sizeChanger.MaxPlus - DMax;
-            //                    DMax = sizeChanger.MaxPlus;
-            //                }
-            //            }
-            //        }
-            //    }
-
-            //    if (RMax < R)
-            //    {
-            //        R = RMax;
-            //        ChangedSize.X += R;
-            //    }
-            //    else if (R < RMax && (ChangedSize.X + R) < RMax)
-            //    {
-            //        ChangedSize.X += R;
-            //    }
-
-            //    if (LMax<L)
-            //    {
-            //        L = LMax;
-            //        ChangedSize.X += L;
-            //    }
-            //    else if (L < LMax && (ChangedSize.X + L) < LMax)
-            //    {
-            //        ChangedSize.X += L;
-            //    }
-
-            //    if (UMax < U)
-            //    {
-            //        U = UMax;
-            //        ChangedSize.Y += U;
-            //    }
-            //    else if (U < UMax && (ChangedSize.X + U) < UMax)
-            //    {
-            //        ChangedSize.Y += U;
-            //    }
-
-            //    if (DMax < D)
-            //    {
-            //        D = DMax;
-            //        ChangedSize.Y += D;
-            //    }
-            //    else if (D < DMax && (ChangedSize.Y + D) < DMax)
-            //    {
-            //        ChangedSize.Y += D;
-            //    }
-
-            //    return (ChangedSize,Directions);
-
-            //    //nem lesz jo
-            //}
-            //else//delete
-            //{
-            //    return (ChangedSize, Directions);
-            //}
-
-            //if (SizeChanger == null)
-            //{
-            //    if (sizeChangers.Contains(SizeChanger))//Delete
-            //    {
-            //        if (SizeChanger.Direction == "R" && RMax < SizeChanger.MaxPlus)
-            //        {
-            //            return ((SizeX, SizeY -= (SizeChanger.MaxPlus - RMax)), "R");
-            //        }
-            //        else if (SizeChanger.Direction == "L" && LMax < SizeChanger.MaxPlus)
-            //        {
-            //            return ((SizeX, SizeY -= (SizeChanger.MaxPlus - LMax)), "L");
-            //        }
-            //        else if (SizeChanger.Direction == "U" && UMax < SizeChanger.MaxPlus)
-            //        {
-            //            return ((SizeX -= (SizeChanger.MaxPlus - UMax), SizeY), "U");
-            //        }
-            //        else if (SizeChanger.Direction == "D" && DMax < SizeChanger.MaxPlus)
-            //        {
-            //            return ((SizeX -= (SizeChanger.MaxPlus - DMax), SizeY), "D");
-            //        }
-            //    }
-            //    else//Add
-            //    {
-            //        if (SizeChanger.Direction == "R" && RMax < SizeChanger.MaxPlus)
-            //        {
-            //            return ((SizeX, SizeY += (SizeChanger.MaxPlus - RMax)), "R");
-            //        }
-            //        else if (SizeChanger.Direction == "L" && LMax < SizeChanger.MaxPlus)
-            //        {
-            //            return ((SizeX, SizeY += (SizeChanger.MaxPlus - LMax)), "L");
-            //        }
-            //        else if (SizeChanger.Direction == "U" && UMax < SizeChanger.MaxPlus)
-            //        {
-            //            return ((SizeX += (SizeChanger.MaxPlus - UMax), SizeY), "U");
-            //        }
-            //        else if (SizeChanger.Direction == "D" && DMax < SizeChanger.MaxPlus)
-            //        {
-            //            return ((SizeX += (SizeChanger.MaxPlus - DMax), SizeY), "D");
-            //        }
-            //    }
-            //    return ((SizeX, SizeY), "U");
-            //}
-            //else
-            //{
-            //    return ((SizeX, SizeY), new List<char> {'O'});
-            //}
         }
-        public static (HashSet<(int X, int Y)> NonLiveCoordinates,int SectorIndex, bool IsPositionAble) Try_PartPositioning(Item AdvancedItem, (int X, int Y) ChangedSize, Dictionary<char, int> Directions)
+        public static (HashSet<(int Height, int Widht)> NonLiveCoordinates,int SectorIndex, bool IsPositionAble) Try_PartPositioning(Item AdvancedItem, (int X, int Y) ChangedSize, Dictionary<char, int> Directions)
         {
             /*
              * egy megvaltoztataott referncia meretbol meghatarozza hogy az advanced itemet kicsinyiteni kell e vagy nagyobbitani
@@ -1791,7 +1708,7 @@ namespace ItemHandler
             {
                 bool IsPositionAble = true;
                 int sectorindex = 0;
-                HashSet<(int X, int Y)> ExtendCoordinates = new();
+                HashSet<(int Height, int Width)> ExtendCoordinates = new();
 
                 ItemSlotData[,] NonLiveGrid = AdvancedItem.ParentItem.Container.NonLive_Sectors[sectorindex];
 
@@ -1821,27 +1738,27 @@ namespace ItemHandler
                     ItemCoordinates = new (int X, int Y)[AdvancedItem.SizeY, AdvancedItem.SizeX];
                 }
 
-                Debug.LogWarning($" X: {ItemCoordinates.GetLength(0)}                ----- Itemo coordinate grid ------             Y: {ItemCoordinates.GetLength(1)}");
+                //Debug.LogWarning($" X: {ItemCoordinates.GetLength(0)}                ----- Itemo coordinate grid ------             Y: {ItemCoordinates.GetLength(1)}");
                 //item coordinátáinak megkeresese a NonLive Gridben
-                Debug.LogWarning($"------------------");
-                for (int x = 0; x < NonLiveGrid.GetLength(0); x++)
+                //Debug.LogWarning($"------------------");
+                for (int Height = 0; Height < NonLiveGrid.GetLength(0); Height++)
                 {
-                    for (int y = 0; y < NonLiveGrid.GetLength(1); y++)
+                    for (int Width = 0; Width < NonLiveGrid.GetLength(1); Width++)
                     {
-                        if (NonLiveGrid[x, y].PartOfItemData == AdvancedItem)
+                        if (NonLiveGrid[Height, Width].PartOfItemData == AdvancedItem)
                         {
-                            ExtendCoordinates.Add((x, y));
-                            Debug.LogWarning($"x: {x}  y: {y}");
+                            ExtendCoordinates.Add((Height, Width));
+                            //Debug.LogWarning($"height: {Height}  witdh: {Width}");
                         }
                     }
                 }
-                Debug.LogWarning($"------------------");
+                //Debug.LogWarning($"------------------");
                 //item megkeresett koordinatainak beépítése annak gridjébe
-                for (int x = 0, index_ = 0; x < ItemCoordinates.GetLength(0); x++)
+                for (int height = 0, index_ = 0; height < ItemCoordinates.GetLength(0); height++)
                 {
-                    for (int y = 0; y < ItemCoordinates.GetLength(1); y++)
+                    for (int width = 0; width < ItemCoordinates.GetLength(1); width++)
                     {
-                        ItemCoordinates[x, y] = ExtendCoordinates.ElementAt(index_++);
+                        ItemCoordinates[height, width] = ExtendCoordinates.ElementAt(index_++);
                     }
                 }
 
@@ -1849,29 +1766,29 @@ namespace ItemHandler
                 {
                     if (direction.Key == 'U')
                     {
-                        Debug.LogWarning($"{direction.Key} Up Way");
-                        IsPositionAble = Try_UpWayScaling(AdvancedItem, NonLiveGrid, AdvancedItem.SizeY - ChangedSize.Y, ExtendCoordinates);
+                        //Debug.LogWarning($"{direction.Key} Up Way  {direction.Value}");
+                        IsPositionAble = Try_UpWayScaling(AdvancedItem, NonLiveGrid, direction.Value, ExtendCoordinates);
                     }
                     else if (direction.Key == 'D')
                     {
-                        Debug.LogWarning($"{direction.Key} Down Way");
-                        IsPositionAble = Try_DownWayScaling(AdvancedItem, NonLiveGrid, AdvancedItem.SizeY - ChangedSize.Y, ExtendCoordinates);
+                        //Debug.LogWarning($"{direction.Key} Down Way  {direction.Value}");
+                        IsPositionAble = Try_DownWayScaling(AdvancedItem, NonLiveGrid, direction.Value, ExtendCoordinates);
                     }
                     else if (direction.Key == 'L')
                     {
-                        Debug.LogWarning($"{direction.Key} Left Way");
-                        IsPositionAble = Try_LeftWayScaling(AdvancedItem, NonLiveGrid, AdvancedItem.SizeX - ChangedSize.X, ExtendCoordinates);
+                        //Debug.LogWarning($"{direction.Key} Left Way  {direction.Value}");
+                        IsPositionAble = Try_LeftWayScaling(AdvancedItem, NonLiveGrid, direction.Value, ExtendCoordinates);
                     }
                     else if (direction.Key == 'R')
                     {
-                        Debug.LogWarning($"{direction.Key} Right Way");
-                        IsPositionAble = Try_RightWayScaling(AdvancedItem, NonLiveGrid, AdvancedItem.SizeX - ChangedSize.X, ExtendCoordinates);
+                        //Debug.LogWarning($"{direction.Key} Right Way  {direction.Value}");
+                        IsPositionAble = Try_RightWayScaling(AdvancedItem, NonLiveGrid, direction.Value, ExtendCoordinates);
                     }
                 }
 
-                ExtendCoordinates = new HashSet<(int X, int Y)>(ExtendCoordinates.OrderBy(coord => coord.X).ThenBy(coord => coord.Y).ToList());
+                ExtendCoordinates = new HashSet<(int Height, int Width)>(ExtendCoordinates.OrderBy(coord => coord.Height).ThenBy(coord => coord.Width).ToList());
 
-                Debug.LogWarning($"first X: {ExtendCoordinates.First().X}    first y: {ExtendCoordinates.First().Y}");
+                //Debug.LogWarning($"Placememnt coodinate X: {ExtendCoordinates.First().Height}    first y: {ExtendCoordinates.First().Width}");
 
                 return (ExtendCoordinates, sectorindex, IsPositionAble);
             }
@@ -2013,7 +1930,7 @@ namespace ItemHandler
         #endregion
 
         #region Inventory-System Support Scripts
-        private static (int X, int Y)[] GetItemCoordianteLine_ByOrientatio_And_ByRotation(Item AdvancedItem, HashSet<(int X, int Y)> ExtendCoordinates,char Orientation)
+        private static (int X, int Y)[] Get_ItemCoodinateLine_AtDataGrid(Item AdvancedItem, HashSet<(int X, int Y)> ExtendCoordinates,char Orientation)
         {
             if (Orientation == 'U')
             {
@@ -2068,9 +1985,9 @@ namespace ItemHandler
                 }
                 else if (AdvancedItem.RotateDegree == 270)
                 {
-                    int MinX = ExtendCoordinates.Min(coordiante => coordiante.X);
+                    int MinY = ExtendCoordinates.Min(coordiante => coordiante.Y);
 
-                    return ExtendCoordinates.Where(item => item.X == MinX).OrderBy(Item => Item.Y).ToArray();
+                    return ExtendCoordinates.Where(item => item.Y == MinY).OrderBy(Item => Item.X).ToArray();
                 }
                 else
                 {
@@ -2146,429 +2063,354 @@ namespace ItemHandler
         }
         private static bool Try_UpWayScaling(Item AdvancedItem, ItemSlotData[,] NonLiveGrid, int ChangedSize, HashSet<(int X, int Y)> ExtendCoordinates)
         {
-            (int X, int Y)[] ActualDownLine = new (int X, int Y)[0];
-
+            (int Height, int Width)[] ActualDownLine = null;
             int Value = 0;//a kezdo ertek
-
-            int GridStop = 0;//az az ertek ameddig az iterációt nem kell leállitani
-
-            //int ChangedSize   az az ertek ami meghatarozza hogy menyit kell novelni a extend coordinatakat
-
-            //(int X, int Y)[] DonwLine   azon koordinatak amelyek az extend coordinaatbol lekerik azokat a koordinatakat amelykek az item szelen vannak orientáciuonal megfeleloen
-
-            int ChangerValue = 0;//az ertek amit a value hez hozzadunk minden iterácionál
-
             bool AllCoordianateIsEmpty = true;
 
+            //------------------------------
+            int GridStop = 0;//az az ertek ameddig az iterációt nem kell leállitani
+            int ChangerValue = 0;//az ertek amit a value hez hozzadunk minden iterácionál
+            char Orientation = 'U';
+            bool HorizontalWay = false;
+            //------------------------------
+
+            //meg kell hatarozni hogy melyik iranyba és hogyan kell indexelni és meddig.    
+            //
+            //az actual line az item által elfogfalat azon koordinatak melyek az itemhez képest vannal tajolva
+            //
+            //mivel nekunk a NonLive DataGrid ben lévő tájolás kell ezert néhol máshogy bíráljuk el
             if (AdvancedItem.RotateDegree == 0)
             {
-                GridStop = 0;
-                ChangerValue = -1;
-
-                ActualDownLine = GetItemCoordianteLine_ByOrientatio_And_ByRotation(AdvancedItem, ExtendCoordinates, 'U');
+                GridStop = -1;//_/  azert -1 mert ha nulla lenne akkor a legfelso slot ot minden kihagyna, de ez nem veszelyeztet a getLeight-nel mert az alapbol 1 el nagyobb mint az index
+                ChangerValue = -1;//_/
+                HorizontalWay = false;//_/
             }
             else if (AdvancedItem.RotateDegree == 90)
             {
-                GridStop = 0; ;//azert nem nulla mivel nekunk a nullán is iterálnunk kell
-                ChangerValue = -1;
-
-                ActualDownLine = GetItemCoordianteLine_ByOrientatio_And_ByRotation(AdvancedItem, ExtendCoordinates, 'L');
+                GridStop = -1;//_/
+                ChangerValue = -1;//_/
+                HorizontalWay = true;//_/
             }
             else if (AdvancedItem.RotateDegree == 180)
             {
-                GridStop = NonLiveGrid.GetLength(1);
-                ChangerValue = 1;
-
-                ActualDownLine = GetItemCoordianteLine_ByOrientatio_And_ByRotation(AdvancedItem, ExtendCoordinates, 'D');
+                GridStop = NonLiveGrid.GetLength(0);//_/
+                ChangerValue = 1;//_/
+                HorizontalWay = false;//_/
             }
             else if (AdvancedItem.RotateDegree == 270)
             {
-                GridStop = NonLiveGrid.GetLength(0);
-                ChangerValue = 1;
-
-                ActualDownLine = GetItemCoordianteLine_ByOrientatio_And_ByRotation(AdvancedItem, ExtendCoordinates, 'R');
+                GridStop = NonLiveGrid.GetLength(1);//_/
+                ChangerValue = 1;//_/
+                HorizontalWay = true;//_/
             }
 
+            if (ChangedSize < 0)
+            {
+                ChangerValue *= -1;
+            }
+
+            ActualDownLine = Get_ItemCoodinateLine_AtDataGrid(AdvancedItem, ExtendCoordinates, Orientation);
+
+            //itt zajik a koordinatak hozzadasa vagy eltavolitasa
             if (ChangedSize > 0)
             {
-                for (; Math.Abs(Value) <= ChangedSize; Value += ChangerValue)
+                if (HorizontalWay)
                 {
-                    for (int j = 0; j < ActualDownLine.Length; j++)
+                    for (; Math.Abs(Value) <= Math.Abs(ChangedSize); Value += ChangerValue)
                     {
-                        if (ActualDownLine[j].X + Value != GridStop)
+                        for (int Coord = 0; Coord < ActualDownLine.Length; Coord++)
                         {
-                            ExtendCoordinates.Add((ActualDownLine[j].X + Value, ActualDownLine[j].X));
+                            if (ActualDownLine[Coord].Width + Value != GridStop)
+                            {
+                                ExtendCoordinates.Add((ActualDownLine[Coord].Height, ActualDownLine[Coord].Width + Value));
+                            }
+                            if (Value > 0 && NonLiveGrid[ActualDownLine[Coord].Height, ActualDownLine[Coord].Width + Value].PartOfItemData != null)
+                            {
+                                AllCoordianateIsEmpty = false;
+                            }
                         }
-                        if (NonLiveGrid[ActualDownLine[j].X + Value, ActualDownLine[j].X].PartOfItemData != null)
+                    }
+                }
+                else
+                {
+                    for (; Math.Abs(Value) <= Math.Abs(ChangedSize); Value += ChangerValue)
+                    {
+                        for (int j = 0; j < ActualDownLine.Length; j++)
                         {
-                            AllCoordianateIsEmpty = false;
+                            if (ActualDownLine[j].Height + Value != GridStop)
+                            {
+                                ExtendCoordinates.Add((ActualDownLine[j].Height + Value, ActualDownLine[j].Width ));
+                            }
+                            if (Value > 0 && NonLiveGrid[ActualDownLine[j].Height + Value, ActualDownLine[j].Width].PartOfItemData != null)
+                            {
+                                AllCoordianateIsEmpty = false;
+                            }
                         }
                     }
                 }
             }
             else
             {
-                if (AdvancedItem.RotateDegree % 90 == 2)
+                if (HorizontalWay)
                 {
-                    for (; Math.Abs(Value) <= Math.Abs(ChangedSize); Value -= ChangerValue)
+                    for (; Math.Abs(Value) < Math.Abs(ChangedSize); Value += ChangerValue)
                     {
                         for (int j = 0; j < ActualDownLine.Length; j++)
                         {
-                            ExtendCoordinates.Remove((ActualDownLine[j].X - Value, ActualDownLine[j].Y ));
+                            //Debug.LogWarning($"Deleted Horzontal coodinate: Y: {ActualDownLine[j].Height }  X: {ActualDownLine[j].Width + Value}");
+                            ExtendCoordinates.Remove((ActualDownLine[j].Height, ActualDownLine[j].Width + Value));
                         }
                     }
                 }
                 else
                 {
-                    for (; Math.Abs(Value) <= Math.Abs(ChangedSize); Value -= ChangerValue)
+                    for (; Math.Abs(Value) < Math.Abs(ChangedSize); Value += ChangerValue)
                     {
                         for (int j = 0; j < ActualDownLine.Length; j++)
                         {
-                            ExtendCoordinates.Remove((ActualDownLine[j].X , ActualDownLine[j].Y - Value));
+                            //Debug.LogWarning($"Deleted Horzontal coodinate: Y: {ActualDownLine[j].Height}  X: {ActualDownLine[j].Width + Value}");
+                            ExtendCoordinates.Remove((ActualDownLine[j].Height + Value, ActualDownLine[j].Width));
                         }
                     }
                 }
             }
 
             return AllCoordianateIsEmpty;
-
-
-
-            //(int X, int Y)[] UpperLine = GetItemCoordianteLine_ByOrientatio_And_ByRotation(AdvancedItem,ExtendCoordinates,'U');
-
-            //bool AllCoordianateIsEmpty = true;
-
-            //if (AdvancedItem.RotateDegree == 0)
-            //{
-            //    if (ChangedSize > 0)
-            //    {
-            //        for (int Value = -1; Value >= ChangedSize; Value--)
-            //        {
-            //            for (int j = 0; j < UpperLine.Length; j++)
-            //            {
-            //                if (UpperLine[j].Y + Value >= 0)
-            //                {
-            //                    ExtendCoordinates.Add((UpperLine[j].X, UpperLine[j].Y + Value));
-            //                }
-            //                if (NonLiveGrid[UpperLine[j].X, UpperLine[j].Y + Value].PartOfItemData != null)
-            //                {
-            //                    AllCoordianateIsEmpty = false;
-            //                }
-            //            }
-            //        }
-            //    }
-            //    else
-            //    {
-            //        for (int Value = 1; Value <= ChangedSize; Value++)
-            //        {
-            //            for (int j = 0; j < UpperLine.Length; j++)
-            //            {
-            //                ExtendCoordinates.Remove((UpperLine[j].X, UpperLine[j].Y + Value));
-            //            }
-            //        }
-            //    }
-            //}
-            //else if (AdvancedItem.RotateDegree == 90)
-            //{
-            //    if (ChangedSize > 0)
-            //    {
-            //        for (int Value = -1; Value >= ChangedSize; Value--)
-            //        {
-            //            for (int j = 0; j < UpperLine.Length; j++)
-            //            {
-            //                if (UpperLine[j].X + Value >= 0)
-            //                {
-            //                    ExtendCoordinates.Add((UpperLine[j].X + Value, UpperLine[j].Y));
-            //                }
-            //                if (NonLiveGrid[UpperLine[j].X + Value, UpperLine[j].Y].PartOfItemData != null)
-            //                {
-            //                    AllCoordianateIsEmpty = false;
-            //                }
-            //            }
-            //        }
-            //    }
-            //    else
-            //    {
-            //        for (int Value = 1; Value <= ChangedSize; Value++)
-            //        {
-            //            for (int j = 0; j < UpperLine.Length; j++)
-            //            {
-            //                ExtendCoordinates.Remove((UpperLine[j].X + Value, UpperLine[j].Y));
-            //            }
-            //        }
-            //    }
-            //}
-            //else if (AdvancedItem.RotateDegree == 180)
-            //{
-            //    if (ChangedSize > 0)
-            //    {
-            //        for (int Value = 1; Value <= ChangedSize; Value++)
-            //        {
-            //            for (int j = 0; j < UpperLine.Length; j++)
-            //            {
-            //                if (UpperLine[j].Y + Value <= NonLiveGrid.GetLength(1))
-            //                {
-            //                    ExtendCoordinates.Add((UpperLine[j].X, UpperLine[j].Y + Value));
-            //                }
-            //                if (NonLiveGrid[UpperLine[j].X, UpperLine[j].Y + Value].PartOfItemData != null)
-            //                {
-            //                    AllCoordianateIsEmpty = false;
-            //                }
-            //            }
-            //        }
-            //    }
-            //    else
-            //    {
-            //        for (int Value = -1; Value >= ChangedSize; Value--)
-            //        {
-            //            for (int j = 0; j < UpperLine.Length; j++)
-            //            {
-            //                ExtendCoordinates.Remove((UpperLine[j].X, UpperLine[j].Y + Value));
-            //            }
-            //        }
-            //    }
-            //}
-            //else if (AdvancedItem.RotateDegree == 270)
-            //{
-            //    if (ChangedSize > 0)
-            //    {
-            //        for (int Value = 1; Value <= ChangedSize; Value++)
-            //        {
-            //            for (int j = 0; j < UpperLine.Length; j++)
-            //            {
-            //                if (UpperLine[j].X + Value <= NonLiveGrid.GetLength(0))
-            //                {
-            //                    ExtendCoordinates.Add((UpperLine[j].X + Value, UpperLine[j].Y));
-            //                }
-            //                if (NonLiveGrid[UpperLine[j].X + Value, UpperLine[j].Y].PartOfItemData != null)
-            //                {
-            //                    AllCoordianateIsEmpty = false;
-            //                }
-            //            }
-            //        }
-            //    }
-            //    else
-            //    {
-            //        for (int Value = -1; Value >= ChangedSize; Value--)
-            //        {
-            //            for (int j = 0; j < UpperLine.Length; j++)
-            //            {
-            //                ExtendCoordinates.Remove((UpperLine[j].X + Value, UpperLine[j].Y));
-            //            }
-            //        }
-            //    }
-            //}
-
-
-
-            //return AllCoordianateIsEmpty;
         }
         public static bool Try_DownWayScaling(Item AdvancedItem, ItemSlotData[,] NonLiveGrid, int ChangedSize, HashSet<(int X, int Y)> ExtendCoordinates)
         {
-            (int X, int Y)[] ActualDownLine = new (int X, int Y)[0];
-
+            (int Height, int Width)[] ActualDownLine = null;
             int Value = 0;//a kezdo ertek
-
-            int GridStop = 0;//az az ertek ameddig az iterációt nem kell leállitani
-
-            //int ChangedSize   az az ertek ami meghatarozza hogy menyit kell novelni a extend coordinatakat
-
-            //(int X, int Y)[] DonwLine   azon koordinatak amelyek az extend coordinaatbol lekerik azokat a koordinatakat amelykek az item szelen vannak orientáciuonal megfeleloen
-
-            int ChangerValue = 0;//az ertek amit a value hez hozzadunk minden iterácionál
-
             bool AllCoordianateIsEmpty = true;
 
+            //------------------------------
+            int GridStop = 0;//az az ertek ameddig az iterációt nem kell leállitani
+            int ChangerValue = 0;//az ertek amit a value hez hozzadunk minden iterácionál
+            char Orientation = 'D';
+            bool HorizontalWay = false;
+            //------------------------------
+
+            //meg kell hatarozni hogy melyik iranyba és hogyan kell indexelni és meddig.    
+            //
+            //az actual line az item által elfogfalat azon koordinatak melyek az itemhez képest vannal tajolva
+            //
+            //mivel nekunk a NonLive DataGrid ben lévő tájolás kell ezert néhol máshogy bíráljuk el
             if (AdvancedItem.RotateDegree == 0)
             {
-                GridStop = NonLiveGrid.GetLength(1);
-                ChangerValue = 1;
-
-                ActualDownLine = GetItemCoordianteLine_ByOrientatio_And_ByRotation(AdvancedItem, ExtendCoordinates, 'D');
+                GridStop = NonLiveGrid.GetLength(0);//_/
+                ChangerValue = 1;//_/
+                HorizontalWay = false;//_/
             }
             else if (AdvancedItem.RotateDegree == 90)
             {
-                GridStop = NonLiveGrid.GetLength(0); ;//azert nem nulla mivel nekunk a nullán is iterálnunk kell
-                ChangerValue = 1;
-
-                ActualDownLine = GetItemCoordianteLine_ByOrientatio_And_ByRotation(AdvancedItem, ExtendCoordinates, 'R');
+                GridStop = NonLiveGrid.GetLength(1);//_/
+                ChangerValue = 1;//_/
+                HorizontalWay = true;//_/
             }
             else if (AdvancedItem.RotateDegree == 180)
             {
-                GridStop = 0;
-                ChangerValue = -1;
-
-                ActualDownLine = GetItemCoordianteLine_ByOrientatio_And_ByRotation(AdvancedItem, ExtendCoordinates, 'U');
+                GridStop = -1;//_/
+                ChangerValue = -1;//_/
+                HorizontalWay = false;//_/
             }
             else if (AdvancedItem.RotateDegree == 270)
             {
-                GridStop = 0;
-                ChangerValue = -1;
-
-                ActualDownLine = GetItemCoordianteLine_ByOrientatio_And_ByRotation(AdvancedItem, ExtendCoordinates, 'L');
+                GridStop = -1;//_/
+                ChangerValue = -1;//_/
+                HorizontalWay = true;//_/
             }
 
+            if (ChangedSize < 0)
+            {
+                ChangerValue *= -1;
+            }
+
+            ActualDownLine = Get_ItemCoodinateLine_AtDataGrid(AdvancedItem, ExtendCoordinates, Orientation);
+
+            //itt zajik a koordinatak hozzadasa vagy eltavolitasa
             if (ChangedSize > 0)
             {
-                for (; Math.Abs(Value) <= ChangedSize; Value += ChangerValue)
+                if (HorizontalWay)
                 {
-                    for (int j = 0; j < ActualDownLine.Length; j++)
+                    for (; Math.Abs(Value) <= Math.Abs(ChangedSize); Value += ChangerValue)
                     {
-                        if (ActualDownLine[j].X + Value != GridStop)
+                        for (int Coord = 0; Coord < ActualDownLine.Length; Coord++)
                         {
-                            ExtendCoordinates.Add((ActualDownLine[j].X + Value, ActualDownLine[j].X));
+                            if (ActualDownLine[Coord].Width + Value != GridStop)
+                            {
+                                ExtendCoordinates.Add((ActualDownLine[Coord].Height, ActualDownLine[Coord].Width + Value));
+                            }
+                            if (Value > 0 && NonLiveGrid[ActualDownLine[Coord].Height, ActualDownLine[Coord].Width + Value].PartOfItemData != null)
+                            {
+                                AllCoordianateIsEmpty = false;
+                            }
                         }
-                        if (NonLiveGrid[ActualDownLine[j].X + Value, ActualDownLine[j].X].PartOfItemData != null)
+                    }
+                }
+                else
+                {
+                    for (; Math.Abs(Value) <= Math.Abs(ChangedSize); Value += ChangerValue)
+                    {
+                        for (int j = 0; j < ActualDownLine.Length; j++)
                         {
-                            AllCoordianateIsEmpty = false;
+                            if (ActualDownLine[j].Height + Value != GridStop)
+                            {
+                                ExtendCoordinates.Add((ActualDownLine[j].Height + Value, ActualDownLine[j].Width));
+                            }
+                            if (Value > 0 && NonLiveGrid[ActualDownLine[j].Height + Value, ActualDownLine[j].Width].PartOfItemData != null)
+                            {
+                                AllCoordianateIsEmpty = false;
+                            }
                         }
                     }
                 }
             }
             else
             {
-                if (AdvancedItem.RotateDegree%90 == 2)
+                if (HorizontalWay)
                 {
-                    for (; Math.Abs(Value) <= Math.Abs(ChangedSize); Value -= ChangerValue)
+                    for (; Math.Abs(Value) < Math.Abs(ChangedSize); Value += ChangerValue)
                     {
                         for (int j = 0; j < ActualDownLine.Length; j++)
                         {
-                            ExtendCoordinates.Remove((ActualDownLine[j].X , ActualDownLine[j].Y - Value));
+                            //Debug.LogWarning($"Deleted Horzontal coodinate: Y: {ActualDownLine[j].Height}  X: {ActualDownLine[j].Width + Value}");
+                            ExtendCoordinates.Remove((ActualDownLine[j].Height, ActualDownLine[j].Width + Value));
                         }
                     }
                 }
                 else
                 {
-                    for (; Math.Abs(Value) <= Math.Abs(ChangedSize); Value -= ChangerValue)
+                    for (; Math.Abs(Value) < Math.Abs(ChangedSize); Value += ChangerValue)
                     {
                         for (int j = 0; j < ActualDownLine.Length; j++)
                         {
-                            ExtendCoordinates.Remove((ActualDownLine[j].X - Value, ActualDownLine[j].Y ));
+                            //Debug.LogWarning($"Deleted Horzontal coodinate: Y: {ActualDownLine[j].Height}  X: {ActualDownLine[j].Width + Value}");
+                            ExtendCoordinates.Remove((ActualDownLine[j].Height + Value, ActualDownLine[j].Width));
                         }
                     }
                 }
             }
 
             return AllCoordianateIsEmpty;
-
-
-
-
-
-
-            //if (ChangedSize > 0)
-            //{
-            //    for (; Value != GridStop; Value += ChangerValue)
-            //    {
-            //        for (int j = 0; j < DonwLine.Length; j++)
-            //        {
-            //            if (DonwLine[j].Y + Value >= 0)
-            //            {
-            //                ExtendCoordinates.Add((DonwLine[j].X, DonwLine[j].Y + Value));
-            //            }
-            //            if (NonLiveGrid[DonwLine[j].X, DonwLine[j].Y + Value].PartOfItemData != null)
-            //            {
-            //                AllCoordianateIsEmpty = false;
-            //            }
-            //        }
-            //    }
-            //}
-            //else
-            //{
-            //    Value = Value * (-1);//csak itt valtozatatjuk a value-t
-
-            //    for (; Value != GridStop; Value += ChangerValue)
-            //    {
-            //        for (int j = 0; j < DonwLine.Length; j++)
-            //        {
-            //            ExtendCoordinates.Remove((DonwLine[j].X, DonwLine[j].Y + Value));
-            //        }
-            //    }
-            //}
-
-            //return AllCoordianateIsEmpty;
         }
         private static bool Try_RightWayScaling(Item AdvancedItem, ItemSlotData[,] NonLiveGrid, int ChangedSize, HashSet<(int X, int Y)> ExtendCoordinates)
         {
-            (int X, int Y)[] ActualDownLine = new (int X, int Y)[0];
-
+            (int Height, int Width)[] ActualDownLine = null;
             int Value = 0;//a kezdo ertek
-
-            int GridStop = 0;//az az ertek ameddig az iterációt nem kell leállitani
-
-            //int ChangedSize   az az ertek ami meghatarozza hogy menyit kell novelni a extend coordinatakat
-
-            //(int X, int Y)[] DonwLine   azon koordinatak amelyek az extend coordinaatbol lekerik azokat a koordinatakat amelykek az item szelen vannak orientáciuonal megfeleloen
-
-            int ChangerValue = 0;//az ertek amit a value hez hozzadunk minden iterácionál
-
             bool AllCoordianateIsEmpty = true;
 
+            //------------------------------
+            int GridStop = 0;//az az ertek ameddig az iterációt nem kell leállitani
+            int ChangerValue = 0;//az ertek amit a value hez hozzadunk minden iterácionál
+            char Orientation = 'R';
+            bool HorizontalWay = false;
+            //------------------------------
+
+            //meg kell hatarozni hogy melyik iranyba és hogyan kell indexelni és meddig.    
+            //
+            //az actual line az item által elfogfalat azon koordinatak melyek az itemhez képest vannal tajolva
+            //
+            //mivel nekunk a NonLive DataGrid ben lévő tájolás kell ezert néhol máshogy bíráljuk el
             if (AdvancedItem.RotateDegree == 0)
             {
-                GridStop = NonLiveGrid.GetLength(0);
-                ChangerValue = 1;
-
-                ActualDownLine = GetItemCoordianteLine_ByOrientatio_And_ByRotation(AdvancedItem, ExtendCoordinates, 'R');
+                GridStop = NonLiveGrid.GetLength(1);//_/
+                ChangerValue = 1;//_/
+                HorizontalWay = true;//_/
             }
             else if (AdvancedItem.RotateDegree == 90)
             {
-                GridStop = 0 ;//azert nem nulla mivel nekunk a nullán is iterálnunk kell
-                ChangerValue = -1;
-
-                ActualDownLine = GetItemCoordianteLine_ByOrientatio_And_ByRotation(AdvancedItem, ExtendCoordinates, 'U');
+                GridStop = -1;//_/
+                ChangerValue = -1;//_/
+                HorizontalWay = false;//_/
             }
             else if (AdvancedItem.RotateDegree == 180)
             {
-                GridStop = 0;
-                ChangerValue = -1;
-
-                ActualDownLine = GetItemCoordianteLine_ByOrientatio_And_ByRotation(AdvancedItem, ExtendCoordinates, 'L');
+                GridStop = -1;//_/
+                ChangerValue = -1;//_/
+                HorizontalWay = true;//_/
             }
             else if (AdvancedItem.RotateDegree == 270)
             {
-                GridStop = NonLiveGrid.GetLength(1);
-                ChangerValue = 1;
-
-                ActualDownLine = GetItemCoordianteLine_ByOrientatio_And_ByRotation(AdvancedItem, ExtendCoordinates, 'D');
+                GridStop = NonLiveGrid.GetLength(0);//_/
+                ChangerValue = 1;//_/
+                HorizontalWay = false;//_/
             }
 
+            if (ChangedSize < 0)
+            {
+                ChangerValue *= -1;
+            }
+
+            ActualDownLine = Get_ItemCoodinateLine_AtDataGrid(AdvancedItem, ExtendCoordinates, Orientation);
+
+            //Debug.LogWarning($" Line hossz: {ActualDownLine.Length}     ChangerValue: {ChangerValue}     Item.Rptationdegree: {AdvancedItem.RotateDegree}");
+
+            //itt zajik a koordinatak hozzadasa vagy eltavolitasa
             if (ChangedSize > 0)
             {
-                for (; Math.Abs(Value) <= ChangedSize; Value += ChangerValue)
+                if (HorizontalWay)
                 {
-                    for (int j = 0; j < ActualDownLine.Length; j++)
+                    //Debug.LogWarning($"Vertical, iteralhato");
+                    for (; Math.Abs(Value) <= Math.Abs(ChangedSize); Value += ChangerValue)
                     {
-                        if (ActualDownLine[j].X + Value != GridStop)
+                        for (int Coord = 0; Coord < ActualDownLine.Length; Coord++)
                         {
-                            ExtendCoordinates.Add((ActualDownLine[j].X + Value, ActualDownLine[j].X));
-                        }
-                        if (NonLiveGrid[ActualDownLine[j].X + Value, ActualDownLine[j].X].PartOfItemData != null)
-                        {
-                            AllCoordianateIsEmpty = false;
+                            if (ActualDownLine[Coord].Width + Value != GridStop)
+                            {
+                                //Debug.LogWarning($"H:  {ActualDownLine[Coord].Height}   W: {ActualDownLine[Coord].Width + Value}");
+                                ExtendCoordinates.Add((ActualDownLine[Coord].Height, ActualDownLine[Coord].Width + Value));
+                            }
+                            if (Value > 0 && NonLiveGrid[ActualDownLine[Coord].Height, ActualDownLine[Coord].Width + Value].PartOfItemData != null)
+                            {
+                                AllCoordianateIsEmpty = false;
+                            }
                         }
                     }
+                    //Debug.LogWarning($"------------------------");
+                }
+                else
+                {
+                    //Debug.LogWarning($"Vertical, iteralhato");
+                    for (; Math.Abs(Value) <= Math.Abs(ChangedSize); Value += ChangerValue)
+                    {
+
+                        for (int Coord = 0; Coord < ActualDownLine.Length; Coord++)
+                        {
+                            if (ActualDownLine[Coord].Height + Value != GridStop)
+                            {
+                                //Debug.LogWarning($"H:  {ActualDownLine[Coord].Height + Value}   W: {ActualDownLine[Coord].Width}");
+                                ExtendCoordinates.Add((ActualDownLine[Coord].Height + Value, ActualDownLine[Coord].Width));
+                            }
+                            if (Value > 0 && NonLiveGrid[ActualDownLine[Coord].Height + Value, ActualDownLine[Coord].Width].PartOfItemData != null)
+                            {
+                                AllCoordianateIsEmpty = false;
+                            }
+                        }
+                    }
+                    //Debug.LogWarning($"------------------------");
                 }
             }
             else
             {
-                if (AdvancedItem.RotateDegree % 90 == 2)
+                if (HorizontalWay)
                 {
-                    for (; Math.Abs(Value) <= Math.Abs(ChangedSize); Value -= ChangerValue)
+                    for (; Math.Abs(Value) < Math.Abs(ChangedSize); Value += ChangerValue)
                     {
                         for (int j = 0; j < ActualDownLine.Length; j++)
                         {
-                            ExtendCoordinates.Remove((ActualDownLine[j].X - Value, ActualDownLine[j].Y));
+                            //Debug.LogWarning($"Deleted Horzontal coodinate: Y: {ActualDownLine[j].Height}  X: {ActualDownLine[j].Width + Value}");
+                            ExtendCoordinates.Remove((ActualDownLine[j].Height, ActualDownLine[j].Width + Value));
                         }
                     }
                 }
                 else
                 {
-                    for (; Math.Abs(Value) <= Math.Abs(ChangedSize); Value -= ChangerValue)
+                    for (; Math.Abs(Value) < Math.Abs(ChangedSize); Value += ChangerValue)
                     {
                         for (int j = 0; j < ActualDownLine.Length; j++)
                         {
-                            ExtendCoordinates.Remove((ActualDownLine[j].X, ActualDownLine[j].Y - Value));
+                            //Debug.LogWarning($"Deleted Horzontal coodinate: Y: {ActualDownLine[j].Height}  X: {ActualDownLine[j].Width + Value}");
+                            ExtendCoordinates.Remove((ActualDownLine[j].Height + Value, ActualDownLine[j].Width));
                         }
                     }
                 }
@@ -2578,85 +2420,113 @@ namespace ItemHandler
         }
         private static bool Try_LeftWayScaling(Item AdvancedItem, ItemSlotData[,] NonLiveGrid, int ChangedSize, HashSet<(int X, int Y)> ExtendCoordinates)
         {
-            (int X, int Y)[] ActualDownLine = new (int X, int Y)[0];
-
+            (int Height, int Width)[] ActualDownLine = null;
             int Value = 0;//a kezdo ertek
-
-            int GridStop = 0;//az az ertek ameddig az iterációt nem kell leállitani
-
-            //int ChangedSize   az az ertek ami meghatarozza hogy menyit kell novelni a extend coordinatakat
-
-            //(int X, int Y)[] DonwLine   azon koordinatak amelyek az extend coordinaatbol lekerik azokat a koordinatakat amelykek az item szelen vannak orientáciuonal megfeleloen
-
-            int ChangerValue = 0;//az ertek amit a value hez hozzadunk minden iterácionál
-
             bool AllCoordianateIsEmpty = true;
 
+            //------------------------------
+            int GridStop = 0;//az az ertek ameddig az iterációt nem kell leállitani
+            int ChangerValue = 0;//az ertek amit a value hez hozzadunk minden iterácionál
+            char Orientation = 'L';
+            bool HorizontalWay = false;
+            //------------------------------
+
+            //meg kell hatarozni hogy melyik iranyba és hogyan kell indexelni és meddig.    
+            //
+            //az actual line az item által elfogfalat azon koordinatak melyek az itemhez képest vannal tajolva
+            //
+            //mivel nekunk a NonLive DataGrid ben lévő tájolás kell ezert néhol máshogy bíráljuk el
             if (AdvancedItem.RotateDegree == 0)
             {
-                GridStop = 0;
-                ChangerValue = -1;
-
-                ActualDownLine = GetItemCoordianteLine_ByOrientatio_And_ByRotation(AdvancedItem, ExtendCoordinates, 'L');
+                GridStop = -1;//_/
+                ChangerValue = -1;//_/
+                HorizontalWay = true;//_/
             }
             else if (AdvancedItem.RotateDegree == 90)
             {
-                GridStop = NonLiveGrid.GetLength(1);//azert nem nulla mivel nekunk a nullán is iterálnunk kell
-                ChangerValue = 1;
-
-                ActualDownLine = GetItemCoordianteLine_ByOrientatio_And_ByRotation(AdvancedItem, ExtendCoordinates, 'D');
+                GridStop = NonLiveGrid.GetLength(0);//_/
+                ChangerValue = 1;//_/
+                HorizontalWay = false;//_/
             }
             else if (AdvancedItem.RotateDegree == 180)
             {
-                GridStop = NonLiveGrid.GetLength(0);
-                ChangerValue = 1;
-
-                ActualDownLine = GetItemCoordianteLine_ByOrientatio_And_ByRotation(AdvancedItem, ExtendCoordinates, 'R');
+                GridStop = NonLiveGrid.GetLength(1);//_/
+                ChangerValue = 1;//_/
+                HorizontalWay = true;//_/
             }
             else if (AdvancedItem.RotateDegree == 270)
             {
-                GridStop = 0;
-                ChangerValue = -1;
-
-                ActualDownLine = GetItemCoordianteLine_ByOrientatio_And_ByRotation(AdvancedItem, ExtendCoordinates, 'U');
+                GridStop = -1;//_/
+                ChangerValue = -1;//_/
+                HorizontalWay = false;//_/
             }
 
+            if (ChangedSize < 0)
+            {
+                ChangerValue *= -1;
+            }
+
+            ActualDownLine = Get_ItemCoodinateLine_AtDataGrid(AdvancedItem, ExtendCoordinates, Orientation);
+
+            //itt zajik a koordinatak hozzadasa vagy eltavolitasa
             if (ChangedSize > 0)
             {
-                for (; Math.Abs(Value) <= ChangedSize; Value += ChangerValue)
+                if (HorizontalWay)
                 {
-                    for (int j = 0; j < ActualDownLine.Length; j++)
+                    for (; Math.Abs(Value) <= Math.Abs(ChangedSize); Value += ChangerValue)
                     {
-                        if (ActualDownLine[j].X + Value != GridStop)
+                        for (int Coord = 0; Coord < ActualDownLine.Length; Coord++)
                         {
-                            ExtendCoordinates.Add((ActualDownLine[j].X + Value, ActualDownLine[j].X));
+                            if (ActualDownLine[Coord].Width + Value != GridStop)
+                            {
+                                ExtendCoordinates.Add((ActualDownLine[Coord].Height, ActualDownLine[Coord].Width + Value));
+                            }
+                            if (Value > 0 && NonLiveGrid[ActualDownLine[Coord].Height, ActualDownLine[Coord].Width + Value].PartOfItemData != null)
+                            {
+                                AllCoordianateIsEmpty = false;
+                            }
                         }
-                        if (NonLiveGrid[ActualDownLine[j].X + Value, ActualDownLine[j].X].PartOfItemData != null)
+                    }
+                }
+                else
+                {
+                    for (; Math.Abs(Value) <= Math.Abs(ChangedSize); Value += ChangerValue)
+                    {
+                        for (int j = 0; j < ActualDownLine.Length; j++)
                         {
-                            AllCoordianateIsEmpty = false;
+                            if (ActualDownLine[j].Height + Value != GridStop)
+                            {
+                                ExtendCoordinates.Add((ActualDownLine[j].Height + Value, ActualDownLine[j].Width));
+                            }
+                            if (Value > 0 && NonLiveGrid[ActualDownLine[j].Height + Value, ActualDownLine[j].Width].PartOfItemData != null)
+                            {
+                                AllCoordianateIsEmpty = false;
+                            }
                         }
                     }
                 }
             }
             else
             {
-                if (AdvancedItem.RotateDegree % 90 == 2)
+                if (HorizontalWay)
                 {
-                    for (; Math.Abs(Value) <= Math.Abs(ChangedSize); Value -= ChangerValue)
+                    for (; Math.Abs(Value) < Math.Abs(ChangedSize); Value += ChangerValue)
                     {
                         for (int j = 0; j < ActualDownLine.Length; j++)
                         {
-                            ExtendCoordinates.Remove((ActualDownLine[j].X - Value, ActualDownLine[j].Y ));
+                            //Debug.LogWarning($"Deleted Horzontal coodinate: Y: {ActualDownLine[j].Height}  X: {ActualDownLine[j].Width + Value}");
+                            ExtendCoordinates.Remove((ActualDownLine[j].Height, ActualDownLine[j].Width + Value));
                         }
                     }
                 }
                 else
                 {
-                    for (; Math.Abs(Value) <= Math.Abs(ChangedSize); Value -= ChangerValue)
+                    for (; Math.Abs(Value) < Math.Abs(ChangedSize); Value += ChangerValue)
                     {
                         for (int j = 0; j < ActualDownLine.Length; j++)
                         {
-                            ExtendCoordinates.Remove((ActualDownLine[j].X, ActualDownLine[j].Y - Value));
+                            //Debug.LogWarning($"Deleted Horzontal coodinate: Y: {ActualDownLine[j].Height}  X: {ActualDownLine[j].Width + Value}");
+                            ExtendCoordinates.Remove((ActualDownLine[j].Height + Value, ActualDownLine[j].Width));
                         }
                     }
                 }

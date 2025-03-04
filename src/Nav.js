@@ -13,10 +13,10 @@ function Nav({ language, setLanguage, texts, isLoggedIn, setIsLoggedIn, isAdmin,
 
   return (
     <div>
-      <video 
-        className="video-background" 
-        autoPlay 
-        muted 
+      <video
+        className="video-background"
+        autoPlay
+        muted
         loop
       >
         <source src={Video} type="video/mp4" />
@@ -24,13 +24,13 @@ function Nav({ language, setLanguage, texts, isLoggedIn, setIsLoggedIn, isAdmin,
       </video>
       <nav className="navbar navbar-expand-lg navbar-dark custom-nav">
         <div className="container-fluid">
-          <button 
-            className="navbar-toggler" 
-            type="button" 
-            data-bs-toggle="collapse" 
-            data-bs-target="#navbarNavAltMarkup" 
-            aria-controls="navbarNavAltMarkup" 
-            aria-expanded="false" 
+          <button
+            className="navbar-toggler"
+            type="button"
+            data-bs-toggle="collapse"
+            data-bs-target="#navbarNavAltMarkup"
+            aria-controls="navbarNavAltMarkup"
+            aria-expanded="false"
             aria-label="Toggle navigation"
           >
             <span className="navbar-toggler-icon"></span>
@@ -47,20 +47,38 @@ function Nav({ language, setLanguage, texts, isLoggedIn, setIsLoggedIn, isAdmin,
               <Link to="/search" className="nav-item nav-link active">
                 {texts[language].search}
               </Link>
-              <select 
-                value={language} 
-                onChange={handleLanguageChange} 
-                id='languagechanger' 
+              <select
+                value={language}
+                onChange={handleLanguageChange}
+                id='languagechanger'
                 className='form-select'
-                style={{ borderRadius:"5px",minWidth:"100px", cursor: "pointer", textAlign:"left"}}
+                style={{ borderRadius: "5px", minWidth: "100px", cursor: "pointer", textAlign: "left" }}
               >
                 <option value="hu">Magyar</option>
                 <option value="en">English</option>
               </select>
             </div>
-            <Link className="navbar-brand mx-auto" to="/">
-              <img src={Logo} alt="Logo" id="logo" className="center-logo" style={{ height: '50px' }} />
-            </Link>
+            {isLoggedIn ?
+            <a id='download' href='https://youtu.be/dQw4w9WgXcQ?si=0tpVKqROXffod3mo' target='_blank' style={{
+              backgroundColor: "rgb(10,10,10)",
+              borderRadius: "5px",
+              color:"azure",
+              width: "90px!important",
+              textAlign: "center",
+              margin: "0 5px",
+              transition: "0.5s",
+              padding: "6.5px",
+              fontSize: "14px"}}>
+              <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" fill="currentColor" class="bi bi-download" viewBox="0 0 16 16">
+              <path d="M.5 9.9a.5.5 0 0 1 .5.5v2.5a1 1 0 0 0 1 1h12a1 1 0 0 0 1-1v-2.5a.5.5 0 0 1 1 0v2.5a2 2 0 0 1-2 2H2a2 2 0 0 1-2-2v-2.5a.5.5 0 0 1 .5-.5"/>
+              <path d="M7.646 11.854a.5.5 0 0 0 .708 0l3-3a.5.5 0 0 0-.708-.708L8.5 10.293V1.5a.5.5 0 0 0-1 0v8.793L5.354 8.146a.5.5 0 1 0-.708.708z"/>
+              </svg>
+            </a> : null
+          }
+              <Link className="navbar-brand mx-auto" to="/">
+                <img src={Logo} alt="Logo" id="logo" className="center-logo" style={{ height: '50px' }} />
+              </Link>
+
             <div className="navbar-nav ms-auto" id="rightnav">
               <form className="d-flex ms-auto align-items-center text-center">
                 {isLoggedIn ? (
@@ -82,11 +100,10 @@ function Nav({ language, setLanguage, texts, isLoggedIn, setIsLoggedIn, isAdmin,
                         id='kep'
                         src={Kep}
                         alt="Profil"
-                        style={{ width: '30px', height: '30px', borderRadius: '50%'}}
+                        style={{ width: '30px', height: '30px', borderRadius: '50%' }}
                       />
                       {isAdmin ? <img src={AdminKep} alt='badge' id="badge" className="center-badge"></img> : null}
                     </button>
-                    <p style={{marginBottom:-2, marginTop: 5, fontSize:"16px", cursor:"default", color: "azure"}}>{username}</p>
                     <ul className="dropdown-menu" aria-labelledby="dropdownMenuButton" style={{ position: 'absolute', top: '100%' }}>
                       {isAdmin && (
                         <li>
@@ -96,25 +113,25 @@ function Nav({ language, setLanguage, texts, isLoggedIn, setIsLoggedIn, isAdmin,
                         </li>
                       )}
                       <li>
-                      <Link className="dropdown-item" to="/settings">
-                        {texts[language].settings}
-                      </Link>
+                        <Link className="dropdown-item" to="/settings">
+                          {texts[language].settings}
+                        </Link>
                       </li>
                       <li>
-                        <button style={{cursor: "pointer"}} onClick={logout} className="dropdown-item">
-                        {texts[language].signout}
+                        <button style={{ cursor: "pointer" }} onClick={logout} className="dropdown-item">
+                          {texts[language].signout}
                         </button>
                       </li>
                     </ul>
                   </div>
                 ) : (
                   <>
-                  <Link to="/login" className="nav-item nav-link active" id='logreg'>
-                  {texts[language].login}
-                  </Link>
-                  <Link to="/register" className="nav-item nav-link active" id='logreg'>
-                    {texts[language].register}
-                  </Link>
+                    <Link to="/login" className="nav-item nav-link active" id="logreg">
+                      {texts[language].login}
+                    </Link>
+                    <Link to="/register" className="nav-item nav-link active" id="logreg">
+                      {texts[language].register}
+                    </Link>
                   </>
                 )}
               </form>

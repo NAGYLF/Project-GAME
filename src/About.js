@@ -6,7 +6,7 @@ import "./Card.css";
 
 function About(props) {
   return (
-    <div className="content" style={{marginTop: "-60px"}}>
+    <div className="content" style={{marginTop: "-50px"}}>
     <div className="cards">
     <div class="card-client">
         <div class="user-picture">

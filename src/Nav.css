@@ -5,7 +5,6 @@
   font-family: "Raleway", serif;
   font-optical-sizing: auto;
   font-style: normal;
-  transition: all 0.5s ease;
 }
 /*--------*/
 
@@ -144,6 +143,7 @@ img, a{
 /* Navbar */
 #logo:hover{
   height: 48.5px!important;
+  transition: 0.5s;
 }
 
 #about{
@@ -170,18 +170,33 @@ img, a{
   font-size: 14px;
 }
 
+#download{
+  background-color: rgb(10,10,10);
+  border-radius: 5px;
+  color:azure;
+  text-align: center;
+  margin: 0 5px;
+  padding: 6.5px;
+  font-size: 14px;
+  cursor: pointer;
+  width: 40px!important;
+}
+
+#download:hover{
+  background-color:rgb(255, 255, 255)!important;
+  color: black!important;
+}
+
 #logreg{
   width: 120px!important;
-  margin: 5px;
+  margin: 0 5px;
 }
 
 #languagechanger{
   background-color: rgb(10,10,10);
-  border-radius: 5px;
   border: none;
   color:azure;
   width: 90px!important;
-  text-align: center;
   margin: 0 5px;
   transition: 0.5s;
   font-size: 14px;
@@ -192,6 +207,7 @@ img, a{
   box-shadow: none!important;
   border: none!important;
 }
+
 
 input:focus{
   box-shadow: none!important;
@@ -208,6 +224,8 @@ input:focus{
 
 .custom-nav{
   background-color: #171717;
+  width: 100%;
+  z-index: 999;
 }
 .navbar-nav .nav-link:hover {
   background-color:rgb(255, 255, 255);
@@ -218,9 +236,10 @@ input:focus{
 .center-logo {
   position: absolute;
   left: 50%;
-  bottom: 15%;
+  bottom: 0%;
   margin: 1px;
   transform: translateX(-50%);
+  transition: 0.5s;
 }
 
 .center-badge {
@@ -329,6 +348,10 @@ input:focus{
     min-width: 40%;
     max-width: 40%;
   }
+
+  #download{
+    display: none;
+  }
 }
 
 @media (max-width: 1025px) {
@@ -372,9 +395,10 @@ input:focus{
     margin: 5px;
     max-width: 75px;
   }
+
   #logreg{
     max-width: 100px;
-    margin: 5px;
+    margin: 50px!important;
   }
 
   .center-logo {

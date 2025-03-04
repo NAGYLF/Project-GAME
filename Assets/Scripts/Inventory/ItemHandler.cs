@@ -296,7 +296,7 @@ namespace ItemHandler
                 SizeY = FirstItem.SizeY;
                 Container = FirstItem.Container;
                 Spread = 0;
-                Fps = 0;
+                Fpm = 0;
                 Recoil = 0;
                 Accturacy = 0;
                 Range = 0;
@@ -364,9 +364,9 @@ namespace ItemHandler
                     {
                         Spread += item.Spread;
                     }
-                    if (item.Fps != 0)
+                    if (item.Fpm != 0)
                     {
-                        Fps += item.Fps;
+                        Fpm += item.Fpm;
                     }
                     if (item.Recoil != 0)
                     {
@@ -407,7 +407,7 @@ namespace ItemHandler
                 //fegyver adatok
                 MagasineSize = FirstItem.MagasineSize;
                 Spread = FirstItem.Spread;
-                Fps = FirstItem.Fps;
+                Fpm = FirstItem.Fpm;
                 Recoil = FirstItem.Recoil;
                 Accturacy = FirstItem.Accturacy;
                 Range = FirstItem.Range;
@@ -679,7 +679,7 @@ namespace ItemHandler
                     //fegyver adatok
                     MagasineSize = completedItem.MagasineSize,
                     Spread = completedItem.Spread,
-                    Fps = completedItem.Fps,
+                    Fpm = completedItem.Fpm,
                     Recoil = completedItem.Recoil,
                     Accturacy = completedItem.Accturacy,
                     Range = completedItem.Range,
@@ -727,7 +727,7 @@ namespace ItemHandler
                 //fegyver adatok
                 MagasineSize = completedItem.MagasineSize;
                 Spread = completedItem.Spread;
-                Fps = completedItem.Fps;
+                Fpm = completedItem.Fpm;
                 Recoil = completedItem.Recoil;
                 Accturacy = completedItem.Accturacy;
                 Range = completedItem.Range;
@@ -750,7 +750,7 @@ namespace ItemHandler
         //weapon
         public int? MagasineSize { get; set; }
         public double? Spread { get; set; }
-        public int? Fps { get; set; }
+        public int? Fpm { get; set; }
         public double? Recoil { get; set; }
         public double? Accturacy { get; set; }
         public double? Range { get; set; }
@@ -1035,6 +1035,49 @@ namespace ItemHandler
     public static class InventorySystem
     {
         #region Special
+        public static void Placer(Item item, float originalRotation, bool placementCanStart, PlacerStruct placer)
+        {
+            if (placer.ActiveItemSlots != null && (placer.ActiveItemSlots.Count == item.SizeX * item.SizeY || (placer.ActiveItemSlots.Count == 1 && placer.ActiveItemSlots[0].GetComponent<ItemSlot>().IsEquipment)))
+            {
+                if (Input.GetKey(KeyCode.LeftControl) && !placer.ActiveItemSlots.Exists(slot => slot.GetComponent<ItemSlot>().PartOfItemObject != null && slot.GetComponent<ItemSlot>().PartOfItemObject.GetInstanceID() == item.SelfGameobject.GetInstanceID()))//split  (azt ellenorizzuk hogy meg lett e nyomva a ctrl és nincs olyan slot amelyet az item tartlamaz ezzel saját magéba nem slpitelhet ezzel megsporoljuk a felesleges szamitasokat)
+                {
+                    placementCanStart = !Split(item, placer);
+                }
+                else if (placer.ActiveItemSlots.Exists(slot => slot.GetComponent<ItemSlot>() != null && slot.GetComponent<ItemSlot>().CountAddAvaiable))//csak containerekben mukodik
+                {
+                    placementCanStart = !Merge(item, placer);
+                }
+                if (placementCanStart)
+                {
+                    Remove(item, item.ParentItem);
+                    Add(item, placer.NewParentItem);
+                    InspectPlayerInventory(item, placer.NewParentItem);
+
+                    NonLive_UnPlacing(item);
+                    Live_UnPlacing(item);
+
+                    Live_Positioning(item, placer);
+
+                    NonLive_Placing(item, placer.NewParentItem);
+                    Live_Placing(item, placer.NewParentItem);
+
+                    HotKey_SetStatus_SupplementaryTransformation(item, placer.NewParentItem);
+
+                    item.SelfGameobject.GetComponent<ItemObject>().SelfVisualisation();
+
+                    item.SelfGameobject.GetComponent<ItemObject>().BuildContainer();
+                }
+            }
+            else
+            {
+                //ha nem sikerul elhelyzni akkor eredeti allpotaba kerul
+                item.RotateDegree = originalRotation;
+
+                item.SelfGameobject.GetComponent<ItemObject>().SelfVisualisation();
+
+                item.SelfGameobject.GetComponent<ItemObject>().BuildContainer();
+            }
+        }
         public static void Delete(Item item)
         {
             UnsetHotKey(item);

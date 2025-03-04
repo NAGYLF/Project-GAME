@@ -18,7 +18,7 @@ namespace Weapons
 
                 MagasineSize = 30,//alap tár kapacitás
                 Spread = 1,//a spread minusz értéke és plusz erteke közötti random generált szögben indul ki a lövedék, az az ha ez 0 akkor minden lövedék pontos, ezt a recoil befolyasolja
-                Fps = 800,//lovés percenként
+                Fpm = 800,//lovés percenként
                 Recoil = 1,//egy szorzó mely minden lövéssel önmagát szorozza, továbbá értéke mindig szorzatban áll a spreaddal.
                 Accturacy = 1.82,//pontosság a lövedék találatának esélye, ugyan is a jatekban van sebzes nem csak testre hanem testrészekre, minnél pontosabb egy fegyver annál kevesebb a karcolás, RHA esélye illetve annál nagyobb az esélye hogy a lovedék ott sebez ahol a talalat erkezik.
                 Range = 500,//az a pont ameddig az általa ellőtt lövedék elmegy 1 = 1 méter
@@ -48,7 +48,7 @@ namespace Weapons
 
                 MagasineSize = 30,//alap tár kapacitás
                 Spread = 1,//a spread minusz értéke és plusz erteke közötti random generált szögben indul ki a lövedék, az az ha ez 0 akkor minden lövedék pontos, ezt a recoil befolyasolja
-                Fps = 650,//lovés percenként
+                Fpm = 650,//lovés percenként
                 Recoil = 1,//egy szorzó mely minden lövéssel önmagát szorozza, továbbá értéke mindig szorzatban áll a spreaddal.
                 Accturacy = 1.43,//pontosság a lövedék találatának esélye, ugyan is a jatekban van sebzes nem csak testre hanem testrészekre, minnél pontosabb egy fegyver annál kevesebb a karcolás, RHA esélye illetve annál nagyobb az esélye hogy a lovedék ott sebez ahol a talalat erkezik.
                 Range = 500,//az a pont ameddig az általa ellőtt lövedék elmegy 1 = 1 méter
@@ -78,7 +78,7 @@ namespace Weapons
 
                 MagasineSize = 20,//alap tár kapacitás
                 Spread = 1,//a spread minusz értéke és plusz erteke közötti random generált szögben indul ki a lövedék, az az ha ez 0 akkor minden lövedék pontos, ezt a recoil befolyasolja
-                Fps = 700,//lovés percenként
+                Fpm = 700,//lovés percenként
                 Recoil = 1,//egy szorzó mely minden lövéssel önmagát szorozza, továbbá értéke mindig szorzatban áll a spreaddal.
                 Accturacy = 2.8,//pontosság a lövedék találatának esélye, ugyan is a jatekban van sebzes nem csak testre hanem testrészekre, minnél pontosabb egy fegyver annál kevesebb a karcolás, RHA esélye illetve annál nagyobb az esélye hogy a lovedék ott sebez ahol a talalat erkezik.
                 Range = 900,//az a pont ameddig az általa ellőtt lövedék elmegy 1 = 1 méter
@@ -108,7 +108,7 @@ namespace Weapons
 
                 MagasineSize = 20,//alap tár kapacitás
                 Spread = 1,//a spread minusz értéke és plusz erteke közötti random generált szögben indul ki a lövedék, az az ha ez 0 akkor minden lövedék pontos, ezt a recoil befolyasolja
-                Fps = 700,//lovés percenként
+                Fpm = 700,//lovés percenként
                 Recoil = 1,//egy szorzó mely minden lövéssel önmagát szorozza, továbbá értéke mindig szorzatban áll a spreaddal.
                 Accturacy = 2.8,//pontosság a lövedék találatának esélye, ugyan is a jatekban van sebzes nem csak testre hanem testrészekre, minnél pontosabb egy fegyver annál kevesebb a karcolás, RHA esélye illetve annál nagyobb az esélye hogy a lovedék ott sebez ahol a talalat erkezik.
                 Range = 900,//az a pont ameddig az általa ellőtt lövedék elmegy 1 = 1 méter
@@ -138,7 +138,7 @@ namespace Weapons
 
                 MagasineSize = 20,//alap tár kapacitás
                 Spread = 1,//a spread minusz értéke és plusz erteke közötti random generált szögben indul ki a lövedék, az az ha ez 0 akkor minden lövedék pontos, ezt a recoil befolyasolja
-                Fps = 600,//lovés percenként
+                Fpm = 600,//lovés percenként
                 Recoil = 1,//egy szorzó mely minden lövéssel önmagát szorozza, továbbá értéke mindig szorzatban áll a spreaddal.
                 Accturacy = 1.77,//pontosság a lövedék találatának esélye, ugyan is a jatekban van sebzes nem csak testre hanem testrészekre, minnél pontosabb egy fegyver annál kevesebb a karcolás, RHA esélye illetve annál nagyobb az esélye hogy a lovedék ott sebez ahol a talalat erkezik.
                 Range = 500,//az a pont ameddig az általa ellőtt lövedék elmegy 1 = 1 méter
@@ -168,7 +168,7 @@ namespace Weapons
 
                 MagasineSize = 5,//alap tár kapacitás
                 Spread = 1,//a spread minusz értéke és plusz erteke közötti random generált szögben indul ki a lövedék, az az ha ez 0 akkor minden lövedék pontos, ezt a recoil befolyasolja
-                Fps = 30,//lovés percenként
+                Fpm = 30,//lovés percenként
                 Recoil = 1,//egy szorzó mely minden lövéssel önmagát szorozza, továbbá értéke mindig szorzatban áll a spreaddal.
                 Accturacy = 1.31,//pontosság a lövedék találatának esélye, ugyan is a jatekban van sebzes nem csak testre hanem testrészekre, minnél pontosabb egy fegyver annál kevesebb a karcolás, RHA esélye illetve annál nagyobb az esélye hogy a lovedék ott sebez ahol a talalat erkezik.
                 Range = 1000,//az a pont ameddig az általa ellőtt lövedék elmegy 1 = 1 méter
@@ -198,7 +198,7 @@ namespace Weapons
 
                 MagasineSize = 20,//alap tár kapacitás
                 Spread = 1,//a spread minusz értéke és plusz erteke közötti random generált szögben indul ki a lövedék, az az ha ez 0 akkor minden lövedék pontos, ezt a recoil befolyasolja
-                Fps = 800,//lovés percenként
+                Fpm = 800,//lovés percenként
                 Recoil = 1,//egy szorzó mely minden lövéssel önmagát szorozza, továbbá értéke mindig szorzatban áll a spreaddal.
                 Accturacy = 1.43,//pontosság a lövedék találatának esélye, ugyan is a jatekban van sebzes nem csak testre hanem testrészekre, minnél pontosabb egy fegyver annál kevesebb a karcolás, RHA esélye illetve annál nagyobb az esélye hogy a lovedék ott sebez ahol a talalat erkezik.
                 Range = 500,//az a pont ameddig az általa ellőtt lövedék elmegy 1 = 1 méter
@@ -228,7 +228,7 @@ namespace Weapons
 
                 MagasineSize = 30,//alap tár kapacitás
                 Spread = 1,//a spread minusz értéke és plusz erteke közötti random generált szögben indul ki a lövedék, az az ha ez 0 akkor minden lövedék pontos, ezt a recoil befolyasolja
-                Fps = 850,//lovés percenként
+                Fpm = 850,//lovés percenként
                 Recoil = 1,//egy szorzó mely minden lövéssel önmagát szorozza, továbbá értéke mindig szorzatban áll a spreaddal.
                 Accturacy = 5,//pontosság a lövedék találatának esélye, ugyan is a jatekban van sebzes nem csak testre hanem testrészekre, minnél pontosabb egy fegyver annál kevesebb a karcolás, RHA esélye illetve annál nagyobb az esélye hogy a lovedék ott sebez ahol a talalat erkezik.
                 Range = 500,//az a pont ameddig az általa ellőtt lövedék elmegy 1 = 1 méter
@@ -258,7 +258,7 @@ namespace Weapons
 
                 MagasineSize = 10,//alap tár kapacitás
                 Spread = 1,//a spread minusz értéke és plusz erteke közötti random generált szögben indul ki a lövedék, az az ha ez 0 akkor minden lövedék pontos, ezt a recoil befolyasolja
-                Fps = 40,//lovés percenként
+                Fpm = 40,//lovés percenként
                 Recoil = 1,//egy szorzó mely minden lövéssel önmagát szorozza, továbbá értéke mindig szorzatban áll a spreaddal.
                 Accturacy = 1.72,//pontosság a lövedék találatának esélye, ugyan is a jatekban van sebzes nem csak testre hanem testrészekre, minnél pontosabb egy fegyver annál kevesebb a karcolás, RHA esélye illetve annál nagyobb az esélye hogy a lovedék ott sebez ahol a talalat erkezik.
                 Range = 400,//az a pont ameddig az általa ellőtt lövedék elmegy 1 = 1 méter
@@ -288,7 +288,7 @@ namespace Weapons
 
                 MagasineSize = 10,//alap tár kapacitás
                 Spread = 1,//a spread minusz értéke és plusz erteke közötti random generált szögben indul ki a lövedék, az az ha ez 0 akkor minden lövedék pontos, ezt a recoil befolyasolja
-                Fps = 550,//lovés percenként
+                Fpm = 550,//lovés percenként
                 Recoil = 1,//egy szorzó mely minden lövéssel önmagát szorozza, továbbá értéke mindig szorzatban áll a spreaddal.
                 Accturacy = 1.18,//pontosság a lövedék találatának esélye, ugyan is a jatekban van sebzes nem csak testre hanem testrészekre, minnél pontosabb egy fegyver annál kevesebb a karcolás, RHA esélye illetve annál nagyobb az esélye hogy a lovedék ott sebez ahol a talalat erkezik.
                 Range = 800,//az a pont ameddig az általa ellőtt lövedék elmegy 1 = 1 méter
@@ -320,7 +320,7 @@ namespace Weapons
                 MagasineSize = 17,//alap tár kapacitás
                 AmmoType = "9x19",
                 Spread = 1,//a spread minusz értéke és plusz erteke közötti random generált szögben indul ki a lövedék, az az ha ez 0 akkor minden lövedék pontos, ezt a recoil befolyasolja
-                Fps = 500,//lovés percenként
+                Fpm = 500,//lovés percenként
                 Recoil = 1,//egy szorzó mely minden lövéssel önmagát szorozza, továbbá értéke mindig szorzatban áll a spreaddal.
                 Accturacy = 100,//pontosság a lövedék találatának esélye, ugyan is a jatekban van sebzes nem csak testre hanem testrészekre, minnél pontosabb egy fegyver annál kevesebb a karcolás, RHA esélye illetve annál nagyobb az esélye hogy a lovedék ott sebez ahol a talalat erkezik.
                 Range = 1000,//az a pont ameddig az általa ellőtt lövedék elmegy 1 = 1 méter
@@ -350,7 +350,7 @@ namespace Weapons
 
                 MagasineSize = 20,//alap tár kapacitás
                 Spread = 1,//a spread minusz értéke és plusz erteke közötti random generált szögben indul ki a lövedék, az az ha ez 0 akkor minden lövedék pontos, ezt a recoil befolyasolja
-                Fps = 30,//lovés percenként
+                Fpm = 30,//lovés percenként
                 Recoil = 1,//egy szorzó mely minden lövéssel önmagát szorozza, továbbá értéke mindig szorzatban áll a spreaddal.
                 Accturacy = 13.41,//pontosság a lövedék találatának esélye, ugyan is a jatekban van sebzes nem csak testre hanem testrészekre, minnél pontosabb egy fegyver annál kevesebb a karcolás, RHA esélye illetve annál nagyobb az esélye hogy a lovedék ott sebez ahol a talalat erkezik.
                 Range = 50,//az a pont ameddig az általa ellőtt lövedék elmegy 1 = 1 méter
@@ -380,7 +380,7 @@ namespace Weapons
 
                 MagasineSize = 17,//alap tár kapacitás
                 Spread = 1,//a spread minusz értéke és plusz erteke közötti random generált szögben indul ki a lövedék, az az ha ez 0 akkor minden lövedék pontos, ezt a recoil befolyasolja
-                Fps = 30,//lovés percenként
+                Fpm = 30,//lovés percenként
                 Recoil = 1,//egy szorzó mely minden lövéssel önmagát szorozza, továbbá értéke mindig szorzatban áll a spreaddal.
                 Accturacy = 11.69,//pontosság a lövedék találatának esélye, ugyan is a jatekban van sebzes nem csak testre hanem testrészekre, minnél pontosabb egy fegyver annál kevesebb a karcolás, RHA esélye illetve annál nagyobb az esélye hogy a lovedék ott sebez ahol a talalat erkezik.
                 Range = 50,//az a pont ameddig az általa ellőtt lövedék elmegy 1 = 1 méter
@@ -410,7 +410,7 @@ namespace Weapons
 
                 MagasineSize = 17,//alap tár kapacitás
                 Spread = 1,//a spread minusz értéke és plusz erteke közötti random generált szögben indul ki a lövedék, az az ha ez 0 akkor minden lövedék pontos, ezt a recoil befolyasolja
-                Fps = 30,//lovés percenként
+                Fpm = 30,//lovés percenként
                 Recoil = 1,//egy szorzó mely minden lövéssel önmagát szorozza, továbbá értéke mindig szorzatban áll a spreaddal.
                 Accturacy = 10.31,//pontosság a lövedék találatának esélye, ugyan is a jatekban van sebzes nem csak testre hanem testrészekre, minnél pontosabb egy fegyver annál kevesebb a karcolás, RHA esélye illetve annál nagyobb az esélye hogy a lovedék ott sebez ahol a talalat erkezik.
                 Range = 50,//az a pont ameddig az általa ellőtt lövedék elmegy 1 = 1 méter
@@ -440,7 +440,7 @@ namespace Weapons
 
                 MagasineSize = 7,//alap tár kapacitás
                 Spread = 1,//a spread minusz értéke és plusz erteke közötti random generált szögben indul ki a lövedék, az az ha ez 0 akkor minden lövedék pontos, ezt a recoil befolyasolja
-                Fps = 30,//lovés percenként
+                Fpm = 30,//lovés percenként
                 Recoil = 1,//egy szorzó mely minden lövéssel önmagát szorozza, továbbá értéke mindig szorzatban áll a spreaddal.
                 Accturacy = 6.4,//pontosság a lövedék találatának esélye, ugyan is a jatekban van sebzes nem csak testre hanem testrészekre, minnél pontosabb egy fegyver annál kevesebb a karcolás, RHA esélye illetve annál nagyobb az esélye hogy a lovedék ott sebez ahol a talalat erkezik.
                 Range = 50,//az a pont ameddig az általa ellőtt lövedék elmegy 1 = 1 méter
@@ -470,7 +470,7 @@ namespace Weapons
 
                 MagasineSize = 7,//alap tár kapacitás
                 Spread = 1,//a spread minusz értéke és plusz erteke közötti random generált szögben indul ki a lövedék, az az ha ez 0 akkor minden lövedék pontos, ezt a recoil befolyasolja
-                Fps = 30,//lovés percenként
+                Fpm = 30,//lovés percenként
                 Recoil = 1,//egy szorzó mely minden lövéssel önmagát szorozza, továbbá értéke mindig szorzatban áll a spreaddal.
                 Accturacy = 6.88,//pontosság a lövedék találatának esélye, ugyan is a jatekban van sebzes nem csak testre hanem testrészekre, minnél pontosabb egy fegyver annál kevesebb a karcolás, RHA esélye illetve annál nagyobb az esélye hogy a lovedék ott sebez ahol a talalat erkezik.
                 Range = 50,//az a pont ameddig az általa ellőtt lövedék elmegy 1 = 1 méter
@@ -500,7 +500,7 @@ namespace Weapons
 
                 MagasineSize = 7,//alap tár kapacitás
                 Spread = 1,//a spread minusz értéke és plusz erteke közötti random generált szögben indul ki a lövedék, az az ha ez 0 akkor minden lövedék pontos, ezt a recoil befolyasolja
-                Fps = 900,//lovés percenként
+                Fpm = 900,//lovés percenként
                 Recoil = 1,//egy szorzó mely minden lövéssel önmagát szorozza, továbbá értéke mindig szorzatban áll a spreaddal.
                 Accturacy = 23.38,//pontosság a lövedék találatának esélye, ugyan is a jatekban van sebzes nem csak testre hanem testrészekre, minnél pontosabb egy fegyver annál kevesebb a karcolás, RHA esélye illetve annál nagyobb az esélye hogy a lovedék ott sebez ahol a talalat erkezik.
                 Range = 50,//az a pont ameddig az általa ellőtt lövedék elmegy 1 = 1 méter
@@ -530,7 +530,7 @@ namespace Weapons
 
                 MagasineSize = 5,//alap tár kapacitás
                 Spread = 1,//a spread minusz értéke és plusz erteke közötti random generált szögben indul ki a lövedék, az az ha ez 0 akkor minden lövedék pontos, ezt a recoil befolyasolja
-                Fps = 30,//lovés percenként
+                Fpm = 30,//lovés percenként
                 Recoil = 1,//egy szorzó mely minden lövéssel önmagát szorozza, továbbá értéke mindig szorzatban áll a spreaddal.
                 Accturacy = 6.25,//pontosság a lövedék találatának esélye, ugyan is a jatekban van sebzes nem csak testre hanem testrészekre, minnél pontosabb egy fegyver annál kevesebb a karcolás, RHA esélye illetve annál nagyobb az esélye hogy a lovedék ott sebez ahol a talalat erkezik.
                 Range = 50,//az a pont ameddig az általa ellőtt lövedék elmegy 1 = 1 méter
@@ -560,7 +560,7 @@ namespace Weapons
 
                 MagasineSize = 17,//alap tár kapacitás
                 Spread = 1,//a spread minusz értéke és plusz erteke közötti random generált szögben indul ki a lövedék, az az ha ez 0 akkor minden lövedék pontos, ezt a recoil befolyasolja
-                Fps = 1200,//lovés percenként
+                Fpm = 1200,//lovés percenként
                 Recoil = 1,//egy szorzó mely minden lövéssel önmagát szorozza, továbbá értéke mindig szorzatban áll a spreaddal.
                 Accturacy = 12.03,//pontosság a lövedék találatának esélye, ugyan is a jatekban van sebzes nem csak testre hanem testrészekre, minnél pontosabb egy fegyver annál kevesebb a karcolás, RHA esélye illetve annál nagyobb az esélye hogy a lovedék ott sebez ahol a talalat erkezik.
                 Range = 50,//az a pont ameddig az általa ellőtt lövedék elmegy 1 = 1 méter
@@ -590,7 +590,7 @@ namespace Weapons
 
                 MagasineSize = 17,//alap tár kapacitás
                 Spread = 1,//a spread minusz értéke és plusz erteke közötti random generált szögben indul ki a lövedék, az az ha ez 0 akkor minden lövedék pontos, ezt a recoil befolyasolja
-                Fps = 30,//lovés percenként
+                Fpm = 30,//lovés percenként
                 Recoil = 1,//egy szorzó mely minden lövéssel önmagát szorozza, továbbá értéke mindig szorzatban áll a spreaddal.
                 Accturacy = 11.69,//pontosság a lövedék találatának esélye, ugyan is a jatekban van sebzes nem csak testre hanem testrészekre, minnél pontosabb egy fegyver annál kevesebb a karcolás, RHA esélye illetve annál nagyobb az esélye hogy a lovedék ott sebez ahol a talalat erkezik.
                 Range = 50,//az a pont ameddig az általa ellőtt lövedék elmegy 1 = 1 méter
@@ -620,7 +620,7 @@ namespace Weapons
 
                 MagasineSize = 8,//alap tár kapacitás
                 Spread = 1,//a spread minusz értéke és plusz erteke közötti random generált szögben indul ki a lövedék, az az ha ez 0 akkor minden lövedék pontos, ezt a recoil befolyasolja
-                Fps = 30,//lovés percenként
+                Fpm = 30,//lovés percenként
                 Recoil = 1,//egy szorzó mely minden lövéssel önmagát szorozza, továbbá értéke mindig szorzatban áll a spreaddal.
                 Accturacy = 12.03,//pontosság a lövedék találatának esélye, ugyan is a jatekban van sebzes nem csak testre hanem testrészekre, minnél pontosabb egy fegyver annál kevesebb a karcolás, RHA esélye illetve annál nagyobb az esélye hogy a lovedék ott sebez ahol a talalat erkezik.
                 Range = 50,//az a pont ameddig az általa ellőtt lövedék elmegy 1 = 1 méter
@@ -651,7 +651,7 @@ namespace Weapons
                 AmmoType = "7.69x39",
 
                 Spread = 1,//a spread minusz értéke és plusz erteke közötti random generált szögben indul ki a lövedék, az az ha ez 0 akkor minden lövedék pontos, ezt a recoil befolyasolja
-                Fps = 500,//lovés percenként
+                Fpm = 500,//lovés percenként
                 Recoil = 1,//egy szorzó mely minden lövéssel önmagát szorozza, továbbá értéke mindig szorzatban áll a spreaddal.
                 Accturacy = 100,//pontosság a lövedék találatának esélye, ugyan is a jatekban van sebzes nem csak testre hanem testrészekre, minnél pontosabb egy fegyver annál kevesebb a karcolás, RHA esélye illetve annál nagyobb az esélye hogy a lovedék ott sebez ahol a talalat erkezik.
                 Range = 1000,//az a pont ameddig az általa ellőtt lövedék elmegy 1 = 1 méter

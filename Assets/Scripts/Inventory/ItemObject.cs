@@ -117,7 +117,7 @@ public class ItemObject : MonoBehaviour, IPointerDownHandler, IPointerUpHandler,
             if (AvaiableNewParentObject != null)
             {
                 PlacerStruct placer = AvaiableNewParentObject.GetComponent<ContainerObject>().ActualData.GivePlacer;
-                Placing(InventorySystem.CanBePlace(ActualData,placer ),placer);
+                InventorySystem.Placer(ActualData,originalRotation,InventorySystem.CanBePlace(ActualData,placer ),placer);
                 BuildContainer();
             }
             else
@@ -125,49 +125,6 @@ public class ItemObject : MonoBehaviour, IPointerDownHandler, IPointerUpHandler,
                 SelfVisualisation();
             }
             #endregion
-        }
-    }
-    public void Placing(bool placementCanStart, PlacerStruct placer)
-    {
-        if (placer.ActiveItemSlots != null && (placer.ActiveItemSlots.Count == ActualData.SizeX * ActualData.SizeY || (placer.ActiveItemSlots.Count == 1 && placer.ActiveItemSlots[0].GetComponent<ItemSlot>().IsEquipment)))
-        {
-            if (Input.GetKey(KeyCode.LeftControl) && !placer.ActiveItemSlots.Exists(slot => slot.GetComponent<ItemSlot>().PartOfItemObject != null && slot.GetComponent<ItemSlot>().PartOfItemObject.GetInstanceID() == gameObject.GetInstanceID()))//split  (azt ellenorizzuk hogy meg lett e nyomva a ctrl és nincs olyan slot amelyet az item tartlamaz ezzel saját magéba nem slpitelhet ezzel megsporoljuk a felesleges szamitasokat)
-            {
-                placementCanStart = !InventorySystem.Split(ActualData, placer);
-            }
-            else if (placer.ActiveItemSlots.Exists(slot => slot.GetComponent<ItemSlot>() != null && slot.GetComponent<ItemSlot>().CountAddAvaiable))//csak containerekben mukodik
-            {
-                placementCanStart = !InventorySystem.Merge(ActualData, placer);
-            }
-            if (placementCanStart)
-            {
-                InventorySystem.Remove(ActualData, ActualData.ParentItem);
-                InventorySystem.Add(ActualData, placer.NewParentItem);
-                InventorySystem.InspectPlayerInventory(ActualData, placer.NewParentItem);
-
-                InventorySystem.NonLive_UnPlacing(ActualData);
-                InventorySystem.Live_UnPlacing(ActualData);
-
-                InventorySystem.Live_Positioning(ActualData, placer);
-
-                InventorySystem.NonLive_Placing(ActualData, placer.NewParentItem);
-                InventorySystem.Live_Placing(ActualData, placer.NewParentItem);
-                
-                InventorySystem.HotKey_SetStatus_SupplementaryTransformation(ActualData, placer.NewParentItem);
-
-                SelfVisualisation();
-
-                BuildContainer();
-            }
-        }
-        else
-        {
-            //ha nem sikerul elhelyzni akkor eredeti allpotaba kerul
-            ActualData.RotateDegree = originalRotation;
-
-            SelfVisualisation();
-
-            BuildContainer();
         }
     }
     private void Start()

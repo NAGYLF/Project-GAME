@@ -142,7 +142,7 @@ public class TemporaryItemObject : MonoBehaviour/*, IPointerUpHandler*/
                     ItemObject.GetComponent<BoxCollider2D>().size = transform.GetComponent<RectTransform>().rect.size;
                     ItemObject.GetComponent<ItemObject>().SetDataRoute(ActualData, placer.NewParentItem);
                     ItemObject.GetComponent<ItemObject>().ActualData.SelfGameobject = ItemObject;
-                    ItemObject.GetComponent<ItemObject>().Placing(true, placer);
+                    InventorySystem.Placer(ActualData,AdvancedItem.RotateDegree,true, placer);
                     ItemObject.GetComponent<ItemObject>().BuildContainer();
                 }
                 else
@@ -406,5 +406,35 @@ public class TemporaryItemObject : MonoBehaviour/*, IPointerUpHandler*/
         //InventoryObjectRef.GetComponent<PlayerInventory>().SlotPanelObject.GetComponent<PanelSlots>().ReFresh();
 
         //BuildContainer();
+    }
+    void OnDisable()
+    {
+        List<Part> parts_ = new List<Part>()
+                    {
+                        ActualData.Parts.First()
+                    };
+        ActualData.Parts.First().GetConnectedPartsTree(parts_);
+
+        ((int X, int Y) ChangedSize, Dictionary<char, int> Directions) Effect = InventorySystem.AdvancedItem_SizeChanger_EffectDetermination(AdvancedItem, parts_, true);
+        (HashSet<(int Height, int Widht)> NonLiveCoordinates, int SectorIndex, bool IsPositionAble) NewPosition = InventorySystem.Try_PartPositioning(AdvancedItem, Effect.ChangedSize, Effect.Directions);
+
+        AdvancedItem.PartPut(ActualData);
+
+        if (NewPosition.IsPositionAble)
+        {
+            InventorySystem.NonLive_Positioning(NewPosition.NonLiveCoordinates.First().Height, NewPosition.NonLiveCoordinates.First().Widht, NewPosition.SectorIndex, AdvancedItem, AdvancedItem.ParentItem);
+
+            InventorySystem.NonLive_UnPlacing(AdvancedItem);
+            InventorySystem.NonLive_Placing(AdvancedItem, AdvancedItem.ParentItem);
+
+            InventorySystem.Live_UnPlacing(AdvancedItem);
+            InventorySystem.Live_Placing(AdvancedItem, AdvancedItem.ParentItem);
+        }
+
+        AdvancedItem.SelfGameobject.GetComponent<ItemObject>().SelfVisualisation();
+        //AdvancedItem.PartPut(ActualData);
+        //AdvancedItem.SelfGameobject.GetComponent<ItemObject>().SelfVisualisation();
+        window.ItemPartTrasformation();
+        Destroy(gameObject);
     }
 }

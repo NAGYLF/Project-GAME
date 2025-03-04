@@ -80,9 +80,6 @@ remove TestPlayer item 7.62x39FMJ 113
 add TestPlayer DevInventory
 
 
-add TestPlayer AdvancedItemTest
-
-
 add TestPlayer DevInvenotry_AKS74UAdvnacedItem
 
 

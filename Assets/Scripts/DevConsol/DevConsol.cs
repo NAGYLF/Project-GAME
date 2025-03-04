@@ -57,32 +57,6 @@ public class DevConsol : MonoBehaviour
                                     inventory.GetComponent<PlayerInventory>().InventoryAdd(item_);
                                 }
                                 break;
-                            case "AdvancedItemTest":
-                                Debug.Log($"{text.GetComponent<TMP_InputField>().text}");
-                                Item[] itemsAI = new Item[]
-                                {
-                                    new Item("AK103"),
-                                    new Item("AK103"),
-                                    new Item("Glock_17_9x19_pistol_PS9"),
-                                    new Item("_6B43_6A_Zabralo_Sh_body_armor"),
-                                    new Item("TestBackpack"),
-                                    new Item("TestVest"),
-                                    new Item("TestBoots"),
-                                    new Item("TestFingers"),
-                                    new Item("GSSh_01_active_headset"),
-                                    new Item("Galvion_Caiman_Hybrid_helmet_Grey"),
-                                    new Item("Atomic_Defense_CQCM_ballistic_mask_Black"),
-                                    new Item("APOK_Tactical_Wasteland_Gladius"),
-                                    new Item("USEC_Base"),
-                                    new Item("USEC_Base_Upper"),
-                                    new Item("TestCenter"),
-                                };
-                                itemsAI.Last().PartPut(new Item("TestBox"));
-                                foreach (Item item_ in itemsAI)
-                                {
-                                    inventory.GetComponent<PlayerInventory>().InventoryAdd(item_);
-                                }
-                                break;
                             case "DevInventory_FullGear":
                                 Debug.Log($"{text.GetComponent<TMP_InputField>().text}");
                                 Item[] items02 = new Item[]
@@ -143,7 +117,8 @@ public class DevConsol : MonoBehaviour
                                 };
                                 foreach (Item item_ in parts_AKS74U)
                                 {
-                                    items_AK74UTest.Last().PartPut(item_);
+                                    (ConnectionPoint SCP, ConnectionPoint ICP, bool IsPossible) Data = items_AK74UTest.Last().PartPut_IsPossible(item_);
+                                    items_AK74UTest.Last().PartPut(item_,Data.SCP,Data.ICP);
                                 }
                                 foreach (Item item_ in items_AK74UTest)
                                 {

@@ -47,7 +47,7 @@ public class ItemObject : MonoBehaviour, IPointerDownHandler, IPointerUpHandler,
     {
         if (eventData.button == PointerEventData.InputButton.Right)
         {
-            Debug.LogWarning("window opened");
+            //Debug.LogWarning("window opened");
             GameObject itemWindow = CreatePrefab("GameElements/ItemWindow");
             itemWindow.transform.SetParent(InventoryObjectRef.transform);
             itemWindow.GetComponent<ItemWindow>().itemObject = gameObject;

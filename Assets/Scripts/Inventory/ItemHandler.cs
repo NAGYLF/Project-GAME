@@ -193,14 +193,12 @@ namespace ItemHandler
         {
 
         }
-        //action (Only NonLive inventory)
-        public bool PartPut(Item AdvancedItem)//ha egy item partjait belerakjuk akkor az item az inventoryban megmaradhat ezert azt torolni kellesz vagy vmi
+        public (ConnectionPoint SCP, ConnectionPoint ICP, bool IsPossible) PartPut_IsPossible(Item Incoming_AdvancedItem)
         {
             //amit rá helyezunk
-            ConnectionPoint[] IncomingCPs = AdvancedItem.Parts.SelectMany(x => x.ConnectionPoints).ToArray();//az összes connection point amitje az itemnek van
+            ConnectionPoint[] IncomingCPs = Incoming_AdvancedItem.Parts.SelectMany(x => x.ConnectionPoints).ToArray();//az összes connection point amitje az itemnek van
             //amire helyezunk
             ConnectionPoint[] SelfCPs = Parts.SelectMany(x => x.ConnectionPoints).ToArray();//az össze sconnection point amihez hozzadhatja
-            bool Connected = false;
             /*
              * ellenorizzuk, hogy a CP-k egyike sincs e hasznalva
              * ellenorizzuk, hogy a self cp kompatibilis e az incoming cp-vel
@@ -211,49 +209,45 @@ namespace ItemHandler
                 {
                     if (!SCP.Used && !ICP.Used && SCP.CPData.CompatibleItemNames.Contains(ICP.SelfPart.PartData.PartName))
                     {
-                        Connected = true;
-                        SCP.Connect(ICP);
-
-                        int baseHierarhicPlace = SCP.SelfPart.HierarhicPlace;
-                        int IncomingCPPlace = ICP.SelfPart.HierarhicPlace;
-                        int hierarhicPlaceChanger = 0;
-
-                        if (baseHierarhicPlace<IncomingCPPlace)
-                        {
-                            hierarhicPlaceChanger = (IncomingCPPlace-(++baseHierarhicPlace))*-1;
-                        }
-                        else if (baseHierarhicPlace>IncomingCPPlace)
-                        {
-                            hierarhicPlaceChanger = baseHierarhicPlace-IncomingCPPlace+1;
-                        }
-                        else
-                        {
-                            hierarhicPlaceChanger = 1;
-                        }
-
-                        foreach (Part part in AdvancedItem.Parts)
-                        {
-                            part.HierarhicPlace += hierarhicPlaceChanger;
-                        }
-
-                        Parts.AddRange(AdvancedItem.Parts);
-
-                        Parts = Parts.OrderBy(part => part.HierarhicPlace).ToList();
-
-                        InventorySystem.Delete(AdvancedItem);//törli az advanced itemet amely a partokat tartalmazta
-
-                        AdvancedItemContsruct();
-
-                        goto EndSearch;
+                        return (SCP,ICP,true);
                     }
                 }
             }
-            EndSearch:;
-            if (Connected)
+            return (null,null,false);
+        }
+        public void PartPut(Item AdvancedItem, ConnectionPoint SCP, ConnectionPoint ICP)//ha egy item partjait belerakjuk akkor az item az inventoryban megmaradhat ezert azt torolni kellesz vagy vmi
+        {
+            SCP.Connect(ICP);
+
+            int baseHierarhicPlace = SCP.SelfPart.HierarhicPlace;
+            int IncomingCPPlace = ICP.SelfPart.HierarhicPlace;
+            int hierarhicPlaceChanger = 0;
+
+            if (baseHierarhicPlace < IncomingCPPlace)
             {
-                return false;
+                hierarhicPlaceChanger = (IncomingCPPlace - (++baseHierarhicPlace)) * -1;
             }
-            return true;
+            else if (baseHierarhicPlace > IncomingCPPlace)
+            {
+                hierarhicPlaceChanger = baseHierarhicPlace - IncomingCPPlace + 1;
+            }
+            else
+            {
+                hierarhicPlaceChanger = 1;
+            }
+
+            foreach (Part part in AdvancedItem.Parts)
+            {
+                part.HierarhicPlace += hierarhicPlaceChanger;
+            }
+
+            Parts.AddRange(AdvancedItem.Parts);
+
+            Parts = Parts.OrderBy(part => part.HierarhicPlace).ToList();
+
+            InventorySystem.Delete(AdvancedItem);//törli az advanced itemet amely a partokat tartalmazta
+
+            AdvancedItemContsruct();
         }
         public List<Part> PartCut(Part part)
         {

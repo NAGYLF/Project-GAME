@@ -10,6 +10,7 @@ using TMPro;
 using UnityEngine.EventSystems;
 using PlayerInventoryClass;
 using UnityEditor.PackageManager.UI;
+using Unity.VisualScripting;
 
 public class TemporaryItemObject : MonoBehaviour/*, IPointerUpHandler*/
 {
@@ -18,8 +19,7 @@ public class TemporaryItemObject : MonoBehaviour/*, IPointerUpHandler*/
     public TextMeshProUGUI HotKeyPlate;
     public TextMeshProUGUI Counter;
     public GameObject ItemCompound;
-    public string ObjectTask = "";
-
+    private bool IsHavePurpose = true;
     public Item ActualData { get; private set; }
     public Item AdvancedItem { get; set; }
     public ModificationWindow window;
@@ -119,7 +119,7 @@ public class TemporaryItemObject : MonoBehaviour/*, IPointerUpHandler*/
         Vector3 mousePosition = Camera.main.ScreenToWorldPoint(Input.mousePosition);
         // Az objektum új pozíciójának beállítása (csak az X és Y, hogy a Z tengely ne változzon)
         transform.position = new Vector3(mousePosition.x, mousePosition.y, transform.position.z);
-        if (Input.GetMouseButtonUp(0))
+        if (Input.GetMouseButtonUp(0) && IsHavePurpose)
         {
             //OnPointerUp(null); // vagy külön metódusban kezeled a felengedést
 
@@ -156,7 +156,8 @@ public class TemporaryItemObject : MonoBehaviour/*, IPointerUpHandler*/
                     ((int X, int Y) ChangedSize, Dictionary<char, int> Directions) Effect = InventorySystem.AdvancedItem_SizeChanger_EffectDetermination(AdvancedItem, parts_, true);
                     (HashSet<(int Height, int Widht)> NonLiveCoordinates, int SectorIndex, bool IsPositionAble) NewPosition = InventorySystem.Try_PartPositioning(AdvancedItem, Effect.ChangedSize, Effect.Directions);
 
-                    AdvancedItem.PartPut(ActualData);
+                    (ConnectionPoint SCP, ConnectionPoint ICP, bool IsPossible) Data = AdvancedItem.PartPut_IsPossible(ActualData);
+                    AdvancedItem.PartPut(ActualData, Data.SCP, Data.ICP);
 
                     if (NewPosition.IsPositionAble)
                     {
@@ -186,7 +187,8 @@ public class TemporaryItemObject : MonoBehaviour/*, IPointerUpHandler*/
                 ((int X, int Y) ChangedSize, Dictionary<char, int> Directions) Effect = InventorySystem.AdvancedItem_SizeChanger_EffectDetermination(AdvancedItem, parts_, true);
                 (HashSet<(int Height, int Widht)> NonLiveCoordinates, int SectorIndex, bool IsPositionAble) NewPosition = InventorySystem.Try_PartPositioning(AdvancedItem, Effect.ChangedSize, Effect.Directions);
 
-                AdvancedItem.PartPut(ActualData);
+                (ConnectionPoint SCP, ConnectionPoint ICP, bool IsPossible) Data = AdvancedItem.PartPut_IsPossible(ActualData);
+                AdvancedItem.PartPut(ActualData, Data.SCP, Data.ICP);
 
                 if (NewPosition.IsPositionAble)
                 {
@@ -203,8 +205,11 @@ public class TemporaryItemObject : MonoBehaviour/*, IPointerUpHandler*/
                 //AdvancedItem.PartPut(ActualData);
                 //AdvancedItem.SelfGameobject.GetComponent<ItemObject>().SelfVisualisation();
                 window.ItemPartTrasformation();
+
             }
+            IsHavePurpose = false;
             Destroy(gameObject);
+
         }
     }
     public void ItemPartTrasformation()
@@ -409,32 +414,36 @@ public class TemporaryItemObject : MonoBehaviour/*, IPointerUpHandler*/
     }
     void OnDisable()
     {
-        List<Part> parts_ = new List<Part>()
+        if (IsHavePurpose)
+        {
+            List<Part> parts_ = new List<Part>()
                     {
                         ActualData.Parts.First()
                     };
-        ActualData.Parts.First().GetConnectedPartsTree(parts_);
+            ActualData.Parts.First().GetConnectedPartsTree(parts_);
 
-        ((int X, int Y) ChangedSize, Dictionary<char, int> Directions) Effect = InventorySystem.AdvancedItem_SizeChanger_EffectDetermination(AdvancedItem, parts_, true);
-        (HashSet<(int Height, int Widht)> NonLiveCoordinates, int SectorIndex, bool IsPositionAble) NewPosition = InventorySystem.Try_PartPositioning(AdvancedItem, Effect.ChangedSize, Effect.Directions);
+            ((int X, int Y) ChangedSize, Dictionary<char, int> Directions) Effect = InventorySystem.AdvancedItem_SizeChanger_EffectDetermination(AdvancedItem, parts_, true);
+            (HashSet<(int Height, int Widht)> NonLiveCoordinates, int SectorIndex, bool IsPositionAble) NewPosition = InventorySystem.Try_PartPositioning(AdvancedItem, Effect.ChangedSize, Effect.Directions);
 
-        AdvancedItem.PartPut(ActualData);
+            (ConnectionPoint SCP, ConnectionPoint ICP, bool IsPossible) Data = AdvancedItem.PartPut_IsPossible(ActualData);
+            AdvancedItem.PartPut(ActualData,Data.SCP,Data.ICP);
 
-        if (NewPosition.IsPositionAble)
-        {
-            InventorySystem.NonLive_Positioning(NewPosition.NonLiveCoordinates.First().Height, NewPosition.NonLiveCoordinates.First().Widht, NewPosition.SectorIndex, AdvancedItem, AdvancedItem.ParentItem);
+            if (NewPosition.IsPositionAble)
+            {
+                InventorySystem.NonLive_Positioning(NewPosition.NonLiveCoordinates.First().Height, NewPosition.NonLiveCoordinates.First().Widht, NewPosition.SectorIndex, AdvancedItem, AdvancedItem.ParentItem);
 
-            InventorySystem.NonLive_UnPlacing(AdvancedItem);
-            InventorySystem.NonLive_Placing(AdvancedItem, AdvancedItem.ParentItem);
+                InventorySystem.NonLive_UnPlacing(AdvancedItem);
+                InventorySystem.NonLive_Placing(AdvancedItem, AdvancedItem.ParentItem);
 
-            InventorySystem.Live_UnPlacing(AdvancedItem);
-            InventorySystem.Live_Placing(AdvancedItem, AdvancedItem.ParentItem);
+                InventorySystem.Live_UnPlacing(AdvancedItem);
+                InventorySystem.Live_Placing(AdvancedItem, AdvancedItem.ParentItem);
+            }
+
+            AdvancedItem.SelfGameobject.GetComponent<ItemObject>().SelfVisualisation();
+            //AdvancedItem.PartPut(ActualData);
+            //AdvancedItem.SelfGameobject.GetComponent<ItemObject>().SelfVisualisation();
+            window.ItemPartTrasformation();
+            Destroy(gameObject);
         }
-
-        AdvancedItem.SelfGameobject.GetComponent<ItemObject>().SelfVisualisation();
-        //AdvancedItem.PartPut(ActualData);
-        //AdvancedItem.SelfGameobject.GetComponent<ItemObject>().SelfVisualisation();
-        window.ItemPartTrasformation();
-        Destroy(gameObject);
     }
 }

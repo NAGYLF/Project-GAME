@@ -48,9 +48,9 @@ public class AuthController : ControllerBase
         }
 
         // Maximális névhossz ellenőrzés
-        if (request.Name.Length > 10)
+        if (request.Name.Length > 30)
         {
-            return BadRequest("A név nem lehet hosszabb 10 karakternél.");
+            return BadRequest("A név nem lehet hosszabb 30 karakternél.");
         }
 
         // Ellenőrizzük, hogy az email már létezik-e

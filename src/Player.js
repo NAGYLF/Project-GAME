@@ -16,7 +16,12 @@ export default function Player({ texts, language, token, isAdmin, showAlert }) {
   });
   const [name, setName] = useState('Player');
   const navigate = useNavigate();
-
+  
+    const handleContentClick = (e) => {
+      if(e.target.className === 'content'){
+          navigate('/');
+      }
+    }
   useEffect(() => {
     axios.get(`http://localhost:5269/GetbyId/${id}`)
       .then(response => {
@@ -49,7 +54,7 @@ export default function Player({ texts, language, token, isAdmin, showAlert }) {
   }
 
   return (
-    <div className='content'>
+    <div className='content' onClick={handleContentClick}>
       <div className='box' style={{ height: '50vh', width: "50vw", position: 'relative' }}>
         <h3>{language === "hu" ? `${name} statisztikái` : `${name} statistics`}</h3>
         <hr />

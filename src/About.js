@@ -3,11 +3,19 @@ import Levi from './img/levi.png';
 import Arpi from './img/arpi.png';
 import Balow from './img/balow.png';
 import "./Card.css";
+import { useNavigate } from 'react-router-dom';
 
 function About(props) {
+  const navigate = useNavigate();
+
+  const handleContentClick = (e) => {
+    if(e.target.className === 'content'){
+        navigate('/');
+    }
+  }
   return (
-    <div className="content" style={{marginTop: "-50px"}}>
-    <div className="cards">
+    <div className="content" style={{marginTop: "-50px"}} onClick={handleContentClick}>
+    <div className="cards" >
     <div class="card-client">
         <div class="user-picture">
             <img src={Levi} alt="Levi"/>

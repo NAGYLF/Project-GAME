@@ -1,9 +1,19 @@
 import React from 'react';
 import './Nav.css';
+import { useNavigate } from 'react-router-dom';
 
 function Description(props) {
+
+  const navigate = useNavigate();
+
+  const handleContentClick = (e) => {
+    if(e.target.className === 'content'){
+        navigate('/');
+    }
+  }
+
   return (
-    <div className="content">
+    <div className="content" onClick={handleContentClick}>
       <div className="box">
         <h1>{props.language === "hu" ? "Leírás" : "Description"}</h1>
         <hr/>

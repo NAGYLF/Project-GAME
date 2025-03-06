@@ -4,6 +4,7 @@ import Video from './video/video.mp4';
 import Logo from './img/logo.png';
 import Kep from './img/profilkep.jpg';
 import AdminKep from './img/admin.png';
+import File from './files/jeladas.txt';
 import './Nav.css';
 
 function Nav({ language, setLanguage, texts, isLoggedIn, setIsLoggedIn, isAdmin, username, logout }) {
@@ -59,7 +60,7 @@ function Nav({ language, setLanguage, texts, isLoggedIn, setIsLoggedIn, isAdmin,
               </select>
             </div>
             {isLoggedIn ?
-            <a id='download' href='https://youtu.be/dQw4w9WgXcQ?si=0tpVKqROXffod3mo' target='_blank' style={{
+            <a id='download' href={File} download style={{
               backgroundColor: "rgb(10,10,10)",
               borderRadius: "5px",
               color:"azure",

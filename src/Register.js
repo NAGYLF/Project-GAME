@@ -127,8 +127,6 @@ function Register({ language, code, login, admincode, showAlert }) {
               <form onSubmit={(e) => {
                 e.preventDefault();
                 if (password === passwordAgain) {
-                  console.log(adminCode);
-                  console.log(code);
                   const isAdmin = adminCode == code;
                   axios.post("http://localhost:5269/api/auth/register", {
                     name: username,
@@ -159,7 +157,7 @@ function Register({ language, code, login, admincode, showAlert }) {
                     className="form-control"
                     id="registerUsername"
                     value={username}
-                    maxlength="10"
+                    maxlength="30"
                     onChange={(e) => setUsername(e.target.value)}
                     required
                   />

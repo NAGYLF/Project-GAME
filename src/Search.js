@@ -3,11 +3,20 @@ import { Link } from 'react-router-dom';
 import axios from 'axios';
 import Kep from './img/profilkep.jpg';
 import AdminKep from './img/admin.png';
+import { useNavigate } from 'react-router-dom';
 
 const Search = ({ texts, language, isAdmin }) => {
   const [players, setPlayers] = useState([]);
   const [filteredPlayers, setFilteredPlayers] = useState([]);
   const [searchTerm, setSearchTerm] = useState('');
+
+  const navigate = useNavigate();
+
+  const handleContentClick = (e) => {
+    if(e.target.className === 'content'){
+        navigate('/');
+    }
+  }
 
   useEffect(() => {
     axios.get('http://localhost:5269/api/Player')
@@ -48,7 +57,7 @@ const Search = ({ texts, language, isAdmin }) => {
   };
 
   return (
-    <div className="content">
+    <div className="content" onClick={handleContentClick}>
       <div className="box" style={{ height: '80vh', width: '80vw' }}>
         <input
           type="search"

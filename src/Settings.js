@@ -184,7 +184,7 @@ const Settings = ({ texts, language, id, token, logout, showAlert, setUsername }
                     id="newName"
                     value={newName}
                     onChange={(e) => setNewName(e.target.value)}
-                    maxlength="10"
+                    maxlength="30"
                     placeholder={language === "hu" ? 'Új felhasználónév' : 'New username'}
                     required
                   />

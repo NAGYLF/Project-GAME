@@ -147,34 +147,21 @@ public class ContainerObject : MonoBehaviour
 
                     if (RefSlot != null && CanBePlaceble)
                     {
-                        //interactibleSlots.Clear();
-
-                        //foreach (RowData grid in Sectors[RefSlot.sectorId].col)
+                        //if (InventorySystem.CanMergable(InteractiveItem, IncomingItem))
                         //{
-                        //    foreach (GameObject slot in grid.row)
-                        //    {
-                        //        interactibleSlots.Add(slot.GetComponent<ItemSlot>());
-                        //    }
+                        //    InventorySystem.Merge ActionMerge = new(InteractiveItem, IncomingItem);
+                        //    IncomingItem.AvaiablePlacerMetodes.Add(ActionMerge.Execute_Merge);
                         //}
-
-                 
-                       
-
-                        if (InventorySystem.CanMergable(InteractiveItem, IncomingItem))
-                        {
-                            InventorySystem.Merge ActionMerge = new(InteractiveItem, IncomingItem);
-                            IncomingItem.AvaiablePlacerMetodes.Add(ActionMerge.Execute_Merge);
-                        }
-                        if (InteractiveItem.PartPut_IsPossible(IncomingItem).IsPossible)
-                        {
-                            InventorySystem.MergeParts ActionMergeParts = new(InteractiveItem, IncomingItem);
-                            IncomingItem.AvaiablePlacerMetodes.Add(ActionMergeParts.Execute_MergeParts);
-                        }
-                        if (InventorySystem.CanSplitable(InteractiveItem, IncomingItem))
-                        {
-                            InventorySystem.Split ActionSplit = new(InteractiveItem, interactibleSlots.ToArray());
-                            IncomingItem.AvaiablePlacerMetodes.Add(ActionSplit.Execute_Split);
-                        }
+                        //if (InteractiveItem.PartPut_IsPossible(IncomingItem).IsPossible)
+                        //{
+                        //    InventorySystem.MergeParts ActionMergeParts = new(InteractiveItem, IncomingItem);
+                        //    IncomingItem.AvaiablePlacerMetodes.Add(ActionMergeParts.Execute_MergeParts);
+                        //}
+                        //if (InventorySystem.CanSplitable(InteractiveItem, IncomingItem))
+                        //{
+                        //    InventorySystem.Split ActionSplit = new(InteractiveItem, interactibleSlots.ToArray());
+                        //    IncomingItem.AvaiablePlacerMetodes.Add(ActionSplit.Execute_Split);
+                        //}
                     }
                     else if (CanBePlaceble)
                     {
@@ -182,7 +169,7 @@ public class ContainerObject : MonoBehaviour
 
                         if (InventorySystem.CanSplitable(InteractiveItem, IncomingItem))
                         {
-                            InventorySystem.Split ActionSplit = new(InteractiveItem, interactibleSlots.ToArray());
+                            InventorySystem.Split ActionSplit = new(IncomingItem, interactibleSlots.ToArray());
                             IncomingItem.AvaiablePlacerMetodes.Add(ActionSplit.Execute_Split);
                         }
                         InventorySystem.RePlace ActionRePlace = new(IncomingItem, ActualData, interactibleSlots.ToArray());
@@ -254,7 +241,7 @@ public class ContainerObject : MonoBehaviour
                 for (int row = 0; row < Sectors[sector].rowNumber; row++)
                 {
                     ItemSlot slot = Sectors[sector].col[col].row[row].GetComponent<ItemSlot>();
-                    slot.ParentObject = gameObject;
+                    slot.SlotParentItem = ActualData;
                     slot.sectorId = sector;
                     slot.Coordinate = (col,row);
                 }

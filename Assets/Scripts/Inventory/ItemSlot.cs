@@ -2,6 +2,7 @@
 using UnityEngine.UI;
 using TMPro;
 using Unity.VisualScripting;
+using ItemHandler;
 
 namespace Assets.Scripts
 { 
@@ -12,7 +13,7 @@ namespace Assets.Scripts
         public string SlotType;//azon tipusok melyeket befogadhat, ha nincs megadva akkor mindent.
         #endregion
 
-        [HideInInspector] public GameObject ParentObject;
+        [HideInInspector] public Item SlotParentItem;
         [HideInInspector] public int sectorId;
         [HideInInspector] public (int Height,int Width) Coordinate;
 
@@ -48,14 +49,14 @@ namespace Assets.Scripts
         private void OnCollisionEnter2D(Collision2D collision)
         {
             ActualPartOfItemObject = collision.gameObject;
-            ParentObject.GetComponent<ContainerObject>().activeSlots.Add(gameObject);
-            ParentObject.GetComponent<ContainerObject>().ChangedFlag = true;
+            SlotParentItem.ContainerObject.GetComponent<ContainerObject>().activeSlots.Add(gameObject);
+            SlotParentItem.ContainerObject.GetComponent<ContainerObject>().ChangedFlag = true;
         }
         private void OnCollisionExit2D(Collision2D collision)
         {
-            ParentObject.GetComponent<ContainerObject>().activeSlots.Remove(gameObject);
+            SlotParentItem.ContainerObject.GetComponent<ContainerObject>().activeSlots.Remove(gameObject);
             ActualPartOfItemObject = null;
-            ParentObject.GetComponent<ContainerObject>().ChangedFlag = true;
+            SlotParentItem.ContainerObject.GetComponent<ContainerObject>().ChangedFlag = true;
         }
         private void Awake()
         {

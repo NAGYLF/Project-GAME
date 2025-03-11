@@ -1053,16 +1053,19 @@ namespace ItemHandler
         {
             public Item Incoming { get; private set; }
             public ItemSlot[] ActiveSlots { get; private set; }
+            public Item Stand { get; private set; } = null;
             public Split(Item incoming, ItemSlot[] activeSlots)
             {
                 Incoming = incoming;
-                ActiveSlots = activeSlots;
+                ActiveSlots = activeSlots.ToArray();
+                if (ActiveSlots.First().PartOfItemObject != null)
+                {
+                    Stand = ActiveSlots.First().PartOfItemObject.GetComponent<ItemObject>().ActualData;
+                }
             }
             public void Execute_Split()
             {
                 (int smaller, int larger) = SplitInteger(Incoming.Quantity);
-
-                Item Stand = ActiveSlots.First().PartOfItemObject.GetComponent<ItemObject>().ActualData;
 
                 if (Stand != null)//split and Merge
                 {
@@ -1091,7 +1094,7 @@ namespace ItemHandler
                 }
                 else
                 {
-                    Item Parent = ActiveSlots.First().PartOfItemObject.GetComponent<ItemObject>().ActualData.ParentItem;
+                    Item Parent = ActiveSlots.First().SlotParentItem;
 
                     Item newItem = new(Incoming.ItemName, larger);
 
@@ -1268,11 +1271,11 @@ namespace ItemHandler
         }
         public static bool CanSplitable(Item Stand, Item Incoming)
         {
-            if (Stand == null)
+            if (Incoming.MaxStackSize > 1 && Stand == null)
             {
                 return true;
             }
-            else if (CanMergable(Stand, Incoming))
+            else if (Incoming.MaxStackSize > 1 && CanMergable(Stand, Incoming))
             {
                 return true;
             }

@@ -24,8 +24,6 @@ public class TemporaryItemObject : MonoBehaviour/*, IPointerUpHandler*/
     public Item AdvancedItem { get; set; }
     public ModificationWindow window;
 
-    [HideInInspector] public GameObject AvaiableNewParentObject;
-
     //public void OnPointerUp(PointerEventData eventData)
     //{
     //    // Mozgatás leállítása, amikor elengedjük az egeret
@@ -130,19 +128,18 @@ public class TemporaryItemObject : MonoBehaviour/*, IPointerUpHandler*/
 
             InventoryObjectRef.GetComponent<PlayerInventory>().SlotPanelObject.GetComponent<PanelSlots>().ScrollPanel.GetComponent<ScrollRect>().enabled = true;
 
-            if (AvaiableNewParentObject != null)
+            if (ActualData.DetectedContainerItem != null)
             {
-                PlacerStruct placer = AvaiableNewParentObject.GetComponent<ContainerObject>().ActualData.GivePlacer;
-
-                if (InventorySystem.CanBePlace(ActualData, placer))
+                if (ActualData.DetectedContainerItem.ContainerObject.GetComponent<ContainerObject>().actions.Count > 0)
                 {
                     GameObject ItemObject = SupportScripts.CreatePrefab(ActualData.ObjectPath);
                     ItemObject.transform.SetParent(InventoryObjectRef.transform, false);
                     ItemObject.GetComponent<Rigidbody2D>().bodyType = RigidbodyType2D.Static;
                     ItemObject.GetComponent<BoxCollider2D>().size = transform.GetComponent<RectTransform>().rect.size;
-                    ItemObject.GetComponent<ItemObject>().SetDataRoute(ActualData, placer.NewParentItem);
+                    ItemObject.GetComponent<ItemObject>().SetDataRoute(ActualData, ActualData.DetectedContainerItem);
                     ItemObject.GetComponent<ItemObject>().ActualData.SelfGameobject = ItemObject;
-                    InventorySystem.Placer(ActualData,AdvancedItem.RotateDegree,true, placer);
+                    InventorySystem.Placer(ActualData, ActualData.RotateDegree, ActualData.DetectedContainerItem.ContainerObject.GetComponent<ContainerObject>().actions);
+                    ActualData.DetectedContainerItem = null;
                     ItemObject.GetComponent<ItemObject>().BuildContainer();
                 }
                 else
@@ -178,10 +175,11 @@ public class TemporaryItemObject : MonoBehaviour/*, IPointerUpHandler*/
             }
             else
             {
-                List<Part> parts_ = new List<Part>()
-                    {
-                        ActualData.Parts.First()
-                    };
+                List<Part> parts_ = new()
+                {
+                    ActualData.Parts.First()
+                };
+
                 ActualData.Parts.First().GetConnectedPartsTree(parts_);
 
                 ((int X, int Y) ChangedSize, Dictionary<char, int> Directions) Effect = InventorySystem.AdvancedItem_SizeChanger_EffectDetermination(AdvancedItem, parts_, true);

@@ -39,6 +39,7 @@ using static TestModulartItems.TestModularItems;
 using static MainData.Main;
 using UnityEngine.UI;
 using Assets.Scripts.Inventory;
+using System.Text;
 
 namespace ItemHandler
 {
@@ -46,16 +47,6 @@ namespace ItemHandler
     {
         public string Type;//Az item composition typusa
         public string Name;//Az item composition neve
-    }
-    public struct PlacerStruct
-    {
-        public PlacerStruct(List<GameObject> activeItemSlots, Item newParentData)
-        {
-            ActiveItemSlots = activeItemSlots;
-            NewParentItem = newParentData;
-        }
-        public List<GameObject> ActiveItemSlots { get; set; }
-        public Item NewParentItem { get; set; }
     }
     [Serializable]
     public class DataGrid
@@ -96,7 +87,7 @@ namespace ItemHandler
         public HotKey hotKeyRef;
         public List<GameObject> ItemSlotObjectsRef = new List<GameObject>();
         #endregion
-        public PlacerStruct GivePlacer { get; set; }
+        public Item DetectedContainerItem { get; set; }
         public List<Part> Parts { get; set; }//az item darabjai
         public string ImgPath { get; set; }
         public string ObjectPath { get; private set; }//az, hogy milyen obejctum tipust hasznal
@@ -1028,43 +1019,212 @@ namespace ItemHandler
     }
     public static class InventorySystem
     {
-        #region Special
-        public static void Placer(Item item, float originalRotation, bool placementCanStart, PlacerStruct placer)
+        public class Merge
         {
-            if (placer.ActiveItemSlots != null && (placer.ActiveItemSlots.Count == item.SizeX * item.SizeY || (placer.ActiveItemSlots.Count == 1 && placer.ActiveItemSlots[0].GetComponent<ItemSlot>().IsEquipment)))
+            public Item Stand { get; private set; }
+            public Item Incoming { get; private set; }
+            public Merge(Item stand, Item incoming)
             {
-                if (Input.GetKey(KeyCode.LeftControl) && !placer.ActiveItemSlots.Exists(slot => slot.GetComponent<ItemSlot>().PartOfItemObject != null && slot.GetComponent<ItemSlot>().PartOfItemObject.GetInstanceID() == item.SelfGameobject.GetInstanceID()))//split  (azt ellenorizzuk hogy meg lett e nyomva a ctrl és nincs olyan slot amelyet az item tartlamaz ezzel saját magéba nem slpitelhet ezzel megsporoljuk a felesleges szamitasokat)
+                Stand = stand;
+                Incoming = incoming;
+            }
+            public void Execute_Merge()
+            {
+                int count = Stand.Quantity;
+                Stand.Quantity += Incoming.Quantity;
+                if (Stand.Quantity > Stand.MaxStackSize)
                 {
-                    placementCanStart = !Split(item, placer);
+                    Incoming.Quantity = Stand.Quantity - Stand.MaxStackSize;
+                    Stand.Quantity = Stand.MaxStackSize;
+                    Stand.SelfGameobject.GetComponent<ItemObject>().SelfVisualisation();
+                    Incoming.SelfGameobject.GetComponent<ItemObject>().SelfVisualisation();
                 }
-                else if (placer.ActiveItemSlots.Exists(slot => slot.GetComponent<ItemSlot>() != null && slot.GetComponent<ItemSlot>().CountAddAvaiable))//csak containerekben mukodik
+                else
                 {
-                    placementCanStart = !Merge(item, placer);
+                    Stand.SelfGameobject.GetComponent<ItemObject>().SelfVisualisation();
+                    Delete(Incoming);
                 }
-                if (placementCanStart)
+            }
+        }
+        public class Split
+        {
+            public Item Incoming { get; private set; }
+            public ItemSlot[] ActiveSlots { get; private set; }
+            public Split(Item incoming, ItemSlot[] activeSlots)
+            {
+                Incoming = incoming;
+                ActiveSlots = activeSlots;
+            }
+            public void Execute_Split()
+            {
+                (int smaller, int larger) = SplitInteger(Incoming.Quantity);
+
+                Item Stand = ActiveSlots.First().PartOfItemObject.GetComponent<ItemObject>().ActualData;
+
+                if (Stand != null)//split and Merge
                 {
-                    Remove(item, item.ParentItem);
-                    Add(item, placer.NewParentItem);
-                    InspectPlayerInventory(item, placer.NewParentItem);
-
-                    NonLive_UnPlacing(item);
-                    Live_UnPlacing(item);
-
-                    Live_Positioning(item, placer);
-
-                    NonLive_Placing(item, placer.NewParentItem);
-                    Live_Placing(item, placer.NewParentItem);
-
-                    HotKey_SetStatus_SupplementaryTransformation(item, placer.NewParentItem);
-
-                    item.SelfGameobject.GetComponent<ItemObject>().SelfVisualisation();
-
-                    item.SelfGameobject.GetComponent<ItemObject>().BuildContainer();
+                    Stand.Quantity += larger;
+                    Incoming.Quantity = smaller;
+                    if (Stand.Quantity > Stand.MaxStackSize)//ha a split több mint a maximalis stacksize
+                    {
+                        Incoming.Quantity += (Stand.Quantity - Stand.MaxStackSize);
+                        Stand.Quantity = Stand.MaxStackSize;
+                        Stand.SelfGameobject.GetComponent<ItemObject>().SelfVisualisation();
+                        Incoming.SelfGameobject.GetComponent<ItemObject>().SelfVisualisation();
+                    }
+                    else//ha nem több a split mint a maximális stacksize
+                    {
+                        Incoming.Quantity = smaller;
+                        Stand.SelfGameobject.GetComponent<ItemObject>().SelfVisualisation();
+                        if (Incoming.Quantity < 1)
+                        {
+                            Delete(Incoming);
+                        }
+                        else
+                        {
+                            Incoming.SelfGameobject.GetComponent<ItemObject>().SelfVisualisation();
+                        }
+                    }
                 }
+                else
+                {
+                    Item Parent = ActiveSlots.First().PartOfItemObject.GetComponent<ItemObject>().ActualData.ParentItem;
+
+                    Item newItem = new(Incoming.ItemName, larger);
+
+                    GameObject itemObject = CreatePrefab(Incoming.ObjectPath);
+                    itemObject.name = newItem.ItemName;
+                    newItem.SelfGameobject = itemObject;
+                    newItem.ParentItem = Parent;
+                    itemObject.GetComponent<ItemObject>().SetDataRoute(newItem, newItem.ParentItem);
+
+                    Add(newItem, Parent);
+                    InspectPlayerInventory(newItem, Parent);
+                    Live_Positioning(newItem, ActiveSlots);
+
+                    NonLive_Placing(newItem, Parent);
+                    Live_Placing(newItem, Parent);
+
+                    HotKey_SetStatus_SupplementaryTransformation(newItem, Parent);
+
+                    Incoming.Quantity = smaller;
+                    if (Incoming.Quantity < 1)
+                    {
+                        Delete(Incoming);
+                    }
+                    else
+                    {
+                        Incoming.SelfGameobject.GetComponent<ItemObject>().SelfVisualisation();
+                    }
+                }
+            }
+        }
+        public class MergeParts
+        {
+            public Item IncomingItem { get; private set; }
+            public Item InteractiveItem { get; private set; }
+            public bool IsPossible { get; private set; }
+
+            private ((int X, int Y) ChangedSize, Dictionary<char, int> Directions) Effect;
+            private (HashSet<(int Height, int Widht)> NonLiveCoordinates, int SectorIndex, bool IsPositionAble) NewPosition;
+            private (ConnectionPoint SCP, ConnectionPoint ICP, bool IsPossible) Data;
+            public MergeParts(Item incomingItem, Item interactiveItem)
+            {
+                IncomingItem = incomingItem;
+                InteractiveItem = interactiveItem;
+                Data = InteractiveItem.PartPut_IsPossible(IncomingItem);
+
+                IsPossible = Data.IsPossible;
+
+                if (Data.IsPossible)
+                {
+                    List<Part> parts_ = new List<Part>()
+                    {
+                        IncomingItem.Parts.First()
+                    };
+
+                    IncomingItem.Parts.First().GetConnectedPartsTree(parts_);
+                    Effect = AdvancedItem_SizeChanger_EffectDetermination(InteractiveItem, parts_, true);
+                    NewPosition = Try_PartPositioning(InteractiveItem, Effect.ChangedSize, Effect.Directions);
+
+                    IsPossible = NewPosition.IsPositionAble;
+                }
+            }
+            public void Execute_MergeParts()
+            {
+                InteractiveItem.PartPut(IncomingItem, Data.SCP, Data.ICP);
+                NonLive_Positioning(NewPosition.NonLiveCoordinates.First().Height, NewPosition.NonLiveCoordinates.First().Widht, NewPosition.SectorIndex, InteractiveItem, InteractiveItem.ParentItem);
+
+                NonLive_UnPlacing(InteractiveItem);
+                NonLive_Placing(InteractiveItem, InteractiveItem.ParentItem);
+
+                Live_UnPlacing(InteractiveItem);
+                Live_Placing(InteractiveItem, InteractiveItem.ParentItem);
+
+                InteractiveItem.SelfGameobject.GetComponent<ItemObject>().SelfVisualisation();
+            }
+        }
+        public class RePlace
+        {
+            public RePlace(Item item, Item Parent,ItemSlot[] activeSlots)
+            {
+                this.item = item;
+                this.Parent = Parent;
+                this.activeSlots = activeSlots.ToArray();
+            }
+
+            public Item Parent{ get; private set; }
+            public Item item { get; private set; }
+            public ItemSlot[] activeSlots { get; private set; }
+
+            public void Execute_RePlace()
+            {
+                Remove(item, Parent);
+                Add(item, Parent);
+                InspectPlayerInventory(item, Parent);
+
+                NonLive_UnPlacing(item);
+                Live_UnPlacing(item);
+
+                Live_Positioning(item,activeSlots);
+
+                NonLive_Placing(item, Parent);
+                Live_Placing(item, Parent);
+
+                HotKey_SetStatus_SupplementaryTransformation(item, Parent);
+
+                item.SelfGameobject.GetComponent<ItemObject>().SelfVisualisation();
+
+                item.SelfGameobject.GetComponent<ItemObject>().BuildContainer();
+            }
+        }
+
+        #region Special
+        public static void Placer(Item item, float originalRotation, List<Action> actions)
+        {
+            if (Input.GetKey(KeyCode.LeftControl) && actions.FirstOrDefault(action => action.Method.Name == nameof(Split.Execute_Split)) != null)//split
+            {
+                Debug.LogWarning("split");
+                actions.First(action => action.Method.Name == nameof(Split.Execute_Split)).Invoke();
+            }
+            else if (actions.FirstOrDefault(action => action.Method.Name == nameof(Merge.Execute_Merge)) != null)//csak containerekben mukodik
+            {
+                Debug.LogWarning("Merge");
+                actions.First(action => action.Method.Name == nameof(Merge.Execute_Merge)).Invoke();
+            }
+            else if (actions.FirstOrDefault(action => action.Method.Name == nameof(MergeParts.Execute_MergeParts)) != null)
+            {
+                Debug.LogWarning("MergeParts");
+                actions.First(action => action.Method.Name == nameof(MergeParts.Execute_MergeParts)).Invoke();
+            }
+            else if (actions.FirstOrDefault(action => action.Method.Name == nameof(RePlace.Execute_RePlace)) != null)
+            {
+                Debug.LogWarning("RePlace");
+                actions.First(action => action.Method.Name == nameof(RePlace.Execute_RePlace)).Invoke();
             }
             else
             {
-                //ha nem sikerul elhelyzni akkor eredeti allpotaba kerul
+                Debug.LogWarning("Return place");
                 item.RotateDegree = originalRotation;
 
                 item.SelfGameobject.GetComponent<ItemObject>().SelfVisualisation();
@@ -1098,128 +1258,25 @@ namespace ItemHandler
                 }
             }
         }
-        public static bool Split(Item Data, PlacerStruct placer)
+        public static bool CanSplitable(Item Stand, Item Incoming)
         {
-            (int smaller, int larger) = SplitInteger(Data.Quantity);
-
-            if (placer.ActiveItemSlots.Exists(slot => slot.GetComponent<ItemSlot>().CountAddAvaiable))//split and megre
+            if (Stand == null)
             {
-                GameObject MergeObject = placer.ActiveItemSlots.Find(slot => slot.GetComponent<ItemSlot>().CountAddAvaiable).GetComponent<ItemSlot>().PartOfItemObject;
-                MergeObject.GetComponent<ItemObject>().ActualData.Quantity += larger;
-                Data.Quantity = smaller;
-                if (MergeObject.GetComponent<ItemObject>().ActualData.Quantity > MergeObject.GetComponent<ItemObject>().ActualData.MaxStackSize)//ha a split több mint a maximalis stacksize
-                {
-                    Data.Quantity += (MergeObject.GetComponent<ItemObject>().ActualData.Quantity - MergeObject.GetComponent<ItemObject>().ActualData.MaxStackSize);
-                    MergeObject.GetComponent<ItemObject>().ActualData.Quantity = MergeObject.GetComponent<ItemObject>().ActualData.MaxStackSize;
-                    MergeObject.GetComponent<ItemObject>().SelfVisualisation();
-                    Data.SelfGameobject.GetComponent<ItemObject>().SelfVisualisation();
-                    return true;
-                }
-                else//ha nem több a split mint a maximális stacksize
-                {
-                    Data.Quantity = smaller;
-                    MergeObject.GetComponent<ItemObject>().SelfVisualisation();
-                    if (Data.Quantity < 1)
-                    {
-                        Delete(Data);
-                    }
-                    else
-                    {
-                        Data.SelfGameobject.GetComponent<ItemObject>().SelfVisualisation();
-                    }
-                    return true;
-                }
+                return true;
             }
-            else if ((placer.ActiveItemSlots.Count == Data.SizeY * Data.SizeX) || (placer.ActiveItemSlots.Count == 1 && placer.ActiveItemSlots.First().GetComponent<ItemSlot>().IsEquipment))//egy specialis objektumlétrehozási folyamat ez akkor lép érvénybe ha üres slotba kerül az item
+            else if (CanMergable(Stand, Incoming))
             {
-                Item newItem = new(Data.ItemName, larger);
-
-                GameObject itemObject = CreatePrefab(Data.ObjectPath);
-                itemObject.name = newItem.ItemName;
-                newItem.SelfGameobject = itemObject;
-                newItem.ParentItem = placer.NewParentItem;
-                itemObject.GetComponent<ItemObject>().SetDataRoute(newItem, newItem.ParentItem);
-
-                Add(newItem, placer.NewParentItem);
-                InspectPlayerInventory(newItem, placer.NewParentItem);
-                Live_Positioning(newItem, placer);
-
-                NonLive_Placing(newItem, placer.NewParentItem);
-                Live_Placing(newItem, placer.NewParentItem);
-
-                HotKey_SetStatus_SupplementaryTransformation(newItem, placer.NewParentItem);
-
-                Data.Quantity = smaller;
-                if (Data.Quantity < 1)
-                {
-                    Delete(Data);
-                }
-                else
-                {
-                    Data.SelfGameobject.GetComponent<ItemObject>().SelfVisualisation();
-                }
                 return true;
             }
             return false;
         }
-        public static bool Merge(Item Data, PlacerStruct placer)
+        public static bool CanMergable(Item Stand, Item Incoming)
         {
-            /*
-             * 1. lekerjuk a placeren kersztul azt az itemet amibe mergelni kellene
-             * 
-             * 2. kiszámoljuk azt, hogy menyi egyseget kepes befogadni a cél item
-             * és hozzáadjuk
-             * 
-             * 3./a ha van maradék akkor azt visszakapja az itemunk
-             * 
-             * 3./b ha nincs maradék akkor itemunk megsemmisítésre kerul
-             */
-            Item MergeItem = placer.ActiveItemSlots.Find(slot => slot.GetComponent<ItemSlot>().CountAddAvaiable).GetComponent<ItemSlot>().PartOfItemObject.GetComponent<ItemObject>().ActualData;
-            int count = MergeItem.Quantity;
-            MergeItem.Quantity += Data.Quantity;
-            if (MergeItem.Quantity > MergeItem.MaxStackSize)
+            if (Stand.MaxStackSize > 1 && Stand.ItemName == Incoming.ItemName)
             {
-                Data.Quantity = MergeItem.Quantity - MergeItem.MaxStackSize;
-                MergeItem.Quantity = MergeItem.MaxStackSize;
-                MergeItem.SelfGameobject.GetComponent<ItemObject>().SelfVisualisation();
-                Data.SelfGameobject.GetComponent<ItemObject>().SelfVisualisation();
                 return true;
             }
-            else
-            {
-                MergeItem.SelfGameobject.GetComponent<ItemObject>().SelfVisualisation();
-                Delete(Data);
-                return true;
-            }
-        }
-        public static bool CanBePlace(Item Data, PlacerStruct placer)
-        {
-            //az itemslotok szama egynelo az item meretevel és mindegyik slot ugyan abban a sectorban van     vagy a placer aktiv slotjaiban egy elem van ami egy equipmentslot
-            //Debug.Log(placer.activeItemSlots.First().name);
-            if (placer.ActiveItemSlots != null && placer.ActiveItemSlots.Count == 1 && placer.ActiveItemSlots.First().GetComponent<ItemSlot>().IsEquipment)
-            {
-                if (placer.ActiveItemSlots.First().GetComponent<ItemSlot>().PartOfItemObject != null && placer.ActiveItemSlots.First().GetComponent<ItemSlot>().PartOfItemObject.GetInstanceID() != Data.SelfGameobject.GetInstanceID())
-                {
-                    return false;
-                }
-                return true;
-            }
-            else if (placer.ActiveItemSlots != null && placer.ActiveItemSlots.Count == Data.SizeX * Data.SizeY && placer.ActiveItemSlots.Count == placer.ActiveItemSlots.FindAll(item => item.GetComponent<ItemSlot>().ParentObject == placer.ActiveItemSlots.First().GetComponent<ItemSlot>().ParentObject && item.GetComponent<ItemSlot>().sectorId == placer.ActiveItemSlots.First().GetComponent<ItemSlot>().sectorId).Count)
-            {
-                for (int i = 0; i < placer.ActiveItemSlots.Count; i++)
-                {
-                    //az itemslototk itemobject tartalma vagy null vagy az itemobjectum maga
-                    if (placer.ActiveItemSlots[i].GetComponent<ItemSlot>().PartOfItemObject != null && placer.ActiveItemSlots[i].GetComponent<ItemSlot>().PartOfItemObject.GetInstanceID() != Data.SelfGameobject.GetInstanceID())
-                    {
-                        return false;
-                    }
-                }
-                return true;
-            }
-            else
-            {
-                return false;
-            }
+            return false;
         }
         public static void InspectPlayerInventory(Item item, Item StatusParent)
         {
@@ -1299,12 +1356,12 @@ namespace ItemHandler
             }
             item.SetSlotUse();
         }
-        public static void Live_Positioning(Item item, PlacerStruct placer)
+        public static void Live_Positioning(Item item, ItemSlot[] activeSlots)
         {
             item.SlotUse.Clear();
-            for (int i = 0; i < placer.ActiveItemSlots.Count; i++)
+            for (int i = 0; i < activeSlots.Length; i++)
             {
-                item.SlotUse.Add(placer.ActiveItemSlots[i].name);
+                item.SlotUse.Add(activeSlots[i].name);
             }
             item.SetSlotUse();//beallitjuk a slotuse azonositot
         }

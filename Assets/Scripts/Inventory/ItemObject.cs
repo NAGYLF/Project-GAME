@@ -32,7 +32,6 @@ public class ItemObject : MonoBehaviour, IPointerDownHandler, IPointerUpHandler,
     private float originalRotation;//ezt kivetelesen nem az onMouseDown eljarasban hasznaljuk hanem a placing eljaras azon else agaban amely a CanBePlacing false agan helyezkedik el.
 
     private bool isDragging = false;
-    [HideInInspector] public GameObject AvaiableNewParentObject;
     public void OnPointerEnter(PointerEventData eventData)
     {
         InGameUI.SetHotKeyWithMouse = true;
@@ -114,16 +113,11 @@ public class ItemObject : MonoBehaviour, IPointerDownHandler, IPointerUpHandler,
             #region unSet Dragable mod
             InventoryObjectRef.GetComponent<PlayerInventory>().SlotPanelObject.GetComponent<PanelSlots>().ScrollPanel.GetComponent<ScrollRect>().enabled = true;
             isDragging = false;
-            if (AvaiableNewParentObject != null)
+            if (ActualData.DetectedContainerItem != null)
             {
-                PlacerStruct placer = AvaiableNewParentObject.GetComponent<ContainerObject>().ActualData.GivePlacer;
-                InventorySystem.Placer(ActualData,originalRotation,InventorySystem.CanBePlace(ActualData,placer ),placer);
-                BuildContainer();
+                InventorySystem.Placer(ActualData, originalRotation, ActualData.DetectedContainerItem.ContainerObject.GetComponent<ContainerObject>().actions);
             }
-            else
-            {
-                SelfVisualisation();
-            }
+            ActualData.DetectedContainerItem = null;
             #endregion
         }
     }

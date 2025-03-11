@@ -1,84 +1,61 @@
 ﻿using UnityEngine;
 using UnityEngine.UI;
 using TMPro;
+using Unity.VisualScripting;
 
 namespace Assets.Scripts
 { 
     public class ItemSlot : MonoBehaviour
     {
-        #region Equipment variables
+        #region Set In Inspector
         public bool IsEquipment = false;//csak az inspectorban allithato be
+        public string SlotType;//azon tipusok melyeket befogadhat, ha nincs megadva akkor mindent.
         #endregion
 
-        [HideInInspector] public GameObject ParentObject;//a saját sectora ezzel végezteti az adatszinkronizációt és a az item elhelyezés azon problemajat,
-                                                         //hogyha nem egy szektoron belün, de egyszere anyi itemcontainer kerülne targetba ami eleglenne az item tarolasakor,
-                                                         //ekkor az item ellenorzi, hogy a tergetek egy sectorba tartoznak e.
+        [HideInInspector] public GameObject ParentObject;
         [HideInInspector] public int sectorId;
-        public string SlotType;//azon tipusok melyeket befogadhat, ha nincs megadva akkor mindent.
+        [HideInInspector] public (int Height,int Width) Coordinate;
 
         #region  Runtime Instantiated Objects Datas
         public GameObject PartOfItemObject;//ezen értéket egy itemslot egy item vizualizációjakor kellene hogy kapjon
         public GameObject ActualPartOfItemObject;//ezt vizualizációkor kapja és továbbiakban a vizualizációban lesz fumciója az iteomobjectum azonosításban
-        public bool CountAddAvaiable = false;
-        private Color color;
+        public bool MouseOver = false;
+
+        public Color color;
         public GameObject Title;
         public Image Background;
         #endregion
+        public void Deactivation()//3
+        {
+            Background.color = color;
+        }
+        public void Open()//2
+        {
+            Background.color = Color.yellow;
+        }
+        public void Close()//2
+        {
+            Background.color = Color.red;
+        }
+        private void OnMouseEnter()
+        {
+            MouseOver = true;
+        }
+        private void OnMouseExit()
+        {
+            MouseOver = false;
+        }
         private void OnCollisionEnter2D(Collision2D collision)
         {
-            if (collision.gameObject.GetComponent<ItemObject>() != null)
-            {
-                if ((PartOfItemObject == null || (PartOfItemObject.GetInstanceID() == collision.gameObject.GetInstanceID())) && (SlotType == "" || SlotType.Contains(collision.gameObject.GetComponent<ItemObject>().ActualData.ItemType)))
-                {
-                    ActualPartOfItemObject = collision.gameObject;
-                    ParentObject.GetComponent<ContainerObject>().activeSlots.Add(gameObject);
-                    color = Background.color;
-                    Background.color = Color.yellow;
-                }
-                else if (PartOfItemObject != null && PartOfItemObject.GetComponent<ItemObject>().ActualData.ItemName == collision.gameObject.GetComponent<ItemObject>().ActualData.ItemName && PartOfItemObject.GetComponent<ItemObject>().ActualData.Quantity != PartOfItemObject.GetComponent<ItemObject>().ActualData.MaxStackSize)
-                {
-                    ActualPartOfItemObject = collision.gameObject;
-                    color = Background.color;
-                    Background.color = Color.yellow;
-                    CountAddAvaiable = true;
-                    ParentObject.GetComponent<ContainerObject>().activeSlots.Add(gameObject);
-                }
-                else
-                {
-                    color = Background.color;
-                    Background.color = Color.red;
-                }
-            }
-            else if (collision.gameObject.GetComponent<TemporaryItemObject>() != null)
-            {
-                if ((PartOfItemObject == null || (PartOfItemObject.GetInstanceID() == collision.gameObject.GetInstanceID())) && (SlotType == "" || SlotType.Contains(collision.gameObject.GetComponent<TemporaryItemObject>().ActualData.ItemType)))
-                {
-                    ActualPartOfItemObject = collision.gameObject;
-                    ParentObject.GetComponent<ContainerObject>().activeSlots.Add(gameObject);
-                    color = Background.color;
-                    Background.color = Color.yellow;
-                }
-                else if (PartOfItemObject != null && PartOfItemObject.GetComponent<ItemObject>().ActualData.ItemName == collision.gameObject.GetComponent<TemporaryItemObject>().ActualData.ItemName && PartOfItemObject.GetComponent<ItemObject>().ActualData.Quantity != PartOfItemObject.GetComponent<TemporaryItemObject>().ActualData.MaxStackSize)
-                {
-                    ActualPartOfItemObject = collision.gameObject;
-                    color = Background.color;
-                    Background.color = Color.yellow;
-                    CountAddAvaiable = true;
-                    ParentObject.GetComponent<ContainerObject>().activeSlots.Add(gameObject);
-                }
-                else
-                {
-                    color = Background.color;
-                    Background.color = Color.red;
-                }
-            }
+            ActualPartOfItemObject = collision.gameObject;
+            ParentObject.GetComponent<ContainerObject>().activeSlots.Add(gameObject);
+            ParentObject.GetComponent<ContainerObject>().ChangedFlag = true;
         }
         private void OnCollisionExit2D(Collision2D collision)
         {
             ParentObject.GetComponent<ContainerObject>().activeSlots.Remove(gameObject);
             ActualPartOfItemObject = null;
-            CountAddAvaiable = false;
-            Background.color = color;
+            ParentObject.GetComponent<ContainerObject>().ChangedFlag = true;
         }
         private void Awake()
         {
@@ -86,6 +63,7 @@ namespace Assets.Scripts
             {
                 Title.GetComponent<TextMeshPro>().text = SlotType;
             }
+            color = Background.color;
         }
     }
 }

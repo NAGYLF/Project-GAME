@@ -9,6 +9,13 @@ using static PlayerInventoryClass.PlayerInventory;
 using static MainData.SupportScripts;
 using Assets.Scripts.Inventory;
 using PlayerInventoryClass;
+using System;
+using System.Xml.Linq;
+using System.Collections.ObjectModel;
+using System.Drawing;
+using NPOI.SS.Formula.Functions;
+using Unity.VisualScripting;
+using System.Text;
 
 
 public class ContainerObject : MonoBehaviour
@@ -24,33 +31,228 @@ public class ContainerObject : MonoBehaviour
 
     #region Active Slot Handler variables
     //Ezen változók szükségesek ahoz, hogy egy itemet helyezni tudjunk slotokból slotokba
+    [HideInInspector] public HashSet<ItemSlot> interactibleSlots;
+    [HideInInspector] public List<Action> actions;
+    [HideInInspector] bool CanBePlaceble = true;
+    //[HideInInspector] public GameObject PlaceableObject;
+
     [HideInInspector] public List<GameObject> activeSlots;
-    [HideInInspector] public GameObject PlaceableObject;
+    [HideInInspector] public bool ChangedFlag = false;
     #endregion
 
     #region Active Slot Handler
-    //Ezen eljárások szükségesek ahoz, hogy egy itemet helyezni tudjunk slotokból slotokba
-    private IEnumerator Targeting()
+    public IEnumerator Targeting()
     {
-        if (activeSlots.Count > 0)
+        if (ChangedFlag)
         {
-            PlaceableObject = activeSlots.First().GetComponent<ItemSlot>().ActualPartOfItemObject;
-            if (PlaceableObject.GetComponent<ItemObject>() != null)
+            ChangedFlag = false;
+
+            if (activeSlots.Count > 0)
             {
-                if ((activeSlots.First().GetComponent<ItemSlot>().IsEquipment && activeSlots.Count == 1) || (activeSlots.Count == PlaceableObject.GetComponent<ItemObject>().ActualData.SizeX * PlaceableObject.GetComponent<ItemObject>().ActualData.SizeY))
+                Item IncomingItem;
+                CanBePlaceble = true;
+
+                if (activeSlots.First().GetComponent<ItemSlot>().ActualPartOfItemObject.GetComponent<ItemObject>())
                 {
-                    ActualData.GivePlacer = new PlacerStruct(activeSlots, ActualData);
-                    PlaceableObject.GetComponent<ItemObject>().AvaiableNewParentObject = gameObject;
+                    IncomingItem = activeSlots.First().GetComponent<ItemSlot>().ActualPartOfItemObject.GetComponent<ItemObject>().ActualData;
+                }
+                else
+                {
+                    IncomingItem = activeSlots.First().GetComponent<ItemSlot>().ActualPartOfItemObject.GetComponent<TemporaryItemObject>().ActualData;
+                }
+
+                IncomingItem.DetectedContainerItem = ActualData;
+
+                int Y = 0;
+                int X = 0;
+                if (IncomingItem.RotateDegree == 90 || IncomingItem.RotateDegree == 270)
+                {
+                    X = IncomingItem.SizeY;
+                    Y = IncomingItem.SizeX;
+                }
+                else
+                {
+                    Y = IncomingItem.SizeY;
+                    X = IncomingItem.SizeX;
+                }
+
+                Dictionary<int, ItemSlot[]> SlotsBySectors = activeSlots
+                    .GroupBy(slot => slot.GetComponent<ItemSlot>().sectorId)
+                    .ToDictionary(sector => sector.Key, slots =>
+
+                        slots
+                       .GroupBy(slot => slot.GetComponent<ItemSlot>().Coordinate.Height)
+                       .ToDictionary(Y_slots => Y_slots.Key, Y_slots =>
+                        Y_slots.ToArray())
+
+                       .OrderBy(dictionary => dictionary.Key)
+                       .TakeLast(Y)
+
+                       .SelectMany(slots => slots.Value)
+                       .GroupBy(slot => slot.GetComponent<ItemSlot>().Coordinate.Width)
+                       .OrderBy(dictionary => dictionary.Key)
+                       .TakeLast(X)
+
+                       .SelectMany(objectArrays => objectArrays)
+                       .Select(slot => slot.GetComponent<ItemSlot>())
+                       .ToArray()
+                    );
+
+
+
+                foreach (ItemSlot slot_ in interactibleSlots)
+                {
+                    slot_.Deactivation();
+                }
+
+                interactibleSlots.Clear();
+
+                for (int i = 0; i < SlotsBySectors.Count; i++)
+                {
+                    foreach (ItemSlot slot_ in SlotsBySectors.ElementAt(i).Value)
+                    {
+                        interactibleSlots.Add(slot_);
+                    }
+                }
+
+
+
+                if (SlotsBySectors.Count == 1)
+                {
+                    if (interactibleSlots.Count == 1)
+                    {
+                        ItemSlot slot = interactibleSlots.First();
+
+                        if (!slot.IsEquipment)
+                        {
+                            CanBePlaceble = false;
+                        }
+                        if (!(slot.PartOfItemObject == null || slot.PartOfItemObject == IncomingItem.SelfGameobject))
+                        {
+                            CanBePlaceble = false;
+                        }
+                        if (!(slot.SlotType == null || slot.SlotType.Contains(IncomingItem.ItemType)))
+                        {
+                            CanBePlaceble = false;
+                        }
+                    }
+                    else
+                    {
+                        foreach (ItemSlot slot in interactibleSlots)
+                        {
+                            if (!(slot.PartOfItemObject == null || slot.PartOfItemObject == IncomingItem.SelfGameobject))
+                            {
+                                CanBePlaceble = false;
+                                break;
+                            }
+                            if (!(slot.SlotType == "" || slot.SlotType.Contains(IncomingItem.ItemType)))
+                            {
+                                CanBePlaceble = false;
+                                break;
+                            }
+                        }
+                        if (!(interactibleSlots.Count == IncomingItem.SizeX*IncomingItem.SizeY))
+                        {
+                            CanBePlaceble = false;
+                        }
+                    }
+
+
+
+                    if (interactibleSlots.FirstOrDefault(slot=>slot.MouseOver && slot.PartOfItemObject != null) != null)
+                    {
+                        //open all interactible item slot
+                        ItemSlot RefSlot = interactibleSlots.First(slot => slot.MouseOver && slot.PartOfItemObject != null);
+                        int sectorId = RefSlot.sectorId;
+                        Item InteractiveItem = RefSlot.ActualPartOfItemObject.GetComponent<ItemObject>().ActualData;
+
+                        interactibleSlots.Clear();
+
+                        foreach (RowData grid in Sectors[sectorId].col)
+                        {
+                            foreach (GameObject slot in grid.row)
+                            {
+                                interactibleSlots.Add(slot.GetComponent<ItemSlot>());
+                            }
+                        }
+
+                        actions.Clear();
+
+                        if (InventorySystem.CanMergable(InteractiveItem, IncomingItem))
+                        {
+                            InventorySystem.Merge ActionMerge = new(InteractiveItem, IncomingItem);
+                            actions.Add(ActionMerge.Execute_Merge);
+                        }
+                        if (InventorySystem.CanSplitable(InteractiveItem,IncomingItem))
+                        {
+                            InventorySystem.Split ActionSplit = new(InteractiveItem, interactibleSlots.ToArray());
+                            actions.Add(ActionSplit.Execute_Split);
+                        }
+                        if (InteractiveItem.PartPut_IsPossible(IncomingItem).IsPossible)
+                        {
+                            InventorySystem.MergeParts ActionMergeParts = new(InteractiveItem, IncomingItem);
+                            actions.Add(ActionMergeParts.Execute_MergeParts);
+                        }
+
+                        if (CanBePlaceble)
+                        {
+                            //open all
+                            foreach (ItemSlot slot in interactibleSlots)
+                            {
+                                slot.Open();
+                            }
+                        }
+                        else
+                        {
+                            actions.Clear();
+                            //close all slot
+                            foreach (ItemSlot slot in interactibleSlots)
+                            {
+                                slot.Close();
+                            }
+                        }
+                    }
+                    else if (CanBePlaceble)
+                    {
+                        actions.Clear();
+                        InventorySystem.RePlace ActionRePlace = new(IncomingItem, ActualData, interactibleSlots.ToArray());
+                        actions.Add(ActionRePlace.Execute_RePlace);
+                        //open all
+                        foreach (ItemSlot slot in interactibleSlots)
+                        {
+                            slot.Open();
+                        }
+                    }
+                    else
+                    {
+                        actions.Clear();
+                        //close all slot
+                        foreach (ItemSlot slot in interactibleSlots)
+                        {
+                            slot.Close();
+                        }
+                    }
+                }
+                else
+                {
+                    CanBePlaceble = false;
+                    //close all slot
+                    foreach (ItemSlot slot in interactibleSlots)
+                    {
+                        slot.Close();
+                    }
                 }
             }
-            else if(PlaceableObject.GetComponent<TemporaryItemObject>() != null)
+        }
+        else if(activeSlots.Count==0)
+        {
+            HashSet<ItemSlot> interactibleSlots_ = new(interactibleSlots);
+            foreach (ItemSlot slot_ in interactibleSlots_)
             {
-                if ((activeSlots.First().GetComponent<ItemSlot>().IsEquipment && activeSlots.Count == 1) || (activeSlots.Count == PlaceableObject.GetComponent<TemporaryItemObject>().ActualData.SizeX * PlaceableObject.GetComponent<TemporaryItemObject>().ActualData.SizeY))
-                {
-                    ActualData.GivePlacer = new PlacerStruct(activeSlots, ActualData);
-                    PlaceableObject.GetComponent<TemporaryItemObject>().AvaiableNewParentObject = gameObject;
-                }
+                slot_.Deactivation();
+                interactibleSlots.Remove(slot_);
             }
+            interactibleSlots_.Clear();
         }
         yield return null;
     }
@@ -76,12 +278,17 @@ public class ContainerObject : MonoBehaviour
             {
                 for (int row = 0; row < Sectors[sector].rowNumber; row++)
                 {
-                    Sectors[sector].col[col].row[row].GetComponent<ItemSlot>().ParentObject = gameObject;
-                    Sectors[sector].col[col].row[row].GetComponent<ItemSlot>().sectorId = sector;
+                    ItemSlot slot = Sectors[sector].col[col].row[row].GetComponent<ItemSlot>();
+                    slot.ParentObject = gameObject;
+                    slot.sectorId = sector;
+                    slot.Coordinate = (col,row);
                 }
             }
         }
+
+        interactibleSlots = new HashSet<ItemSlot>();
         activeSlots = new List<GameObject>();
+        actions = new List<Action>();
 
         ActualData.ContainerObject = gameObject;
         ActualData.Container.Live_Sector = gameObject.GetComponent<ContainerObject>().Sectors;

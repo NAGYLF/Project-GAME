@@ -39,7 +39,6 @@ using static TestModulartItems.TestModularItems;
 using static MainData.Main;
 using UnityEngine.UI;
 using Assets.Scripts.Inventory;
-using System.Text;
 
 namespace ItemHandler
 {
@@ -87,7 +86,8 @@ namespace ItemHandler
         public HotKey hotKeyRef;
         public List<GameObject> ItemSlotObjectsRef = new List<GameObject>();
         #endregion
-        public Item DetectedContainerItem { get; set; }
+        public List<Action> AvaiablePlacerMetodes = new List<Action>();
+        public Item AvaiableParentItem { get; set; }
         public List<Part> Parts { get; set; }//az item darabjai
         public string ImgPath { get; set; }
         public string ObjectPath { get; private set; }//az, hogy milyen obejctum tipust hasznal
@@ -186,21 +186,24 @@ namespace ItemHandler
         }
         public (ConnectionPoint SCP, ConnectionPoint ICP, bool IsPossible) PartPut_IsPossible(Item Incoming_AdvancedItem)
         {
-            //amit rá helyezunk
-            ConnectionPoint[] IncomingCPs = Incoming_AdvancedItem.Parts.SelectMany(x => x.ConnectionPoints).ToArray();//az összes connection point amitje az itemnek van
-            //amire helyezunk
-            ConnectionPoint[] SelfCPs = Parts.SelectMany(x => x.ConnectionPoints).ToArray();//az össze sconnection point amihez hozzadhatja
-            /*
-             * ellenorizzuk, hogy a CP-k egyike sincs e hasznalva
-             * ellenorizzuk, hogy a self cp kompatibilis e az incoming cp-vel
-             */
-            foreach (ConnectionPoint SCP in SelfCPs)
+            if (Incoming_AdvancedItem.IsAdvancedItem)
             {
-                foreach (ConnectionPoint ICP in IncomingCPs)
+                //amit rá helyezunk
+                ConnectionPoint[] IncomingCPs = Incoming_AdvancedItem.Parts.SelectMany(x => x.ConnectionPoints).ToArray();//az összes connection point amitje az itemnek van
+                                                                                                                          //amire helyezunk
+                ConnectionPoint[] SelfCPs = Parts.SelectMany(x => x.ConnectionPoints).ToArray();//az össze sconnection point amihez hozzadhatja
+                /*
+                 * ellenorizzuk, hogy a CP-k egyike sincs e hasznalva
+                 * ellenorizzuk, hogy a self cp kompatibilis e az incoming cp-vel
+                 */
+                foreach (ConnectionPoint SCP in SelfCPs)
                 {
-                    if (!SCP.Used && !ICP.Used && SCP.CPData.CompatibleItemNames.Contains(ICP.SelfPart.PartData.PartName))
+                    foreach (ConnectionPoint ICP in IncomingCPs)
                     {
-                        return (SCP,ICP,true);
+                        if (!SCP.Used && !ICP.Used && SCP.CPData.CompatibleItemNames.Contains(ICP.SelfPart.PartData.PartName))
+                        {
+                            return (SCP, ICP, true);
+                        }
                     }
                 }
             }
@@ -1169,29 +1172,29 @@ namespace ItemHandler
             public RePlace(Item item, Item Parent,ItemSlot[] activeSlots)
             {
                 this.item = item;
-                this.Parent = Parent;
+                this.PossibleNewParent = Parent;
                 this.activeSlots = activeSlots.ToArray();
             }
 
-            public Item Parent{ get; private set; }
+            public Item PossibleNewParent{ get; private set; }
             public Item item { get; private set; }
             public ItemSlot[] activeSlots { get; private set; }
 
             public void Execute_RePlace()
             {
-                Remove(item, Parent);
-                Add(item, Parent);
-                InspectPlayerInventory(item, Parent);
+                Remove(item, item.ParentItem);
+                Add(item, PossibleNewParent);
+                InspectPlayerInventory(item, PossibleNewParent);
 
                 NonLive_UnPlacing(item);
                 Live_UnPlacing(item);
 
                 Live_Positioning(item,activeSlots);
 
-                NonLive_Placing(item, Parent);
-                Live_Placing(item, Parent);
+                NonLive_Placing(item, PossibleNewParent);
+                Live_Placing(item, PossibleNewParent);
 
-                HotKey_SetStatus_SupplementaryTransformation(item, Parent);
+                HotKey_SetStatus_SupplementaryTransformation(item, PossibleNewParent);
 
                 item.SelfGameobject.GetComponent<ItemObject>().SelfVisualisation();
 
@@ -1200,8 +1203,10 @@ namespace ItemHandler
         }
 
         #region Special
-        public static void Placer(Item item, float originalRotation, List<Action> actions)
+        public static void Placer(Item item, float originalRotation)
         {
+            Action[] actions = item.AvaiablePlacerMetodes.ToArray();
+
             if (Input.GetKey(KeyCode.LeftControl) && actions.FirstOrDefault(action => action.Method.Name == nameof(Split.Execute_Split)) != null)//split
             {
                 Debug.LogWarning("split");
@@ -1231,6 +1236,9 @@ namespace ItemHandler
 
                 item.SelfGameobject.GetComponent<ItemObject>().BuildContainer();
             }
+
+            item.AvaiablePlacerMetodes.Clear();
+            item.AvaiableParentItem = null;
         }
         public static void Delete(Item item)
         {

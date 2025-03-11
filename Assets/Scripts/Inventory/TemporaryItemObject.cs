@@ -128,18 +128,17 @@ public class TemporaryItemObject : MonoBehaviour/*, IPointerUpHandler*/
 
             InventoryObjectRef.GetComponent<PlayerInventory>().SlotPanelObject.GetComponent<PanelSlots>().ScrollPanel.GetComponent<ScrollRect>().enabled = true;
 
-            if (ActualData.DetectedContainerItem != null)
+            if (ActualData.AvaiablePlacerMetodes != null)
             {
-                if (ActualData.DetectedContainerItem.ContainerObject.GetComponent<ContainerObject>().actions.Count > 0)
+                if (ActualData.AvaiablePlacerMetodes.Count > 0)
                 {
                     GameObject ItemObject = SupportScripts.CreatePrefab(ActualData.ObjectPath);
                     ItemObject.transform.SetParent(InventoryObjectRef.transform, false);
                     ItemObject.GetComponent<Rigidbody2D>().bodyType = RigidbodyType2D.Static;
                     ItemObject.GetComponent<BoxCollider2D>().size = transform.GetComponent<RectTransform>().rect.size;
-                    ItemObject.GetComponent<ItemObject>().SetDataRoute(ActualData, ActualData.DetectedContainerItem);
+                    ItemObject.GetComponent<ItemObject>().SetDataRoute(ActualData,ActualData.AvaiableParentItem);
                     ItemObject.GetComponent<ItemObject>().ActualData.SelfGameobject = ItemObject;
-                    InventorySystem.Placer(ActualData, ActualData.RotateDegree, ActualData.DetectedContainerItem.ContainerObject.GetComponent<ContainerObject>().actions);
-                    ActualData.DetectedContainerItem = null;
+                    InventorySystem.Placer(ActualData, ActualData.RotateDegree);
                     ItemObject.GetComponent<ItemObject>().BuildContainer();
                 }
                 else

@@ -32,8 +32,7 @@ public class ContainerObject : MonoBehaviour
     #region Active Slot Handler variables
     //Ezen változók szükségesek ahoz, hogy egy itemet helyezni tudjunk slotokból slotokba
     [HideInInspector] public HashSet<ItemSlot> interactibleSlots;
-    [HideInInspector] public List<Action> actions;
-    [HideInInspector] bool CanBePlaceble = true;
+    [HideInInspector] private bool CanBePlaceble = true;
     //[HideInInspector] public GameObject PlaceableObject;
 
     [HideInInspector] public List<GameObject> activeSlots;
@@ -60,8 +59,6 @@ public class ContainerObject : MonoBehaviour
                 {
                     IncomingItem = activeSlots.First().GetComponent<ItemSlot>().ActualPartOfItemObject.GetComponent<TemporaryItemObject>().ActualData;
                 }
-
-                IncomingItem.DetectedContainerItem = ActualData;
 
                 int Y = 0;
                 int X = 0;
@@ -107,6 +104,11 @@ public class ContainerObject : MonoBehaviour
 
                 interactibleSlots.Clear();
 
+                if (IncomingItem.AvaiablePlacerMetodes == null) IncomingItem.AvaiablePlacerMetodes = new List<Action>();
+                IncomingItem.AvaiablePlacerMetodes.Clear();
+
+                IncomingItem.AvaiableParentItem = ActualData;
+
                 for (int i = 0; i < SlotsBySectors.Count; i++)
                 {
                     foreach (ItemSlot slot_ in SlotsBySectors.ElementAt(i).Value)
@@ -119,104 +121,77 @@ public class ContainerObject : MonoBehaviour
 
                 if (SlotsBySectors.Count == 1)
                 {
-                    if (interactibleSlots.Count == 1)
-                    {
-                        ItemSlot slot = interactibleSlots.First();
 
-                        if (!slot.IsEquipment)
-                        {
-                            CanBePlaceble = false;
-                        }
+                    foreach (ItemSlot slot in interactibleSlots)
+                    {
                         if (!(slot.PartOfItemObject == null || slot.PartOfItemObject == IncomingItem.SelfGameobject))
                         {
                             CanBePlaceble = false;
+                            break;
                         }
-                        if (!(slot.SlotType == null || slot.SlotType.Contains(IncomingItem.ItemType)))
+                        if (!(slot.SlotType == "" || slot.SlotType.Contains(IncomingItem.ItemType)))
                         {
                             CanBePlaceble = false;
-                        }
-                    }
-                    else
-                    {
-                        foreach (ItemSlot slot in interactibleSlots)
-                        {
-                            if (!(slot.PartOfItemObject == null || slot.PartOfItemObject == IncomingItem.SelfGameobject))
-                            {
-                                CanBePlaceble = false;
-                                break;
-                            }
-                            if (!(slot.SlotType == "" || slot.SlotType.Contains(IncomingItem.ItemType)))
-                            {
-                                CanBePlaceble = false;
-                                break;
-                            }
-                        }
-                        if (!(interactibleSlots.Count == IncomingItem.SizeX*IncomingItem.SizeY))
-                        {
-                            CanBePlaceble = false;
+                            break;
                         }
                     }
 
-
-
-                    if (interactibleSlots.FirstOrDefault(slot=>slot.MouseOver && slot.PartOfItemObject != null) != null)
+                    if (!(interactibleSlots.Count == IncomingItem.SizeX * IncomingItem.SizeY || interactibleSlots.First().IsEquipment))
                     {
-                        //open all interactible item slot
-                        ItemSlot RefSlot = interactibleSlots.First(slot => slot.MouseOver && slot.PartOfItemObject != null);
-                        int sectorId = RefSlot.sectorId;
-                        Item InteractiveItem = RefSlot.ActualPartOfItemObject.GetComponent<ItemObject>().ActualData;
+                        CanBePlaceble = false;
+                    }
 
-                        interactibleSlots.Clear();
+                    ItemSlot RefSlot = interactibleSlots.FirstOrDefault(slot => slot.MouseOver && slot.PartOfItemObject != null);
 
-                        foreach (RowData grid in Sectors[sectorId].col)
-                        {
-                            foreach (GameObject slot in grid.row)
-                            {
-                                interactibleSlots.Add(slot.GetComponent<ItemSlot>());
-                            }
-                        }
+                    Item InteractiveItem = RefSlot?.ActualPartOfItemObject.GetComponent<ItemObject>().ActualData;
 
-                        actions.Clear();
+                    if (RefSlot != null && CanBePlaceble)
+                    {
+                        //interactibleSlots.Clear();
+
+                        //foreach (RowData grid in Sectors[RefSlot.sectorId].col)
+                        //{
+                        //    foreach (GameObject slot in grid.row)
+                        //    {
+                        //        interactibleSlots.Add(slot.GetComponent<ItemSlot>());
+                        //    }
+                        //}
+
+                 
+                       
 
                         if (InventorySystem.CanMergable(InteractiveItem, IncomingItem))
                         {
                             InventorySystem.Merge ActionMerge = new(InteractiveItem, IncomingItem);
-                            actions.Add(ActionMerge.Execute_Merge);
-                        }
-                        if (InventorySystem.CanSplitable(InteractiveItem,IncomingItem))
-                        {
-                            InventorySystem.Split ActionSplit = new(InteractiveItem, interactibleSlots.ToArray());
-                            actions.Add(ActionSplit.Execute_Split);
+                            IncomingItem.AvaiablePlacerMetodes.Add(ActionMerge.Execute_Merge);
                         }
                         if (InteractiveItem.PartPut_IsPossible(IncomingItem).IsPossible)
                         {
                             InventorySystem.MergeParts ActionMergeParts = new(InteractiveItem, IncomingItem);
-                            actions.Add(ActionMergeParts.Execute_MergeParts);
+                            IncomingItem.AvaiablePlacerMetodes.Add(ActionMergeParts.Execute_MergeParts);
                         }
-
-                        if (CanBePlaceble)
+                        if (InventorySystem.CanSplitable(InteractiveItem, IncomingItem))
                         {
-                            //open all
-                            foreach (ItemSlot slot in interactibleSlots)
-                            {
-                                slot.Open();
-                            }
-                        }
-                        else
-                        {
-                            actions.Clear();
-                            //close all slot
-                            foreach (ItemSlot slot in interactibleSlots)
-                            {
-                                slot.Close();
-                            }
+                            InventorySystem.Split ActionSplit = new(InteractiveItem, interactibleSlots.ToArray());
+                            IncomingItem.AvaiablePlacerMetodes.Add(ActionSplit.Execute_Split);
                         }
                     }
                     else if (CanBePlaceble)
                     {
-                        actions.Clear();
+                        IncomingItem.AvaiablePlacerMetodes.Clear();
+
+                        if (InventorySystem.CanSplitable(InteractiveItem, IncomingItem))
+                        {
+                            InventorySystem.Split ActionSplit = new(InteractiveItem, interactibleSlots.ToArray());
+                            IncomingItem.AvaiablePlacerMetodes.Add(ActionSplit.Execute_Split);
+                        }
                         InventorySystem.RePlace ActionRePlace = new(IncomingItem, ActualData, interactibleSlots.ToArray());
-                        actions.Add(ActionRePlace.Execute_RePlace);
+                        IncomingItem.AvaiablePlacerMetodes.Add(ActionRePlace.Execute_RePlace);
+                    }
+
+                    if (CanBePlaceble)
+                    {
+
                         //open all
                         foreach (ItemSlot slot in interactibleSlots)
                         {
@@ -225,7 +200,7 @@ public class ContainerObject : MonoBehaviour
                     }
                     else
                     {
-                        actions.Clear();
+                        IncomingItem.AvaiablePlacerMetodes.Clear();
                         //close all slot
                         foreach (ItemSlot slot in interactibleSlots)
                         {
@@ -244,7 +219,7 @@ public class ContainerObject : MonoBehaviour
                 }
             }
         }
-        else if(activeSlots.Count==0)
+        else if (activeSlots.Count == 0)
         {
             HashSet<ItemSlot> interactibleSlots_ = new(interactibleSlots);
             foreach (ItemSlot slot_ in interactibleSlots_)
@@ -288,7 +263,6 @@ public class ContainerObject : MonoBehaviour
 
         interactibleSlots = new HashSet<ItemSlot>();
         activeSlots = new List<GameObject>();
-        actions = new List<Action>();
 
         ActualData.ContainerObject = gameObject;
         ActualData.Container.Live_Sector = gameObject.GetComponent<ContainerObject>().Sectors;

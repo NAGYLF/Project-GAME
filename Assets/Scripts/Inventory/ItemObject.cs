@@ -113,11 +113,11 @@ public class ItemObject : MonoBehaviour, IPointerDownHandler, IPointerUpHandler,
             #region unSet Dragable mod
             InventoryObjectRef.GetComponent<PlayerInventory>().SlotPanelObject.GetComponent<PanelSlots>().ScrollPanel.GetComponent<ScrollRect>().enabled = true;
             isDragging = false;
-            if (ActualData.DetectedContainerItem != null)
+            if (ActualData.AvaiablePlacerMetodes != null)
             {
-                InventorySystem.Placer(ActualData, originalRotation, ActualData.DetectedContainerItem.ContainerObject.GetComponent<ContainerObject>().actions);
+                InventorySystem.Placer(ActualData, originalRotation);
             }
-            ActualData.DetectedContainerItem = null;
+            ActualData.AvaiablePlacerMetodes = null;
             #endregion
         }
     }

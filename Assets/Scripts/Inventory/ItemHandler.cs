@@ -79,6 +79,7 @@ namespace ItemHandler
         public const string AdvancedItemObjectParth = "GameElements/AdvancedItemObject";
         public const string TemporaryItemObjectPath = "GameElements/TemporaryAdvancedItemObject";
         //system variables
+        public ModificationWindow ModificationWindowRef;
         #region SelfRefVariables
         public LevelManager LevelManagerRef;
         public List<ItemSlotData> ItemSlotsDataRef = new List<ItemSlotData>();
@@ -186,7 +187,7 @@ namespace ItemHandler
         }
         public (ConnectionPoint SCP, ConnectionPoint ICP, bool IsPossible) PartPut_IsPossible(Item Incoming_AdvancedItem)
         {
-            if (Incoming_AdvancedItem.IsAdvancedItem)
+            if (IsAdvancedItem && Incoming_AdvancedItem.IsAdvancedItem)
             {
                 //amit rá helyezunk
                 ConnectionPoint[] IncomingCPs = Incoming_AdvancedItem.Parts.SelectMany(x => x.ConnectionPoints).ToArray();//az összes connection point amitje az itemnek van
@@ -1134,7 +1135,7 @@ namespace ItemHandler
             private ((int X, int Y) ChangedSize, Dictionary<char, int> Directions) Effect;
             private (HashSet<(int Height, int Widht)> NonLiveCoordinates, int SectorIndex, bool IsPositionAble) NewPosition;
             private (ConnectionPoint SCP, ConnectionPoint ICP, bool IsPossible) Data;
-            public MergeParts(Item incomingItem, Item interactiveItem)
+            public MergeParts(Item interactiveItem,Item incomingItem)
             {
                 IncomingItem = incomingItem;
                 InteractiveItem = interactiveItem;
@@ -1159,6 +1160,7 @@ namespace ItemHandler
             public void Execute_MergeParts()
             {
                 InteractiveItem.PartPut(IncomingItem, Data.SCP, Data.ICP);
+
                 NonLive_Positioning(NewPosition.NonLiveCoordinates.First().Height, NewPosition.NonLiveCoordinates.First().Widht, NewPosition.SectorIndex, InteractiveItem, InteractiveItem.ParentItem);
 
                 NonLive_UnPlacing(InteractiveItem);
@@ -1168,6 +1170,11 @@ namespace ItemHandler
                 Live_Placing(InteractiveItem, InteractiveItem.ParentItem);
 
                 InteractiveItem.SelfGameobject.GetComponent<ItemObject>().SelfVisualisation();
+
+                if (InteractiveItem.ModificationWindowRef != null)
+                {
+                    InteractiveItem.ModificationWindowRef.ItemPartTrasformation();
+                }
             }
         }
         public class RePlace
@@ -1199,9 +1206,12 @@ namespace ItemHandler
 
                 HotKey_SetStatus_SupplementaryTransformation(item, PossibleNewParent);
 
-                item.SelfGameobject.GetComponent<ItemObject>().SelfVisualisation();
+                if (item.SelfGameobject != null)//a temporary objectum fix-je 
+                {
+                    item.SelfGameobject.GetComponent<ItemObject>().SelfVisualisation();
 
-                item.SelfGameobject.GetComponent<ItemObject>().BuildContainer();
+                    item.SelfGameobject.GetComponent<ItemObject>().BuildContainer();
+                }
             }
         }
 
@@ -1245,6 +1255,8 @@ namespace ItemHandler
         }
         public static void Delete(Item item)
         {
+            Debug.LogWarning($"Delete {item.ItemName}");
+
             UnsetHotKey(item);
 
             NonLive_UnPlacing(item);
@@ -1815,8 +1827,6 @@ namespace ItemHandler
                 int sectorindex = 0;
                 HashSet<(int Height, int Width)> ExtendCoordinates = new();
 
-                ItemSlotData[,] NonLiveGrid = AdvancedItem.ParentItem.Container.NonLive_Sectors[sectorindex];
-
                 //sectorIndex keresese
                 int index = 0;
                 foreach (ItemSlotData[,] sector in AdvancedItem.ParentItem.Container.NonLive_Sectors)
@@ -1831,6 +1841,7 @@ namespace ItemHandler
                     index++;
                 }
 
+                ItemSlotData[,] NonLiveGrid = AdvancedItem.ParentItem.Container.NonLive_Sectors[sectorindex];
                 //itemcoordinata grid létrehozasa forgatas szerint
                 (int X, int Y)[,] ItemCoordinates;
 

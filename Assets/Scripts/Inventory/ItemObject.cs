@@ -11,6 +11,8 @@ using TMPro;
 using UnityEngine.EventSystems;
 using PlayerInventoryClass;
 using UI;
+using Unity.VisualScripting;
+using UnityEngine.Rendering;
 
 public class ItemObject : MonoBehaviour, IPointerDownHandler, IPointerUpHandler, IPointerEnterHandler, IPointerExitHandler
 {
@@ -127,16 +129,23 @@ public class ItemObject : MonoBehaviour, IPointerDownHandler, IPointerUpHandler,
     }
     public void Inicialisation()//manualisan és automatikusan is vegrehajtodik, elofodulaht hogy za obejctuma meg nem letezik és az is hogy letezik
     {
-        gameObject.name = ActualData.ItemName;
+        if (ActualData.ParentItem != null)// a temporary objectum fix - je
+        {
+            gameObject.name = ActualData.ItemName;
 
-        ActualData.SelfGameobject = gameObject;
+            ActualData.SelfGameobject = gameObject;
 
-        InventorySystem.LiveCleaning(ActualData);
-        InventorySystem.Live_Placing(ActualData, ActualData.ParentItem);
+            InventorySystem.LiveCleaning(ActualData);
+            InventorySystem.Live_Placing(ActualData, ActualData.ParentItem);
 
-        BuildContainer();
+            BuildContainer();
 
-        SelfVisualisation();//itt nem allitunk be referenciat
+            SelfVisualisation();//itt nem allitunk be referenciat
+        }
+        else// a temporary objectum fix - je
+        {
+            Destroy(gameObject);
+        }
     }
     public void SetDataRoute(Item Data, Item Parent)
     {

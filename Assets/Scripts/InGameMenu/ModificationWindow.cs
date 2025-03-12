@@ -34,6 +34,7 @@ public class ModificationWindow : MonoBehaviour, IPointerDownHandler
     public void Openwindow(Item item)
     {
         this.AdvancedItem = item;
+        AdvancedItem.ModificationWindowRef = this;
         cloneParts = new();
         cloneParts2 = new();
         Boxes = new();

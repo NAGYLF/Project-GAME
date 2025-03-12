@@ -10,12 +10,6 @@ using static MainData.SupportScripts;
 using Assets.Scripts.Inventory;
 using PlayerInventoryClass;
 using System;
-using System.Xml.Linq;
-using System.Collections.ObjectModel;
-using System.Drawing;
-using NPOI.SS.Formula.Functions;
-using Unity.VisualScripting;
-using System.Text;
 
 
 public class ContainerObject : MonoBehaviour
@@ -123,65 +117,81 @@ public class ContainerObject : MonoBehaviour
 
                 if (SlotsBySectors.Count == 1)
                 {
-                    foreach (ItemSlot slot in interactibleSlots)
-                    {
-                        if (!(slot.PartOfItemObject == null || slot.PartOfItemObject == IncomingItem.SelfGameobject))
-                        {
-                            CanBePlaceble = false;
-                            break;
-                        }
-                        if (!(slot.SlotType == "" || slot.SlotType.Contains(IncomingItem.ItemType)))
-                        {
-                            CanBePlaceble = false;
-                            break;
-                        }
-                    }
-
-                    if (!(interactibleSlots.Count == IncomingItem.SizeX * IncomingItem.SizeY || interactibleSlots.First().IsEquipment))
-                    {
-                        CanBePlaceble = false;
-                    }
-
                     ItemSlot RefSlot = interactibleSlots.FirstOrDefault(slot => slot.MouseOver && slot.PartOfItemObject != null && slot.PartOfItemObject != IncomingItem.SelfGameobject);
 
-  
+                    Item InteractiveItem = RefSlot?.PartOfItemObject.GetComponent<ItemObject>().ActualData;
 
-                    Item InteractiveItem = RefSlot?.ActualPartOfItemObject.GetComponent<ItemObject>().ActualData;
-
+                    //ha van interactive item
                     if (RefSlot != null)
                     {
-                        //if (InventorySystem.CanMergable(InteractiveItem, IncomingItem))
-                        //{
-                        //    InventorySystem.Merge ActionMerge = new(InteractiveItem, IncomingItem);
-                        //    IncomingItem.AvaiablePlacerMetodes.Add(ActionMerge.Execute_Merge);
-                        //}
-                        //if (InteractiveItem.PartPut_IsPossible(IncomingItem).IsPossible)
-                        //{
-                        //    InventorySystem.MergeParts ActionMergeParts = new(InteractiveItem, IncomingItem);
-                        //    IncomingItem.AvaiablePlacerMetodes.Add(ActionMergeParts.Execute_MergeParts);
-                        //}
-                        //if (InventorySystem.CanSplitable(InteractiveItem, IncomingItem))
-                        //{
-                        //    InventorySystem.Split ActionSplit = new(InteractiveItem, interactibleSlots.ToArray());
-                        //    IncomingItem.AvaiablePlacerMetodes.Add(ActionSplit.Execute_Split);
-                        //}
-                    }
-                    else if(CanBePlaceble)
-                    {
                         IncomingItem.AvaiablePlacerMetodes.Clear();
+                        Debug.LogWarning("InteractiveItem");
+                        CanBePlaceble = false;
 
+                        if (InventorySystem.CanMergable(InteractiveItem, IncomingItem))
+                        {
+                            Debug.LogWarning($"Merge {InteractiveItem.ItemName}     {IncomingItem.ItemName}");
+                            InventorySystem.Merge ActionMerge = new(InteractiveItem, IncomingItem);
+                            IncomingItem.AvaiablePlacerMetodes.Add(ActionMerge.Execute_Merge);
+                            CanBePlaceble = true;
+                        }
+                        if (InteractiveItem.PartPut_IsPossible(IncomingItem).IsPossible)
+                        {
+                            Debug.LogWarning("MergeParts");
+                            InventorySystem.MergeParts ActionMergeParts = new(InteractiveItem, IncomingItem);
+                            IncomingItem.AvaiablePlacerMetodes.Add(ActionMergeParts.Execute_MergeParts);
+                            CanBePlaceble = true;
+                        }
                         if (InventorySystem.CanSplitable(InteractiveItem, IncomingItem))
                         {
+                            Debug.LogWarning("Split");
                             InventorySystem.Split ActionSplit = new(IncomingItem, interactibleSlots.ToArray());
                             IncomingItem.AvaiablePlacerMetodes.Add(ActionSplit.Execute_Split);
+                            CanBePlaceble = true;
                         }
-                        InventorySystem.RePlace ActionRePlace = new(IncomingItem, ActualData, interactibleSlots.ToArray());
-                        IncomingItem.AvaiablePlacerMetodes.Add(ActionRePlace.Execute_RePlace);
+                    }
+                    //ha nincs interacti item
+                    else
+                    {
+                        Debug.LogWarning("No   InteractiveItem");
+                        foreach (ItemSlot slot in interactibleSlots)
+                        {
+                            if (!(slot.PartOfItemObject == null || slot.PartOfItemObject == IncomingItem.SelfGameobject))
+                            {
+                                Debug.LogWarning("false 0");
+                                CanBePlaceble = false;
+                                break;
+                            }
+                            if (!(slot.SlotType == "" || slot.SlotType.Contains(IncomingItem.ItemType)))
+                            {
+                                Debug.LogWarning("false 1");
+                                CanBePlaceble = false;
+                                break;
+                            }
+                        }
+
+                        if (!(interactibleSlots.Count == IncomingItem.SizeX * IncomingItem.SizeY || interactibleSlots.First().IsEquipment))
+                        {
+                            Debug.LogWarning("false 2");
+                            CanBePlaceble = false;
+                        }
+
+                        IncomingItem.AvaiablePlacerMetodes.Clear();
+
+                        if (CanBePlaceble)
+                        {
+                            if (InventorySystem.CanSplitable(InteractiveItem, IncomingItem))
+                            {
+                                InventorySystem.Split ActionSplit = new(IncomingItem, interactibleSlots.ToArray());
+                                IncomingItem.AvaiablePlacerMetodes.Add(ActionSplit.Execute_Split);
+                            }
+                            InventorySystem.RePlace ActionRePlace = new(IncomingItem, ActualData, interactibleSlots.ToArray());
+                            IncomingItem.AvaiablePlacerMetodes.Add(ActionRePlace.Execute_RePlace);
+                        }
                     }
 
                     if (CanBePlaceble)
                     {
-
                         //open all
                         foreach (ItemSlot slot in interactibleSlots)
                         {
@@ -245,6 +255,7 @@ public class ContainerObject : MonoBehaviour
 
             bool isInside = RectTransformUtility.RectangleContainsScreenPoint(rt, mousePosition, mainCam);
             itemSlot.MouseOver = isInside;
+            ChangedFlag = true;
         }
 
         yield return null;
@@ -275,7 +286,7 @@ public class ContainerObject : MonoBehaviour
         activeSlots = new List<GameObject>();
 
         ActualData.ContainerObject = gameObject;
-        ActualData.Container.Live_Sector = gameObject.GetComponent<ContainerObject>().Sectors;
+        ActualData.Container.Live_Sector = Sectors;
 
         if (ActualData.IsEquipment)
         {

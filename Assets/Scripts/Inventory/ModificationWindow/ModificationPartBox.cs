@@ -1,5 +1,3 @@
-using NPOI.SS.Formula.Functions;
-using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.EventSystems;
@@ -14,8 +12,6 @@ public class ModificationPartBox : MonoBehaviour, IPointerDownHandler
     public ModificationWindow window;
     public void OnPointerDown(PointerEventData eventData)
     {
-        //Debug.LogWarning("DragMouse at box");
-
         List<Part> parts_ = new List<Part>()
         {
             AdvancedItem.Parts[PartIndex]
@@ -29,7 +25,6 @@ public class ModificationPartBox : MonoBehaviour, IPointerDownHandler
 
         if (NewPosition.IsPositionAble)
         {
-            //fix ezt forditva mukodik elv
             InventorySystem.NonLive_Positioning(NewPosition.NonLiveCoordinates.First().Height, NewPosition.NonLiveCoordinates.First().Widht, NewPosition.SectorIndex, AdvancedItem, AdvancedItem.ParentItem);
 
             InventorySystem.NonLive_UnPlacing(AdvancedItem);
@@ -49,27 +44,6 @@ public class ModificationPartBox : MonoBehaviour, IPointerDownHandler
             Parts = new List<Part>()
         };
 
-        //Debug.LogWarning("-----------------Advenced item parts---------------------");
-        //foreach (Part item in AdvancedItem.Parts)
-        //{
-        //    Debug.LogWarning($"{item.PartData.PartName}");
-        //}
-        //Debug.LogWarning($" Advanced Item PartCut delete from part:  {AdvancedItem.Parts.First(part => part.PartData.PartName == PartName).PartData.PartName}");
-        //Debug.LogWarning("-----------------partt --> parts---------------------");
-        //foreach (ConnectionPoint cp in part_.ConnectionPoints)
-        //{
-        //    if (cp.Used)
-        //    {
-        //        Debug.LogWarning($"{cp.SelfPart.PartData.PartName}");
-        //    }
-        //}
-        //part_.GetConnectedPartsTree(parts);
-        //parts = AdvancedItem.Parts.First(part=>part.PartData.PartName == PartName).GetConnectedPartsTree();
-        //Debug.LogWarning("-----------------parts---------------------");
-        //foreach (Part item in parts)
-        //{
-        //    Debug.LogWarning($"{item.PartData.PartName}");
-        //}
         foreach (Part part in parts)
         {
             newAdvancedItem.Parts.Add(part);

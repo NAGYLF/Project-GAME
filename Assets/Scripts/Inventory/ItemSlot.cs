@@ -38,14 +38,6 @@ namespace Assets.Scripts
         {
             Background.color = Color.red;
         }
-        private void OnMouseEnter()
-        {
-            MouseOver = true;
-        }
-        private void OnMouseExit()
-        {
-            MouseOver = false;
-        }
         private void OnCollisionEnter2D(Collision2D collision)
         {
             ActualPartOfItemObject = collision.gameObject;

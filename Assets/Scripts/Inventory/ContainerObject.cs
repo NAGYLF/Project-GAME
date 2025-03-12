@@ -37,6 +37,8 @@ public class ContainerObject : MonoBehaviour
 
     [HideInInspector] public List<GameObject> activeSlots;
     [HideInInspector] public bool ChangedFlag = false;
+
+    private Camera mainCam;
     #endregion
 
     #region Active Slot Handler
@@ -121,7 +123,6 @@ public class ContainerObject : MonoBehaviour
 
                 if (SlotsBySectors.Count == 1)
                 {
-
                     foreach (ItemSlot slot in interactibleSlots)
                     {
                         if (!(slot.PartOfItemObject == null || slot.PartOfItemObject == IncomingItem.SelfGameobject))
@@ -141,11 +142,13 @@ public class ContainerObject : MonoBehaviour
                         CanBePlaceble = false;
                     }
 
-                    ItemSlot RefSlot = interactibleSlots.FirstOrDefault(slot => slot.MouseOver && slot.PartOfItemObject != null);
+                    ItemSlot RefSlot = interactibleSlots.FirstOrDefault(slot => slot.MouseOver && slot.PartOfItemObject != null && slot.PartOfItemObject != IncomingItem.SelfGameobject);
+
+  
 
                     Item InteractiveItem = RefSlot?.ActualPartOfItemObject.GetComponent<ItemObject>().ActualData;
 
-                    if (RefSlot != null && CanBePlaceble)
+                    if (RefSlot != null)
                     {
                         //if (InventorySystem.CanMergable(InteractiveItem, IncomingItem))
                         //{
@@ -163,7 +166,7 @@ public class ContainerObject : MonoBehaviour
                         //    IncomingItem.AvaiablePlacerMetodes.Add(ActionSplit.Execute_Split);
                         //}
                     }
-                    else if (CanBePlaceble)
+                    else if(CanBePlaceble)
                     {
                         IncomingItem.AvaiablePlacerMetodes.Clear();
 
@@ -187,7 +190,6 @@ public class ContainerObject : MonoBehaviour
                     }
                     else
                     {
-                        IncomingItem.AvaiablePlacerMetodes.Clear();
                         //close all slot
                         foreach (ItemSlot slot in interactibleSlots)
                         {
@@ -220,18 +222,39 @@ public class ContainerObject : MonoBehaviour
     }
     private void Update()
     {
+        StartCoroutine(CheckMousePosition());
         StartCoroutine(Targeting());
+    }
+    public void Start()
+    {
+        Inicialisation();
+        LoadItemObjects();
+    }
+    private void Awake()
+    {
+        mainCam = Camera.main;
+    }
+    private IEnumerator CheckMousePosition()
+    {
+        Vector3 mousePosition = Input.mousePosition;
+
+        foreach (GameObject go in activeSlots)
+        {
+            RectTransform rt = go.GetComponent<RectTransform>();
+            ItemSlot itemSlot = go.GetComponent<ItemSlot>();
+
+            bool isInside = RectTransformUtility.RectangleContainsScreenPoint(rt, mousePosition, mainCam);
+            itemSlot.MouseOver = isInside;
+        }
+
+        yield return null;
     }
     public void SetDataRoute(Item Data)//(ezen eljárás ezen objektum játékbakerülése elõtt zajlik le)    Célja, hogy a gyökérbõl továbbított és egyben ennek az objektumnak szánt adatokat ezen VCP megkapja
     {
         ActualData = Data;
     }
     #endregion
-    public void Start()
-    {
-        Inicialisation();
-        LoadItemObjects();
-    }
+
     public void Inicialisation()//az objecktum létrehozásának elsõ pillanatában töltõdik be
     {
         for (int sector = 0; sector < Sectors.Count; sector++)

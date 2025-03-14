@@ -7,6 +7,8 @@ using System;
 using System.Linq;
 using UI;
 using System.Collections.Generic;
+using static PlayerInventoryClass.PlayerInventory;
+using static MainData.Main;
 public class DevConsol : MonoBehaviour
 {
     public GameObject text;
@@ -166,8 +168,61 @@ public class DevConsol : MonoBehaviour
                 }
                 break;
             case "Save":
+
+                //inventory items full clone
+                List<Item> items = inventory.GetComponent<PlayerInventory>().levelManager.Items;
+                List<Item> clonedItems = new();
+                foreach (Item item in items)
+                {
+                    clonedItems.Add(item.ShallowClone());
+                    Item item_ = clonedItems.Last();
+
+                    //hotkey
+                    if (item.hotKeyRef != null)
+                    {
+                        item_.hotKeyRef = item.hotKeyRef;
+                    }
+
+                    //sizechanger
+                    if (item.SizeChanger != null)
+                    {
+                        item_.SizeChanger = item.SizeChanger;
+                    }
+
+                    //levelmanager
+                    if (item.IsInPlayerInventory)
+                    {
+                        item_.LevelManagerRef = item.LevelManagerRef;
+                    }
+
+                    //parts
+                    if (item_.IsAdvancedItem)
+                    {
+                        foreach (Part part in  item.Parts)
+                        {
+                            item_.Parts.Add(part.ShallowClone());
+                            Part part_ = item_.Parts.Last();
+                            part_.item_s_Part = item_;
+                            for (int i = 0; i < part.ConnectionPoints.Length; i++)
+                            {
+                                if (part.ConnectionPoints[i].Used)
+                                {
+                                    part_.ConnectionPoints[i].Connect(part_.ConnectionPoints[Array.IndexOf(part.ConnectionPoints,part.ConnectionPoints[i].ConnectedPoint)]);
+                                }
+                            }
+                        }
+                    }
+                }
+                foreach (Item item in clonedItems)
+                {
+                    
+                }
+
                 Debug.Log($"{text.GetComponent<TMP_InputField>().text}");
                 RootData = inventory.GetComponent<PlayerInventory>().levelManager.Items.FirstOrDefault(item=>item.Lvl==-1);
+
+
+
                 break;
             case "Clear":
                 Debug.Log($"{text.GetComponent<TMP_InputField>().text}");
@@ -183,8 +238,24 @@ public class DevConsol : MonoBehaviour
                 break;
             case "Load":
                 Debug.Log($"{text.GetComponent<TMP_InputField>().text}");
+                if (inventory.GetComponent<PlayerInventory>().levelManager.Items.Count>0)
+                {
+                    List<Item> TemporaryItemList_ = new List<Item>(inventory.GetComponent<PlayerInventory>().levelManager.Items);
+                    foreach (Item item in TemporaryItemList_)
+                    {
+                        InventorySystem.Delete(inventory.GetComponent<PlayerInventory>().levelManager.Items.Find(i => i == item));
+                    }
+                    inventory.GetComponent<ContainerObject>().ActualData = null;
+                    TemporaryItemList_.Clear();
+                    inventory.GetComponent<PlayerInventory>().levelManager.Items.Clear();
+                }
+
+
                 inventory.GetComponent<PlayerInventory>().levelManager.Items.Add(RootData);
-                inventory.GetComponent<ContainerObject>().ActualData = RootData;
+                    inventory.GetComponent<PlayerInventory>().levelManager.SetMaxLVL_And_Sort();
+                    inventory.GetComponent<ContainerObject>().SetDataRoute(RootData);
+                
+
                 break;
             case var _ when Command[0] == Main.name:
                 switch (Command[1])

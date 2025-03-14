@@ -126,7 +126,7 @@ GameObject:
   - component: {fileID: 6013988775611962602}
   - component: {fileID: 1805603974573205358}
   - component: {fileID: 3073505358540331195}
-  m_Layer: 0
+  m_Layer: 5
   m_Name: ModificationPartBox
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -217,5 +217,5 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: c440edc922369e944bc148503f71cf08, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  Window: {fileID: 0}
-  PartName: 
+  PartIndex: 0
+  window: {fileID: 0}

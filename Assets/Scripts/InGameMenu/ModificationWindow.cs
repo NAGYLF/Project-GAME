@@ -210,7 +210,7 @@ public class ModificationWindow : MonoBehaviour, IPointerDownHandler
                 box.GetComponent<ModificationPartBox>().window = this;
                 box.GetComponent<ModificationPartBox>().AdvancedItem = AdvancedItem;
                 box.GetComponent<ModificationPartBox>().PartIndex = i;
-                box.transform.SetParent(PartsPanel.transform);
+                box.transform.SetParent(PartsPanel.transform,false);
                 box.GetComponent<RectTransform>().sizeDelta = new Vector2(itemBoxSize, itemBoxSize);
                 cloneParts2[i].SetLive(box.GetComponent<ItemImgFitter>().fitter.gameObject);
                 box.GetComponent<ItemImgFitter>().Fitting();

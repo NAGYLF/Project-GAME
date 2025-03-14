@@ -50,43 +50,43 @@ public class ItemWindow : MonoBehaviour,IPointerExitHandler
         {
             GameObject button = CreatePrefab("GameElements/ItemWindowButton");
             button.GetComponent<Button>().onClick.AddListener(Use);
-            button.transform.SetParent(Content.transform);
+            button.transform.SetParent(Content.transform,false);
             button.transform.GetChild(0).GetComponent<TextMeshPro>().text = "Use";
         }
         if (item.IsOpenAble)
         {
             GameObject button = CreatePrefab("GameElements/ItemWindowButton");
             button.GetComponent<Button>().onClick.AddListener(Open);
-            button.transform.SetParent(Content.transform);
+            button.transform.SetParent(Content.transform, false);
             button.transform.GetChild(0).GetComponent<TextMeshPro>().text = "Open";
         }
         if (item.IsModificationAble)
         {
             GameObject button = CreatePrefab("GameElements/ItemWindowButton");
             button.GetComponent<Button>().onClick.AddListener(Modification);
-            button.transform.SetParent(Content.transform);
-            button.transform.GetChild(0).GetComponent<TextMeshPro>().text = "Modification";
+            button.transform.SetParent(Content.transform, false);
+            button.transform.GetChild(0).GetComponent<TextMeshProUGUI>().text = "Modification";
         }
         if (item.IsUnloadAble)
         {
             GameObject button = CreatePrefab("GameElements/ItemWindowButton");
             button.GetComponent<Button>().onClick.AddListener(Unload);
-            button.transform.SetParent(Content.transform);
+            button.transform.SetParent(Content.transform, false);
             button.transform.GetChild(0).GetComponent<TextMeshPro>().text = "Unload";
         }
         if (item.IsDropAble)
         {
             GameObject button = CreatePrefab("GameElements/ItemWindowButton");
             button.GetComponent<Button>().onClick.AddListener(Drop);
-            button.transform.SetParent(Content.transform);
+            button.transform.SetParent(Content.transform, false);
             button.transform.GetChild(0).GetComponent<TextMeshPro>().text = "Drop";
         }
         if (item.IsRemoveAble)
         {
             GameObject button = CreatePrefab("GameElements/ItemWindowButton");
             button.GetComponent<Button>().onClick.AddListener(Remove);
-            button.transform.SetParent(Content.transform);
-            button.transform.GetChild(0).GetComponent<TextMeshPro>().text = "Remove";
+            button.transform.SetParent(Content.transform, false);
+            button.transform.GetChild(0).GetComponent<TextMeshProUGUI>().text = "Remove";
         }
     }
     private void Drop()

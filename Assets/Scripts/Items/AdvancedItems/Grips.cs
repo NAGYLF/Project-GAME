@@ -17,12 +17,7 @@ namespace Grips
 
                 Ergonomy = 5,//a célzás során a célkereszt mozog ha 0 akkor nagyon mozog ha 100 akkor egyáltalán nem.
 
-                SizeChanger = new SizeChanger()
-                {
-                    Plus = 1,//mekkora meretet adjon hozza
-                    MaxPlus = 2,//mekkora a maximalis size amelyikbe novelhet
-                    Direction = "D",//menyik iranyba adja hozza a meretet
-                }
+                SizeChanger = new SizeChanger(1,2,"D")
             };
         }
     }
@@ -41,12 +36,10 @@ namespace Grips
 
                 Ergonomy = 2,//a célzás során a célkereszt mozog ha 0 akkor nagyon mozog ha 100 akkor egyáltalán nem.
 
-                SizeChanger = new SizeChanger()
-                {
-                    Plus = 1,//mekkora meretet adjon hozza
-                    MaxPlus = 2,//mekkora a maximalis size amelyikbe novelhet
-                    Direction = "D",//menyik iranyba adja hozza a meretet
-                }
+                //Plus = 1,//mekkora meretet adjon hozza
+                //MaxPlus = 2,//mekkora a maximalis size amelyikbe novelhet
+                //Direction = "D",//menyik iranyba adja hozza a meretet
+                SizeChanger = new SizeChanger(1,2,"D")
             };
         }
     }

@@ -31,12 +31,7 @@ namespace TestModulartItems
                     SizeX = 1,
                     SizeY = 1,
                     IsAdvancedItem = true,
-                    SizeChanger = new SizeChanger()
-                    {
-                        Plus = 1,//mekkora meretet adjon hozza
-                        MaxPlus = 2,//mekkora a maximalis size amelyikbe novelhet
-                        Direction = "R",//menyik iranyba adja hozza a meretet
-                    }
+                    SizeChanger = new SizeChanger(1,2,"R")
                 };
             }
         }

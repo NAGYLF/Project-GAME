@@ -73,22 +73,27 @@ namespace ItemHandler
             this.PartOfItemData = PartOfItemData;
         }
     }
-    public class Item : NonGeneralItemProperties
+    public class Item
     {
         public const string SimpleItemObjectParth = "GameElements/SimpleItemObject";
         public const string AdvancedItemObjectParth = "GameElements/AdvancedItemObject";
         public const string TemporaryItemObjectPath = "GameElements/TemporaryAdvancedItemObject";
         //system variables
-        public ModificationWindow ModificationWindowRef;
+
         #region SelfRefVariables
+        public ModificationWindow ModificationWindowRef;
         public LevelManager LevelManagerRef;
         public List<ItemSlotData> ItemSlotsDataRef = new List<ItemSlotData>();
         public List<Item> ContainerItemListRef = new List<Item>();
         public HotKey hotKeyRef;
         public List<GameObject> ItemSlotObjectsRef = new List<GameObject>();
         #endregion
+
+        #region PlacerVariables
         public List<Action> AvaiablePlacerMetodes = new List<Action>();
         public Item AvaiableParentItem { get; set; }
+        #endregion
+
         public List<Part> Parts { get; set; }//az item darabjai
         public string ImgPath { get; set; }
         public string ObjectPath { get; private set; }//az, hogy milyen obejctum tipust hasznal
@@ -134,6 +139,30 @@ namespace ItemHandler
         public bool IsOpenAble { get; set; } = false;
         public bool IsUsable { get; set; } = false;
         public bool CanReload { get; set; } = false;
+
+        #region NonGeneric Variables
+        //Size Changer
+        public SizeChanger SizeChanger {get; set; }
+        //contain
+        public Container Container { get; set; }
+        //weapon
+        public int? MagasineSize { get; set; }
+        public double? Spread { get; set; }
+        public int? Fpm { get; set; }
+        public double? Recoil { get; set; }
+        public double? Accturacy { get; set; }
+        public double? Range { get; set; }
+        public double? Ergonomy { get; set; }
+        public string AmmoType { get; set; } = "";
+        public BulletType BulletType { get; set; }
+        //usable
+        public int UseLeft { get; set; } = 0;
+        //ammo
+
+        //med
+
+        //armor
+        #endregion
 
         //Ez egy Totális Törlés ami azt jelenti, hogy mindenhonnan törli. Ez nem jo akkor ha valahonnan torolni akarjuk de mashol meg hozzadni
         public void Remove()
@@ -184,6 +213,53 @@ namespace ItemHandler
         public void Drop()
         {
 
+        }
+        public Item ShallowClone()
+        {
+            Item cloned = new Item
+            {
+                // Alap adatok
+                ImgPath = this.ImgPath,
+                ObjectPath = this.ObjectPath,
+                ItemType = this.ItemType,
+                ItemName = this.ItemName,
+                Description = this.Description,
+                Quantity = this.Quantity,
+                Value = this.Value,
+                SizeX = this.SizeX,
+                SizeY = this.SizeY,
+                MaxStackSize = this.MaxStackSize,
+
+                // Akciók
+                IsDropAble = this.IsDropAble,
+                IsRemoveAble = this.IsRemoveAble,
+                IsUnloadAble = this.IsUnloadAble,
+                IsModificationAble = this.IsModificationAble,
+                IsOpenAble = this.IsOpenAble,
+                IsUsable = this.IsUsable,
+                IsAdvancedItem = this.IsAdvancedItem,
+
+                // Fegyver adatok
+                MagasineSize = this.MagasineSize,
+                Spread = this.Spread,
+                Fpm = this.Fpm,
+                Recoil = this.Recoil,
+                Accturacy = this.Accturacy,
+                Range = this.Range,
+                Ergonomy = this.Ergonomy,
+                BulletType = this.BulletType,
+                AmmoType = this.AmmoType,
+
+                // Használhatóság
+                UseLeft = this.UseLeft,
+
+                // Advanced
+                SizeChanger = this.SizeChanger,
+
+                SlotUse = this.SlotUse.ToList(),
+            };
+
+            return cloned;
         }
         public (ConnectionPoint SCP, ConnectionPoint ICP, bool IsPossible) PartPut_IsPossible(Item Incoming_AdvancedItem)
         {
@@ -730,35 +806,17 @@ namespace ItemHandler
             }
         }
     }
-    public abstract class NonGeneralItemProperties// az item hozza letre azt a panelt a slot inventoryban amely a tartlomert felelos, de csak akkor ha ő equipment slotban van egybekent egy up relativ pozitcioju panelt hozzon letre mint az EFT-ban
-    {
-        //Size Changer
-        public SizeChanger SizeChanger { get; set; }
-        //contain
-        public Container Container { get; set; }
-        //weapon
-        public int? MagasineSize { get; set; }
-        public double? Spread { get; set; }
-        public int? Fpm { get; set; }
-        public double? Recoil { get; set; }
-        public double? Accturacy { get; set; }
-        public double? Range { get; set; }
-        public double? Ergonomy { get; set; }
-        public string AmmoType { get; set; } = "";
-        public BulletType BulletType { get; set; }
-        //usable
-        public int UseLeft { get; set; } = 0;
-        //ammo
-
-        //med
-
-        //armor
-    }
     public class SizeChanger
     {
-        public int Plus;
-        public string Direction;
-        public int MaxPlus;
+        public SizeChanger(int plus, int maxPlus, string direction)
+        {
+            Plus = plus;
+            MaxPlus = maxPlus;
+            Direction = direction;
+        }
+        public int Plus { get; private set; }
+        public int MaxPlus { get; private set; }
+        public string Direction { get; private set; }
     }
     //a connection point inpectorban létező dolog ami lenyegeben statikusan jelen van nem kell generalni
     [System.Serializable]
@@ -775,10 +833,23 @@ namespace ItemHandler
         //statikus adatok melyek nem valtoznak
         public CP CPData;
         public Part SelfPart;//a part amelyikhez tartozik
+        public ConnectionPoint()
+        {
+
+        }
         public ConnectionPoint(CP cPData,Part selfPart)
         {
             CPData = cPData;
             SelfPart = selfPart;
+        }
+        public ConnectionPoint ShallowClone()
+        {
+            ConnectionPoint cp = new ConnectionPoint()
+            {
+                CPData = this.CPData,
+                Used = this.Used,
+            };
+            return cp;
         }
         public void Connect(ConnectionPoint cp)
         {
@@ -837,6 +908,10 @@ namespace ItemHandler
         public ConnectionPoint[] ConnectionPoints;//a tartalmazott pontok
         public Item item_s_Part;//az item aminek a partja
         public ItemPartData PartData;
+        public Part()
+        {
+
+        }
         public Part(Item item)
         {
             item_s_Part = item;
@@ -893,6 +968,16 @@ namespace ItemHandler
                 }
             }
         }
+        public Part ShallowClone()
+        {
+            Part part = new Part()
+            {
+                HierarhicPlace = this.HierarhicPlace,
+                ConnectionPoints = new ConnectionPoint[this.ConnectionPoints.Length],
+                PartData = this.PartData
+            };
+            return part;
+        }
     }
     public class BulletType
     {
@@ -929,6 +1014,21 @@ namespace ItemHandler
                     }
                 }
             }
+        }
+
+        public Container()
+        {
+        }
+
+        public Container Clone()
+        {
+            Container container = new()
+            {
+                Live_Sector = new List<DataGrid>(),
+                Items = new List<Item>(),
+                PrefabPath = this.PrefabPath,
+            };
+            return container;
         }
     }
     public static class LootRandomizer

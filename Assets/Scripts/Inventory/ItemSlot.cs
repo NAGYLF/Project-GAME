@@ -13,9 +13,9 @@ namespace Assets.Scripts
         public string SlotType;//azon tipusok melyeket befogadhat, ha nincs megadva akkor mindent.
         #endregion
 
-        [HideInInspector] public Item SlotParentItem;
-        [HideInInspector] public int sectorId;
-        [HideInInspector] public (int Height,int Width) Coordinate;
+        public Item SlotParentItem;
+        public int sectorId;
+        public (int Height,int Width) Coordinate;
 
         #region  Runtime Instantiated Objects Datas
         public GameObject PartOfItemObject;//ezen értéket egy itemslot egy item vizualizációjakor kellene hogy kapjon

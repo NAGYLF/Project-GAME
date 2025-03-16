@@ -13,6 +13,7 @@ using PlayerInventoryClass;
 using UI;
 using Unity.VisualScripting;
 using UnityEngine.Rendering;
+using System.Collections;
 
 public class ItemObject : MonoBehaviour, IPointerDownHandler, IPointerUpHandler, IPointerEnterHandler, IPointerExitHandler
 {
@@ -160,27 +161,13 @@ public class ItemObject : MonoBehaviour, IPointerDownHandler, IPointerUpHandler,
             //--> ContainerObject.cs
             GameObject containerObject = CreatePrefab(ActualData.Container.PrefabPath);
             containerObject.GetComponent<ContainerObject>().SetDataRoute(ActualData);
-            ActualData.ContainerObject = containerObject;
-            ActualData.Container.Live_Sector = ActualData.ContainerObject.GetComponent<ContainerObject>().Sectors;
         }
     }
     public void DestroyContainer()
     {
         if (ActualData.ContainerObject != null)
         {
-            for (int sector = 0; sector < ActualData.ContainerObject.GetComponent<ContainerObject>().Sectors.Count; sector++)
-            {
-                for (int col = 0; col < ActualData.ContainerObject.GetComponent<ContainerObject>().Sectors[sector].columnNumber; col++)
-                {
-                    for (int row = 0; row < ActualData.ContainerObject.GetComponent<ContainerObject>().Sectors[sector].rowNumber; row++)
-                    {
-                        if (ActualData.ContainerObject.GetComponent<ContainerObject>().Sectors[sector].col[col].row[row].GetComponent<ItemObject>() != null)
-                        {
-                            ActualData.ContainerObject.GetComponent<ContainerObject>().Sectors[sector].col[col].row[row].GetComponent<ItemObject>().DestroyContainer();
-                        }
-                    }
-                }
-            }
+            ActualData.Container.Items.ForEach(item => item.SelfGameobject.GetComponent<ItemObject>().DestroyContainer());
             Destroy(ActualData.ContainerObject);
         }
     }
@@ -249,7 +236,7 @@ public class ItemObject : MonoBehaviour, IPointerDownHandler, IPointerUpHandler,
         Vector3 minPosition = Vector3.positiveInfinity;
         Vector3 maxPosition = Vector3.negativeInfinity;
 
-        foreach (GameObject rect in ActualData.ItemSlotObjectsRef)
+        foreach (ItemSlot rect in ActualData.ItemSlotObjectsRef)
         {
             Vector3 rectMin = rect.GetComponent<RectTransform>().localPosition - new Vector3(rect.GetComponent<RectTransform>().rect.width / 2, rect.GetComponent<RectTransform>().rect.height / 2, 0);
             Vector3 rectMax = rect.GetComponent<RectTransform>().localPosition + new Vector3(rect.GetComponent<RectTransform>().rect.width / 2, rect.GetComponent<RectTransform>().rect.height / 2, 0);

@@ -11,7 +11,6 @@ using Assets.Scripts.Inventory;
 using PlayerInventoryClass;
 using System;
 
-
 public class ContainerObject : MonoBehaviour
 {
     #region DataSynch
@@ -19,9 +18,18 @@ public class ContainerObject : MonoBehaviour
     #endregion
 
     #region Personal variables
-    public List<DataGrid> Sectors;//ez egy mátrox lista amely tartalmazza az összes itemSlot Objectumot
-    public GameObject[] SectorObjects;//ez egy gamObject lista amely tatalmmazza az összes sectort méretezési és itemObject elérésének szándékából
+    public ItemSlot[][,] LiveSector;//ez egy mátrox lista amely tartalmazza az összes itemSlot Objectumot
+
+    public SectorData[] StaticSectorDatas;
     #endregion
+
+    [System.Serializable]
+    public struct SectorData
+    {
+        public int Heigth;
+        public int Widht;
+        public GameObject SectorObject;
+    }
 
     #region Active Slot Handler variables
     //Ezen változók szükségesek ahoz, hogy egy itemet helyezni tudjunk slotokból slotokba
@@ -268,16 +276,19 @@ public class ContainerObject : MonoBehaviour
 
     public void Inicialisation()//az objecktum létrehozásának elsõ pillanatában töltõdik be
     {
-        for (int sector = 0; sector < Sectors.Count; sector++)
+        for (int sector = 0; sector < StaticSectorDatas.Length; sector++)
         {
-            for (int col = 0; col < Sectors[sector].columnNumber; col++)
+            SectorData sectorData = StaticSectorDatas[sector];
+            ItemSlot[] itemSlots = sectorData.SectorObject.GetComponentsInChildren<ItemSlot>();
+
+            for (int height = 0, index = 0; height < sectorData.Heigth; height++)
             {
-                for (int row = 0; row < Sectors[sector].rowNumber; row++)
+                for (int width = 0; width < sectorData.Widht; width++)
                 {
-                    ItemSlot slot = Sectors[sector].col[col].row[row].GetComponent<ItemSlot>();
-                    slot.SlotParentItem = ActualData;
-                    slot.sectorId = sector;
-                    slot.Coordinate = (col,row);
+                    itemSlots[index].SlotParentItem = ActualData;
+                    itemSlots[index].sectorId = sector;
+                    itemSlots[index].Coordinate = (height,width);
+                    ActualData.Container.Live_Sector[sector][height, width] = itemSlots[index++];
                 }
             }
         }
@@ -286,7 +297,6 @@ public class ContainerObject : MonoBehaviour
         activeSlots = new List<GameObject>();
 
         ActualData.ContainerObject = gameObject;
-        ActualData.Container.Live_Sector = Sectors;
 
         if (ActualData.IsEquipment)
         {
@@ -310,9 +320,9 @@ public class ContainerObject : MonoBehaviour
     {
         GameObject lootObject = InventoryObjectRef.gameObject.GetComponent<PlayerInventory>().LootPanelObject;
         gameObject.transform.SetParent(lootObject.GetComponent<PanelLoot>().Content.transform, false);
-        foreach (GameObject sector in SectorObjects)//beallitjuk a méretarányt
+        foreach (SectorData sector in StaticSectorDatas)//beallitjuk a méretarányt
         {
-            sector.GetComponent<RectTransform>().localScale *= Main.SectorScale;
+            sector.SectorObject.GetComponent<RectTransform>().localScale *= Main.SectorScale;
         }
         //ActualData.ContainerObject = gameObject;
         //ActualData.Container.Live_Sector = gameObject.GetComponent<ContainerObject>().Sectors;
@@ -321,9 +331,9 @@ public class ContainerObject : MonoBehaviour
     {
         GameObject slotObject = InventoryObjectRef.gameObject.GetComponent<PlayerInventory>().SlotPanelObject;
         gameObject.transform.SetParent(slotObject.GetComponent<PanelSlots>().Content.transform, false);
-        foreach (GameObject sector in SectorObjects)//beallitjuk a méretarányt
+        foreach (SectorData sector in StaticSectorDatas)//beallitjuk a méretarányt
         {
-            sector.GetComponent<RectTransform>().localScale *= Main.SectorScale;
+            sector.SectorObject.GetComponent<RectTransform>().localScale *= Main.SectorScale;
         }
 
         slotObject.GetComponent<PanelSlots>().ReFresh();

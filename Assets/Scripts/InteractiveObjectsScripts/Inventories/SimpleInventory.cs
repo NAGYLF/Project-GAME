@@ -14,13 +14,17 @@ namespace NaturalInventorys
         [HideInInspector] public Item Root;// ez lényegében az inventory adatait tartlamazza
         public void Awake()
         {
-            Root = new Item();
-            Root.ItemName = "Root";
-            Root.Lvl = -1;
-            Root.IsRoot = true;
-            Root.IsLoot = true;
-            Root.Container = new Container(PrefabPath);
-            Root.SelfGameobject = gameObject;
+            Root = new Item()
+            {
+                ItemName = "Root",
+                Lvl = -1,
+                sectorId = 0,
+                Coordinates = new (int, int)[] { (0, 0) },
+                IsRoot = true,
+                IsLoot = true,
+                Container = new Container(PrefabPath),
+                SelfGameobject = gameObject,
+            };
             LootRandomizer.FillSimpleInvenotry(GetComponent<SimpleInventory>(),PaletteName,Fullness);
         }
         public void InventoryAdd(Item Data)
@@ -40,7 +44,6 @@ namespace NaturalInventorys
                                 {
                                     //AddDataNonLive(Y,X,sectorIndex,Root,Data);
                                     Add(Data, Root);
-                                    InspectPlayerInventory(Data, Root);
                                     NonLive_Positioning(Y,X,sectorIndex,Data,Root);
                                     NonLive_Placing(Data, Root);
                                     HotKey_SetStatus_SupplementaryTransformation(Data, Root);

@@ -50,26 +50,27 @@ namespace ItemHandler
     [Serializable]
     public class DataGrid
     {
-        public int rowNumber;
-        public int columnNumber;
+        public int Width;
+        public int Height;
         public List<RowData> col;
     }
     [Serializable]
     public class RowData
     {
-        public List<GameObject> row;
+        public List<ItemSlot> row;
     }
     public class ItemSlotData
     {
-        public string SlotName;
-        public string SlotType;
         public int SectorID;
+        public (int Height, int Widht) Coordinate;
+        public string SlotType;
         public Item PartOfItemData;
-        public ItemSlotData(string SlotName = "", string SlotType = "",int SectorID = 0, Item PartOfItemData = null)
+
+        public ItemSlotData(int SectorID,int Height,int Width,string SlotType = "", Item PartOfItemData = null)
         {
-            this.SlotName = SlotName;
-            this.SlotType = SlotType;
             this.SectorID = SectorID;
+            this.Coordinate = (Height,Width);
+            this.SlotType = SlotType;
             this.PartOfItemData = PartOfItemData;
         }
     }
@@ -86,7 +87,7 @@ namespace ItemHandler
         public List<ItemSlotData> ItemSlotsDataRef = new List<ItemSlotData>();
         public List<Item> ContainerItemListRef = new List<Item>();
         public HotKey hotKeyRef;
-        public List<GameObject> ItemSlotObjectsRef = new List<GameObject>();
+        public List<ItemSlot> ItemSlotObjectsRef = new List<ItemSlot>();
         #endregion
 
         #region PlacerVariables
@@ -121,16 +122,20 @@ namespace ItemHandler
         public bool IsAdvancedItem { set; get; } = false;// az item egy advanced item
 
         //SlotUse
-        public List<string> SlotUse = new();
-        public void SetSlotUse()
+        public int sectorId { get; set; }
+        private (int, int)[] coordinates;
+        public (int,int)[] Coordinates 
         {
-            SlotUse = SlotUse.OrderBy(slotname => int.Parse(Regex.Match(slotname, @"\((\d+)\)").Groups[1].Value)).ToList();
-            LowestSlotUseNumber = Regex.Match(SlotUse.FirstOrDefault() ?? string.Empty, @"\((\d+)\)").Success ? int.Parse(Regex.Match(SlotUse.FirstOrDefault(), @"\((\d+)\)").Groups[1].Value) : 0;
-            HighestSlotUseNumber = Regex.Match(SlotUse.LastOrDefault() ?? string.Empty, @"\((\d+)\)").Success ? int.Parse(Regex.Match(SlotUse.LastOrDefault(), @"\((\d+)\)").Groups[1].Value) : 0;
+            get
+            {
+                return coordinates;
+            }
+            set
+            {
+                coordinates = value;
+                Array.Sort(coordinates);
+            }
         }
-        public int LowestSlotUseNumber { get; private set; }
-        public int HighestSlotUseNumber { get; private set; }
-
         //action (Műveletek)
         public bool IsDropAble { get; set; } = false;
         public bool IsRemoveAble { get; set; } = true;
@@ -256,7 +261,7 @@ namespace ItemHandler
                 // Advanced
                 SizeChanger = this.SizeChanger,
 
-                SlotUse = this.SlotUse.ToList(),
+                //Coordinates = this.Coordinates.ToList(),
             };
 
             return cloned;
@@ -990,45 +995,34 @@ namespace ItemHandler
         //ebben az eddig null érékű container változó egy ures containerrre változik
         //az item pédányosításánál igy egy új példány készül a containerből is mely alapvetően tartalmazza a container PrefabPath-ét
         //a kostructora az igy megkapott prefabPath-ből lekerdezi a Sectorokat
-        public List<Item> Items { get; set; }
         public string PrefabPath;
+        public List<Item> Items { get; set; }
         public ItemSlotData[][,] NonLive_Sectors { get; set; }
-        public List<DataGrid> Live_Sector { get; set; }//ezek referanca pontokat atralamaznak amelyeken kersztul a tenyleges gameobjectumokat manipulalhatjuk
+        public ItemSlot[][,] Live_Sector { get; set; }//ezek referanca pontokat atralamaznak amelyeken kersztul a tenyleges gameobjectumokat manipulalhatjuk
         public Container(string prefabPath)
         {
             PrefabPath = prefabPath;
+            ContainerObject containerObject = Resources.Load(prefabPath).GetComponent<ContainerObject>();
+            ContainerObject.SectorData[] staticSectorDatas = containerObject.StaticSectorDatas;
+
             Items = new List<Item>();
-            List<DataGrid> DataGrid = Resources.Load(prefabPath).GetComponent<ContainerObject>().Sectors;
-            NonLive_Sectors = new ItemSlotData[DataGrid.Count][,];
+            NonLive_Sectors = new ItemSlotData[staticSectorDatas.Length][,];
+            Live_Sector = new ItemSlot[staticSectorDatas.Length][,];
+
             for (int sector = 0; sector < NonLive_Sectors.Length; sector++)
             {
-                int index = 0;
-                NonLive_Sectors[sector] = new ItemSlotData[DataGrid[sector].columnNumber, DataGrid[sector].rowNumber];
-                for (int col = 0; col < NonLive_Sectors[sector].GetLength(0); col++)
+                NonLive_Sectors[sector] = new ItemSlotData[staticSectorDatas[sector].Heigth, staticSectorDatas[sector].Widht];
+                Live_Sector[sector] = new ItemSlot[staticSectorDatas[sector].Heigth, staticSectorDatas[sector].Widht];
+
+                for (int height = 0; height < NonLive_Sectors[sector].GetLength(0); height++)
                 {
-                    for (int row = 0; row < NonLive_Sectors[sector].GetLength(1); row++)
+                    for (int width = 0; width < NonLive_Sectors[sector].GetLength(1); width++)
                     {
-                        ItemSlot slot = DataGrid[sector].col[col].row[row].GetComponent<ItemSlot>();
-                        NonLive_Sectors[sector][col, row] = new ItemSlotData(slot.name, slot.SlotType,slot.sectorId);
-                        index++;
+                        ItemSlot RefSlot = staticSectorDatas[sector].SectorObject.transform.GetChild(height* NonLive_Sectors[sector].GetLength(1)+width).GetComponent<ItemSlot>();
+                        NonLive_Sectors[sector][height, width] = new ItemSlotData(sector,height,width,RefSlot.SlotType);
                     }
                 }
             }
-        }
-
-        public Container()
-        {
-        }
-
-        public Container Clone()
-        {
-            Container container = new()
-            {
-                Live_Sector = new List<DataGrid>(),
-                Items = new List<Item>(),
-                PrefabPath = this.PrefabPath,
-            };
-            return container;
         }
     }
     public static class LootRandomizer
@@ -1206,7 +1200,6 @@ namespace ItemHandler
                     itemObject.GetComponent<ItemObject>().SetDataRoute(newItem, newItem.ParentItem);
 
                     Add(newItem, Parent);
-                    InspectPlayerInventory(newItem, Parent);
                     Live_Positioning(newItem, ActiveSlots);
 
                     NonLive_Placing(newItem, Parent);
@@ -1294,7 +1287,6 @@ namespace ItemHandler
             {
                 Remove(item, item.ParentItem);
                 Add(item, PossibleNewParent);
-                InspectPlayerInventory(item, PossibleNewParent);
 
                 NonLive_UnPlacing(item);
                 Live_UnPlacing(item);
@@ -1355,7 +1347,7 @@ namespace ItemHandler
         }
         public static void Delete(Item item)
         {
-            Debug.LogWarning($"Delete {item.ItemName}");
+            //Debug.LogWarning($"Delete {item.ItemName}");
 
             UnsetHotKey(item);
 
@@ -1401,17 +1393,6 @@ namespace ItemHandler
             }
             return false;
         }
-        public static void InspectPlayerInventory(Item item, Item StatusParent)
-        {
-            if (!item.IsInPlayerInventory && StatusParent.IsInPlayerInventory)
-            {
-                AddPlayerInventory(item);
-            }
-            else if (item.IsInPlayerInventory && !StatusParent.IsInPlayerInventory)
-            {
-                RemovePlayerInventory(item);
-            }
-        }
         public static void LiveCleaning(Item item)//ha az inventory-t bezarjuk akkor megsemisulnek a refernciak es egy nullokkal teli lista lesz, ez ezt hivatott orvosolni
         {
             item.ItemSlotObjectsRef.Clear();
@@ -1449,20 +1430,21 @@ namespace ItemHandler
         #region Positioning
         public static void NonLive_Positioning(int Y, int X, int sectorIndex, Item item, Item Parent)
         {
-            item.SlotUse.Clear();
+            item.sectorId = sectorIndex;
             if (Parent.IsEquipmentRoot)
             {
-                item.SlotUse.Add(Parent.Container.NonLive_Sectors[sectorIndex][Y, X].SlotName);//ez alapjan azonositunk egy itemslotot
+                item.Coordinates = new[] { Parent.Container.NonLive_Sectors[sectorIndex][Y, X].Coordinate };//ez alapjan azonositunk egy itemslotot
             }
             else
             {
+                List<(int, int)> coordiantes = new List<(int, int)>();
                 if (item.RotateDegree == 90 || item.RotateDegree == 270)
                 {
                     for (int y = Y; y < Y + item.SizeX; y++)//megforditjuk a koordinatakat mivel elforgazva van
                     {
                         for (int x = X; x < X + item.SizeY; x++)//megforditjuk a koordinatakat mivel elforgazva van
                         {
-                            item.SlotUse.Add(Parent.Container.NonLive_Sectors[sectorIndex][y, x].SlotName);//ez alapjan azonositunk egy itemslotot
+                            coordiantes.Add(Parent.Container.NonLive_Sectors[sectorIndex][y, x].Coordinate);//ez alapjan azonositunk egy itemslotot
                         }
                     }
                 }
@@ -1472,21 +1454,22 @@ namespace ItemHandler
                     {
                         for (int x = X; x < X + item.SizeX; x++)
                         {
-                            item.SlotUse.Add(Parent.Container.NonLive_Sectors[sectorIndex][y, x].SlotName);//ez alapjan azonositunk egy itemslotot
+                            coordiantes.Add(Parent.Container.NonLive_Sectors[sectorIndex][y, x].Coordinate);//ez alapjan azonositunk egy itemslotot
                         }
                     }
                 }
+                item.Coordinates = coordiantes.ToArray();
             }
-            item.SetSlotUse();
         }
         public static void Live_Positioning(Item item, ItemSlot[] activeSlots)
         {
-            item.SlotUse.Clear();
+            List<(int, int)> coordiantes = new List<(int, int)>();
             for (int i = 0; i < activeSlots.Length; i++)
             {
-                item.SlotUse.Add(activeSlots[i].name);
+                coordiantes.Add(activeSlots[i].GetComponent<ItemSlot>().Coordinate);
             }
-            item.SetSlotUse();//beallitjuk a slotuse azonositot
+            item.sectorId = activeSlots.First().sectorId;
+            item.Coordinates = coordiantes.ToArray();
         }
 
         public static ((int X,int Y) ChangedSize, Dictionary<char,int> Directions) AdvancedItem_SizeChanger_EffectDetermination(Item AdvancedItem,List<Part> IncomingParts,bool Add)
@@ -2019,15 +2002,15 @@ namespace ItemHandler
         #region Placing
         public static void Live_Placing(Item item, Item PlacingInto)
         {
-            foreach (DataGrid dataGrid in PlacingInto.Container.Live_Sector)
+            foreach (ItemSlot[,] sector in PlacingInto.Container.Live_Sector)
             {
-                foreach (RowData rowData in dataGrid.col)
+                if (item.sectorId == sector[0,0].sectorId)
                 {
-                    foreach (GameObject slot in rowData.row)
+                    foreach (ItemSlot slot in sector)
                     {
-                        if (item.SlotUse.Contains(slot.name))
+                        if (item.Coordinates.Contains(slot.Coordinate))
                         {
-                            slot.GetComponent<ItemSlot>().PartOfItemObject = item.SelfGameobject;
+                            slot.PartOfItemObject = item.SelfGameobject;
                             item.ItemSlotObjectsRef.Add(slot);//set ref
                         }
                     }
@@ -2036,47 +2019,32 @@ namespace ItemHandler
         }
         public static void Live_UnPlacing(Item item)
         {
-            //if (item.SelfGameobject == null)
-            //    throw new ArgumentNullException(nameof(item), "Az 'item.SelfGameobject' nem lehet null.");
-
-            //if (item.ItemSlotObjectsRef == null)
-            //    throw new ArgumentNullException(nameof(item.ItemSlotObjectsRef), "A 'item.ItemSlotObjectsRef' nem lehet null.");
-
-            foreach (GameObject slotObject in item.ItemSlotObjectsRef)
+            foreach (ItemSlot slotObject in item.ItemSlotObjectsRef)
             {
-                slotObject.GetComponent<ItemSlot>().PartOfItemObject = null;
+                slotObject.PartOfItemObject = null;
             }
             item.ItemSlotObjectsRef.Clear();//unset ref
         }
 
         public static void NonLive_Placing(Item item, Item AddTo)
         {
-            if (item.ParentItem != AddTo)
-                throw new ArgumentNullException(nameof(item.ParentItem), "Az 'item.ParentItem != AddTo'.");
-
-            if (AddTo.Container == null)
-                throw new ArgumentNullException(nameof(AddTo.Container), "A 'AddTo.Container' nem lehet null.");
-
             foreach (ItemSlotData[,] sector in AddTo.Container.NonLive_Sectors)
             {
-                foreach (ItemSlotData slot in sector)
+                if (item.sectorId == sector[0, 0].SectorID)
                 {
-                    if (item.SlotUse.Contains(slot.SlotName))
+                    foreach (ItemSlotData slot in sector)
                     {
-                        slot.PartOfItemData = item;
-                        item.ItemSlotsDataRef.Add(slot);//set ref
+                        if (item.Coordinates.Contains(slot.Coordinate))
+                        {
+                            slot.PartOfItemData = item;
+                            item.ItemSlotsDataRef.Add(slot);//set ref
+                        }
                     }
                 }
             }
         }
         public static void NonLive_UnPlacing(Item item)
         {
-            if (item == null)
-                throw new ArgumentNullException(nameof(item), "Az 'item' nem lehet null.");
-
-            if (item.ItemSlotsDataRef == null)
-                throw new ArgumentNullException(nameof(item.ItemSlotsDataRef), "A 'item.ItemSlotsDataRef' nem lehet null.");
-
             foreach (ItemSlotData slotData in item.ItemSlotsDataRef)
             {
                 slotData.PartOfItemData = null;//remove
@@ -2119,10 +2087,12 @@ namespace ItemHandler
             if (!item.IsInPlayerInventory && StatusParent.IsInPlayerInventory)
             {
                 item.IsInPlayerInventory = true;
+                AddPlayerInventory(item);
             }
             else if (item.IsInPlayerInventory && !StatusParent.IsInPlayerInventory)
             {
                 item.IsInPlayerInventory = false;
+                RemovePlayerInventory(item);
             }
 
             SetHierarhicLVL(item, StatusParent);
@@ -2782,18 +2752,18 @@ namespace ItemHandler
         }
         private static void AutoSetHotKey(Item SetIn)
         {
-            switch (SetIn.LowestSlotUseNumber)
+            switch (SetIn.Coordinates.First())
             {
-                case 10:
+                case (0,10):
                     InGameUI.HotKey1.SetHotKey(SetIn);
                     break;
-                case 11:
+                case (0, 11):
                     InGameUI.HotKey2.SetHotKey(SetIn);
                     break;
-                case 12:
+                case (0, 12):
                     InGameUI.HotKey3.SetHotKey(SetIn);
                     break;
-                case 13:
+                case (0, 13):
                     InGameUI.HotKey4.SetHotKey(SetIn);
                     break;
                 default:

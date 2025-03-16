@@ -9,8 +9,6 @@ using ItemHandler;
 using Assets.Scripts.Inventory;
 using NaturalInventorys;
 using static ItemHandler.InventorySystem;
-using NPOI.SS.Formula.Functions;
-using Unity.VisualScripting;
 
 namespace PlayerInventoryClass
 {
@@ -36,7 +34,8 @@ namespace PlayerInventoryClass
             public void SetMaxLVL_And_Sort()
             {
                 MaxLVL = Items.Select(item => item.Lvl).DefaultIfEmpty(-1).Max();
-                Items = Items.OrderBy(item => item.Lvl).ThenBy(item => item.LowestSlotUseNumber + ((item.ParentItem == null ? -1 : Items.IndexOf(item.ParentItem)) * 10000)).ToList();
+                Items = Items.OrderBy(item => item.Lvl).ThenBy(item => item.sectorId).ThenBy(item => item.Coordinates.First()).ToList();
+                /*Items.OrderBy(item => item.Lvl).ThenBy(item => item.LowestSlotUseCoordinate + ((item.ParentItem == null ? -1 : Items.IndexOf(item.ParentItem)) * 10000)).ToList();*/
             }
             public LevelManager()
             {
@@ -80,13 +79,15 @@ namespace PlayerInventoryClass
             {
                 ItemName = "Root",
                 Lvl = -1,
+                sectorId = 0,
+                Coordinates = new (int, int)[] { (0, 0) },
                 IsRoot = true,
                 IsEquipmentRoot = true,
                 IsInPlayerInventory = true,
-                Container = new Container("GameElements/PlayerInventory")
-                {
-                    Live_Sector = gameObject.GetComponent<ContainerObject>().Sectors,
-                },
+                Container = new Container("GameElements/PlayerInventory"),
+                //{
+                //    Live_Sector = gameObject.GetComponent<ContainerObject>().LiveSector,
+                //},
                 ContainerObject = gameObject,
                 SelfGameobject = gameObject,
             };
@@ -166,7 +167,6 @@ namespace PlayerInventoryClass
                                 {
                                     //Debug.Log($"Item Added in container");
                                     Add(Data, itemsOfLvl[itemIndex]);
-                                    InspectPlayerInventory(Data, itemsOfLvl[itemIndex]);
                                     NonLive_Positioning(Y, X, sectorIndex, Data, itemsOfLvl[itemIndex]);
                                     NonLive_Placing(Data, itemsOfLvl[itemIndex]);
                                     HotKey_SetStatus_SupplementaryTransformation(Data, itemsOfLvl[itemIndex]);
@@ -196,7 +196,6 @@ namespace PlayerInventoryClass
                                 if ((itemsOfLvl[itemIndex].Container.NonLive_Sectors[sectorIndex][Y, X].SlotType.Contains(Data.ItemType) || itemsOfLvl[itemIndex].Container.NonLive_Sectors[sectorIndex][Y, X].SlotType == "") && itemsOfLvl[itemIndex].Container.NonLive_Sectors[sectorIndex][Y, X].PartOfItemData == null && (CanBePlace(itemsOfLvl[itemIndex].Container.NonLive_Sectors[sectorIndex], Y, X, Data) || itemsOfLvl[itemIndex].IsRoot))//ha a slot nem tagja egy itemnek sem akkor target
                                 {
                                     Add(Data, itemsOfLvl[itemIndex]);
-                                    InspectPlayerInventory(Data, itemsOfLvl[itemIndex]);
                                     NonLive_Positioning(Y, X, sectorIndex, Data, itemsOfLvl[itemIndex]);
                                     NonLive_Placing(Data, itemsOfLvl[itemIndex]);
                                     HotKey_SetStatus_SupplementaryTransformation(Data, itemsOfLvl[itemIndex]);

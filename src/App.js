@@ -10,7 +10,7 @@ import Search from "./Search";
 import Admin from "./Admin";
 import Footer from "./Footer";
 import Player from "./Player";
-import Alert from './Alert'; // Import Alert component
+import Alert from './Alert';
 import { jwtDecode } from 'jwt-decode';
 import axios from 'axios';
 
@@ -27,6 +27,7 @@ function App() {
   const [isItBanned, setIsItBanned] = useState(false);
   const [alertMessage, setAlertMessage] = useState('');
 
+  //Megkapja a tokent, beállítja a tokenből kapott adatokból a stateket
   useEffect(() => {
     setToken(localStorage.getItem('token'));
     if (token) {
@@ -39,6 +40,7 @@ function App() {
     }
   }, [isLoggedIn, setIsAdmin]);
 
+  //Lekéri az adminkódot
   const admincode = () => {
     axios.get('http://localhost:5269/api/Player/code')
       .then(res => {
@@ -64,6 +66,7 @@ function App() {
     return () => clearInterval(interval);
   }
 
+  //Kijelentkezik, elveszi a tokent
   const logout = () => {
     localStorage.removeItem('token');
     showAlert(language === "hu" ? "Sikeres kijelentkezés!" : "Successful logout!", "success");
@@ -72,31 +75,28 @@ function App() {
     setIsAdmin(false);
   };
 
+  //Bejelentkezik kap egy tokent
   const login = (email, password, showAlert) => {
     let user = {
       email: email,
       password: password
     };
-    console.log(user);
 
       axios.post('http://localhost:5269/api/auth/login', user).then((response) => {
         if (response.data) {
-          const token = response.data.token; // JWT token a válaszból
-          localStorage.setItem('token', token); // Token mentése localStorage-ba
+          const token = response.data.token;
+          localStorage.setItem('token', token);
           setToken(token);
-          // Token dekódolása
+
           const decodedToken = jwtDecode(token);
-          console.log(decodedToken);
           const isAdmin = decodedToken.IsAdmin === "True" ? true : false;
           const isBanned = decodedToken.IsBanned === "True" ? true : false;
 
           if (!isBanned) {
-            showAlert(language === "hu" ? "Sikeres bejelentkezés!" : "Successful login!", "success"); // Show success alert
-            // Állapotok beállítása
+            showAlert(language === "hu" ? "Sikeres bejelentkezés!" : "Successful login!", "success");
             setIsLoggedIn(true);
-            setIsAdmin(isAdmin);  // Az admin státusz beállítása
+            setIsAdmin(isAdmin);
 
-            // A felhasználót átirányítjuk a főoldalra
             navigate("/");
           } 
           else{
@@ -105,16 +105,17 @@ function App() {
         }
         }
         else {
-          showAlert(response.data.message, "error"); // Show error alert
+          showAlert(response.data.message, "error");
         }
         
 
       }).catch(() => {
-        showAlert(language === "hu" ? "Sikertelen bejelentkezés!" : "Login failed!", "error"); // Show error alert
+        showAlert(language === "hu" ? "Sikertelen bejelentkezés!" : "Login failed!", "error");
       });
 
   };
 
+  //Ha valamit ki szeretnénk íratni, ezt kell használni, hogy stílusos legyen
   const showAlert = (message, type) => {
     setAlertMessage(message);
     const snackbar = document.getElementById("snackbar");
@@ -126,7 +127,7 @@ function App() {
     }, 2900);
   };
 
-
+  //Magyar Angol fordításhoz
   const [texts, setTexts] = useState({
     hu: {
       description: 'Leírás',
@@ -167,7 +168,6 @@ function App() {
       />
       <Alert message={alertMessage} />
       <Routes>
-        {/* Passing language and texts props to all components */}
         <Route path="/description" element={<Description language={language} texts={texts} />} />
         <Route path="/about" element={<About language={language} texts={texts} />} />
         <Route path="/login" element={<Login language={language} texts={texts} isLoggedIn={isLoggedIn} setIsLoggedIn={setIsLoggedIn} setIsAdmin={setIsAdmin} login={login} showAlert={showAlert} />} />

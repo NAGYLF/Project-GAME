@@ -18,6 +18,7 @@ const Search = ({ texts, language, isAdmin }) => {
     }
   }
 
+  //Lekéri az összes playert
   useEffect(() => {
     axios.get('http://localhost:5269/api/Player')
       .then(response => {
@@ -28,6 +29,7 @@ const Search = ({ texts, language, isAdmin }) => {
       .catch(error => console.error('Error fetching player data:', error));
   }, []);
 
+  //Keresés
   const handleSearch = (term) => {
     setSearchTerm(term);
     if (term === '') {
@@ -38,6 +40,7 @@ const Search = ({ texts, language, isAdmin }) => {
     }
   };
 
+  //1 sorban 3 playert jelenít meg
   const renderPlayers = () => {
     const rows = [];
     for (let i = 0; i < filteredPlayers.length; i += 3) {

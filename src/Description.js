@@ -6,6 +6,7 @@ function Description(props) {
 
   const navigate = useNavigate();
 
+  //Ha a contentre nyomunk nem a boxra akkor visszamegy a főoldalra
   const handleContentClick = (e) => {
     if(e.target.className === 'content'){
         navigate('/');

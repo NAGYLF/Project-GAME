@@ -8,6 +8,7 @@ import { useNavigate } from 'react-router-dom';
 function About(props) {
   const navigate = useNavigate();
 
+  //Ha a contentre nyomunk nem a boxra akkor visszamegy a főoldalra
   const handleContentClick = (e) => {
     if(e.target.className === 'content'){
         navigate('/');

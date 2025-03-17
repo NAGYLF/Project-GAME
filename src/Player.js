@@ -17,11 +17,14 @@ export default function Player({ texts, language, token, isAdmin, showAlert }) {
   const [name, setName] = useState('Player');
   const navigate = useNavigate();
   
+  //Ha a contentre nyomunk nem a boxra akkor visszamegy a főoldalra
     const handleContentClick = (e) => {
       if(e.target.className === 'content'){
           navigate('/');
       }
     }
+
+    //Lekéri id alapján a playert, bizonyos adatok miatt
   useEffect(() => {
     axios.get(`http://localhost:5269/GetbyId/${id}`)
       .then(response => {
@@ -34,6 +37,7 @@ export default function Player({ texts, language, token, isAdmin, showAlert }) {
       })
       .catch(error => console.error('Error fetching player name:', error));
 
+      //Lekéri id alapján a player statjait
     axios.get(`http://localhost:5269/api/Player/stats/${id}`)
       .then(response => {
         const data = response.data;

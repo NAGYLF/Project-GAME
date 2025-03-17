@@ -11,6 +11,7 @@ const Settings = ({ texts, language, id, token, logout, showAlert, setUsername }
   const location = useLocation();
   const navigate = useNavigate();
 
+  //Kitörli a usert és kijelentkezteti
   const deleteAccount = () => {
     axios.delete(`http://localhost:5269/api/Player/${id}?token=${token}`).then(() => {
       logout();
@@ -20,6 +21,7 @@ const Settings = ({ texts, language, id, token, logout, showAlert, setUsername }
     )
   }
 
+  //Email küldés
   const sendEmail = (email) => {
     const sendingEmail = {
       to: email,
@@ -105,6 +107,7 @@ const Settings = ({ texts, language, id, token, logout, showAlert, setUsername }
       });
   };
 
+  //A felhasználó tudja módosítani az adatait
   const modifyAccount = () => {
     axios.put(`http://localhost:5269/api/Player/${id}`, {
       name: newName,

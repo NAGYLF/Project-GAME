@@ -16,6 +16,7 @@ function Register({ language, code, login, admincode, showAlert }) {
     admincode();
   }, []);
 
+  //Email küldés
   const sendEmail = (email) => {
     const sendingEmail = {
       to: email,
@@ -137,7 +138,7 @@ function Register({ language, code, login, admincode, showAlert }) {
                     .then(() => {
                       showAlert(language === "hu" ? "Sikeres regisztráció!" : "Successful registration!", "success");
                       login(email, password, showAlert);
-                      sendEmail(email); // Email küldése a regisztráció után
+                      sendEmail(email);
                       navigate("/");
                     })
                     .catch((error) => {

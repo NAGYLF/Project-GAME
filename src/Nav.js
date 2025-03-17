@@ -1,5 +1,5 @@
 import React from 'react';
-import { Link } from 'react-router-dom'; // Import Link from react-router-dom
+import { Link } from 'react-router-dom';
 import Video from './video/video.mp4';
 import Logo from './img/logo.png';
 import Kep from './img/profilkep.jpg';

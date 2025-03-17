@@ -10,6 +10,7 @@ const Admin = ({ texts, language, code, secondsLeft, id }) => {
   const [seconds, setSeconds] = useState(secondsLeft);
   const [DevConsole, setDevConsole] = useState(false);
 
+  //Lekérjük az adminkódot az adatbázisból
   const GetAdminCode = () => {
     axios.get('http://localhost:5269/api/Player/code')
       .then(res => {
@@ -19,18 +20,18 @@ const Admin = ({ texts, language, code, secondsLeft, id }) => {
       .catch(err => console.error(err));
   };
 
-  // ManageDevConsole a checkbox változásakor
+  //DevConsolet frissíti, a checkbox alapján
   const ManageDevConsole = (e) => {
-    const newDevConsoleState = e.target.checked; // A checkbox új állapota
+    const newDevConsoleState = e.target.checked;
     setDevConsole(newDevConsoleState);
 
-    // API hívás a debug mód állapotának módosításához
     axios.put(`http://localhost:5269/api/Admin/${id}`, {
       devConsole: newDevConsoleState
     })
       .catch(err => console.error(err));
   };
 
+  //Ha true a DevConsole akkor bepipálja a checkboxot
   const getDevConsole = () => {
     console.log(id);
     axios.get(`http://localhost:5269/api/Admin/${id}`).then(res => {
@@ -38,6 +39,7 @@ const Admin = ({ texts, language, code, secondsLeft, id }) => {
     });
   };
 
+  //30 secenként újra lekéri az adminkódot
   useEffect(() => {
     if (!generatedCode) {
       GetAdminCode();
@@ -90,21 +92,19 @@ const Admin = ({ texts, language, code, secondsLeft, id }) => {
             </div>
             <div className="modal-body">
               <form>
-                {/* Debug mód beállítás */}
                 <div className="form-check mb-3">
                   <input
                     className="form-check-input"
                     type="checkbox"
                     id="debugMode"
-                    onChange={ManageDevConsole} // Itt csak a funkciót hívjuk, nem egyből
-                    checked={DevConsole} // A checkbox státusza
+                    onChange={ManageDevConsole}
+                    checked={DevConsole}
                   />
                   <label className="form-check-label" htmlFor="debugMode">
                     {language === "hu" ? 'Debug mód engedélyezése' : 'Enable debug mode'}
                   </label>
                 </div>
 
-                {/* Új admin jelszó generálása */}
                 <div className="mb-3">
                   <label htmlFor="newAdminPassword" className="form-label">
                     {language === "hu" ? 'Új admin jelszó' : 'New admin password'}

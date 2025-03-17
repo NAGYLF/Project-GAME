@@ -11,9 +11,6 @@ using TMPro;
 using UnityEngine.EventSystems;
 using PlayerInventoryClass;
 using UI;
-using Unity.VisualScripting;
-using UnityEngine.Rendering;
-using System.Collections;
 
 public class ItemObject : MonoBehaviour, IPointerDownHandler, IPointerUpHandler, IPointerEnterHandler, IPointerExitHandler
 {

@@ -9,6 +9,7 @@ using ItemHandler;
 using Assets.Scripts.Inventory;
 using NaturalInventorys;
 using static ItemHandler.InventorySystem;
+using UnityEngine.UI;
 
 namespace PlayerInventoryClass
 {
@@ -34,22 +35,12 @@ namespace PlayerInventoryClass
             public void SetMaxLVL_And_Sort()
             {
                 MaxLVL = Items.Select(item => item.Lvl).DefaultIfEmpty(-1).Max();
-                Items = Items.OrderBy(item => item.Lvl).ThenBy(item => item.sectorId).ThenBy(item => item.Coordinates.First()).ToList();
+                Items = Items.OrderBy(item => item.Lvl).ThenBy(item => item.SectorId).ThenBy(item => item.Coordinates.First()).ToList();
                 /*Items.OrderBy(item => item.Lvl).ThenBy(item => item.LowestSlotUseCoordinate + ((item.ParentItem == null ? -1 : Items.IndexOf(item.ParentItem)) * 10000)).ToList();*/
             }
             public LevelManager()
             {
                 Items = new List<Item>();
-            }
-            public void Cleaning()
-            {
-                foreach (Item item in Items)
-                {
-                    if (item.ParentItem == null && !item.IsRoot)
-                    {
-                        InventorySystem.Delete(item);
-                    }
-                }
             }
         }
         private void Awake()
@@ -79,7 +70,7 @@ namespace PlayerInventoryClass
             {
                 ItemName = "Root",
                 Lvl = -1,
-                sectorId = 0,
+                SectorId = 0,
                 Coordinates = new (int, int)[] { (0, 0) },
                 IsRoot = true,
                 IsEquipmentRoot = true,
@@ -319,6 +310,7 @@ namespace PlayerInventoryClass
         }
         public void OpenInventory()
         {
+            gameObject.GetComponent<ContainerObject>().SetDataRoute(levelManager.Items.First());
             for (int i = 0; i < gameObject.transform.childCount; i++)//ha egy itememt mozgatunk azt itt teszzuk meg. ezert szukseg van arr, hogyha mozgatas kozben bezarjuk az inventoryt akkor az az obejctum megsemmisuljon
             {
                 gameObject.transform.GetChild(i).gameObject.SetActive(true);

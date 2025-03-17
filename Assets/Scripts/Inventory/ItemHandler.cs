@@ -39,6 +39,7 @@ using static TestModulartItems.TestModularItems;
 using static MainData.Main;
 using UnityEngine.UI;
 using Assets.Scripts.Inventory;
+using System.Collections.ObjectModel;
 
 namespace ItemHandler
 {
@@ -46,18 +47,6 @@ namespace ItemHandler
     {
         public string Type;//Az item composition typusa
         public string Name;//Az item composition neve
-    }
-    [Serializable]
-    public class DataGrid
-    {
-        public int Width;
-        public int Height;
-        public List<RowData> col;
-    }
-    [Serializable]
-    public class RowData
-    {
-        public List<ItemSlot> row;
     }
     public class ItemSlotData
     {
@@ -122,7 +111,7 @@ namespace ItemHandler
         public bool IsAdvancedItem { set; get; } = false;// az item egy advanced item
 
         //SlotUse
-        public int sectorId { get; set; }
+        public int SectorId { get; set; }
         private (int, int)[] coordinates;
         public (int,int)[] Coordinates 
         {
@@ -221,7 +210,7 @@ namespace ItemHandler
         }
         public Item ShallowClone()
         {
-            Item cloned = new Item
+            Item cloned = new()
             {
                 // Alap adatok
                 ImgPath = this.ImgPath,
@@ -244,6 +233,12 @@ namespace ItemHandler
                 IsUsable = this.IsUsable,
                 IsAdvancedItem = this.IsAdvancedItem,
 
+                IsRoot = this.IsRoot,
+                IsEquipment = this.IsEquipment,
+                IsLoot = this.IsLoot,
+                IsEquipmentRoot = this.IsEquipmentRoot,
+                IsInPlayerInventory = this.IsInPlayerInventory,
+
                 // Fegyver adatok
                 MagasineSize = this.MagasineSize,
                 Spread = this.Spread,
@@ -252,7 +247,6 @@ namespace ItemHandler
                 Accturacy = this.Accturacy,
                 Range = this.Range,
                 Ergonomy = this.Ergonomy,
-                BulletType = this.BulletType,
                 AmmoType = this.AmmoType,
 
                 // Használhatóság
@@ -261,8 +255,23 @@ namespace ItemHandler
                 // Advanced
                 SizeChanger = this.SizeChanger,
 
-                //Coordinates = this.Coordinates.ToList(),
+                Lvl = this.Lvl,
+                SectorId = this.SectorId,
+                
+
+
+                //BulletType = this.BulletType,
             };
+
+            if (Container != null)
+            {
+                cloned.Container = new Container(this.Container.PrefabPath);
+            }
+
+            if (Coordinates != null)
+            {
+                cloned.Coordinates = this.Coordinates.ToArray();
+            }
 
             return cloned;
         }
@@ -838,23 +847,10 @@ namespace ItemHandler
         //statikus adatok melyek nem valtoznak
         public CP CPData;
         public Part SelfPart;//a part amelyikhez tartozik
-        public ConnectionPoint()
-        {
-
-        }
         public ConnectionPoint(CP cPData,Part selfPart)
         {
             CPData = cPData;
             SelfPart = selfPart;
-        }
-        public ConnectionPoint ShallowClone()
-        {
-            ConnectionPoint cp = new ConnectionPoint()
-            {
-                CPData = this.CPData,
-                Used = this.Used,
-            };
-            return cp;
         }
         public void Connect(ConnectionPoint cp)
         {
@@ -913,10 +909,6 @@ namespace ItemHandler
         public ConnectionPoint[] ConnectionPoints;//a tartalmazott pontok
         public Item item_s_Part;//az item aminek a partja
         public ItemPartData PartData;
-        public Part()
-        {
-
-        }
         public Part(Item item)
         {
             item_s_Part = item;
@@ -972,16 +964,6 @@ namespace ItemHandler
                     cp.ConnectedPoint.SelfPart.GetConnectedPartsTree(FillableList);
                 }
             }
-        }
-        public Part ShallowClone()
-        {
-            Part part = new Part()
-            {
-                HierarhicPlace = this.HierarhicPlace,
-                ConnectionPoints = new ConnectionPoint[this.ConnectionPoints.Length],
-                PartData = this.PartData
-            };
-            return part;
         }
     }
     public class BulletType
@@ -1308,6 +1290,131 @@ namespace ItemHandler
         }
 
         #region Special
+        public static LevelManager PlayerInventoryClone(LevelManager original)
+        {
+            LevelManager clone = new()
+            {
+                Items = new List<Item>()
+            };
+
+            // 1. Klónozzuk az összes itemet, és beállítjuk a LevelManager referenciát.
+            foreach (Item item in original.Items)
+            {
+                Item clonedItem = item.ShallowClone();
+                clonedItem.LevelManagerRef = clone;
+
+                // Ha fejlett (advanced) itemről van szó, klónozzuk a részeit (Part-eket).
+                if (clonedItem.IsAdvancedItem)
+                {
+                    CloneParts(item, clonedItem);
+                }
+
+                clone.Items.Add(clonedItem);
+            }
+
+            // 2. Beállítjuk a kapcsolódó referenciákat az itemek között.
+            // Feltételezzük, hogy az első item (index 0) a root item, ezért az i=1-től indulunk.
+            for (int i = 1; i < clone.Items.Count; i++)
+            {
+                SetupParentReference(original, clone, i);
+                SetupContainerReferences(original, clone, i);
+                SetupHotKeyReference(original, clone, i);
+
+                if (original.Items[i].IsAdvancedItem)
+                {
+                    Debug.LogWarning($"{clone.Items[i].ItemName} - ");
+                    SetupConnectionPoints(original, clone, i);
+                }
+            }
+
+            return clone;
+        }
+
+        private static void CloneParts(Item originalItem, Item clonedItem)
+        {
+            clonedItem.Parts = new List<Part>();
+            foreach (var partRef in originalItem.Parts)
+            {
+                // Klónozzuk a part-hoz tartozó itemet, majd létrehozunk egy új Part példányt.
+                Item clonedPartItem = partRef.item_s_Part.ShallowClone();
+                clonedItem.Parts.Add(new Part(clonedPartItem));
+                clonedItem.Parts.Last().HierarhicPlace = partRef.HierarhicPlace;
+            }
+        }
+
+        private static void SetupParentReference(LevelManager original, LevelManager clone, int index)
+        {
+            // Megkeressük az eredeti item parentjának indexét, majd a klónban beállítjuk a referenciát.
+            Item originalItem = original.Items[index];
+            int parentIndex = original.Items.IndexOf(originalItem.ParentItem);
+            clone.Items[index].ParentItem = clone.Items[parentIndex];
+        }
+
+        private static void SetupContainerReferences(LevelManager original, LevelManager clone, int index)
+        {
+            // Beállítjuk a container listát és a grid referenciákat.
+            Item clonedItem = clone.Items[index];
+            Item parent = clonedItem.ParentItem;
+
+            // Hozzáadjuk a klón itemet a parent container listájához, majd tároljuk a referenciát.
+            parent.Container.Items.Add(clonedItem);
+            clonedItem.ContainerItemListRef = parent.Container.Items;
+
+            // A koordináták alapján frissítjük a container grid-et.
+            foreach ((int h, int w) coord in clonedItem.Coordinates)
+            {
+                // A parent container NonLive_Sectors tömbében beállítjuk, hogy az adott cella tartalmazza a klón itemet.
+                parent.Container.NonLive_Sectors[clonedItem.SectorId][coord.h, coord.w].PartOfItemData = clonedItem;
+                clonedItem.ItemSlotsDataRef.Add(parent.Container.NonLive_Sectors[clonedItem.SectorId][coord.h, coord.w]);
+            }
+        }
+
+        private static void SetupHotKeyReference(LevelManager original, LevelManager clone, int index)
+        {
+            // Ha az eredeti itemnek volt hotKey referenciája, azt átmásoljuk.
+            if (original.Items[index].hotKeyRef != null)
+            {
+                clone.Items[index].hotKeyRef = original.Items[index].hotKeyRef;
+            }
+        }
+
+        private static void SetupConnectionPoints(LevelManager original, LevelManager clone, int index)
+        {
+            // Fejlett itemek esetén végigiterálunk a partok connection pointjain,
+            // és újracsatlakoztatjuk őket a megfelelő kapcsolatokat létrehozva az eredeti kapcsolatok alapján.
+            Item clonedItem = clone.Items[index];
+            Item originalItem = original.Items[index];
+
+            for (int j = 0; j < originalItem.Parts.Count; j++)
+            {
+                var originalPart = originalItem.Parts[j];
+                var clonedPart = clonedItem.Parts[j];
+
+                for (int k = 0; k < originalPart.ConnectionPoints.Length; k++)
+                {
+                    var cp = originalPart.ConnectionPoints[k];
+                    if (cp.Used)
+                    {
+                        // Megkeressük az eredeti kapcsolódó partot, majd a connection point indexet.
+                        Part usedPart = cp.ConnectedPoint.SelfPart;
+                        int itemIndex = original.Items.IndexOf(original.Items.Find(item => item.IsAdvancedItem && item.Parts.Contains(usedPart)));
+                        int partIndex = original.Items[itemIndex].Parts.IndexOf(usedPart);
+                        int cpIndex = Array.IndexOf(original.Items[itemIndex].Parts[partIndex].ConnectionPoints, cp.ConnectedPoint);
+
+                        // Újracsatlakoztatjuk a klónban a connection pointokat.
+                        clonedPart.ConnectionPoints[k].Connect(clone.Items[itemIndex].Parts[partIndex].ConnectionPoints[cpIndex]);
+                    }
+                }
+            }
+
+            foreach (var item in clonedItem.Parts)
+            {
+                foreach (var cp in item.ConnectionPoints)
+                {
+                    Debug.LogWarning($"{clonedItem.ItemName}    {item.item_s_Part.ItemName}        {cp.CPData.PointName}");
+                }
+            }
+        }
         public static void Placer(Item item, float originalRotation)
         {
             Action[] actions = item.AvaiablePlacerMetodes.ToArray();
@@ -1430,7 +1537,7 @@ namespace ItemHandler
         #region Positioning
         public static void NonLive_Positioning(int Y, int X, int sectorIndex, Item item, Item Parent)
         {
-            item.sectorId = sectorIndex;
+            item.SectorId = sectorIndex;
             if (Parent.IsEquipmentRoot)
             {
                 item.Coordinates = new[] { Parent.Container.NonLive_Sectors[sectorIndex][Y, X].Coordinate };//ez alapjan azonositunk egy itemslotot
@@ -1468,7 +1575,7 @@ namespace ItemHandler
             {
                 coordiantes.Add(activeSlots[i].GetComponent<ItemSlot>().Coordinate);
             }
-            item.sectorId = activeSlots.First().sectorId;
+            item.SectorId = activeSlots.First().sectorId;
             item.Coordinates = coordiantes.ToArray();
         }
 
@@ -2004,7 +2111,7 @@ namespace ItemHandler
         {
             foreach (ItemSlot[,] sector in PlacingInto.Container.Live_Sector)
             {
-                if (item.sectorId == sector[0,0].sectorId)
+                if (item.SectorId == sector[0,0].sectorId)
                 {
                     foreach (ItemSlot slot in sector)
                     {
@@ -2030,7 +2137,7 @@ namespace ItemHandler
         {
             foreach (ItemSlotData[,] sector in AddTo.Container.NonLive_Sectors)
             {
-                if (item.sectorId == sector[0, 0].SectorID)
+                if (item.SectorId == sector[0, 0].SectorID)
                 {
                     foreach (ItemSlotData slot in sector)
                     {

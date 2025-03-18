@@ -1,6 +1,7 @@
 using MainData;
 using System;
 using System.Collections;
+using System.IO;
 using System.Threading.Tasks;
 using UnityEngine;
 using UnityEngine.SceneManagement;
@@ -79,7 +80,7 @@ public class MainLoadingScreen : MonoBehaviour
     }
     IEnumerator LoadData()
     {
-        Main.AdvancedItemHandler.AdvancedItemHanderDataLoad();
+        Main.AdvancedItemHandler.AdvancedItemDatas.AdvancedItemHanderDataLoad();
         UIFunctions.LogIn();
         yield return null;
     }

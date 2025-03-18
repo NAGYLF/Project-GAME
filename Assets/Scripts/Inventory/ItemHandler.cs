@@ -38,6 +38,7 @@ using static TestModulartItems.TestModularItems;
 using static MainData.Main;
 using UnityEngine.UI;
 using Assets.Scripts.Inventory;
+using ExelFileReader;
 
 namespace ItemHandler
 {
@@ -886,14 +887,14 @@ namespace ItemHandler
 
             RectTransform rt1 = RefPoint1.GetComponent<RectTransform>();
             rt1.anchoredPosition = Vector2.zero;
-            rt1.anchorMin = CPData.AnchorMin1;
-            rt1.anchorMax = CPData.AnchorMax1;
+            rt1.anchorMin = new Vector2(CPData.AnchorMin1.X, CPData.AnchorMin1.Y);
+            rt1.anchorMax = new Vector2(CPData.AnchorMax1.X, CPData.AnchorMax1.Y);
 
 
             RectTransform rt2 = RefPoint2.GetComponent<RectTransform>();
             rt2.anchoredPosition = Vector2.zero;
-            rt2.anchorMin = CPData.AnchorMin2;
-            rt2.anchorMax = CPData.AnchorMax2;
+            rt2.anchorMin = new Vector2(CPData.AnchorMin2.X, CPData.AnchorMin2.Y);
+            rt2.anchorMax = new Vector2(CPData.AnchorMin2.X, CPData.AnchorMin2.Y);
         }
     }
     public class Part
@@ -911,7 +912,7 @@ namespace ItemHandler
         public Part(Item item)
         {
             item_s_Part = item;
-            PartData = AdvancedItemHandler.GetPartData(item.ItemName);
+            PartData = AdvancedItemHandler.AdvancedItemDatas.GetPartData(item.ItemName);
             ConnectionPoints = new ConnectionPoint[PartData.CPs.Length];
 
             for (int i = 0; i < ConnectionPoints.Length; i++)

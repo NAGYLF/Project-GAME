@@ -133,26 +133,26 @@ public class ContainerObject : MonoBehaviour
                     if (RefSlot != null)
                     {
                         IncomingItem.AvaiablePlacerMetodes.Clear();
-                        Debug.LogWarning("InteractiveItem");
+                        //Debug.LogWarning("InteractiveItem");
                         CanBePlaceble = false;
 
                         if (InventorySystem.CanMergable(InteractiveItem, IncomingItem))
                         {
-                            Debug.LogWarning($"Merge {InteractiveItem.ItemName}     {IncomingItem.ItemName}");
+                            //Debug.LogWarning($"Merge {InteractiveItem.ItemName}     {IncomingItem.ItemName}");
                             InventorySystem.Merge ActionMerge = new(InteractiveItem, IncomingItem);
                             IncomingItem.AvaiablePlacerMetodes.Add(ActionMerge.Execute_Merge);
                             CanBePlaceble = true;
                         }
                         if (InteractiveItem.PartPut_IsPossible(IncomingItem).IsPossible)
                         {
-                            Debug.LogWarning("MergeParts");
+                            //Debug.LogWarning("MergeParts");
                             InventorySystem.MergeParts ActionMergeParts = new(InteractiveItem, IncomingItem);
                             IncomingItem.AvaiablePlacerMetodes.Add(ActionMergeParts.Execute_MergeParts);
                             CanBePlaceble = true;
                         }
                         if (InventorySystem.CanSplitable(InteractiveItem, IncomingItem))
                         {
-                            Debug.LogWarning("Split");
+                            //Debug.LogWarning("Split");
                             InventorySystem.Split ActionSplit = new(IncomingItem, interactibleSlots.ToArray());
                             IncomingItem.AvaiablePlacerMetodes.Add(ActionSplit.Execute_Split);
                             CanBePlaceble = true;
@@ -161,18 +161,18 @@ public class ContainerObject : MonoBehaviour
                     //ha nincs interacti item
                     else
                     {
-                        Debug.LogWarning("No   InteractiveItem");
+                        //Debug.LogWarning("No   InteractiveItem");
                         foreach (ItemSlot slot in interactibleSlots)
                         {
                             if (!(slot.PartOfItemObject == null || slot.PartOfItemObject == IncomingItem.SelfGameobject))
                             {
-                                Debug.LogWarning("false 0");
+                                //Debug.LogWarning("false 0");
                                 CanBePlaceble = false;
                                 break;
                             }
                             if (!(slot.SlotType == "" || slot.SlotType.Contains(IncomingItem.ItemType)))
                             {
-                                Debug.LogWarning("false 1");
+                                //Debug.LogWarning("false 1");
                                 CanBePlaceble = false;
                                 break;
                             }
@@ -180,7 +180,7 @@ public class ContainerObject : MonoBehaviour
 
                         if (!(interactibleSlots.Count == IncomingItem.SizeX * IncomingItem.SizeY || interactibleSlots.First().IsEquipment))
                         {
-                            Debug.LogWarning("false 2");
+                            //Debug.LogWarning("false 2");
                             CanBePlaceble = false;
                         }
 

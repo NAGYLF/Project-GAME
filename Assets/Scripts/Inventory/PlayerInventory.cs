@@ -35,11 +35,11 @@ namespace PlayerInventoryClass
             public void SetMaxLVL_And_Sort()
             {
                 MaxLVL = Items.Select(item => item.Lvl).DefaultIfEmpty(-1).Max();
-                Items = Items.OrderBy(item => item.Lvl).ThenBy(item => item.SectorId).ThenBy(item => item.Coordinates.First()).ToList();
+                Items = Items.OrderBy(item => item.Lvl).ThenBy(item=>item.ParentItem == null ? (0,0):item.ParentItem.Coordinates.First()).ThenBy(item => item.SectorId).ThenBy(item => item.Coordinates.First()).ToList();
                 Debug.Log("-------------------PlayerInevntory Start-----------------");
                 foreach (var item in Items)
                 {
-                    Debug.Log($"{item.ItemName} {item.IsInPlayerInventory}  {item.LevelManagerRef != null}");
+                    Debug.Log($"{item.ItemName} lvl:{item.Lvl}  isInPlayerInevntory:{item.IsInPlayerInventory}  firstCoordinate:{item.Coordinates.First()}");
                 }
                 Debug.Log("-------------------PlayerInevntory End-----------------");
                 /*Items.OrderBy(item => item.Lvl).ThenBy(item => item.LowestSlotUseCoordinate + ((item.ParentItem == null ? -1 : Items.IndexOf(item.ParentItem)) * 10000)).ToList();*/
@@ -132,7 +132,7 @@ namespace PlayerInventoryClass
             List<Item> itemsOfLvl = levelManager.Items.Where(Item => Item.Lvl == lvl).ToList();
             for (int itemIndex = 0; itemIndex < itemsOfLvl.Count; itemIndex++)
             {
-                if (itemsOfLvl[itemIndex].ItemName == Data.ItemName && itemsOfLvl[itemIndex].Quantity != itemsOfLvl[itemIndex].MaxStackSize)
+                if (!ItemAdded && itemsOfLvl[itemIndex].ItemName == Data.ItemName && itemsOfLvl[itemIndex].Quantity != itemsOfLvl[itemIndex].MaxStackSize)
                 {
                     int originalCount = itemsOfLvl[itemIndex].Quantity;
                     itemsOfLvl[itemIndex].Quantity += Data.Quantity;
@@ -217,6 +217,7 @@ namespace PlayerInventoryClass
             {
                 for (int lvl = 0; lvl <= levelManager.MaxLVL && !ItemAdded; lvl++)//equipment
                 {
+                    Debug.LogWarning($"{item.ItemName}     maxlvl{levelManager.MaxLVL} / {lvl}");
                     ItemAdded = AddingByCount(lvl, item);
                 }
             }

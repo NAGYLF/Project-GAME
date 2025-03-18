@@ -44,7 +44,7 @@ namespace NaturalInventorys
                                 {
                                     //AddDataNonLive(Y,X,sectorIndex,Root,Data);
                                     Add(Data, Root);
-                                    NonLive_Positioning(Y,X,sectorIndex,Data,Root);
+                                    NonLive_Positioning(Y, X, sectorIndex, Data, Root);
                                     NonLive_Placing(Data, Root);
                                     HotKey_SetStatus_SupplementaryTransformation(Data, Root);
                                     ItemAdded = true;

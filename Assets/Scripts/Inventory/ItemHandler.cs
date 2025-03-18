@@ -1406,16 +1406,6 @@ namespace ItemHandler
         }
         public static void RemovePlayerInventory(Item item)
         {
-            Debug.LogWarning("-------------");
-            Debug.LogWarning($"{item.ItemName} remove inicialisation");
-            if (item.LevelManagerRef != null)
-            {
-                Debug.LogWarning($"Rmove van {item.ItemName}");
-            }
-            else
-            {
-                Debug.LogWarning($"Nincs benne {item.ItemName}");
-            }
             item.IsInPlayerInventory = false;
             item.LevelManagerRef.Items.Remove(item);
             item.LevelManagerRef.SetMaxLVL_And_Sort();
@@ -1511,6 +1501,10 @@ namespace ItemHandler
                 }
                 item.Coordinates = coordiantes.ToArray();
             }
+
+            item.ParentItem.Container.Items.Sort((a, b) => a.Coordinates.First().CompareTo(b.Coordinates.First()));
+
+            SetHierarhicLVL(item, item.ParentItem);
         }
         public static void Live_Positioning(Item item, ItemSlot[] activeSlots)
         {
@@ -1521,6 +1515,10 @@ namespace ItemHandler
             }
             item.SectorId = activeSlots.First().sectorId;
             item.Coordinates = coordiantes.ToArray();
+
+            item.ParentItem.Container.Items.Sort((a, b) => a.Coordinates.First().CompareTo(b.Coordinates.First()));
+
+            SetHierarhicLVL(item, item.ParentItem);
         }
 
         public static ((int X,int Y) ChangedSize, Dictionary<char,int> Directions) AdvancedItem_SizeChanger_EffectDetermination(Item AdvancedItem,List<Part> IncomingParts,bool Add)
@@ -2146,7 +2144,6 @@ namespace ItemHandler
                 RemovePlayerInventory(item);
             }
 
-            SetHierarhicLVL(item, StatusParent);
             StatusIsInPlayerInventory(item);
             #endregion
 

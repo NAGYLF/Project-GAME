@@ -296,7 +296,7 @@ public class ContainerObject : MonoBehaviour
         interactibleSlots = new HashSet<ItemSlot>();
         activeSlots = new List<GameObject>();
 
-        ActualData.ContainerObject = gameObject;
+        ActualData.Container.ContainerObject = gameObject;
 
         if (ActualData.IsEquipment)
         {

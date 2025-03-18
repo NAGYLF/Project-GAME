@@ -26,7 +26,6 @@ using Stoks;
 using Assets.Scripts;
 using System.Collections.Generic;
 using System.Linq;
-using System.Text.RegularExpressions;
 using Unity.VisualScripting;
 using UnityEngine;
 using NaturalInventorys;
@@ -39,7 +38,6 @@ using static TestModulartItems.TestModularItems;
 using static MainData.Main;
 using UnityEngine.UI;
 using Assets.Scripts.Inventory;
-using System.Collections.ObjectModel;
 
 namespace ItemHandler
 {
@@ -89,7 +87,6 @@ namespace ItemHandler
         public string ObjectPath { get; private set; }//az, hogy milyen obejctum tipust hasznal
         public Item ParentItem { get; set; }//az az item ami tárolja ezt az itemet
         public GameObject SelfGameobject { get; set; }// a parent objectum
-        public GameObject ContainerObject { get; set; }//conainer objectum
         public int Lvl { get; set; }
         public string HotKey { get; set; } = "";
 
@@ -257,7 +254,9 @@ namespace ItemHandler
 
                 Lvl = this.Lvl,
                 SectorId = this.SectorId,
-                
+
+                RotateDegree = this.RotateDegree,
+
 
 
                 //BulletType = this.BulletType,
@@ -981,6 +980,7 @@ namespace ItemHandler
         public List<Item> Items { get; set; }
         public ItemSlotData[][,] NonLive_Sectors { get; set; }
         public ItemSlot[][,] Live_Sector { get; set; }//ezek referanca pontokat atralamaznak amelyeken kersztul a tenyleges gameobjectumokat manipulalhatjuk
+        public GameObject ContainerObject { get; set; }//conainer objectum
         public Container(string prefabPath)
         {
             PrefabPath = prefabPath;
@@ -1300,6 +1300,7 @@ namespace ItemHandler
             // 1. Klónozzuk az összes itemet, és beállítjuk a LevelManager referenciát.
             foreach (Item item in original.Items)
             {
+                Debug.LogWarning($" clone add {item.ItemName}");
                 Item clonedItem = item.ShallowClone();
                 clonedItem.LevelManagerRef = clone;
 
@@ -1404,14 +1405,6 @@ namespace ItemHandler
                         // Újracsatlakoztatjuk a klónban a connection pointokat.
                         clonedPart.ConnectionPoints[k].Connect(clone.Items[itemIndex].Parts[partIndex].ConnectionPoints[cpIndex]);
                     }
-                }
-            }
-
-            foreach (var item in clonedItem.Parts)
-            {
-                foreach (var cp in item.ConnectionPoints)
-                {
-                    Debug.LogWarning($"{clonedItem.ItemName}    {item.item_s_Part.ItemName}        {cp.CPData.PointName}");
                 }
             }
         }
@@ -1522,12 +1515,24 @@ namespace ItemHandler
 
         public static void AddPlayerInventory(Item item)
         {
+            item.IsInPlayerInventory = true;
+            item.LevelManagerRef = InventoryObjectRef.GetComponent<PlayerInventory>().levelManager;//set ref
             InventoryObjectRef.GetComponent<PlayerInventory>().levelManager.Items.Add(item);
             InventoryObjectRef.GetComponent<PlayerInventory>().levelManager.SetMaxLVL_And_Sort();
-            item.LevelManagerRef = InventoryObjectRef.GetComponent<PlayerInventory>().levelManager;//set ref
         }
         public static void RemovePlayerInventory(Item item)
         {
+            Debug.LogWarning("-------------");
+            Debug.LogWarning($"{item.ItemName} remove inicialisation");
+            if (item.LevelManagerRef != null)
+            {
+                Debug.LogWarning($"Rmove van {item.ItemName}");
+            }
+            else
+            {
+                Debug.LogWarning($"Nincs benne {item.ItemName}");
+            }
+            item.IsInPlayerInventory = false;
             item.LevelManagerRef.Items.Remove(item);
             item.LevelManagerRef.SetMaxLVL_And_Sort();
             item.LevelManagerRef = null;//unset ref
@@ -2193,12 +2198,12 @@ namespace ItemHandler
 
             if (!item.IsInPlayerInventory && StatusParent.IsInPlayerInventory)
             {
-                item.IsInPlayerInventory = true;
+                Debug.LogWarning($"{item.ItemName}   add player inventory");
                 AddPlayerInventory(item);
             }
             else if (item.IsInPlayerInventory && !StatusParent.IsInPlayerInventory)
             {
-                item.IsInPlayerInventory = false;
+                Debug.LogWarning($"{item.ItemName}   remove player inventory");
                 RemovePlayerInventory(item);
             }
 
@@ -2834,11 +2839,11 @@ namespace ItemHandler
             {
                 foreach (Item item in Data.Container.Items)
                 {
-                    if (Data.IsInPlayerInventory)
+                    if (!item.IsInPlayerInventory && Data.IsInPlayerInventory)
                     {
                         AddPlayerInventory(item);
                     }
-                    else if (!Data.IsInPlayerInventory)
+                    else if (item.IsInPlayerInventory && !Data.IsInPlayerInventory)
                     {
                         RemovePlayerInventory(item);
                     }

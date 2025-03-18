@@ -41,14 +41,14 @@ namespace Assets.Scripts
         private void OnCollisionEnter2D(Collision2D collision)
         {
             ActualPartOfItemObject = collision.gameObject;
-            SlotParentItem.ContainerObject.GetComponent<ContainerObject>().activeSlots.Add(gameObject);
-            SlotParentItem.ContainerObject.GetComponent<ContainerObject>().ChangedFlag = true;
+            SlotParentItem.Container.ContainerObject.GetComponent<ContainerObject>().activeSlots.Add(gameObject);
+            SlotParentItem.Container.ContainerObject.GetComponent<ContainerObject>().ChangedFlag = true;
         }
         private void OnCollisionExit2D(Collision2D collision)
         {
-            SlotParentItem.ContainerObject.GetComponent<ContainerObject>().activeSlots.Remove(gameObject);
+            SlotParentItem.Container.ContainerObject.GetComponent<ContainerObject>().activeSlots.Remove(gameObject);
             ActualPartOfItemObject = null;
-            SlotParentItem.ContainerObject.GetComponent<ContainerObject>().ChangedFlag = true;
+            SlotParentItem.Container.ContainerObject.GetComponent<ContainerObject>().ChangedFlag = true;
         }
         private void Awake()
         {

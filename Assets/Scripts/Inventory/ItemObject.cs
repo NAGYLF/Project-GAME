@@ -153,7 +153,7 @@ public class ItemObject : MonoBehaviour, IPointerDownHandler, IPointerUpHandler,
 
     public void BuildContainer()
     {
-        if (ActualData.IsEquipment && ActualData.Container != null && ActualData.ContainerObject == null)
+        if (ActualData.IsEquipment && ActualData.Container != null && ActualData.Container.ContainerObject == null)
         {
             //--> ContainerObject.cs
             GameObject containerObject = CreatePrefab(ActualData.Container.PrefabPath);
@@ -162,10 +162,10 @@ public class ItemObject : MonoBehaviour, IPointerDownHandler, IPointerUpHandler,
     }
     public void DestroyContainer()
     {
-        if (ActualData.ContainerObject != null)
+        if (ActualData.Container != null && ActualData.Container.ContainerObject != null)
         {
             ActualData.Container.Items.ForEach(item => item.SelfGameobject.GetComponent<ItemObject>().DestroyContainer());
-            Destroy(ActualData.ContainerObject);
+            Destroy(ActualData.Container.ContainerObject);
         }
     }
 

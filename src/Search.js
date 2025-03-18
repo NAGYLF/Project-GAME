@@ -5,7 +5,7 @@ import Kep from './img/profilkep.jpg';
 import AdminKep from './img/admin.png';
 import { useNavigate } from 'react-router-dom';
 
-const Search = ({ texts, language, isAdmin }) => {
+const Search = ({ texts, language}) => {
   const [players, setPlayers] = useState([]);
   const [filteredPlayers, setFilteredPlayers] = useState([]);
   const [searchTerm, setSearchTerm] = useState('');

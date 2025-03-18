@@ -13,12 +13,12 @@ public class EmailController : ControllerBase
         try
         {
             var message = new MimeMessage();
-            message.From.Add(new MailboxAddress("Veller Árpád", "ephemeralcourage@gmail.com"));
+            message.From.Add(new MailboxAddress("Ephemeral Courage", "ephemeral.noreply@gmail.com"));
             message.To.Add(new MailboxAddress("Címzett", request.To));
             message.Subject = request.Subject;
 
-            // E-mail törzsének beállítása HTML formátumban
-            message.Body = new TextPart("html")
+            // E-mail törzsének beállítása
+            message.Body = new TextPart("plain")
             {
                 Text = request.Body
             };
@@ -26,7 +26,7 @@ public class EmailController : ControllerBase
             using (var client = new SmtpClient())
             {
                 client.Connect("smtp.gmail.com", 587, false);
-                client.Authenticate("ephemeralcourage@gmail.com", "mrkj yclq zkhr gyiq");
+                client.Authenticate("ephemeral.noreply@gmail.com", "xifz qeoo vjzq uuyg");
                 client.Send(message);
                 client.Disconnect(true);
             }

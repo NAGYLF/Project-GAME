@@ -110,20 +110,41 @@ namespace PlayerInventoryClass
         }
         private bool CanBePlace(ItemSlotData[,] slots, int Y, int X, Item item)
         {
-            if (X + item.SizeX <= slots.GetLength(1) && Y + item.SizeY <= slots.GetLength(0))
+            if (item.RotateDegree == 0 || item.RotateDegree == 180)
             {
-                for (int y = Y; y < Y + item.SizeY; y++)
+                if (X + item.SizeX <= slots.GetLength(1) && Y + item.SizeY <= slots.GetLength(0))
                 {
-                    for (int x = X; x < X + item.SizeX; x++)
+                    for (int y = Y; y < Y + item.SizeY; y++)
                     {
-                        if (slots[y, x].PartOfItemData != null)
+                        for (int x = X; x < X + item.SizeX; x++)
                         {
-                            return false;
+                            if (slots[y, x].PartOfItemData != null)
+                            {
+                                return false;
+                            }
                         }
                     }
+                    return true;
                 }
-                return true;
             }
+            else
+            {
+                if (X + item.SizeY <= slots.GetLength(1) && Y + item.SizeX <= slots.GetLength(0))
+                {
+                    for (int y = Y; y < Y + item.SizeX; y++)
+                    {
+                        for (int x = X; x < X + item.SizeY; x++)
+                        {
+                            if (slots[y, x].PartOfItemData != null)
+                            {
+                                return false;
+                            }
+                        }
+                    }
+                    return true;
+                }
+            }
+
             return false;
         }
         private bool AddingByCount(int lvl, Item Data)
@@ -186,7 +207,7 @@ namespace PlayerInventoryClass
             {
                 for (int sectorIndex = 0; sectorIndex < itemsOfLvl[itemIndex].Container.NonLive_Sectors.Length; sectorIndex++)//mivel a szector 2D array-okat tartalmaz ezert a sectorokon az az ezen 2D arrayokon iteralunk vegig
                 {
-                    if (itemsOfLvl[itemIndex].IsRoot || (itemsOfLvl[itemIndex].Container.NonLive_Sectors[sectorIndex].GetLength(1) >= Data.SizeX && itemsOfLvl[itemIndex].Container.NonLive_Sectors[sectorIndex].GetLength(0) >= Data.SizeY))
+                    if (itemsOfLvl[itemIndex].IsRoot || (itemsOfLvl[itemIndex].Container.NonLive_Sectors[sectorIndex].GetLength(1) >= Data.SizeY && itemsOfLvl[itemIndex].Container.NonLive_Sectors[sectorIndex].GetLength(0) >= Data.SizeX))
                     {
                         for (int Y = 0; Y < itemsOfLvl[itemIndex].Container.NonLive_Sectors[sectorIndex].GetLength(0); Y++)//vegig iterálunk a sorokon
                         {
@@ -217,7 +238,7 @@ namespace PlayerInventoryClass
             {
                 for (int lvl = 0; lvl <= levelManager.MaxLVL && !ItemAdded; lvl++)//equipment
                 {
-                    Debug.LogWarning($"{item.ItemName}     maxlvl{levelManager.MaxLVL} / {lvl}");
+                    //Debug.LogWarning($"{item.ItemName}     maxlvl{levelManager.MaxLVL} / {lvl}");
                     ItemAdded = AddingByCount(lvl, item);
                 }
             }
@@ -226,10 +247,13 @@ namespace PlayerInventoryClass
                 for (int lvl = -1; lvl <= levelManager.MaxLVL && !ItemAdded; lvl++)//vegig iterálunk az osszes equipmenten
                 {
                     ItemAdded = AddingByNewItem(lvl, item);
-                    if (!ItemAdded)
-                    {
-                        ItemAdded = AddingByNewItemByRotate(lvl, item);
-                    }
+                }
+            }
+            if (!ItemAdded)//uj item hozzaadasa rotate-vel
+            {
+                for (int lvl = -1; lvl <= levelManager.MaxLVL && !ItemAdded; lvl++)//vegig iterálunk az osszes equipmenten
+                {
+                    ItemAdded = AddingByNewItemByRotate(lvl, item);
                 }
             }
             if (!ItemAdded)

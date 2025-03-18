@@ -1290,123 +1290,52 @@ namespace ItemHandler
         }
 
         #region Special
-        public static LevelManager PlayerInventoryClone(LevelManager original)
+        public static void PlayerInventoryLoad(ref LevelManager LoadFrom, ref LevelManager levelManager)
         {
-            LevelManager clone = new()
+            if (levelManager.Items.Count > 0)
             {
-                Items = new List<Item>()
+                List<Item> TemporaryItemList_ = new List<Item>(levelManager.Items);
+                foreach (Item item in TemporaryItemList_)
+                {
+                    Delete(levelManager.Items.Find(i => i == item));
+                }
+
+                TemporaryItemList_.Clear();
+                levelManager.Items.Clear();
+            }
+
+            levelManager = PlayerInventoryClone(LoadFrom);
+        }
+        public static void PlayerInventoryDefault(ref LevelManager levelManager)
+        {
+            List<Item> TemporaryItemList = new List<Item>(levelManager.Items);
+            foreach (Item item in TemporaryItemList)
+            {
+                Delete(levelManager.Items.Find(i => i == item));
+            }
+
+            TemporaryItemList.Clear();
+            levelManager.Items.Clear();
+
+            Item RootData = new()
+            {
+                ItemName = "Root",
+                Lvl = -1,
+                SectorId = 0,
+                Coordinates = new (int, int)[] { (0, 0) },
+                IsRoot = true,
+                IsEquipmentRoot = true,
+                IsInPlayerInventory = true,
+                Container = new Container("GameElements/PlayerInventory"),
+                LevelManagerRef = levelManager,
             };
 
-            // 1. Klónozzuk az összes itemet, és beállítjuk a LevelManager referenciát.
-            foreach (Item item in original.Items)
-            {
-                Debug.LogWarning($" clone add {item.ItemName}");
-                Item clonedItem = item.ShallowClone();
-                clonedItem.LevelManagerRef = clone;
-
-                // Ha fejlett (advanced) itemről van szó, klónozzuk a részeit (Part-eket).
-                if (clonedItem.IsAdvancedItem)
-                {
-                    CloneParts(item, clonedItem);
-                }
-
-                clone.Items.Add(clonedItem);
-            }
-
-            // 2. Beállítjuk a kapcsolódó referenciákat az itemek között.
-            // Feltételezzük, hogy az első item (index 0) a root item, ezért az i=1-től indulunk.
-            for (int i = 1; i < clone.Items.Count; i++)
-            {
-                SetupParentReference(original, clone, i);
-                SetupContainerReferences(original, clone, i);
-                SetupHotKeyReference(original, clone, i);
-
-                if (original.Items[i].IsAdvancedItem)
-                {
-                    Debug.LogWarning($"{clone.Items[i].ItemName} - ");
-                    SetupConnectionPoints(original, clone, i);
-                }
-            }
-
-            return clone;
+            levelManager.Items.Add(RootData);
+            levelManager.SetMaxLVL_And_Sort();
         }
-
-        private static void CloneParts(Item originalItem, Item clonedItem)
+        public static void PlayerInventorySave(ref LevelManager SaveTo,ref LevelManager levelManager)
         {
-            clonedItem.Parts = new List<Part>();
-            foreach (var partRef in originalItem.Parts)
-            {
-                // Klónozzuk a part-hoz tartozó itemet, majd létrehozunk egy új Part példányt.
-                Item clonedPartItem = partRef.item_s_Part.ShallowClone();
-                clonedItem.Parts.Add(new Part(clonedPartItem));
-                clonedItem.Parts.Last().HierarhicPlace = partRef.HierarhicPlace;
-            }
-        }
-
-        private static void SetupParentReference(LevelManager original, LevelManager clone, int index)
-        {
-            // Megkeressük az eredeti item parentjának indexét, majd a klónban beállítjuk a referenciát.
-            Item originalItem = original.Items[index];
-            int parentIndex = original.Items.IndexOf(originalItem.ParentItem);
-            clone.Items[index].ParentItem = clone.Items[parentIndex];
-        }
-
-        private static void SetupContainerReferences(LevelManager original, LevelManager clone, int index)
-        {
-            // Beállítjuk a container listát és a grid referenciákat.
-            Item clonedItem = clone.Items[index];
-            Item parent = clonedItem.ParentItem;
-
-            // Hozzáadjuk a klón itemet a parent container listájához, majd tároljuk a referenciát.
-            parent.Container.Items.Add(clonedItem);
-            clonedItem.ContainerItemListRef = parent.Container.Items;
-
-            // A koordináták alapján frissítjük a container grid-et.
-            foreach ((int h, int w) coord in clonedItem.Coordinates)
-            {
-                // A parent container NonLive_Sectors tömbében beállítjuk, hogy az adott cella tartalmazza a klón itemet.
-                parent.Container.NonLive_Sectors[clonedItem.SectorId][coord.h, coord.w].PartOfItemData = clonedItem;
-                clonedItem.ItemSlotsDataRef.Add(parent.Container.NonLive_Sectors[clonedItem.SectorId][coord.h, coord.w]);
-            }
-        }
-
-        private static void SetupHotKeyReference(LevelManager original, LevelManager clone, int index)
-        {
-            // Ha az eredeti itemnek volt hotKey referenciája, azt átmásoljuk.
-            if (original.Items[index].hotKeyRef != null)
-            {
-                clone.Items[index].hotKeyRef = original.Items[index].hotKeyRef;
-            }
-        }
-
-        private static void SetupConnectionPoints(LevelManager original, LevelManager clone, int index)
-        {
-            // Fejlett itemek esetén végigiterálunk a partok connection pointjain,
-            // és újracsatlakoztatjuk őket a megfelelő kapcsolatokat létrehozva az eredeti kapcsolatok alapján.
-            Item clonedItem = clone.Items[index];
-            Item originalItem = original.Items[index];
-
-            for (int j = 0; j < originalItem.Parts.Count; j++)
-            {
-                var originalPart = originalItem.Parts[j];
-                var clonedPart = clonedItem.Parts[j];
-
-                for (int k = 0; k < originalPart.ConnectionPoints.Length; k++)
-                {
-                    var cp = originalPart.ConnectionPoints[k];
-                    if (cp.Used)
-                    {
-                        // Megkeressük az eredeti kapcsolódó partot, majd a connection point indexet.
-                        Part usedPart = cp.ConnectedPoint.SelfPart;
-                        int itemIndex = original.Items.IndexOf(original.Items.Find(item => item.IsAdvancedItem && item.Parts.Contains(usedPart)));
-                        int partIndex = original.Items[itemIndex].Parts.IndexOf(usedPart);
-                        int cpIndex = Array.IndexOf(original.Items[itemIndex].Parts[partIndex].ConnectionPoints, cp.ConnectedPoint);
-
-                        // Újracsatlakoztatjuk a klónban a connection pointokat.
-                        clonedPart.ConnectionPoints[k].Connect(clone.Items[itemIndex].Parts[partIndex].ConnectionPoints[cpIndex]);
-                    }
-                }
-            }
+            SaveTo = PlayerInventoryClone(levelManager);
         }
         public static void Placer(Item item, float originalRotation)
         {
@@ -2892,6 +2821,118 @@ namespace ItemHandler
             else
             {
                 return (half, half + 1);
+            }
+        }
+
+        private static LevelManager PlayerInventoryClone(LevelManager original)
+        {
+            LevelManager clone = new()
+            {
+                Items = new List<Item>()
+            };
+
+            // 1. Klónozzuk az összes itemet, és beállítjuk a LevelManager referenciát.
+            foreach (Item item in original.Items)
+            {
+                Item clonedItem = item.ShallowClone();
+                clonedItem.LevelManagerRef = clone;
+
+                // Ha fejlett (advanced) itemről van szó, klónozzuk a részeit (Part-eket).
+                if (clonedItem.IsAdvancedItem)
+                {
+                    CloneParts(item, clonedItem);
+                }
+
+                clone.Items.Add(clonedItem);
+            }
+
+            // 2. Beállítjuk a kapcsolódó referenciákat az itemek között.
+            // Feltételezzük, hogy az első item (index 0) a root item, ezért az i=1-től indulunk.
+            for (int i = 1; i < clone.Items.Count; i++)
+            {
+                SetupParentReference(original, clone, i);
+                SetupContainerReferences(original, clone, i);
+                SetupHotKeyReference(original, clone, i);
+
+                if (original.Items[i].IsAdvancedItem)
+                {
+                    SetupConnectionPoints(original, clone, i);
+                }
+            }
+
+            return clone;
+        }
+        private static void CloneParts(Item originalItem, Item clonedItem)
+        {
+            clonedItem.Parts = new List<Part>();
+            foreach (var partRef in originalItem.Parts)
+            {
+                // Klónozzuk a part-hoz tartozó itemet, majd létrehozunk egy új Part példányt.
+                Item clonedPartItem = partRef.item_s_Part.ShallowClone();
+                clonedItem.Parts.Add(new Part(clonedPartItem));
+                clonedItem.Parts.Last().HierarhicPlace = partRef.HierarhicPlace;
+            }
+        }
+        private static void SetupParentReference(LevelManager original, LevelManager clone, int index)
+        {
+            // Megkeressük az eredeti item parentjának indexét, majd a klónban beállítjuk a referenciát.
+            Item originalItem = original.Items[index];
+            int parentIndex = original.Items.IndexOf(originalItem.ParentItem);
+            clone.Items[index].ParentItem = clone.Items[parentIndex];
+        }
+        private static void SetupContainerReferences(LevelManager original, LevelManager clone, int index)
+        {
+            // Beállítjuk a container listát és a grid referenciákat.
+            Item clonedItem = clone.Items[index];
+            Item parent = clonedItem.ParentItem;
+
+            // Hozzáadjuk a klón itemet a parent container listájához, majd tároljuk a referenciát.
+            parent.Container.Items.Add(clonedItem);
+            clonedItem.ContainerItemListRef = parent.Container.Items;
+
+            // A koordináták alapján frissítjük a container grid-et.
+            foreach ((int h, int w) coord in clonedItem.Coordinates)
+            {
+                // A parent container NonLive_Sectors tömbében beállítjuk, hogy az adott cella tartalmazza a klón itemet.
+                parent.Container.NonLive_Sectors[clonedItem.SectorId][coord.h, coord.w].PartOfItemData = clonedItem;
+                clonedItem.ItemSlotsDataRef.Add(parent.Container.NonLive_Sectors[clonedItem.SectorId][coord.h, coord.w]);
+            }
+        }
+        private static void SetupHotKeyReference(LevelManager original, LevelManager clone, int index)
+        {
+            // Ha az eredeti itemnek volt hotKey referenciája, azt átmásoljuk.
+            if (original.Items[index].hotKeyRef != null)
+            {
+                clone.Items[index].hotKeyRef = original.Items[index].hotKeyRef;
+            }
+        }
+        private static void SetupConnectionPoints(LevelManager original, LevelManager clone, int index)
+        {
+            // Fejlett itemek esetén végigiterálunk a partok connection pointjain,
+            // és újracsatlakoztatjuk őket a megfelelő kapcsolatokat létrehozva az eredeti kapcsolatok alapján.
+            Item clonedItem = clone.Items[index];
+            Item originalItem = original.Items[index];
+
+            for (int j = 0; j < originalItem.Parts.Count; j++)
+            {
+                var originalPart = originalItem.Parts[j];
+                var clonedPart = clonedItem.Parts[j];
+
+                for (int k = 0; k < originalPart.ConnectionPoints.Length; k++)
+                {
+                    var cp = originalPart.ConnectionPoints[k];
+                    if (cp.Used)
+                    {
+                        // Megkeressük az eredeti kapcsolódó partot, majd a connection point indexet.
+                        Part usedPart = cp.ConnectedPoint.SelfPart;
+                        int itemIndex = original.Items.IndexOf(original.Items.Find(item => item.IsAdvancedItem && item.Parts.Contains(usedPart)));
+                        int partIndex = original.Items[itemIndex].Parts.IndexOf(usedPart);
+                        int cpIndex = Array.IndexOf(original.Items[itemIndex].Parts[partIndex].ConnectionPoints, cp.ConnectedPoint);
+
+                        // Újracsatlakoztatjuk a klónban a connection pointokat.
+                        clonedPart.ConnectionPoints[k].Connect(clone.Items[itemIndex].Parts[partIndex].ConnectionPoints[cpIndex]);
+                    }
+                }
             }
         }
         #endregion

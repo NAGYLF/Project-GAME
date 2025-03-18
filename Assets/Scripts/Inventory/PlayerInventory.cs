@@ -36,12 +36,12 @@ namespace PlayerInventoryClass
             {
                 MaxLVL = Items.Select(item => item.Lvl).DefaultIfEmpty(-1).Max();
                 Items = Items.OrderBy(item => item.Lvl).ThenBy(item => item.SectorId).ThenBy(item => item.Coordinates.First()).ToList();
-                Debug.LogWarning("-------------------PlayerInevntory Start-----------------");
+                Debug.Log("-------------------PlayerInevntory Start-----------------");
                 foreach (var item in Items)
                 {
-                    Debug.LogWarning($"{item.ItemName} {item.IsInPlayerInventory}  {item.LevelManagerRef != null}");
+                    Debug.Log($"{item.ItemName} {item.IsInPlayerInventory}  {item.LevelManagerRef != null}");
                 }
-                Debug.LogWarning("-------------------PlayerInevntory End-----------------");
+                Debug.Log("-------------------PlayerInevntory End-----------------");
                 /*Items.OrderBy(item => item.Lvl).ThenBy(item => item.LowestSlotUseCoordinate + ((item.ParentItem == null ? -1 : Items.IndexOf(item.ParentItem)) * 10000)).ToList();*/
             }
             public LevelManager()

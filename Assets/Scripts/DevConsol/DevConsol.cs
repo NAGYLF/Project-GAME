@@ -168,39 +168,15 @@ public class DevConsol : MonoBehaviour
                 break;
             case "Save":
                 Debug.Log($"{text.GetComponent<TMP_InputField>().text}");
-
-                Save = InventorySystem.PlayerInventoryClone(inventory.GetComponent<PlayerInventory>().levelManager);
+                InventorySystem.PlayerInventorySave(ref Save,ref inventory.GetComponent<PlayerInventory>().levelManager);
                 break;
             case "Clear":
                 Debug.Log($"{text.GetComponent<TMP_InputField>().text}");
-
-                List<Item> TemporaryItemList = new List<Item>(inventory.GetComponent<PlayerInventory>().levelManager.Items);
-                foreach (Item item in TemporaryItemList)
-                {
-                    InventorySystem.Delete(inventory.GetComponent<PlayerInventory>().levelManager.Items.Find(i=>i == item));
-                }
-                inventory.GetComponent<ContainerObject>().ActualData = null;
-                TemporaryItemList.Clear();
-                inventory.GetComponent<PlayerInventory>().levelManager.Items.Clear();
-
-                inventory.GetComponent<PlayerInventory>().CreateEmptyInvenotry();
+                InventorySystem.PlayerInventoryDefault(ref inventory.GetComponent<PlayerInventory>().levelManager);
                 break;
             case "Load":
                 Debug.Log($"{text.GetComponent<TMP_InputField>().text}");
-
-                if (inventory.GetComponent<PlayerInventory>().levelManager.Items.Count>0)
-                {
-                    List<Item> TemporaryItemList_ = new List<Item>(inventory.GetComponent<PlayerInventory>().levelManager.Items);
-                    foreach (Item item in TemporaryItemList_)
-                    {
-                        InventorySystem.Delete(inventory.GetComponent<PlayerInventory>().levelManager.Items.Find(i => i == item));
-                    }
-                    inventory.GetComponent<ContainerObject>().ActualData = null;
-                    TemporaryItemList_.Clear();
-                    inventory.GetComponent<PlayerInventory>().levelManager.Items.Clear();
-                }
-
-                inventory.GetComponent<PlayerInventory>().levelManager = InventorySystem.PlayerInventoryClone(Save);
+                InventorySystem.PlayerInventoryLoad(ref Save, ref inventory.GetComponent<PlayerInventory>().levelManager);
                 break;
             case var _ when Command[0] == Main.name:
                 switch (Command[1])

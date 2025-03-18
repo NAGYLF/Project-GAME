@@ -1099,6 +1099,7 @@ namespace ItemHandler
     }
     public static class InventorySystem
     {
+        #region Placer Metodes
         public class Merge
         {
             public Item Stand { get; private set; }
@@ -1288,55 +1289,9 @@ namespace ItemHandler
                 }
             }
         }
+        #endregion
 
         #region Special
-        public static void PlayerInventoryLoad(ref LevelManager LoadFrom, ref LevelManager levelManager)
-        {
-            if (levelManager.Items.Count > 0)
-            {
-                List<Item> TemporaryItemList_ = new List<Item>(levelManager.Items);
-                foreach (Item item in TemporaryItemList_)
-                {
-                    Delete(levelManager.Items.Find(i => i == item));
-                }
-
-                TemporaryItemList_.Clear();
-                levelManager.Items.Clear();
-            }
-
-            levelManager = PlayerInventoryClone(LoadFrom);
-        }
-        public static void PlayerInventoryDefault(ref LevelManager levelManager)
-        {
-            List<Item> TemporaryItemList = new List<Item>(levelManager.Items);
-            foreach (Item item in TemporaryItemList)
-            {
-                Delete(levelManager.Items.Find(i => i == item));
-            }
-
-            TemporaryItemList.Clear();
-            levelManager.Items.Clear();
-
-            Item RootData = new()
-            {
-                ItemName = "Root",
-                Lvl = -1,
-                SectorId = 0,
-                Coordinates = new (int, int)[] { (0, 0) },
-                IsRoot = true,
-                IsEquipmentRoot = true,
-                IsInPlayerInventory = true,
-                Container = new Container("GameElements/PlayerInventory"),
-                LevelManagerRef = levelManager,
-            };
-
-            levelManager.Items.Add(RootData);
-            levelManager.SetMaxLVL_And_Sort();
-        }
-        public static void PlayerInventorySave(ref LevelManager SaveTo,ref LevelManager levelManager)
-        {
-            SaveTo = PlayerInventoryClone(levelManager);
-        }
         public static void Placer(Item item, float originalRotation)
         {
             Action[] actions = item.AvaiablePlacerMetodes.ToArray();
@@ -1465,6 +1420,61 @@ namespace ItemHandler
             item.LevelManagerRef.Items.Remove(item);
             item.LevelManagerRef.SetMaxLVL_And_Sort();
             item.LevelManagerRef = null;//unset ref
+        }
+        public static void PlayerInventoryLoad(ref LevelManager LoadFrom, ref LevelManager levelManager)
+        {
+            if (levelManager.Items.Count > 0)
+            {
+                List<Item> TemporaryItemList_ = new List<Item>(levelManager.Items);
+                foreach (Item item in TemporaryItemList_)
+                {
+                    Delete(levelManager.Items.Find(i => i == item));
+                }
+
+                TemporaryItemList_.Clear();
+                levelManager.Items.Clear();
+            }
+
+            levelManager = PlayerInventoryClone(LoadFrom);
+
+            foreach (Item item in levelManager.Items)
+            {
+                if (item.hotKeyRef != null)
+                {
+                    item.hotKeyRef.SetHotKey(item);
+                }
+            }
+        }
+        public static void PlayerInventoryDefault(ref LevelManager levelManager)
+        {
+            List<Item> TemporaryItemList = new List<Item>(levelManager.Items);
+            foreach (Item item in TemporaryItemList)
+            {
+                Delete(levelManager.Items.Find(i => i == item));
+            }
+
+            TemporaryItemList.Clear();
+            levelManager.Items.Clear();
+
+            Item RootData = new()
+            {
+                ItemName = "Root",
+                Lvl = -1,
+                SectorId = 0,
+                Coordinates = new (int, int)[] { (0, 0) },
+                IsRoot = true,
+                IsEquipmentRoot = true,
+                IsInPlayerInventory = true,
+                Container = new Container("GameElements/PlayerInventory"),
+                LevelManagerRef = levelManager,
+            };
+
+            levelManager.Items.Add(RootData);
+            levelManager.SetMaxLVL_And_Sort();
+        }
+        public static void PlayerInventorySave(ref LevelManager SaveTo, ref LevelManager levelManager)
+        {
+            SaveTo = PlayerInventoryClone(levelManager);
         }
         #endregion
 

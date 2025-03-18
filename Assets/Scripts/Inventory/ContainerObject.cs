@@ -41,6 +41,8 @@ public class ContainerObject : MonoBehaviour
     [HideInInspector] public bool ChangedFlag = false;
 
     private Camera mainCam;
+
+    private Item IncomingItem = null;
     #endregion
 
     #region Active Slot Handler
@@ -52,7 +54,6 @@ public class ContainerObject : MonoBehaviour
 
             if (activeSlots.Count > 0)
             {
-                Item IncomingItem;
                 CanBePlaceble = true;
 
                 if (activeSlots.First().GetComponent<ItemSlot>().ActualPartOfItemObject.GetComponent<ItemObject>())
@@ -97,9 +98,7 @@ public class ContainerObject : MonoBehaviour
                        .SelectMany(objectArrays => objectArrays)
                        .Select(slot => slot.GetComponent<ItemSlot>())
                        .ToArray()
-                    );
-
-
+                );
 
                 foreach (ItemSlot slot_ in interactibleSlots)
                 {
@@ -108,7 +107,6 @@ public class ContainerObject : MonoBehaviour
 
                 interactibleSlots.Clear();
 
-                if (IncomingItem.AvaiablePlacerMetodes == null) IncomingItem.AvaiablePlacerMetodes = new List<Action>();
                 IncomingItem.AvaiablePlacerMetodes.Clear();
 
                 IncomingItem.AvaiableParentItem = ActualData;
@@ -121,16 +119,14 @@ public class ContainerObject : MonoBehaviour
                     }
                 }
 
-
-
                 if (SlotsBySectors.Count == 1)
                 {
-                    ItemSlot RefSlot = interactibleSlots.FirstOrDefault(slot => slot.MouseOver && slot.PartOfItemObject != null && slot.PartOfItemObject != IncomingItem.SelfGameobject);
+                    ItemSlot PrioritySlot = interactibleSlots.FirstOrDefault(slot => slot.MouseOver && slot.PartOfItemObject != null && slot.PartOfItemObject != IncomingItem.SelfGameobject);
 
-                    Item InteractiveItem = RefSlot?.PartOfItemObject.GetComponent<ItemObject>().ActualData;
+                    Item InteractiveItem = PrioritySlot?.PartOfItemObject.GetComponent<ItemObject>().ActualData;
 
                     //ha van interactive item
-                    if (RefSlot != null)
+                    if (PrioritySlot != null)
                     {
                         IncomingItem.AvaiablePlacerMetodes.Clear();
                         //Debug.LogWarning("InteractiveItem");
@@ -188,7 +184,7 @@ public class ContainerObject : MonoBehaviour
 
                         if (CanBePlaceble)
                         {
-                            if (InventorySystem.CanSplitable(InteractiveItem, IncomingItem))
+                            if (InventorySystem.CanSplitable(InteractiveItem, IncomingItem) && interactibleSlots.FirstOrDefault(slot=>slot.PartOfItemObject != null) == null)
                             {
                                 InventorySystem.Split ActionSplit = new(IncomingItem, interactibleSlots.ToArray());
                                 IncomingItem.AvaiablePlacerMetodes.Add(ActionSplit.Execute_Split);
@@ -225,16 +221,23 @@ public class ContainerObject : MonoBehaviour
                     }
                 }
             }
-        }
-        else if (activeSlots.Count == 0)
-        {
-            HashSet<ItemSlot> interactibleSlots_ = new(interactibleSlots);
-            foreach (ItemSlot slot_ in interactibleSlots_)
+            else
             {
-                slot_.Deactivation();
-                interactibleSlots.Remove(slot_);
+                HashSet<ItemSlot> interactibleSlots_ = new(interactibleSlots);
+                foreach (ItemSlot slot_ in interactibleSlots_)
+                {
+                    slot_.Deactivation();
+                    interactibleSlots.Remove(slot_);
+                }
+
+                interactibleSlots_.Clear();
+
+                if (IncomingItem != null)
+                {
+                    IncomingItem.AvaiablePlacerMetodes.Clear();
+                    IncomingItem.AvaiableParentItem = null;
+                }
             }
-            interactibleSlots_.Clear();
         }
         yield return null;
     }

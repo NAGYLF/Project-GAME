@@ -1359,11 +1359,11 @@ namespace ItemHandler
         }
         public static bool CanSplitable(Item Stand, Item Incoming)
         {
-            if (Incoming.MaxStackSize > 1 && Stand == null)
+            if (Incoming.Quantity > 1 && Stand == null)
             {
                 return true;
             }
-            else if (Incoming.MaxStackSize > 1 && CanMergable(Stand, Incoming))
+            else if (Stand != Incoming && Incoming.Quantity > 1 && CanMergable(Stand, Incoming))
             {
                 return true;
             }
@@ -1371,7 +1371,7 @@ namespace ItemHandler
         }
         public static bool CanMergable(Item Stand, Item Incoming)
         {
-            if (Stand.MaxStackSize > 1 && Stand.ItemName == Incoming.ItemName)
+            if (Stand != Incoming && Stand.MaxStackSize > 1 && Stand.ItemName == Incoming.ItemName)
             {
                 return true;
             }

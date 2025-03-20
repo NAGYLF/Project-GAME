@@ -139,11 +139,12 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   IsEquipment: 0
-  ParentObject: {fileID: 0}
   SlotType: 
+  sectorId: 0
   PartOfItemObject: {fileID: 0}
   ActualPartOfItemObject: {fileID: 0}
-  CountAddAvaiable: 0
+  MouseOver: 0
+  color: {r: 0, g: 0, b: 0, a: 0}
   Title: {fileID: 5610719262578486467}
   Background: {fileID: 1055879366121141245}
 --- !u!61 &6076041890645590708

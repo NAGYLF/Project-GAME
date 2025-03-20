@@ -56,6 +56,15 @@ namespace Assets.Scripts
             {
                 Title.GetComponent<TextMeshPro>().text = SlotType;
             }
+            else
+            {
+                BoxCollider2D boxCollider = GetComponent<BoxCollider2D>();
+                RectTransform rectTransform = GetComponent<RectTransform>();
+
+                Vector2 size = rectTransform.rect.size;
+                size.Scale(new Vector2(MainData.Main.EquipmentSlotColliderScale, MainData.Main.EquipmentSlotColliderScale));
+                boxCollider.size = size;
+            }
             color = Background.color;
         }
     }

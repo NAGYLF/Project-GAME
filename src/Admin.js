@@ -122,17 +122,7 @@ const Admin = ({ texts, language, code, secondsLeft, id }) => {
                   </label>
                 </div>
               </form>
-            </div>
-            <div className="modal-footer">
-              <button
-                type="button"
-                className="btn btn-danger"
-                data-bs-dismiss="modal"
-                onClick={() => navigate("/")}
-              >
-                {language === "hu" ? "Bezárás" : "Close"}
-              </button>
-            </div>
+            </div>    
           </div>
         </div>
       </div>

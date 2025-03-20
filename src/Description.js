@@ -18,10 +18,7 @@ function Description(props) {
       <div className="box">
         <h1>{props.language === "hu" ? "Leírás" : "Description"}</h1>
         <hr/>
-        <p>Lorem ipsum dolor sit amet, consectetur adipiscing elit. Vivamus lacinia est eget ante
-            euismod, id sollicitudin leo malesuada. Integer convallis malesuada leo, ac auctor
-            lacus interdum et. Cras vestibulum, sapien at consequat tristique, risus metus
-            tincidunt orci, eu posuere ligula ligula non turpis. Etiam vitae efficitur libero.</p>
+        <p>{props.language === "hu" ? `Az Ephemeral Courage világában tisztában kell lenned a taktikázás képességeivel, felkészültnek kell lenned ellenfeleid elleni tűzharcokkal szemben. Játékunk jelenleg pre-alpha verzióban van, de napról napra dolgozunk fejleszésén, hogy játékosaink a lehető legjobb élménynek legyenek részesei.` : `In the world of Ephemeral Courage, you must be aware of the skills required for tactics and be prepared for firefights against your enemies. Our game is currently in pre-alpha, but we are working on its development every day to ensure that our players experience the best possible gameplay.`}</p>
       </div>
     </div>
   );

@@ -4,13 +4,14 @@ import Video from './video/video.mp4';
 import Logo from './img/logo.png';
 import Kep from './img/profilkep.jpg';
 import AdminKep from './img/admin.png';
-import File from './files/jeladas.txt';
+import { useLocation } from 'react-router-dom';
 import './Nav.css';
 
 function Nav({ language, setLanguage, texts, isLoggedIn, isAdmin, logout }) {
   const handleLanguageChange = (e) => {
     setLanguage(e.target.value);
   };
+  const location = useLocation();
 
   return (
     <div>
@@ -39,13 +40,13 @@ function Nav({ language, setLanguage, texts, isLoggedIn, isAdmin, logout }) {
 
           <div className="collapse navbar-collapse justify-content-center" id="navbarNavAltMarkup">
             <div className="navbar-nav">
-              <Link to="/description" className="nav-item nav-link active">
+              <Link to="/description" className="nav-item nav-link active" id={ location.pathname === "/description" ? "current" : null }>
                 {texts[language].description}
               </Link>
-              <Link to="/about" className="nav-item nav-link active">
+              <Link to="/about" className="nav-item nav-link active" id={ location.pathname === "/about" ? "current" : null }>
                 {texts[language].about}
               </Link>
-              <Link to="/search" className="nav-item nav-link active">
+              <Link to="/search" className="nav-item nav-link active" id={ location.pathname === "/search" ? "current" : null }>
                 {texts[language].search}
               </Link>
               <select
@@ -60,7 +61,7 @@ function Nav({ language, setLanguage, texts, isLoggedIn, isAdmin, logout }) {
               </select>
             </div>
             {isLoggedIn ?
-            <a id='download' href={File} download style={{
+            <a id='download' href="https://drive.google.com/file/d/1Bb0RqMSQm7dDXpHNBP1v6C8h2OqInu9t/view" target='_blank' style={{
               backgroundColor: "rgb(10,10,10)",
               borderRadius: "5px",
               color:"azure",

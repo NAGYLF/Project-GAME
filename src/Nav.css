@@ -170,6 +170,11 @@ img, a{
   font-size: 14px;
 }
 
+#current{
+  background-color: rgb(255, 255, 255);
+  color: black;
+}
+
 #download{
   background-color: rgb(10,10,10);
   border-radius: 5px;

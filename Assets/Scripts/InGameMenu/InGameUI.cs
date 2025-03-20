@@ -421,9 +421,7 @@ namespace UI
                         }
                         break;
                     case KeyCode.F1:
-                        Debug.LogWarning(Main.playerData.admin != null);
-                        Debug.LogWarning(Main.playerData.admin.devConsole);
-                        if (Main.playerData.admin != null && Main.playerData.admin.devConsole)
+                        if (Main.playerData.Admin != null && Main.playerData.Admin.DevConsole)
                         {
                             DevConsolOpenClose.Action();
                         }

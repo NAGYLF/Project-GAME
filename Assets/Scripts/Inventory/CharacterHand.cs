@@ -6,13 +6,15 @@ using Unity.VisualScripting;
 public class CharacterHand : MonoBehaviour
 {
     public Item SelectedItem;
+    public InGameItemObject SelectedItemObject;
+
+    private bool Flipped = false;
     // Update is called once per frame
     void Update()
     {
-        //RotateObject();
-        //FlipObject();
+        RotateObject();
+        FlipObject();
     }
-
     private void RotateObject()
     {
         // Az egér pozíciója a képernyõ koordinátái
@@ -32,22 +34,27 @@ public class CharacterHand : MonoBehaviour
     }
     private void FlipObject()
     {
-        var spriteRenderer = gameObject.GetComponent<SpriteRenderer>();
-
-        // Ellenõrizzük az aktuális rotációt
         float angle = transform.rotation.eulerAngles.z;
 
         if (angle > 90 && angle < 270)
         {
-            spriteRenderer.flipY = true; // Flippeljük az Y tengely mentén
-            int sortingLayer = InGameUI.Player.GetComponent<SpriteRenderer>().sortingOrder;
-            spriteRenderer.sortingOrder = --sortingLayer;
+            if (Flipped)
+            {
+                Vector3 scale = transform.localScale;
+                scale.y = -Mathf.Abs(scale.y);
+                transform.localScale = scale;
+                Flipped = false;
+            }
         }
         else
         {
-            spriteRenderer.flipY = false; // Eredeti állapot
-            int sortingLayer = InGameUI.Player.GetComponent<SpriteRenderer>().sortingOrder;
-            spriteRenderer.sortingOrder = ++sortingLayer;
+            if (!Flipped)
+            {
+                Vector3 scale = transform.localScale;
+                scale.y = Mathf.Abs(scale.y);
+                transform.localScale = scale;
+                Flipped = true;
+            }
         }
     }
     public void SetItem(Item item)
@@ -60,7 +67,13 @@ public class CharacterHand : MonoBehaviour
             {
                 SelectedItem.hotKeyRef.IsInPlayerHand = true;
             }
-            Debug.LogWarning($"{item.ItemName} setted to player hand");
+            SelectedItemObject.SetDataRoute(item);
+            SelectedItemObject.Inicialisation();
+
+            Vector3 scale = transform.localScale;
+            scale.x = -Mathf.Abs(scale.x);
+            transform.localScale = scale;
+            //Debug.LogWarning($"{item.ItemName} setted to player hand");
         }
         else
         {
@@ -77,6 +90,8 @@ public class CharacterHand : MonoBehaviour
                 SelectedItem.hotKeyRef.IsInPlayerHand = false;
             }
             SelectedItem = null;
+            SelectedItemObject.SetDataRoute(null);
+            SelectedItemObject.Inicialisation();
         }
     }
 }

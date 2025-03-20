@@ -480,9 +480,13 @@ namespace UI
                         {
                             CharacterHand characterHand = Player.GetComponent<Player>().Hand.GetComponent<CharacterHand>();
 
-                            characterHand.UnsetItem();
-                            if (HotKey1.Item != null)
+                            if (characterHand.SelectedItem == HotKey1.Item)
                             {
+                                characterHand.UnsetItem();
+                            }
+                            else if (HotKey1.Item != null)
+                            {
+                                characterHand.UnsetItem();
                                 characterHand.SetItem(HotKey1.Item);
                             }
                         }
@@ -492,9 +496,13 @@ namespace UI
                         {
                             CharacterHand characterHand = Player.GetComponent<Player>().Hand.GetComponent<CharacterHand>();
 
-                            characterHand.UnsetItem();
-                            if (HotKey2.Item != null)
+                            if (characterHand.SelectedItem == HotKey2.Item)
                             {
+                                characterHand.UnsetItem();
+                            }
+                            else if (HotKey2.Item != null)
+                            {
+                                characterHand.UnsetItem();
                                 characterHand.SetItem(HotKey2.Item);
                             }
                         }
@@ -504,9 +512,13 @@ namespace UI
                         {
                             CharacterHand characterHand = Player.GetComponent<Player>().Hand.GetComponent<CharacterHand>();
 
-                            characterHand.UnsetItem();
-                            if (HotKey3.Item != null)
+                            if (characterHand.SelectedItem == HotKey3.Item)
                             {
+                                characterHand.UnsetItem();
+                            }
+                            else if (HotKey3.Item != null)
+                            {
+                                characterHand.UnsetItem();
                                 characterHand.SetItem(HotKey3.Item);
                             }
                         }
@@ -516,9 +528,13 @@ namespace UI
                         {
                             CharacterHand characterHand = Player.GetComponent<Player>().Hand.GetComponent<CharacterHand>();
 
-                            characterHand.UnsetItem();
-                            if (HotKey4.Item != null)
+                            if (characterHand.SelectedItem == HotKey4.Item)
                             {
+                                characterHand.UnsetItem();
+                            }
+                            else if (HotKey4.Item != null)
+                            {
+                                characterHand.UnsetItem();
                                 characterHand.SetItem(HotKey4.Item);
                             }
                         }
@@ -528,9 +544,13 @@ namespace UI
                         {
                             CharacterHand characterHand = Player.GetComponent<Player>().Hand.GetComponent<CharacterHand>();
 
-                            characterHand.UnsetItem();
-                            if (HotKey5.Item != null)
+                            if (characterHand.SelectedItem == HotKey5.Item)
                             {
+                                characterHand.UnsetItem();
+                            }
+                            else if (HotKey5.Item != null)
+                            {
+                                characterHand.UnsetItem();
                                 characterHand.SetItem(HotKey5.Item);
                             }
                         }
@@ -544,9 +564,13 @@ namespace UI
                         {
                             CharacterHand characterHand = Player.GetComponent<Player>().Hand.GetComponent<CharacterHand>();
 
-                            characterHand.UnsetItem();
-                            if (HotKey6.Item != null)
+                            if (characterHand.SelectedItem == HotKey6.Item)
                             {
+                                characterHand.UnsetItem();
+                            }
+                            else if (HotKey6.Item != null)
+                            {
+                                characterHand.UnsetItem();
                                 characterHand.SetItem(HotKey6.Item);
                             }
                         }
@@ -560,9 +584,13 @@ namespace UI
                         {
                             CharacterHand characterHand = Player.GetComponent<Player>().Hand.GetComponent<CharacterHand>();
 
-                            characterHand.UnsetItem();
-                            if (HotKey7.Item != null)
+                            if (characterHand.SelectedItem == HotKey7.Item)
                             {
+                                characterHand.UnsetItem();
+                            }
+                            else if (HotKey7.Item != null)
+                            {
+                                characterHand.UnsetItem();
                                 characterHand.SetItem(HotKey7.Item);
                             }
                         }
@@ -576,9 +604,13 @@ namespace UI
                         {
                             CharacterHand characterHand = Player.GetComponent<Player>().Hand.GetComponent<CharacterHand>();
 
-                            characterHand.UnsetItem();
-                            if (HotKey8.Item != null)
+                            if (characterHand.SelectedItem == HotKey8.Item)
                             {
+                                characterHand.UnsetItem();
+                            }
+                            else if (HotKey8.Item != null)
+                            {
+                                characterHand.UnsetItem();
                                 characterHand.SetItem(HotKey8.Item);
                             }
                         }
@@ -592,9 +624,13 @@ namespace UI
                         {
                             CharacterHand characterHand = Player.GetComponent<Player>().Hand.GetComponent<CharacterHand>();
 
-                            characterHand.UnsetItem();
-                            if (HotKey9.Item != null)
+                            if (characterHand.SelectedItem == HotKey9.Item)
                             {
+                                characterHand.UnsetItem();
+                            }
+                            else if (HotKey9.Item != null)
+                            {
+                                characterHand.UnsetItem();
                                 characterHand.SetItem(HotKey9.Item);
                             }
                         }

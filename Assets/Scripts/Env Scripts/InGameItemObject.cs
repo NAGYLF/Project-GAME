@@ -7,16 +7,28 @@ using System.Linq;
 
 public class InGameItemObject : MonoBehaviour
 {
-    public GameObject ItemCompound;
+    public ItemImgFitter ItemCompound;
     public Item ActualData { get; private set; }
 
     public void Inicialisation()//manualisan és automatikusan is vegrehajtodik, elofodulaht hogy za obejctuma meg nem letezik és az is hogy letezik
     {
-        gameObject.name = ActualData.ItemName;
+        if (ActualData != null)
+        {
+            gameObject.name = ActualData.ItemName;
 
-        ActualData.InGameSelfObject = gameObject;
+            ActualData.InGameSelfObject = gameObject;
 
-        SelfVisualisation();//itt nem allitunk be referenciat
+            SelfVisualisation();//itt nem allitunk be referenciat
+        }
+        else
+        {
+            gameObject.name = "Hands";
+
+            for (int i = ItemCompound.fitter.transform.childCount - 1; i >= 0; i--)
+            {
+                Destroy(ItemCompound.fitter.transform.GetChild(i).gameObject);
+            }
+        }
     }
     public void SetDataRoute(Item Data)
     {
@@ -24,16 +36,6 @@ public class InGameItemObject : MonoBehaviour
     }
     public void SelfVisualisation()//az adatok alapjan vizualizalja az itemet
     {
-        #region Positioning and Scaling
-
-
-        RectTransform itemObjectRectTransform = gameObject.GetComponent<RectTransform>();
-
-
-        itemObjectRectTransform.sizeDelta = new Vector2(ActualData.SizeX * Main.DefaultItemSlotSize, ActualData.SizeY * Main.DefaultItemSlotSize);
-
-
-        #endregion
         ItemCompoundRefresh();
     }
 
@@ -42,32 +44,40 @@ public class InGameItemObject : MonoBehaviour
         RectTransform itemObjectRectTransform = gameObject.GetComponent<RectTransform>();
 
         #region Image Setting
-        if (!ActualData.IsAdvancedItem)
+        if (!ActualData.IsAdvancedItem)//only advanced item
         {
-            Sprite sprite = Resources.Load<Sprite>(gameObject.GetComponent<ItemObject>().ActualData.ImgPath);//az itemobjektum megkapja képét
+            //for (int i = ItemCompound.fitter.transform.childCount - 1; i >= 0; i--)
+            //{
+            //    Destroy(ItemCompound.fitter.transform.GetChild(i).gameObject);
+            //}
 
-            //!!! ez a játék fejlesztes soran valtozhat ezert odafigyelst igenyel
-            GameObject ImgObject = ItemCompound.transform.GetChild(0).gameObject;
-            ImgObject.GetComponent<Image>().sprite = sprite;
-            ImgObject.GetComponent<RectTransform>().sizeDelta = new Vector2(sprite.rect.width, sprite.rect.height);
+            //ItemCompound.ResetFitter();
 
-            float Scale = Mathf.Min(ItemCompound.GetComponent<RectTransform>().rect.height / ImgObject.GetComponent<RectTransform>().sizeDelta.y, ItemCompound.GetComponent<RectTransform>().rect.width / ImgObject.GetComponent<RectTransform>().sizeDelta.x);
-            ImgObject.GetComponent<RectTransform>().sizeDelta = new Vector2(ImgObject.GetComponent<RectTransform>().sizeDelta.x * Scale, ImgObject.GetComponent<RectTransform>().sizeDelta.y * Scale);
+            //Sprite sprite = Resources.Load<Sprite>(ActualData.ImgPath);//az itemobjektum megkapja képét
+            //GameObject ImgObject = new GameObject(ActualData.ItemName);
+            //ImgObject.transform.SetParent(ItemCompound.fitter.transform);
+
+            //ImgObject.AddComponent<Image>().sprite = sprite;
+            //ImgObject.transform.localRotation = Quaternion.Euler(0, 0, 0);
+
+            //ItemCompound.Fitting();
+            //float Scale = Mathf.Min(ItemCompound.GetComponent<RectTransform>().rect.height / ImgObject.GetComponent<RectTransform>().sizeDelta.y, ItemCompound.GetComponent<RectTransform>().rect.width / ImgObject.GetComponent<RectTransform>().sizeDelta.x);
+            //ImgObject.GetComponent<RectTransform>().sizeDelta = new Vector2(ImgObject.GetComponent<RectTransform>().sizeDelta.x * Scale, ImgObject.GetComponent<RectTransform>().sizeDelta.y * Scale);
         }
         else
         {
-            for (int i = ItemCompound.GetComponent<ItemImgFitter>().fitter.transform.childCount - 1; i >= 0; i--)
+            for (int i = ItemCompound.fitter.transform.childCount - 1; i >= 0; i--)
             {
-                Transform child = ItemCompound.GetComponent<ItemImgFitter>().fitter.transform.GetChild(i);
+                Transform child = ItemCompound.fitter.transform.GetChild(i);
                 child.SetParent(null);
                 Object.Destroy(child.gameObject);
             }
 
-            ItemCompound.GetComponent<ItemImgFitter>().ResetFitter();
+            ItemCompound.ResetFitter();
 
             foreach (Part part in ActualData.Parts)
             {
-                part.SetLive(ActualData.SelfGameobject.GetComponent<ItemObject>().ItemCompound.GetComponent<ItemImgFitter>().fitter.gameObject);
+                part.SetLive(ItemCompound.fitter.gameObject);
                 foreach (ConnectionPoint cp in part.ConnectionPoints)
                 {
                     cp.SetLive();

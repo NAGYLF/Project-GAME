@@ -15,6 +15,8 @@ namespace WeaponBodys
                 SizeX = 2,//az item slotokban elfoglalt szelessege
                 SizeY = 1,//az item slotokban elfoglalt magassaga
 
+                MagasineSize = 1,
+
                 Spread = 1,//a spread minusz értéke és plusz erteke közötti random generált szögben indul ki a lövedék, az az ha ez 0 akkor minden lövedék pontos, ezt a recoil befolyasolja
                 Fpm = 800,//lovés percenként
                 Recoil = 1,//egy szorzó mely minden lövéssel önmagát szorozza, továbbá értéke mindig szorzatban áll a spreaddal.

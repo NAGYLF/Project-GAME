@@ -39,14 +39,10 @@ using static MainData.Main;
 using UnityEngine.UI;
 using Assets.Scripts.Inventory;
 using ExelFileReader;
+using System.Collections;
 
 namespace ItemHandler
 {
-    public struct MainItemPart
-    {
-        public string Type;//Az item composition typusa
-        public string Name;//Az item composition neve
-    }
     public class ItemSlotData
     {
         public int SectorID;
@@ -367,13 +363,21 @@ namespace ItemHandler
             
             if (Parts.Count > 1)
             {
-                ItemName = FirstItem.ItemName + "...";
-                Description = "AdvancedItem: More Item in one Complexer item";
+                MainItem mainItem = Parts.Select(part => AdvancedItemHandler.AdvancedItemDatas.GetMainItemData(part.item_s_Part.ItemName)).FirstOrDefault(mi => !string.IsNullOrEmpty(mi.MainItemName));
+                if (Parts.All(part=> mainItem.NecessaryItemNames.Contains(part.item_s_Part.ItemName)))
+                {
+                    ItemName = mainItem.MainItemName;
+                    Description = mainItem.MainItemName;//nem jo
+                }
+                else
+                {
+                    ItemName = $"Incompleted {mainItem.MainItemName}";
+                }
 
-                Value = 0;
                 SizeX = FirstItem.SizeX;
                 SizeY = FirstItem.SizeY;
                 Container = FirstItem.Container;
+                Value = 0;
                 Spread = 0;
                 Fpm = 0;
                 Recoil = 0;
@@ -427,10 +431,6 @@ namespace ItemHandler
                     {
                         IsUsable = item.IsUsable;
                     }
-                    if (item.MagasineSize != 0)//csak 1 lehet
-                    {
-                        MagasineSize = item.MagasineSize;
-                    }
                     if (item.BulletType != null)//csak 1 lehet
                     {
                         BulletType = item.BulletType;
@@ -462,6 +462,10 @@ namespace ItemHandler
                     if (item.Ergonomy != 0)
                     {
                         Ergonomy += item.Ergonomy;
+                    }
+                    if (item.MagasineSize != 0)
+                    {
+                        MagasineSize += item.MagasineSize;
                     }
                     //hasznalhato e?
                     if (UseLeft != 0)

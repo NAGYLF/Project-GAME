@@ -19,11 +19,8 @@ public class MainLoadingScreen : MonoBehaviour
 
     IEnumerator LoadDataAndScene()
     {
-        // Aktiváljuk a betöltõ képernyõt
         loadingScreen.SetActive(true);
 
-        //// Várunk 1 másodpercet a kezdés elõtt
-        //yield return new WaitForSeconds(1f);
 
         // Progress bar animáció (2 másodperc alatt 0-ról 100%-ra)
         yield return StartCoroutine(FillProgressBar(50));
@@ -31,29 +28,18 @@ public class MainLoadingScreen : MonoBehaviour
         yield return StartCoroutine(FillProgressBar(100));
 
 
-
-
-        //// Várunk 1 másodpercet a betöltés után
-        //yield return new WaitForSeconds(1f);
-
-
-        // Aszinkron jelenet betöltése
         AsyncOperation operation = SceneManager.LoadSceneAsync("Main Menu");
         operation.allowSceneActivation = false;
 
         while (!operation.isDone)
         {
-            // Ha a betöltés kész, aktiváljuk a jelenetet
+            progressBar.value = Mathf.Clamp01(operation.progress / 0.9f); // Skálázás 0-100%-ig
             if (operation.progress >= 0.9f)
             {
-                operation.allowSceneActivation = true;
+                operation.allowSceneActivation = true; // Most aktiváljuk a jelenetet
             }
-
             yield return null;
         }
-
-        // Kikapcsoljuk a betöltõ képernyõt
-        loadingScreen.SetActive(false);
     }
     IEnumerator FillProgressBar(int targetPercentage)
     {
@@ -81,7 +67,15 @@ public class MainLoadingScreen : MonoBehaviour
     IEnumerator LoadData()
     {
         Main.AdvancedItemHandler.AdvancedItemDatas.AdvancedItemHanderDataLoad();
-        UIFunctions.LogIn();
+
+        Task<bool> loginTask = UIFunctions.LogIn();
+
+        // Várjuk, amíg a login befejezõdik
+        while (!loginTask.IsCompleted)
+        {
+            yield return null; // Egy frame-et várunk
+        }
+
         yield return null;
     }
 }

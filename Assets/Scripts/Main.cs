@@ -76,7 +76,7 @@ namespace MainData
                 if (webRequest.result == UnityWebRequest.Result.ConnectionError ||
                     webRequest.result == UnityWebRequest.Result.ProtocolError)
                 {
-                    Debug.LogError(webRequest.error);
+                    Debug.LogWarning(webRequest.error);
                     return null;
                 }
                 else
@@ -113,7 +113,7 @@ namespace MainData
     {
         public static void ProfileBTStyle()
         {
-            string[] namesParts = Main.name.Split(' ');
+            string[] namesParts = Main.playerData.name.Split(' ');
             string monogram = "";
             foreach (string item in namesParts)
             {
@@ -145,15 +145,11 @@ namespace MainData
                 sw.WriteLine(playerData.password);
                 sw.Close();
 
-                Main.id = playerData.id;
-                Main.name = playerData.name;
-                Main.email = playerData.email;
-                Main.password = playerData.password;
+                Main.playerData = playerData;
 
                 Debug.Log($"server connection is avaiable for: {playerData.id} - {playerData.name} - {playerData.password} - {playerData.email}  user");
                 Debug.Log("Login succesful");
                 ProfileBTStyle();
-                Main.logged = true;
             }
         }
         //AutoLogin
@@ -177,14 +173,10 @@ namespace MainData
                 }
                 else
                 {
-                    Main.id = playerData.id;
-                    Main.name = playerData.name;
-                    Main.email = playerData.email;
-                    Main.password = playerData.password;
+                    Main.playerData = playerData;
 
                     Debug.Log($"server connection is avaiable for: {playerData.id} - {playerData.name} - {playerData.password} - {playerData.email}  user");
                     Debug.Log("Login succesful");
-                    Main.logged = true;
 
                     return true;
                 }
@@ -223,11 +215,7 @@ namespace MainData
 
         }
 
-        public static bool logged = false;
-        public static int id = -1;
-        public static string name;
-        public static string email;
-        public static string password;
+        public static PlayerData playerData;
 
         public class AdvancedItemHandler
         {

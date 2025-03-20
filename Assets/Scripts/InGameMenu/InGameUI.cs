@@ -421,7 +421,12 @@ namespace UI
                         }
                         break;
                     case KeyCode.F1:
-                        DevConsolOpenClose.Action();
+                        Debug.LogWarning(Main.playerData.admin != null);
+                        Debug.LogWarning(Main.playerData.admin.devConsole);
+                        if (Main.playerData.admin != null && Main.playerData.admin.devConsole)
+                        {
+                            DevConsolOpenClose.Action();
+                        }
                         break;
                     case KeyCode.Tab:
                         if (PlayerInventory.GetComponent<PlayerInventory>().EquipmentsPanelObject.GetComponent<PanelMain>().EqipmentsPanel.activeInHierarchy)

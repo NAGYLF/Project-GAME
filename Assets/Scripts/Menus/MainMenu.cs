@@ -25,7 +25,10 @@ public class MainMenu : MonoBehaviour
         secondMenu = GameObject.Find("SecondMenu");
         secondMenu.SetActive(false);
         //a player adatait a MainLoadScreenben betoltottuk. Itt a profil objectumon beallitjuk a profil kezdobetujet ami a TestPlayernel: T
-        UIFunctions.ProfileBTStyle();
+        if (Main.playerData != null)
+        {
+            UIFunctions.ProfileBTStyle();
+        }
     }
     //az elhomályosodás eljarasa
     private IEnumerator StartFadeOutScreen(VideoPlayer videoPlayer,GameObject fadeOutScreen)
@@ -65,7 +68,7 @@ public class MainMenu : MonoBehaviour
     //uj jatek kezdete
     public void NewGameBt()
     {
-        if (Main.logged)
+        if (Main.playerData != null)
         {
             VideoPlayer videoPlayer = GameObject.FindWithTag("VideoPlayerMainMenu").GetComponent<VideoPlayer>();
             GameObject fadeOutScreen = GameObject.Find("FadeOutScreen");
@@ -83,7 +86,7 @@ public class MainMenu : MonoBehaviour
         }
         else
         {
-            Debug.LogError("The New game wasn't started because the user hadn't logined");
+            //Debug.LogError("The New game wasn't started because the user hadn't logined");
             secondMenu.SetActive(true);
         }
     }

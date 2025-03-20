@@ -358,20 +358,23 @@ namespace ItemHandler
         public void AdvancedItemContsruct()
         {
             Item FirstItem = Parts.First().item_s_Part;
-
-            ItemType = "AdvancedItem";//ez alapján kerülhet be egy slotba ugyan is vannak pecifikus slotok melyeknek typusváltozójában benen kell, hogy legyen.
             
             if (Parts.Count > 1)
             {
                 MainItem mainItem = Parts.Select(part => AdvancedItemHandler.AdvancedItemDatas.GetMainItemData(part.item_s_Part.ItemName)).FirstOrDefault(mi => !string.IsNullOrEmpty(mi.MainItemName));
-                if (Parts.All(part=> mainItem.NecessaryItemNames.Contains(part.item_s_Part.ItemName)))
+                if (mainItem.MainItemName != null && mainItem.NecessaryItemTypes.All(Type => Parts.Exists(part=>part.item_s_Part.ItemType == Type)))
                 {
+                    Debug.LogWarning("MainItem");
                     ItemName = mainItem.MainItemName;
-                    Description = mainItem.MainItemName;//nem jo
+                    Description = mainItem.Desctription;
+                    ItemType = mainItem.Type;
                 }
-                else
+                else if(mainItem.MainItemName != null)
                 {
+                    Debug.LogWarning("incompleted MainItem");
                     ItemName = $"Incompleted {mainItem.MainItemName}";
+                    Description = mainItem.Desctription;
+                    ItemType = mainItem.Type;
                 }
 
                 SizeX = FirstItem.SizeX;
@@ -499,6 +502,10 @@ namespace ItemHandler
                 AmmoType = FirstItem.AmmoType;
                 //hasznalhato e?
                 UseLeft = FirstItem.UseLeft;
+
+                Description = FirstItem.Description;
+
+                ItemType = FirstItem.ItemType;
             }
             Quantity = 1;
             MaxStackSize = 1;

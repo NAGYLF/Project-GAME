@@ -22,7 +22,7 @@ public class DevConsol : MonoBehaviour
             case "add":
                 switch (Command[1])
                 {
-                    case var _ when Command[1] == Main.name:
+                    case var _ when Command[1] == Main.playerData.name:
                         switch (Command[2])
                         {
                             case "item":
@@ -148,7 +148,7 @@ public class DevConsol : MonoBehaviour
             case "remove":
                 switch (Command[1])
                 {
-                    case var _ when Command[1] == Main.name:
+                    case var _ when Command[1] == Main.playerData.name:
                         switch (Command[2])
                         {
                             case "item":
@@ -178,7 +178,7 @@ public class DevConsol : MonoBehaviour
                 Debug.Log($"{text.GetComponent<TMP_InputField>().text}");
                 InventorySystem.PlayerInventoryLoad(ref Save, ref inventory.GetComponent<PlayerInventory>().levelManager);
                 break;
-            case var _ when Command[0] == Main.name:
+            case var _ when Command[0] == Main.playerData.name:
                 switch (Command[1])
                 {
                     case "Healt":

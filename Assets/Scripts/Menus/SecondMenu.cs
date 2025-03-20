@@ -19,7 +19,7 @@ public class SecondMenu : MonoBehaviour
 
         MainData.UIFunctions.LogIn(name, email, password);
 
-        if (MainData.Main.logged)
+        if (MainData.Main.playerData != null)
         {
             GameObject.Find("SecondMenu").SetActive(false);
         }

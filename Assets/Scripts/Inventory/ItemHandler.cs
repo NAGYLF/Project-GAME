@@ -66,12 +66,16 @@ namespace ItemHandler
         //system variables
 
         #region SelfRefVariables
+
         public ModificationWindow ModificationWindowRef;
         public LevelManager LevelManagerRef;
         public List<ItemSlotData> ItemSlotsDataRef = new List<ItemSlotData>();
         public List<Item> ContainerItemListRef = new List<Item>();
         public HotKey hotKeyRef;
         public List<ItemSlot> ItemSlotObjectsRef = new List<ItemSlot>();
+        public CharacterHand PlayerHandRef;
+        public GameObject SelfGameobject { get; set; }
+        public GameObject InGameSelfObject { get; set; }
         #endregion
 
         #region PlacerVariables
@@ -83,7 +87,6 @@ namespace ItemHandler
         public string ImgPath { get; set; }
         public string ObjectPath { get; private set; }//az, hogy milyen obejctum tipust hasznal
         public Item ParentItem { get; set; }//az az item ami tárolja ezt az itemet
-        public GameObject SelfGameobject { get; set; }// a parent objectum
         public int Lvl { get; set; }
         public string HotKey { get; set; } = "";
 

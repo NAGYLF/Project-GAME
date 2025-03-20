@@ -7,6 +7,7 @@ using UnityEngine.UI;
 using ItemHandler;
 using TMPro;
 using Newtonsoft.Json.Linq;
+using static System.Collections.Specialized.BitVector32;
 
 namespace UI
 {
@@ -16,7 +17,7 @@ namespace UI
 
         public int Key;
 
-        public bool IsInPlayerHand = false;//ha a player kezeben van not working
+        public bool IsInPlayerHand = false;
 
         public HotKey(int key)
         {
@@ -46,9 +47,7 @@ namespace UI
                 Item.hotKeyRef = null;
                 if (IsInPlayerHand)
                 {
-                    InGameUI.Player.GetComponent<Player>().Hand.GetComponent<CharacterHand>().SelectedItem = null;
-                    Item selectedItem = InGameUI.Player.GetComponent<Player>().Hand.GetComponent<CharacterHand>().SelectedItem;
-                    GameObject playerObject = InGameUI.Player;
+                    InGameUI.Player.GetComponent<Player>().Hand.GetComponent<CharacterHand>().UnsetItem();
                 }
                 if (Item.SelfGameobject)
                 {
@@ -65,9 +64,7 @@ namespace UI
                 SetIn.hotKeyRef = this;
                 if (IsInPlayerHand)
                 {
-                    InGameUI.Player.GetComponent<Player>().Hand.GetComponent<CharacterHand>().SelectedItem = SetIn;
-                    Item selectedItem = InGameUI.Player.GetComponent<Player>().Hand.GetComponent<CharacterHand>().SelectedItem;
-                    GameObject playerObject = InGameUI.Player;
+                    InGameUI.Player.GetComponent<Player>().Hand.GetComponent<CharacterHand>().SetItem(SetIn);
                 }
                 if (SetIn.SelfGameobject)
                 {
@@ -481,33 +478,63 @@ namespace UI
                     case KeyCode.Alpha1:
                         if (HUD.activeInHierarchy)
                         {
-                            Player.GetComponent<Player>().Hand.GetComponent<CharacterHand>().SelectedItem = HotKey1.Item;
+                            CharacterHand characterHand = Player.GetComponent<Player>().Hand.GetComponent<CharacterHand>();
+
+                            characterHand.UnsetItem();
+                            if (HotKey1.Item != null)
+                            {
+                                characterHand.SetItem(HotKey1.Item);
+                            }
                         }
                         break;
                     case KeyCode.Alpha2:
                         if (HUD.activeInHierarchy)
                         {
-                            Player.GetComponent<Player>().Hand.GetComponent<CharacterHand>().SelectedItem = HotKey2.Item;
+                            CharacterHand characterHand = Player.GetComponent<Player>().Hand.GetComponent<CharacterHand>();
+
+                            characterHand.UnsetItem();
+                            if (HotKey2.Item != null)
+                            {
+                                characterHand.SetItem(HotKey2.Item);
+                            }
                         }
                         break;
                     case KeyCode.Alpha3:
                         if (HUD.activeInHierarchy)
                         {
-                            Player.GetComponent<Player>().Hand.GetComponent<CharacterHand>().SelectedItem = HotKey3.Item;
+                            CharacterHand characterHand = Player.GetComponent<Player>().Hand.GetComponent<CharacterHand>();
+
+                            characterHand.UnsetItem();
+                            if (HotKey3.Item != null)
+                            {
+                                characterHand.SetItem(HotKey3.Item);
+                            }
                         }
                         break;
                     case KeyCode.Alpha4:
                         if (HUD.activeInHierarchy)
                         {
-                            Player.GetComponent<Player>().Hand.GetComponent<CharacterHand>().SelectedItem = HotKey4.Item;
+                            CharacterHand characterHand = Player.GetComponent<Player>().Hand.GetComponent<CharacterHand>();
+
+                            characterHand.UnsetItem();
+                            if (HotKey4.Item != null)
+                            {
+                                characterHand.SetItem(HotKey4.Item);
+                            }
                         }
                         break;
                     case KeyCode.Alpha5:
                         if (HUD.activeInHierarchy)
                         {
-                            Player.GetComponent<Player>().Hand.GetComponent<CharacterHand>().SelectedItem = HotKey5.Item;
+                            CharacterHand characterHand = Player.GetComponent<Player>().Hand.GetComponent<CharacterHand>();
+
+                            characterHand.UnsetItem();
+                            if (HotKey5.Item != null)
+                            {
+                                characterHand.SetItem(HotKey5.Item);
+                            }
                         }
-                        if (SetHotKeyWithMouse)
+                        if (SetHotKeyWithMouse && SetGameObjectToHotKey != null)//ha az objectumot ativaltuk de aztan megsemmistettuk akkor ezt nem allitjuk vissza false-ra
                         {
                             HotKey5.SetWithUI(SetGameObjectToHotKey.GetComponent<ItemObject>().ActualData);
                         }
@@ -515,9 +542,15 @@ namespace UI
                     case KeyCode.Alpha6:
                         if (HUD.activeInHierarchy)
                         {
-                            Player.GetComponent<Player>().Hand.GetComponent<CharacterHand>().SelectedItem = HotKey6.Item;
+                            CharacterHand characterHand = Player.GetComponent<Player>().Hand.GetComponent<CharacterHand>();
+
+                            characterHand.UnsetItem();
+                            if (HotKey6.Item != null)
+                            {
+                                characterHand.SetItem(HotKey6.Item);
+                            }
                         }
-                        if (SetHotKeyWithMouse)
+                        if (SetHotKeyWithMouse && SetGameObjectToHotKey != null)
                         {
                             HotKey6.SetWithUI(SetGameObjectToHotKey.GetComponent<ItemObject>().ActualData);
                         }
@@ -525,9 +558,15 @@ namespace UI
                     case KeyCode.Alpha7:
                         if (HUD.activeInHierarchy)
                         {
-                            Player.GetComponent<Player>().Hand.GetComponent<CharacterHand>().SelectedItem = HotKey7.Item;
+                            CharacterHand characterHand = Player.GetComponent<Player>().Hand.GetComponent<CharacterHand>();
+
+                            characterHand.UnsetItem();
+                            if (HotKey7.Item != null)
+                            {
+                                characterHand.SetItem(HotKey7.Item);
+                            }
                         }
-                        if (SetHotKeyWithMouse)
+                        if (SetHotKeyWithMouse && SetGameObjectToHotKey != null)
                         {
                             HotKey7.SetWithUI(SetGameObjectToHotKey.GetComponent<ItemObject>().ActualData);
                         }
@@ -535,9 +574,15 @@ namespace UI
                     case KeyCode.Alpha8:
                         if (HUD.activeInHierarchy)
                         {
-                            Player.GetComponent<Player>().Hand.GetComponent<CharacterHand>().SelectedItem = HotKey8.Item;
+                            CharacterHand characterHand = Player.GetComponent<Player>().Hand.GetComponent<CharacterHand>();
+
+                            characterHand.UnsetItem();
+                            if (HotKey8.Item != null)
+                            {
+                                characterHand.SetItem(HotKey8.Item);
+                            }
                         }
-                        if (SetHotKeyWithMouse)
+                        if (SetHotKeyWithMouse && SetGameObjectToHotKey != null)
                         {
                             HotKey8.SetWithUI(SetGameObjectToHotKey.GetComponent<ItemObject>().ActualData);
                         }
@@ -545,9 +590,15 @@ namespace UI
                     case KeyCode.Alpha9:
                         if (HUD.activeInHierarchy)
                         {
-                            Player.GetComponent<Player>().Hand.GetComponent<CharacterHand>().SelectedItem = HotKey9.Item;
+                            CharacterHand characterHand = Player.GetComponent<Player>().Hand.GetComponent<CharacterHand>();
+
+                            characterHand.UnsetItem();
+                            if (HotKey9.Item != null)
+                            {
+                                characterHand.SetItem(HotKey9.Item);
+                            }
                         }
-                        if (SetHotKeyWithMouse)
+                        if (SetHotKeyWithMouse && SetGameObjectToHotKey != null)
                         {
                             HotKey9.SetWithUI(SetGameObjectToHotKey.GetComponent<ItemObject>().ActualData);
                         }
@@ -708,17 +759,17 @@ namespace UI
             //itt csak anyi a feladata, hogy ha a fegyver (ami a CharacterHand c# scriptet tartalmazza) flip ertekeit lekerje és amerre a fegyver nez arra nezzen a karaker.
             SpriteRenderer spriteRenderer = Player.GetComponent<SpriteRenderer>();
 
-            Transform child = Player.transform.GetChild(0);
-            SpriteRenderer spriteRendererChild = child.GetComponent<SpriteRenderer>();
+            //Transform child = Player.transform.GetChild(0);
+            //SpriteRenderer spriteRendererChild = child.GetComponent<SpriteRenderer>();
 
-            if (spriteRendererChild.flipY)
-            {
-                spriteRenderer.flipX = true;
-            }
-            else if (!spriteRendererChild.flipY)
-            {
-                spriteRenderer.flipX = false;
-            }
+            //if (spriteRendererChild.flipY)
+            //{
+            //    spriteRenderer.flipX = true;
+            //}
+            //else if (!spriteRendererChild.flipY)
+            //{
+            //    spriteRenderer.flipX = false;
+            //}
         }
         private void PlayerMovement(float moveHorizontal, float moveVertical)
         {

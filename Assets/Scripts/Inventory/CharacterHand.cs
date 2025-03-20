@@ -1,15 +1,16 @@
 using UnityEngine;
 using ItemHandler;
 using UI;
+using Unity.VisualScripting;
 
 public class CharacterHand : MonoBehaviour
 {
-    [HideInInspector] public Item SelectedItem;
+    public Item SelectedItem;
     // Update is called once per frame
     void Update()
     {
-        RotateObject();
-        FlipObject();
+        //RotateObject();
+        //FlipObject();
     }
 
     private void RotateObject()
@@ -49,5 +50,33 @@ public class CharacterHand : MonoBehaviour
             spriteRenderer.sortingOrder = ++sortingLayer;
         }
     }
-
+    public void SetItem(Item item)
+    {
+        if (item != null)
+        {
+            item.PlayerHandRef = this;
+            SelectedItem = item;
+            if (SelectedItem.hotKeyRef != null)
+            {
+                SelectedItem.hotKeyRef.IsInPlayerHand = true;
+            }
+            Debug.LogWarning($"{item.ItemName} setted to player hand");
+        }
+        else
+        {
+            SelectedItem = null;
+        }
+    }
+    public void UnsetItem()
+    {
+        if (SelectedItem != null)
+        {
+            SelectedItem.PlayerHandRef = null;
+            if (SelectedItem.hotKeyRef != null)
+            {
+                SelectedItem.hotKeyRef.IsInPlayerHand = false;
+            }
+            SelectedItem = null;
+        }
+    }
 }

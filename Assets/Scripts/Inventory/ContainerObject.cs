@@ -192,6 +192,11 @@ public class ContainerObject : MonoBehaviour
                             InventorySystem.RePlace ActionRePlace = new(IncomingItem, ActualData, interactibleSlots.ToArray());
                             IncomingItem.AvaiablePlacerMetodes.Add(ActionRePlace.Execute_RePlace);
                         }
+                        //else
+                        //{
+                        //    InventorySystem.RePlace ActionRePlace = new(IncomingItem, IncomingItem.ParentItem, IncomingItem.ItemSlotObjectsRef.ToArray());
+                        //    IncomingItem.AvaiablePlacerMetodes.Add(ActionRePlace.Execute_RePlace);
+                        //}
                     }
 
                     if (CanBePlaceble)

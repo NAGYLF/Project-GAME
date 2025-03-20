@@ -189,7 +189,7 @@ namespace MainData
         public static float DefaultHeight = 0f;//az InGameUI allija be
         public static float DefaultWidth = 0f;//az InGameUI allija be
         public const float DefaultItemSlotSize = 10f;
-        public const float SectorScale = 1.1f;//ez az inventorySlotok scale-je ez befolyásolja egy item meretet is
+        public const float SectorScale = 1.3f;//ez az inventorySlotok scale-je ez befolyásolja egy item meretet is
         public static void Save()
         {
 
@@ -214,7 +214,7 @@ namespace MainData
                 return (texture.height, texture.width);
             };
 
-            public static ExelFileReader.ExelFileReader AdvancedItemDatas = new ExelFileReader.ExelFileReader(PartPath,CPPath,AdvancedItemDataFilePath,ImgSizeGetter);
+            public static ExelFileReader.ExelFileReader AdvancedItemDatas = new ExelFileReader.ExelFileReader(AdvancedItemDataFilePath,ImgSizeGetter);
         }
     }
     #endregion

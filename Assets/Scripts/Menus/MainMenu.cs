@@ -24,7 +24,7 @@ public class MainMenu : MonoBehaviour
         //ez a bejelentkezesi kis felugro menu ami alapbol inactiv
         secondMenu = GameObject.Find("SecondMenu");
         secondMenu.SetActive(false);
-        //a player adatait a MainLoadScreenben betoltottuk. Itt a profil objectumon beallitjuk a profil kezdobetujet ami a TestPlayernel: T
+        //a player adatait a MainLoadScreenben betoltottuk. Itt a profil objectumon beallitjuk a profil kezdobetujet ami a Adminnel: T
         if (Main.playerData != null)
         {
             UIFunctions.ProfileBTStyle();

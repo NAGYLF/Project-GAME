@@ -4,72 +4,72 @@
 #----------------Add Items--------------------#
 
 
-add TestPlayer item AK103
+add Admin item AK103
 
 
-add TestPlayer item Glock_17_9x19_pistol_PS9
+add Admin item Glock_17_9x19_pistol_PS9
 
 
-add TestPlayer item TestBackpack
+add Admin item TestBackpack
 
 
-add TestPlayer item _6B43_6A_Zabralo_Sh_body_armor
+add Admin item _6B43_6A_Zabralo_Sh_body_armor
 
 
-add TestPlayer item TestVest
+add Admin item TestVest
 
 
-add TestPlayer item Galvion_Caiman_Hybrid_helmet_Grey
+add Admin item Galvion_Caiman_Hybrid_helmet_Grey
 
 
-add TestPlayer item TestBoots
+add Admin item TestBoots
 
 
-add TestPlayer item TestFingers
+add Admin item TestFingers
 
 
-add TestPlayer item GSSh_01_active_headset
+add Admin item GSSh_01_active_headset
 
 
-add TestPlayer item Atomic_Defense_CQCM_ballistic_mask_Black
+add Admin item Atomic_Defense_CQCM_ballistic_mask_Black
 
 
-add TestPlayer item USEC_Base_Upper
+add Admin item USEC_Base_Upper
 
 
-add TestPlayer item USEC_Base
+add Admin item USEC_Base
 
 
-add TestPlayer item APOK_Tactical_Wasteland_Gladius
+add Admin item APOK_Tactical_Wasteland_Gladius
 
 
-add TestPlayer item Dollar_1
+add Admin item Dollar_1
 
 
-add TestPlayer item AI_2
+add Admin item AI_2
 
 
-add TestPlayer item TestCenter
+add Admin item TestCenter
 
 #----------------Add ammo--------------------#
 
 
-add TestPlayer item 7.62x39FMJ 35
+add Admin item 7.62x39FMJ 35
 
-add TestPlayer item 7.62x39FMJ 85
+add Admin item 7.62x39FMJ 85
 
-add TestPlayer item 7.62x39FMJ 60
+add Admin item 7.62x39FMJ 60
 
-add TestPlayer item 7.62x39FMJ 113
+add Admin item 7.62x39FMJ 113
 
 
 
 
 #----------------Remove Items--------------------#
 
-remove TestPlayer item TestHandgun
+remove Admin item TestHandgun
 
-remove TestPlayer item 7.62x39FMJ 113
+remove Admin item 7.62x39FMJ 113
 
 
 
@@ -77,16 +77,16 @@ remove TestPlayer item 7.62x39FMJ 113
 
 #----------------Test Dev Commands--------------------#
 
-add TestPlayer DevInventory
+add Admin DevInventory
 
 
-add TestPlayer DevInvenotry_AKS74UAdvnacedItem
+add Admin DevInvenotry_AKS74UAdvnacedItem
 
 
-add TestPlayer DevInventory_FullGear
+add Admin DevInventory_FullGear
 
 
-add TestPlayer _7.62x39FMJx600
+add Admin _7.62x39FMJx600
 
 
 #----------------Virtual Inventory Commands--------------------#
@@ -99,25 +99,25 @@ Load
 
 #----------------Player Bar Commands--------------------#
 
-TestPlayer Healt 60
+Admin Healt 60
 
 
-TestPlayer Healt -60
+Admin Healt -60
 
 
-TestPlayer Stamina 60
+Admin Stamina 60
 
 
-TestPlayer Stamina -60
+Admin Stamina -60
 
 
-TestPlayer Hunger 60
+Admin Hunger 60
 
 
-TestPlayer Hunger -60
+Admin Hunger -60
 
 
-TestPlayer Thirst 60
+Admin Thirst 60
 
 
-TestPlayer Thirst -60
+Admin Thirst -60

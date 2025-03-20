@@ -118,6 +118,7 @@ public class ItemObject : MonoBehaviour, IPointerDownHandler, IPointerUpHandler,
                 InventorySystem.Placer(ActualData, originalRotation);
             }
             ActualData.AvaiablePlacerMetodes.Clear();
+            ItemCompoundRefresh();
             #endregion
         }
     }
@@ -249,7 +250,7 @@ public class ItemObject : MonoBehaviour, IPointerDownHandler, IPointerUpHandler,
             itemObjectRectTransform.sizeDelta = maxPosition - minPosition;
         }
         else
-        {
+        {  
             itemObjectRectTransform.sizeDelta = new Vector2(ActualData.SizeX * Main.DefaultItemSlotSize, ActualData.SizeY * Main.DefaultItemSlotSize);
         }
 

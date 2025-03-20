@@ -361,7 +361,7 @@ namespace ItemHandler
             
             if (Parts.Count > 1)
             {
-                MainItem mainItem = Parts.Select(part => AdvancedItemHandler.AdvancedItemDatas.GetMainItemData(part.item_s_Part.ItemName)).FirstOrDefault(mi => !string.IsNullOrEmpty(mi.MainItemName));
+                MainItem mainItem = Parts.FirstOrDefault(part => !string.IsNullOrEmpty(part.PartData.MainItem.MainItemName)).PartData.MainItem;
                 if (mainItem.MainItemName != null && mainItem.NecessaryItemTypes.All(Type => Parts.Exists(part=>part.item_s_Part.ItemType == Type)))
                 {
                     Debug.LogWarning("MainItem");

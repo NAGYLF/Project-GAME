@@ -1,11 +1,11 @@
 -- phpMyAdmin SQL Dump
--- version 5.1.1
+-- version 5.2.1
 -- https://www.phpmyadmin.net/
 --
 -- Gép: 127.0.0.1
--- Létrehozás ideje: 2025. Feb 27. 07:47
--- Kiszolgáló verziója: 10.4.20-MariaDB
--- PHP verzió: 7.3.29
+-- Létrehozás ideje: 2025. Már 20. 10:14
+-- Kiszolgáló verziója: 10.4.32-MariaDB
+-- PHP verzió: 8.2.12
 
 SET SQL_MODE = "NO_AUTO_VALUE_ON_ZERO";
 START TRANSACTION;
@@ -35,7 +35,7 @@ CREATE TABLE `achievement` (
   `FirstBlood` tinyint(1) DEFAULT 0,
   `RookieWork` tinyint(1) DEFAULT 0,
   `YouAreOnYourOwnNow` tinyint(1) DEFAULT 0
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
 --
 -- A tábla adatainak kiíratása `achievement`
@@ -57,7 +57,7 @@ CREATE TABLE `admin` (
   `Id` int(11) NOT NULL,
   `PlayerId` int(11) NOT NULL,
   `DevConsole` tinyint(1) NOT NULL DEFAULT 0
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
 --
 -- A tábla adatainak kiíratása `admin`
@@ -80,15 +80,15 @@ CREATE TABLE `player` (
   `Email` varchar(255) NOT NULL,
   `IsAdmin` tinyint(1) NOT NULL DEFAULT 0,
   `IsBanned` tinyint(1) NOT NULL DEFAULT 0
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
 --
 -- A tábla adatainak kiíratása `player`
 --
 
 INSERT INTO `player` (`Id`, `Name`, `Password`, `Email`, `IsAdmin`, `IsBanned`) VALUES
-(6, 'TestPlayer', '$2a$11$NfmNe8sARCDRsctkGdzCLeC4FQ4TPyuxzNs4oSfA7yIMk7ul9Skcm', 'TestPlayer@Gmail.com', 0, 0),
-(7, 'TestBanned', '$2a$11$2TKoLiEfKSF9ukhGdRwaievtyn.wSisn5ZC6q6GYQ2rUQxCuwHCNy', 'TestPlayerBanned@Gmail.com', 0, 1),
+(6, 'TestPlayer', '$2a$11$NfmNe8sARCDRsctkGdzCLeC4FQ4TPyuxzNs4oSfA7yIMk7ul9Skcm', 'TestPlayer@gmail.com', 0, 0),
+(7, 'TestBanned', '$2a$11$2TKoLiEfKSF9ukhGdRwaievtyn.wSisn5ZC6q6GYQ2rUQxCuwHCNy', 'TestPlayerBanned@gmail.com', 0, 1),
 (10, 'TestAdmin', '$2a$11$FRnm7qqc1znlfdhSYY18SOX7ZyCEkqXC36wZ6ozM09ASoIcTEgPL2', 'TestAdmin@gmail.com', 1, 0),
 (11, 'TestDev', '$2a$11$Ngj0JZGzT5mEfB6uLkFN7uFLoV0G2R7K2IymVlPuhZfaWR1j7oZS2', 'TestDevConsole@gmail.com', 1, 0);
 
@@ -104,7 +104,7 @@ CREATE TABLE `statistic` (
   `DeathCount` int(11) DEFAULT 0,
   `Score` int(11) DEFAULT 0,
   `EnemiesKilled` int(11) DEFAULT 0
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
 --
 -- A tábla adatainak kiíratása `statistic`

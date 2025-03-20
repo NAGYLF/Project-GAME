@@ -92,8 +92,39 @@ namespace EphemeralApi.Controllers
                 return NotFound("A játékos nem található.");
             }
 
+            // Ellenőrizzük, hogy a játékos admin-e
+            if (player.IsAdmin)
+            {
+                // Ha admin, lekérdezzük az admin táblából az admin adatokat
+                var admin = await _context.Admins
+                    .Where(a => a.PlayerId == player.Id)
+                    .FirstOrDefaultAsync();
+
+                if (admin != null)
+                {
+                    // Ha van admin rekord, akkor hozzáadjuk az admin adatokat a válaszhoz
+                    var playerWithAdmin = new
+                    {
+                        Player = player,
+                        AdminDetails = admin
+                    };
+
+                    // JSON serializálás, ciklikus hivatkozások kezelése
+                    var options = new JsonSerializerOptions
+                    {
+                        ReferenceHandler = System.Text.Json.Serialization.ReferenceHandler.Preserve,
+                        WriteIndented = true // Formázott JSON válasz
+                    };
+
+                    return Ok(JsonSerializer.Serialize(playerWithAdmin, options));
+                }
+            }
+
+            // Ha nem admin, akkor csak a játékos adatokat adjuk vissza
             return Ok(player);
         }
+
+
 
         // Lekéri a játékos adatait az email és név kombinációja alapján
         [HttpGet("GetByEmailAndName")]

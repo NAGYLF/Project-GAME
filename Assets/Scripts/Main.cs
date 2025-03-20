@@ -15,54 +15,75 @@ using System.Threading.Tasks;
 namespace MainData
 {
     #region DataBase Connection 
-    /*Ez az a programresz ahol a player információkat az API-on keresztul lekerdezzuk*/
-    [System.Serializable]
+    public class ApiResponse
+    {
+        [JsonProperty("Player")]
+        public PlayerData Player { get; set; }
+
+        [JsonProperty("AdminDetails")]
+        public Admin AdminDetails { get; set; }
+    }
+
     public class PlayerData
     {
-        public int id;
-        public string name;
-        public string email;
-        public string password;
-        bool IsAdmin;
-        public Achievement[] achievements;
-        public Admin admin;
-        public Statistics[] statistics;
+        [JsonProperty("Id")]
+        public int Id { get; set; }
+
+        [JsonProperty("Name")]
+        public string Name { get; set; }
+
+        [JsonProperty("Password")]
+        public string Password { get; set; }
+
+        [JsonProperty("Email")]
+        public string Email { get; set; }
+
+        [JsonProperty("IsAdmin")]
+        public bool IsAdmin { get; set; }
+
+        [JsonProperty("IsBanned")]
+        public bool IsBanned { get; set; }
+
+        [JsonProperty("Achievements")]
+        public List<Achievement> Achievements { get; set; }
+
+        [JsonProperty("Admin")]
+        public Admin Admin { get; set; }
+
+        [JsonProperty("Statistics")]
+        public List<Statistic> Statistics { get; set; }
     }
+
     public class Achievement
     {
-        public int id;
-        public int playerId;
-        public bool firstBlood;
-        public bool rookieWork;
-        public bool youAreOnYourOwnNow;
-        public string player;
+        // További tulajdonságok, ha szükséges
     }
+
+    public class Statistic
+    {
+        // További tulajdonságok, ha szükséges
+    }
+
     public class Admin
     {
-        public int id;
-        public int playerId;
-        public bool devConsole;
-        public string player;
+        [JsonProperty("Id")]
+        public int Id { get; set; }
+
+        [JsonProperty("PlayerId")]
+        public int PlayerId { get; set; }
+
+        [JsonProperty("DevConsole")]
+        public bool DevConsole { get; set; }
+
+        [JsonProperty("Player")]
+        public PlayerData Player { get; set; }
     }
-    public class Statistics
-    {
-        public int id;
-        public int playerId;
-        public int deathCount;
-        public int score;
-        public int enemiesKilled;
-        public string player;
-    }
-    [System.Serializable]
-    public class PlayersArray
-    {
-        public PlayerData[] items;
-    }
+
     public static class DatabaseManager
     {
         public static async Task<PlayerData> GetDataAsync(string name, string password)
         {
-            string url = $"http://localhost:5269/api/Player/GetByName/{name}";
+            string url = $"https://localhost:5266/api/Player/GetByName/{name}";
 
             using (UnityWebRequest webRequest = UnityWebRequest.Get(url))
             {
@@ -70,11 +91,10 @@ namespace MainData
 
                 while (!operation.isDone)
                 {
-                    await Task.Yield(); // Megvárja az API választ anélkül, hogy blokkolná a fő szálat
+                    await Task.Yield();
                 }
 
-                if (webRequest.result == UnityWebRequest.Result.ConnectionError ||
-                    webRequest.result == UnityWebRequest.Result.ProtocolError)
+                if (webRequest.result == UnityWebRequest.Result.ConnectionError || webRequest.result == UnityWebRequest.Result.ProtocolError)
                 {
                     Debug.LogWarning(webRequest.error);
                     return null;
@@ -83,37 +103,20 @@ namespace MainData
                 {
                     Debug.Log("Successful Server connection");
                     string jsonResponse = webRequest.downloadHandler.text;
-                    return JsonConvert.DeserializeObject<PlayerData>(jsonResponse);
+                    return JsonConvert.DeserializeObject<ApiResponse>(jsonResponse).Player;
                 }
             }
         }
-        private static async void LoadPlayerData(string name, string password)
-        {
-            PlayerData playerData = await GetDataAsync(name, password);
-
-            if (playerData != null)
-            {
-                Debug.Log($"Player found: {playerData.name}");
-            }
-            else
-            {
-                Debug.LogError("Failed to load player data.");
-            }
-        }
     }
-
-
     #endregion
 
     #region BackUI 
     //itt vannak jelen azon UI fumciok melyek nem lathatok, mint a: logIn, logOut
-
-
-    public class UIFunctions : MonoBehaviour
+    public class UIFunctions
     {
         public static void ProfileBTStyle()
         {
-            string[] namesParts = Main.playerData.name.Split(' ');
+            string[] namesParts = Main.playerData.Name.Split(' ');
             string monogram = "";
             foreach (string item in namesParts)
             {
@@ -124,66 +127,48 @@ namespace MainData
         //NewLogin
         public static async void LogIn(string name, string email, string password)//new or another accunt login
         {
-            PlayerData playerData = new PlayerData();
+            
+            Main.playerData = await DatabaseManager.GetDataAsync(name, password);
 
-            playerData.name = name;
-            playerData.email = email;
-            playerData.password = password;
-
-            await DatabaseManager.GetDataAsync(name, password);
-
-            if (playerData == null)
+            if (Main.playerData == null)
             {
-                Debug.LogError("Login failed. User data is not available.");
-                return; // Kilép a metódusból, ha a felhasználói adatok nem elérhetők
+                Debug.LogWarning("Login failed. User data is not available.");
+                return;
             }
             else
             {
-                StreamWriter sw = new StreamWriter("User.txt");
-                sw.WriteLine(playerData.name);
-                sw.WriteLine(playerData.email);
-                sw.WriteLine(playerData.password);
+                StreamWriter sw = new StreamWriter("AutoLogUser.txt");
+                sw.WriteLine(Main.playerData.Name);
+                sw.WriteLine(Main.playerData.Email);
                 sw.Close();
 
-                Main.playerData = playerData;
-
-                Debug.Log($"server connection is avaiable for: {playerData.id} - {playerData.name} - {playerData.password} - {playerData.email}  user");
-                Debug.Log("Login succesful");
+                Debug.Log($"login completed: {Main.playerData.Id} - {Main.playerData.Name} - {Main.playerData.Password} - {Main.playerData.Email}  user");
                 ProfileBTStyle();
             }
         }
         //AutoLogin
-        public static async Task<bool> LogIn()//auto login
+        public static async Task<bool> AutoLogIn()//auto login
         {
-            if (File.Exists("User.txt"))
+            if (File.Exists("AutoLogUser.txt"))
             {
-                PlayerData playerData = new PlayerData();
+                StreamReader sr = new StreamReader("AutoLogUser.txt");
 
-                StreamReader sr = new StreamReader("User.txt");
-                playerData.name = sr.ReadLine();
-                playerData.email = sr.ReadLine();
-                playerData.password = sr.ReadLine();
+                Main.playerData = await DatabaseManager.GetDataAsync(sr.ReadLine(), sr.ReadLine());
 
-                await DatabaseManager.GetDataAsync(playerData.name, playerData.password);
-
-                if (playerData == null)
+                if (Main.playerData == null)
                 {
                     Debug.LogError("Login failed. User data is not available.");
                     return true;
                 }
                 else
                 {
-                    Main.playerData = playerData;
-
-                    Debug.Log($"server connection is avaiable for: {playerData.id} - {playerData.name} - {playerData.password} - {playerData.email}  user");
-                    Debug.Log("Login succesful");
-
+                    Debug.Log($"login completed: {Main.playerData.Id} - {Main.playerData.Name} - {Main.playerData.Password} - {Main.playerData.Email}  user");
                     return true;
                 }
             }
             else
             {
-                Debug.Log("User.txt not exists. --> Auto log failed");
+                Debug.Log("AutoLogUser.txt not exists. --> Auto log failed");
                 return true;
             }
         }

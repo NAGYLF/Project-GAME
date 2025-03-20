@@ -68,12 +68,11 @@ public class MainLoadingScreen : MonoBehaviour
     {
         Main.AdvancedItemHandler.AdvancedItemDatas.AdvancedItemHanderDataLoad();
 
-        Task<bool> loginTask = UIFunctions.LogIn();
+        Task<bool> loginTask = UIFunctions.AutoLogIn();
 
-        // Várjuk, amíg a login befejezõdik
         while (!loginTask.IsCompleted)
         {
-            yield return null; // Egy frame-et várunk
+            yield return null;
         }
 
         yield return null;

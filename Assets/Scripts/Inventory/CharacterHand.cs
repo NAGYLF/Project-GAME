@@ -1,7 +1,6 @@
 using UnityEngine;
 using ItemHandler;
 using UI;
-using Unity.VisualScripting;
 
 public class CharacterHand : MonoBehaviour
 {
@@ -44,6 +43,7 @@ public class CharacterHand : MonoBehaviour
                 scale.y = -Mathf.Abs(scale.y);
                 transform.localScale = scale;
                 Flipped = false;
+                InGameUI.Player.GetComponent<SpriteRenderer>().flipX = true;
             }
         }
         else
@@ -54,6 +54,7 @@ public class CharacterHand : MonoBehaviour
                 scale.y = Mathf.Abs(scale.y);
                 transform.localScale = scale;
                 Flipped = true;
+                InGameUI.Player.GetComponent<SpriteRenderer>().flipX = false;
             }
         }
     }

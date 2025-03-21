@@ -250,10 +250,6 @@ PrefabInstance:
       propertyPath: m_Name
       value: InGameItemObject
       objectReference: {fileID: 0}
-    - target: {fileID: 3608002842352090136, guid: 3d31179bbd9512d43b5436db947638e0, type: 3}
-      propertyPath: ItemCompound
-      value: 
-      objectReference: {fileID: 4511854459258638513}
     - target: {fileID: 7525334304545474731, guid: 3d31179bbd9512d43b5436db947638e0, type: 3}
       propertyPath: m_Pivot.x
       value: 0.5
@@ -349,17 +345,6 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: db1e7bba974af634ca390c0ab1de226c, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
---- !u!114 &4511854459258638513 stripped
-MonoBehaviour:
-  m_CorrespondingSourceObject: {fileID: 3190030545324221845, guid: 3d31179bbd9512d43b5436db947638e0, type: 3}
-  m_PrefabInstance: {fileID: 1357853261938144548}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 0}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: e471c68248119ee48968826809566cb5, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
 --- !u!224 &8842619909550849423 stripped

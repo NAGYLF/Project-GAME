@@ -68,6 +68,27 @@ public class MainLoadingScreen : MonoBehaviour
     {
         Main.AdvancedItemHandler.AdvancedItemDatas.AdvancedItemHanderDataLoad();
 
+        //Debug.Log("--------advancedItems----------");
+        //foreach (var item in Main.AdvancedItemHandler.AdvancedItemDatas.AdvancedItems)
+        //{
+        //    Debug.Log(item.SystemName);
+        //}
+        //Debug.Log("-------------------------------");
+
+        //Debug.Log("--------parts data----------");
+        //foreach (var item in Main.AdvancedItemHandler.AdvancedItemDatas.ItemPartDatas)
+        //{
+        //    Debug.Log(item.PartName);
+        //}
+        //Debug.Log("-------------------------------");
+
+        //Debug.Log("--------main items----------");
+        //foreach (var item in Main.AdvancedItemHandler.AdvancedItemDatas.MainItems)
+        //{
+        //    Debug.Log(item.SystemName);
+        //}
+        //Debug.Log("-------------------------------");
+
         Task<bool> loginTask = UIFunctions.AutoLogIn();
 
         while (!loginTask.IsCompleted)

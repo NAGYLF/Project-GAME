@@ -206,7 +206,7 @@ public class ModificationWindow : MonoBehaviour, IPointerDownHandler
             {
                 GameObject box = SupportScripts.CreatePrefab(ModificationPartBoxPath);
                 Boxes.Add(box);
-                box.name = cloneParts2[i].item_s_Part.ItemName;
+                box.name = cloneParts2[i].item_s_Part.SystemName;
                 box.GetComponent<ModificationPartBox>().window = this;
                 box.GetComponent<ModificationPartBox>().AdvancedItem = AdvancedItem;
                 box.GetComponent<ModificationPartBox>().PartIndex = i;

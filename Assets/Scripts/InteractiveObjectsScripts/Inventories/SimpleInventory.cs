@@ -16,7 +16,7 @@ namespace NaturalInventorys
         {
             Root = new Item()
             {
-                ItemName = "Root",
+                SystemName = "Root",
                 Lvl = -1,
                 SectorId = 0,
                 Coordinates = new (int, int)[] { (0, 0) },

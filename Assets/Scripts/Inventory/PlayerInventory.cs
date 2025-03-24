@@ -39,7 +39,7 @@ namespace PlayerInventoryClass
                 Debug.Log("-------------------PlayerInevntory Start-----------------");
                 foreach (var item in Items)
                 {
-                    Debug.Log($"{item.ItemName} lvl:{item.Lvl}  isInPlayerInevntory:{item.IsInPlayerInventory}  firstCoordinate:{item.Coordinates.First()}");
+                    Debug.Log($"{item.SystemName} lvl:{item.Lvl}  isInPlayerInevntory:{item.IsInPlayerInventory}  firstCoordinate:{item.Coordinates.First()}");
                 }
                 Debug.Log("-------------------PlayerInevntory End-----------------");
                 /*Items.OrderBy(item => item.Lvl).ThenBy(item => item.LowestSlotUseCoordinate + ((item.ParentItem == null ? -1 : Items.IndexOf(item.ParentItem)) * 10000)).ToList();*/
@@ -74,7 +74,7 @@ namespace PlayerInventoryClass
         {
             Item RootData = new()
             {
-                ItemName = "Root",
+                SystemName = "Root",
                 Lvl = -1,
                 SectorId = 0,
                 Coordinates = new (int, int)[] { (0, 0) },
@@ -153,7 +153,7 @@ namespace PlayerInventoryClass
             List<Item> itemsOfLvl = levelManager.Items.Where(Item => Item.Lvl == lvl).ToList();
             for (int itemIndex = 0; itemIndex < itemsOfLvl.Count; itemIndex++)
             {
-                if (!ItemAdded && itemsOfLvl[itemIndex].ItemName == Data.ItemName && itemsOfLvl[itemIndex].Quantity != itemsOfLvl[itemIndex].MaxStackSize)
+                if (!ItemAdded && itemsOfLvl[itemIndex].SystemName == Data.SystemName && itemsOfLvl[itemIndex].Quantity != itemsOfLvl[itemIndex].MaxStackSize)
                 {
                     int originalCount = itemsOfLvl[itemIndex].Quantity;
                     itemsOfLvl[itemIndex].Quantity += Data.Quantity;
@@ -258,7 +258,7 @@ namespace PlayerInventoryClass
             }
             if (!ItemAdded)
             {
-                Debug.LogWarning($"item: {item.ItemName} cannot added, probably no space for that");
+                Debug.LogWarning($"item: {item.SystemName} cannot added, probably no space for that");
             }
         }
         private bool Removing(int lvl,Item Data)
@@ -267,7 +267,7 @@ namespace PlayerInventoryClass
             List<Item> itemsOfLvl = levelManager.Items.Where(Item => Item.Lvl == lvl).ToList();
             for (int itemIndex = 0; itemIndex < itemsOfLvl.Count && !ItemRemoved; itemIndex++)
             {
-                if (itemsOfLvl[itemIndex].ItemName == Data.ItemName && (itemsOfLvl[itemIndex].Container == null || itemsOfLvl[itemIndex].Container.Items.Count == 0))
+                if (itemsOfLvl[itemIndex].SystemName == Data.SystemName && (itemsOfLvl[itemIndex].Container == null || itemsOfLvl[itemIndex].Container.Items.Count == 0))
                 {
                     itemsOfLvl[itemIndex].Quantity -= Data.Quantity;
                     int count = 0;
@@ -293,7 +293,7 @@ namespace PlayerInventoryClass
 
         public void InventoryRemove(Item item)//newm torol olyan itemet melynek van item a containerében
         {
-            Debug.Log($"Remove: {item.ItemName} - {item.Quantity}db in progress");
+            Debug.Log($"Remove: {item.SystemName} - {item.Quantity}db in progress");
             bool ItemRemoved = false;
             for (int lvl = 1; lvl <= levelManager.MaxLVL && !ItemRemoved; lvl++)
             {
@@ -305,7 +305,7 @@ namespace PlayerInventoryClass
             }
             if (!ItemRemoved)
             {
-                Debug.LogWarning($"item: {item.ItemName} - {item.Quantity}db cannot be removed, probably not exist");
+                Debug.LogWarning($"item: {item.SystemName} - {item.Quantity}db cannot be removed, probably not exist");
             }
         }
         

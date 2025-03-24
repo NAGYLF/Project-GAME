@@ -9,7 +9,7 @@ using Newtonsoft.Json;
 using TMPro;
 using ItemHandler;
 using UnityEngine.SceneManagement;
-using ExelFileReader;
+using DataHandler;
 using System.Threading.Tasks;
 
 namespace MainData
@@ -215,7 +215,7 @@ namespace MainData
                 return (texture.height, texture.width);
             };
 
-            public static ExelFileReader.ExelFileReader AdvancedItemDatas = new ExelFileReader.ExelFileReader(AdvancedItemDataFilePath,ImgSizeGetter);
+            public static DataLoader AdvancedItemDatas = new DataLoader(AdvancedItemDataFilePath,ImgSizeGetter);
         }
     }
     #endregion

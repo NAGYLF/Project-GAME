@@ -28,12 +28,12 @@ public class TemporaryItemObject : MonoBehaviour
     public void DataLoad()
     {
         //ActualData.SelfGameobject = gameObject;
-        if (!ActualData.IsAdvancedItem)
-        {
-            Sprite sprite = Resources.Load<Sprite>(gameObject.GetComponent<ItemObject>().ActualData.ImgPath);//az itemobjektum megkapja képét
-            ItemCompound.GetComponent<Image>().sprite = sprite;
-            ItemCompound.GetComponent<RectTransform>().sizeDelta = new Vector2(sprite.rect.width, sprite.rect.height);
-        }
+        //if (!ActualData.IsAdvancedItem)
+        //{
+        //    Sprite sprite = Resources.Load<Sprite>(gameObject.GetComponent<ItemObject>().ActualData.ImgPath);//az itemobjektum megkapja képét
+        //    ItemCompound.GetComponent<Image>().sprite = sprite;
+        //    ItemCompound.GetComponent<RectTransform>().sizeDelta = new Vector2(sprite.rect.width, sprite.rect.height);
+        //}
         #region Set Moveable position
         transform.SetParent(InventoryObjectRef.transform, false);
 
@@ -260,7 +260,7 @@ public class TemporaryItemObject : MonoBehaviour
     }
     public void SelfVisualisation()//ha az item equipment slotban van
     {
-        NamePlate.text = ActualData.ItemName;
+        NamePlate.text = ActualData.SystemName;
         if (ActualData.Quantity == 1)
         {
             Counter.text = "";

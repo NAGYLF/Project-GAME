@@ -14,7 +14,7 @@ public class InGameItemObject : MonoBehaviour
     {
         if (ActualData != null)
         {
-            gameObject.name = ActualData.ItemName;
+            gameObject.name = ActualData.SystemName;
 
             ActualData.InGameSelfObject = gameObject;
 

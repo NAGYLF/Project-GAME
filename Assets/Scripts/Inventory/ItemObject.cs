@@ -130,7 +130,7 @@ public class ItemObject : MonoBehaviour, IPointerDownHandler, IPointerUpHandler,
     {
         if (ActualData.ParentItem != null)// a temporary objectum fix - je
         {
-            gameObject.name = ActualData.ItemName;
+            gameObject.name = ActualData.SystemName;
 
             ActualData.SelfGameobject = gameObject;
 
@@ -201,7 +201,7 @@ public class ItemObject : MonoBehaviour, IPointerDownHandler, IPointerUpHandler,
     public void SelfVisualisation()//az adatok alapjan vizualizalja az itemet
     {
         #region Titles Writing
-        NamePlate.text = ActualData.ItemName;
+        NamePlate.text = ActualData.SystemName;
         if (ActualData.Quantity == 1)
         {
             Counter.text = "";
@@ -272,20 +272,20 @@ public class ItemObject : MonoBehaviour, IPointerDownHandler, IPointerUpHandler,
         RectTransform itemObjectRectTransform = gameObject.GetComponent<RectTransform>();
 
         #region Image Setting
-        if (!ActualData.IsAdvancedItem)
-        {
-            Sprite sprite = Resources.Load<Sprite>(gameObject.GetComponent<ItemObject>().ActualData.ImgPath);//az itemobjektum megkapja képét
+        //if (!ActualData.IsAdvancedItem)
+        //{
+        //    Sprite sprite = Resources.Load<Sprite>(gameObject.GetComponent<ItemObject>().ActualData.ImgPath);//az itemobjektum megkapja képét
 
-            //!!! ez a játék fejlesztes soran valtozhat ezert odafigyelst igenyel
-            GameObject ImgObject = ItemCompound.transform.GetChild(0).gameObject;
-            ImgObject.GetComponent<Image>().sprite = sprite;
-            ImgObject.GetComponent<RectTransform>().sizeDelta = new Vector2(sprite.rect.width, sprite.rect.height);
+        //    //!!! ez a játék fejlesztes soran valtozhat ezert odafigyelst igenyel
+        //    GameObject ImgObject = ItemCompound.transform.GetChild(0).gameObject;
+        //    ImgObject.GetComponent<Image>().sprite = sprite;
+        //    ImgObject.GetComponent<RectTransform>().sizeDelta = new Vector2(sprite.rect.width, sprite.rect.height);
 
-            float Scale = Mathf.Min(ItemCompound.GetComponent<RectTransform>().rect.height / ImgObject.GetComponent<RectTransform>().sizeDelta.y, ItemCompound.GetComponent<RectTransform>().rect.width / ImgObject.GetComponent<RectTransform>().sizeDelta.x);
-            ImgObject.GetComponent<RectTransform>().sizeDelta = new Vector2(ImgObject.GetComponent<RectTransform>().sizeDelta.x * Scale, ImgObject.GetComponent<RectTransform>().sizeDelta.y * Scale);
-        }
-        else
-        {
+        //    float Scale = Mathf.Min(ItemCompound.GetComponent<RectTransform>().rect.height / ImgObject.GetComponent<RectTransform>().sizeDelta.y, ItemCompound.GetComponent<RectTransform>().rect.width / ImgObject.GetComponent<RectTransform>().sizeDelta.x);
+        //    ImgObject.GetComponent<RectTransform>().sizeDelta = new Vector2(ImgObject.GetComponent<RectTransform>().sizeDelta.x * Scale, ImgObject.GetComponent<RectTransform>().sizeDelta.y * Scale);
+        //}
+        //else
+        //{
             for (int i = ItemCompound.GetComponent<ItemImgFitter>().fitter.transform.childCount - 1; i >= 0; i--)
             {
                 Transform child = ItemCompound.GetComponent<ItemImgFitter>().fitter.transform.GetChild(i);
@@ -346,7 +346,7 @@ public class ItemObject : MonoBehaviour, IPointerDownHandler, IPointerUpHandler,
                 }
             }
             ItemCompound.GetComponent<ItemImgFitter>().Fitting();
-        }
+        //}
         #endregion
     }
 }

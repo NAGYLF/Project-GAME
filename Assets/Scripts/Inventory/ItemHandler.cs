@@ -1,28 +1,4 @@
-﻿using Ammunition;
-using Armors;
-using Backpacks;
-using Boots;
-using Fingers;
-using Headsets;
-using Helmets;
-using Masks;
-using Melees;
-using Pants;
-using Skins;
-using Vests;
-using Weapons;
-using System;
-using Cash;
-using Meds;
-using WeaponBodys;
-using Dustcovers;
-using Grips;
-using Handguards;
-using Magasines;
-using Modgrips;
-using Muzzles;
-using Sights;
-using Stoks;
+﻿using System;
 using Assets.Scripts;
 using System.Collections.Generic;
 using System.Linq;
@@ -34,12 +10,12 @@ using static PlayerInventoryClass.PlayerInventory;
 using UI;
 using Newtonsoft.Json.Linq;
 using static MainData.SupportScripts;
-using static TestModulartItems.TestModularItems;
 using static MainData.Main;
 using UnityEngine.UI;
 using Assets.Scripts.Inventory;
-using ExelFileReader;
+using DataHandler;
 using System.Collections;
+using MainData;
 
 namespace ItemHandler
 {
@@ -84,7 +60,6 @@ namespace ItemHandler
         #endregion
 
         public List<Part> Parts { get; set; }//az item darabjai
-        public string ImgPath { get; set; }
         public string ObjectPath { get; private set; }//az, hogy milyen obejctum tipust hasznal
         public Item ParentItem { get; set; }//az az item ami tárolja ezt az itemet
         public int Lvl { get; set; }
@@ -92,7 +67,7 @@ namespace ItemHandler
 
         //general variables
         public string ItemType { get; set; }
-        public string ItemName { get; set; }
+        public string SystemName { get; set; }
         public string Description { get; set; } = "...";
         public int MaxStackSize { get; set; } = 1;
         public int Quantity { get; set; }
@@ -110,7 +85,7 @@ namespace ItemHandler
         //SlotUse
         public int SectorId { get; set; }
         private (int, int)[] coordinates;
-        public (int,int)[] Coordinates 
+        public (int, int)[] Coordinates
         {
             get
             {
@@ -133,7 +108,7 @@ namespace ItemHandler
 
         #region NonGeneric Variables
         //Size Changer
-        public SizeChanger SizeChanger {get; set; }
+        public SizeChanger SizeChanger { get; set; }
         //contain
         public Container Container { get; set; }
         //weapon
@@ -145,7 +120,6 @@ namespace ItemHandler
         public double? Range { get; set; }
         public double? Ergonomy { get; set; }
         public string AmmoType { get; set; } = "";
-        public BulletType BulletType { get; set; }
         //usable
         public int UseLeft { get; set; } = 0;
         //ammo
@@ -210,10 +184,9 @@ namespace ItemHandler
             Item cloned = new()
             {
                 // Alap adatok
-                ImgPath = this.ImgPath,
                 ObjectPath = this.ObjectPath,
                 ItemType = this.ItemType,
-                ItemName = this.ItemName,
+                SystemName = this.SystemName,
                 Description = this.Description,
                 Quantity = this.Quantity,
                 Value = this.Value,
@@ -297,7 +270,7 @@ namespace ItemHandler
                     }
                 }
             }
-            return (null,null,false);
+            return (null, null, false);
         }
         public void PartPut(Item AdvancedItem, ConnectionPoint SCP, ConnectionPoint ICP)//ha egy item partjait belerakjuk akkor az item az inventoryban megmaradhat ezert azt torolni kellesz vagy vmi
         {
@@ -361,172 +334,132 @@ namespace ItemHandler
         public void AdvancedItemContsruct()
         {
             Item FirstItem = Parts.First().item_s_Part;
-            
-            if (Parts.Count > 1)
+
+            var partFound = Parts.FirstOrDefault(part => !string.IsNullOrEmpty(part.PartData.MainItem.SystemName));
+            if (partFound != null)
             {
-                MainItem mainItem = Parts.FirstOrDefault(part => !string.IsNullOrEmpty(part.PartData.MainItem.MainItemName)).PartData.MainItem;
-                if (mainItem.MainItemName != null && mainItem.NecessaryItemTypes.All(Type => Parts.Exists(part=>part.item_s_Part.ItemType == Type)))
+                MainItem mainItem = partFound.PartData.MainItem;
+                if (mainItem.NecessaryItemTypes.All(Type => Parts.Exists(part => part.item_s_Part.ItemType == Type)))
                 {
                     Debug.LogWarning("MainItem");
-                    ItemName = mainItem.MainItemName;
+                    SystemName = mainItem.SystemName;
                     Description = mainItem.Desctription;
                     ItemType = mainItem.Type;
                 }
-                else if(mainItem.MainItemName != null)
+                else
                 {
                     Debug.LogWarning("incompleted MainItem");
-                    ItemName = $"Incompleted {mainItem.MainItemName}";
+                    SystemName = $"Incompleted {mainItem.SystemName}";
                     Description = mainItem.Desctription;
                     ItemType = mainItem.Type;
-                }
-
-                SizeX = FirstItem.SizeX;
-                SizeY = FirstItem.SizeY;
-                Container = FirstItem.Container;
-                Value = 0;
-                Spread = 0;
-                Fpm = 0;
-                Recoil = 0;
-                Accturacy = 0;
-                Range = 0;
-                Ergonomy = 0;
-
-                foreach (Part part in Parts)
-                {
-                    Item item = part.item_s_Part;
-                    Value += item.Value;
-                    if (item.SizeChanger != null)
-                    {
-                        string direction = item.SizeChanger.Direction;
-                        SizeChanger sizeChanger = item.SizeChanger;
-                        if (direction == "R" || direction == "L")
-                        {
-                            SizeX += sizeChanger.Plus;
-                            if (SizeX > sizeChanger.MaxPlus)
-                            {
-                                SizeX = sizeChanger.MaxPlus;
-                            }
-                        }
-                        else
-                        {
-                            SizeY += sizeChanger.Plus;
-                            if (SizeY > sizeChanger.MaxPlus)
-                            {
-                                SizeY = sizeChanger.MaxPlus;
-                            }
-                        }
-                        //Debug.Log($"{SizeX} x {SizeY}");
-                    }
-                    if (item.IsDropAble)
-                    {
-                        IsDropAble = item.IsDropAble;
-                    }
-                    if (item.IsUnloadAble)
-                    {
-                        IsUnloadAble = item.IsUnloadAble;
-                    }
-                    if (item.IsRemoveAble)
-                    {
-                        IsRemoveAble = item.IsRemoveAble;
-                    }
-                    if (item.IsOpenAble)
-                    {
-                        IsOpenAble = item.IsOpenAble;
-                    }
-                    if (item.IsUsable)
-                    {
-                        IsUsable = item.IsUsable;
-                    }
-                    if (item.BulletType != null)//csak 1 lehet
-                    {
-                        BulletType = item.BulletType;
-                    }
-                    if (item.AmmoType != null)//csak 1 lehet
-                    {
-                        AmmoType = item.AmmoType;
-                    }
-                    if (item.Spread != 0)
-                    {
-                        Spread += item.Spread;
-                    }
-                    if (item.Fpm != 0)
-                    {
-                        Fpm += item.Fpm;
-                    }
-                    if (item.Recoil != 0)
-                    {
-                        Recoil += item.Recoil;
-                    }
-                    if (item.Accturacy != 0)
-                    {
-                        Accturacy += item.Accturacy;
-                    }
-                    if (item.Range != 0)
-                    {
-                        Range += item.Range;
-                    }
-                    if (item.Ergonomy != 0)
-                    {
-                        Ergonomy += item.Ergonomy;
-                    }
-                    if (item.MagasineSize != 0)
-                    {
-                        MagasineSize += item.MagasineSize;
-                    }
-                    //hasznalhato e?
-                    if (UseLeft != 0)
-                    {
-                        UseLeft = item.UseLeft;
-                    }
                 }
             }
             else
             {
-                SizeX = FirstItem.SizeX;
-                SizeY = FirstItem.SizeY;
-                ItemName = FirstItem.ItemName;
-                Description = FirstItem.Description;
-                Value = FirstItem.Value;
-                //Action
-                IsDropAble = FirstItem.IsDropAble;
-                IsUnloadAble = FirstItem.IsUnloadAble;
-                IsRemoveAble = FirstItem.IsRemoveAble;
-                IsOpenAble = FirstItem.IsOpenAble;
-                IsUsable = FirstItem.IsUsable;
-                //fegyver adatok
-                MagasineSize = FirstItem.MagasineSize;
-                Spread = FirstItem.Spread;
-                Fpm = FirstItem.Fpm;
-                Recoil = FirstItem.Recoil;
-                Accturacy = FirstItem.Accturacy;
-                Range = FirstItem.Range;
-                Ergonomy = FirstItem.Ergonomy;
-                BulletType = FirstItem.BulletType;
-                AmmoType = FirstItem.AmmoType;
-                //hasznalhato e?
-                UseLeft = FirstItem.UseLeft;
-
-                Description = FirstItem.Description;
-
-                ItemType = FirstItem.ItemType;
+                SystemName = FirstItem.SystemName;
             }
-            Quantity = 1;
-            MaxStackSize = 1;
+
+            Quantity = FirstItem.Quantity;
+            MaxStackSize = FirstItem.MaxStackSize;
             IsModificationAble = true;
             IsAdvancedItem = true;
             ObjectPath = FirstItem.ObjectPath;
 
-            if (SelfGameobject != null)
+            SizeX = FirstItem.SizeX;
+            SizeY = FirstItem.SizeY;
+            Container = FirstItem.Container;
+            Value = 0;
+            Spread = 0;
+            Fpm = 0;
+            Recoil = 0;
+            Accturacy = 0;
+            Range = 0;
+            Ergonomy = 0;
+
+            foreach (Part part in Parts)
             {
-
+                Item item = part.item_s_Part;
+                Value += item.Value;
+                if (item.SizeChanger.Direction != '-')
+                {
+                    char direction = item.SizeChanger.Direction;
+                    SizeChanger sizeChanger = item.SizeChanger;
+                    if (direction == 'R' || direction == 'L')
+                    {
+                        SizeX += sizeChanger.Plus;
+                        if (SizeX > sizeChanger.MaxPlus)
+                        {
+                            SizeX = sizeChanger.MaxPlus;
+                        }
+                    }
+                    else
+                    {
+                        SizeY += sizeChanger.Plus;
+                        if (SizeY > sizeChanger.MaxPlus)
+                        {
+                            SizeY = sizeChanger.MaxPlus;
+                        }
+                    }
+                    //Debug.Log($"{SizeX} x {SizeY}");
+                }
+                if (item.IsDropAble)
+                {
+                    IsDropAble = item.IsDropAble;
+                }
+                if (item.IsUnloadAble)
+                {
+                    IsUnloadAble = item.IsUnloadAble;
+                }
+                if (item.IsRemoveAble)
+                {
+                    IsRemoveAble = item.IsRemoveAble;
+                }
+                if (item.IsOpenAble)
+                {
+                    IsOpenAble = item.IsOpenAble;
+                }
+                if (item.IsUsable)
+                {
+                    IsUsable = item.IsUsable;
+                }
+                if (item.AmmoType != null)//csak 1 lehet
+                {
+                    AmmoType = item.AmmoType;
+                }
+                if (item.Spread != 0)
+                {
+                    Spread += item.Spread;
+                }
+                if (item.Fpm != 0)
+                {
+                    Fpm += item.Fpm;
+                }
+                if (item.Recoil != 0)
+                {
+                    Recoil += item.Recoil;
+                }
+                if (item.Accturacy != 0)
+                {
+                    Accturacy += item.Accturacy;
+                }
+                if (item.Range != 0)
+                {
+                    Range += item.Range;
+                }
+                if (item.Ergonomy != 0)
+                {
+                    Ergonomy += item.Ergonomy;
+                }
+                if (item.MagasineSize != 0)
+                {
+                    MagasineSize += item.MagasineSize;
+                }
+                //hasznalhato e?
+                if (UseLeft != 0)
+                {
+                    UseLeft = item.UseLeft;
+                }
             }
-            //if (originalSizeX != SizeX || originalSizeY != SizeY)
-            //{
-            //    foreach (SizeChanger changer in OriginalsizeChangers)
-            //    {
-
-            //    }
-            //}
         }
         //action (Only Live Inventory)
         public void Shoot()
@@ -537,314 +470,63 @@ namespace ItemHandler
         {
 
         }
-        public Item(string name, int count = 1)// egy itemet mindeg név alapjan peldanyositunk
+        public Item(string SystemName, int count = 1)// egy itemet mindeg név alapjan peldanyositunk
         {
-            Item completedItem = name switch
+            AdvancedItemStruct advancedItemRef = AdvancedItemHandler.AdvancedItemDatas.GetAdvancedItemData(SystemName);
+
+            Item item = new()
             {
-                //Test
-                "TestBackpack" => new TestBackpack().Set(),
-                "TestVest" => new TestVest().Set(),
-                "TestFingers" => new TestFingers().Set(),
-                "TestBoots" => new TestBoots().Set(),
-                "AK103" => new AK103().Set(),
+                ObjectPath = AdvancedItemObjectParth,
+                ItemType = advancedItemRef.Type,//ez alapján kerülhet be egy slotba ugyan is vannak pecifikus slotok melyeknek typusváltozójában benen kell, hogy legyen.
+                SystemName = advancedItemRef.SystemName,//ez alapján hozza létre egy item saját magát
+                Description = advancedItemRef.Description,
+                Quantity = count,
+                Value = advancedItemRef.Value,
+                SizeX = advancedItemRef.SizeX,
+                SizeY = advancedItemRef.SizeY,
+                MaxStackSize = advancedItemRef.MaxStackSize,
+                //Action
+                IsDropAble = advancedItemRef.IsDropAble,
+                IsRemoveAble = advancedItemRef.IsRemoveAble,
+                IsUnloadAble = advancedItemRef.IsUnloadAble,
+                IsModificationAble = advancedItemRef.IsModificationAble,
+                IsOpenAble = advancedItemRef.IsOpenAble,
+                IsUsable = advancedItemRef.IsUsable,
+                IsAdvancedItem = true,
+                //tartalom
 
-                "TestCenter" => new TestCenter().Set(),
-                "TestBox" => new TestBox().Set(),
-                //"TestUpper" => new AK103().Set(),
-                //"TestButtom" => new AK103().Set(),
-                //"TestHead" => new AK103().Set(),
-                //"TestFoot" => new AK103().Set(),
-                //"TestFront" => new AK103().Set(),
-                //"TestBack" => new AK103().Set(),
-
-                //Weapon Bodys
-                "AKS-74U_Body" => new AKS74UBody().Set(),
-
-                //Dustcovers
-                "AKS-74U_dust_cover" => new AKS_74U_dust_cover().Set(),
-                "AKS-74U_Legal_Arsenal_Pilgrim_railed_dust_cover" => new AKS_74U_Legal_Arsenal_Pilgrim_railed_dust_cover().Set(),
-
-                //Grips
-                "AK_Zenit_RK-3_pistol_grip" => new AK_Zenit_RK_3_pistol_grip().Set(),
-                "AKS-74U_bakelite_pistol_grip" => new AKS_74U_bakelite_pistol_grip().Set(),
-
-                //Handguars
-                "AKS-74U_Wooden_handguard" => new AKS_74U_Wooden_handguard().Set(),
-                "AKS-74U_Zenit_B-11_handguard" => new AKS_74U_Zenit_B_11_handguard().Set(),
-
-                //Magasines
-                "AK-74_5.45x39_6L20_30-round_magasine" => new AK_74_545x39_6L20_30_round_magasine().Set(),
-                "AK-74_5.45x39_6L31_60-round_magasine" => new AK_74_545x39_6L31_60_round_magasine().Set(),
-
-                //Modgrips
-                "KAC_vertical_foregrip" => new KAC_vertical_foregrip().Set(),
-
-                //Muzzles
-                "AK-105_5.45x39_muzzle_brake-compensator" => new AK_105_545x39_muzzle_brake_compensator().Set(),
-
-                //Sights
-                "Walther_MRS_reflex_sight" => new Walther_MRS_reflex_sight().Set(),
-
-                //Stoks
-                "AKS-74U_Skeletonized_Stock" => new AKS_74U_Skeletonized_Stock().Set(),
-
-                //Backpacks
-                "Camelback_Tri_Zip_assault_backpack" => new Camelback_Tri_Zip_assault_backpack().Set(),
-                "Flyye_MBSS_backpack" => new Flyye_MBSS_backpack().Set(),
-                "Gruppa_99_T30_backpack" => new Gruppa_99_T30_backpack().Set(),
-                "Sanitars_bag" => new Sanitars_bag().Set(),
-                "Scav_backpack" => new Scav_backpack().Set(),
-                "Tactical_sling_bag" => new Tactical_sling_bag().Set(),
-                "Transformer_Bag" => new Transformer_Bag().Set(),
-                "Vertx_Ready_Pack_Backpack" => new Vertx_Ready_Pack_Backpack().Set(),
-                "VKBO_army_bag" => new VKBO_army_bag().Set(),
-                "WARTECH_Berkut_Backpack" => new WARTECH_Berkut_Backpack().Set(),
-
-                //Melees
-                "APOK_Tactical_Wasteland_Gladius" => new APOK_Tactical_Wasteland_Gladius().Set(),
-                "Camper_axe" => new Camper_axe().Set(),
-                "Cultist_knife" => new Cultist_knife().Set(),
-                "ER_FULCRUM_BAYONET" => new ER_FULCRUM_BAYONET().Set(),
-                "Miller_Bros_Blades_M_2_Tactical_Sword" => new Miller_Bros_Blades_M_2_Tactical_Sword().Set(),
-                "PR_Taran_police_baton" => new PR_Taran_police_baton().Set(),
-                "SOG_Voodoo_Hawk_tactical_tomahawk" => new SOG_Voodoo_Hawk_tactical_tomahawk().Set(),
-                "SP_8_Survival_Machete" => new SP_8_Survival_Machete().Set(),
-                "Unitted_Cutlery_M48_Tactical_Kukri" => new Unitted_Cutlery_M48_Tactical_Kukri().Set(),
-                "UVSR_Taiga_1_survival_machete" => new UVSR_Taiga_1_survival_machete().Set(),
-
-                //WeaponsMain
-                "Colt_M4A1_5_56x45_assault_rifle_KAC_RIS" => new Colt_M4A1_5_56x45_assault_rifle_KAC_RIS().Set(),
-                "Desert_Tech_MDR_5_56x45_assault_rifle_HHS_1_Tan" => new Desert_Tech_MDR_5_56x45_assault_rifle_HHS_1_Tan().Set(),
-                "DS_Arms_SA_58_7_62x51_assault_rifle_SPR" => new DS_Arms_SA_58_7_62x51_assault_rifle_SPR().Set(),
-                "DS_Arms_SA_58_7_62x51_assault_rifle_X_FAL" => new DS_Arms_SA_58_7_62x51_assault_rifle_X_FAL().Set(),
-                "Mosin_7_62x54R_bolt_action_rifle_Sniper_ATACR_7_35x56" => new Mosin_7_62x54R_bolt_action_rifle_Sniper_ATACR_7_35x56().Set(),
-                "FN_SCAR_H_7_62x51_assault_rifle_BOSS_Xe" => new FN_SCAR_H_7_62x51_assault_rifle_BOSS_Xe().Set(),
-                "SIG_MCX_SPEAR_6_8x51_assault_rifle_EXPS3" => new SIG_MCX_SPEAR_6_8x51_assault_rifle_EXPS3().Set(),
-                "SIG_MPX_9x19_submachine_gun_MRS" => new SIG_MPX_9x19_submachine_gun_MRS().Set(),
-                "TOZ_Simonov_SKS_7_62x39_carbine_TAPCO_Intrafuse" => new TOZ_Simonov_SKS_7_62x39_carbine_TAPCO_Intrafuse().Set(),
-                "U_S_Ordnance_M60E6_7_62x51_light_machine_gun_Default" => new U_S_Ordnance_M60E6_7_62x51_light_machine_gun_Default().Set(),
-
-                //WeaponsSecondary
-                "Glock_17_9x19_pistol_PS9" => new Glock_17_9x19_pistol_PS9().Set(),
-                "Glock_17_9x19_pistol_Tac_2" => new Glock_17_9x19_pistol_Tac_2().Set(),
-                "Magnum_Research_Desert_Eagle_L5_50_AE_pistol_Default" => new Magnum_Research_Desert_Eagle_L5_50_AE_pistol_Default().Set(),
-                "Magnum_Research_Desert_Eagle_L6_50_AE_pistol_WTS_Default" => new Magnum_Research_Desert_Eagle_L6_50_AE_pistol_WTS_Default().Set(),
-                "RSh_12_12_7x55_revolver_TAC30" => new RSh_12_12_7x55_revolver_TAC30().Set(),
-
-                //Armors
-                "_5_11_Tactical_TacTec_plate_carrier" => new _5_11_Tactical_TacTec_plate_carrier().Set(),
-                "_6B5_16_Zh_86_Uley_armored_rig" => new _6B5_16_Zh_86_Uley_armored_rig().Set(),
-                "_6B43_6A_Zabralo_Sh_body_armor" => new _6B43_6A_Zabralo_Sh_body_armor().Set(),
-                "BNTI_Kirasa_N_bodyarmor" => new BNTI_Kirasa_N_bodyarmor().Set(),
-                "BNTI_Module_3M_body_armor" => new BNTI_Module_3M_body_armor().Set(),
-                "Crye_Precision_AVS_plate_carrier" => new Crye_Precision_AVS_plate_carrier().Set(),
-                "IOTV_Gen4_body_armor_Assault_Kit" => new IOTV_Gen4_body_armor_Assault_Kit().Set(),
-                "IOTV_Gen4_body_armor_Full_Protection_Kit" => new IOTV_Gen4_body_armor_Full_Protection_Kit().Set(),
-                "IOTV_Gen4_body_armor_High_Mobility_Kit" => new IOTV_Gen4_body_armor_High_Mobility_Kit().Set(),
-                "PACA_Soft_Armor" => new PACA_Soft_Armor().Set(),
-
-                //Helmets
-                "_6B47_Ratnik_BSh_helmet_Olive_Drab" => new _6B47_Ratnik_BSh_helmet_Olive_Drab().Set(),
-                "Galvion_Caiman_Hybrid_helmet_Grey" => new Galvion_Caiman_Hybrid_helmet_Grey().Set(),
-                "Kolpak_1S_riot_helmet" => new Kolpak_1S_riot_helmet().Set(),
-                "LShZ_lightweight_helmet_Olive_Drab" => new LShZ_lightweight_helmet_Olive_Drab().Set(),
-                "PSh_97_DJETA_riot_helmet" => new PSh_97_DJETA_riot_helmet().Set(),
-                "ShPM_Firefighter_helmet" => new ShPM_Firefighter_helmet().Set(),
-                "Tac_Kek_FAST_MT_helmet_Replica" => new Tac_Kek_FAST_MT_helmet_Replica().Set(),
-                "SSh_68_steel_helmet_Olive_Drab" => new SSh_68_steel_helmet_Olive_Drab().Set(),
-                "TSh_4M_L_soft_tank_crew_helmet" => new TSh_4M_L_soft_tank_crew_helmet().Set(),
-                "UNTAR_helmet" => new UNTAR_helmet().Set(),
-
-                //Masks
-                "Atomic_Defense_CQCM_ballistic_mask_Black" => new Atomic_Defense_CQCM_ballistic_mask_Black().Set(),
-                "Death_Knight_mask" => new Death_Knight_mask().Set(),
-                "Death_Shadow_lightweight_armored_mask" => new Death_Shadow_lightweight_armored_mask().Set(),
-                "Glorious_E_lightweight_armored_mask" => new Glorious_E_lightweight_armored_mask().Set(),
-                "Shattered_lightweight_armored_mask" => new Shattered_lightweight_armored_mask().Set(),
-                "Tagillas_welding_mask_Gorilla" => new Tagillas_welding_mask_Gorilla().Set(),
-                "Tagillas_welding_mask_UBEY" => new Tagillas_welding_mask_UBEY().Set(),
-
-                //Headsets
-                "GSSh_01_active_headset" => new GSSh_01_active_headset().Set(),
-                "MSA_Sordin_Supreme_headset" => new MSA_Sordin_Supreme_headset().Set(),
-                "Ops_Core_FAST_RAC_Headset" => new Ops_Core_FAST_RAC_Headset().Set(),
-                "OPSMEN_Earmor_M32_headset" => new OPSMEN_Earmor_M32_headset().Set(),
-                "Peltor_ComTac_IV_Hybrid_headset" => new Peltor_ComTac_IV_Hybrid_headset().Set(),
-                "Peltor_ComTac_V_headset" => new Peltor_ComTac_V_headset().Set(),
-                "Peltor_ComTac_VI_headset" => new Peltor_ComTac_VI_headset().Set(),
-                "Safariland_Liberator_HP_2_0_Headset" => new Safariland_Liberator_HP_2_0_Headset().Set(),
-                "Walkers_Razor_Digital_headset" => new Walkers_Razor_Digital_headset().Set(),
-                "Walkers_XCEL_500BT_Digital_headset" => new Walkers_XCEL_500BT_Digital_headset().Set(),
-
-                //Vests
-                "_6B5_15_Zh_86_Uley_armored_rig" => new _6B5_15_Zh_86_Uley_armored_rig().Set(),
-                "ANA_Tactical_M1_plate_carrier" => new ANA_Tactical_M1_plate_carrier().Set(),
-                "BlackRock_chest_rig" => new BlackRock_chest_rig().Set(),
-                "Scav_Vest" => new Scav_Vest().Set(),
-                "Security_vest" => new Security_vest().Set(),
-                "SOE_Micro_Rig" => new SOE_Micro_Rig().Set(),
-                "Stich_Profi_Plate_Carrier_V2" => new Stich_Profi_Plate_Carrier_V2().Set(),
-                "Tasmanian_Tiger_Plate_Carrier_MKIII" => new Tasmanian_Tiger_Plate_Carrier_MKIII().Set(),
-                "Umka_M33_SET1_hunter_vest" => new Umka_M33_SET1_hunter_vest().Set(),
-                "Velocity_Systems_MPPV_Multi_Purpose_Patrol_Vest" => new Velocity_Systems_MPPV_Multi_Purpose_Patrol_Vest().Set(),
-
-                //Ammunitions
-                "7.62x39FMJ" => new Ammunition762x39FMJ().Set(),
-                "_12_70_8_5mm_Magnum_buckshot" => new Ammunition_12_70_8_5mm_Magnum_buckshot().Set(),
-                "_12_70_Grizzly_40_slug" => new Ammunition_12_70_Grizzly_40_slug().Set(),
-                "_20_70_7_5mm_buckshot" => new Ammunition_20_70_7_5mm_buckshot().Set(),
-                "_23_75mm_Shrapnel_10_buckshot" => new Ammunition_23_75mm_Shrapnel_10_buckshot().Set(),
-                "_9x18mm_PM_PSO_gzh" => new Ammunition_9x18mm_PM_PSO_gzh().Set(),
-                "_7_62x25mm_TT_AKBS" => new Ammunition_7_62x25mm_TT_AKBS().Set(),
-                "_9x19mm_Green_Tracer" => new Ammunition_9x19mm_Green_Tracer().Set(),
-                "_45_ACP_Lasermatch_FMJ" => new Ammunition_45_ACP_Lasermatch_FMJ().Set(),
-                "_50_AE_Hawk_JSP" => new Ammunition_50_AE_Hawk_JSP().Set(),
-                "_9x21mm_7U4" => new Ammunition_9x21mm_7U4().Set(),
-                "_357_Magnum_JHP" => new Ammunition_357_Magnum_JHP().Set(),
-                "_5_7x28mm_SS197SR" => new Ammunition_5_7x28mm_SS197SR().Set(),
-                "_4_6x30mm_JSP_SX" => new Ammunition_4_6x30mm_JSP_SX().Set(),
-                "_9x39mm_PAB_9_gs" => new Ammunition_9x39mm_PAB_9_gs().Set(),
-                "_366_TKM_EKO" => new Ammunition_366_TKM_EKO().Set(),
-                "_5_45x39mm_FMJ" => new Ammunition_5_45x39mm_FMJ().Set(),
-                "_5_56x45mm_M856" => new Ammunition_5_56x45mm_M856().Set(),
-                "_7_62x39mm_T_45M1_gzh" => new Ammunition_7_62x39mm_T_45M1_gzh().Set(),
-                "_300_Blackout_V_Max" => new Ammunition_300_Blackout_V_Max().Set(),
-                "_6_8x51mm_SIG_Hybrid" => new Ammunition_6_8x51mm_SIG_Hybrid().Set(),
-                "_7_62x51mm_M80" => new Ammunition_7_62x51mm_M80().Set(),
-                "_7_62x54mm_R_SNB_gzh" => new Ammunition_7_62x54mm_R_SNB_gzh().Set(),
-                "_12_7x55mm_PS12" => new Ammunition_12_7x55mm_PS12().Set(),
-
-                //Pants
-                "USEC_Base" => new USEC_Base().Set(),
-                "USEC_Defender" => new USEC_Defender().Set(),
-                "USEC_Legionnaire" => new USEC_Legionnaire().Set(),
-                "USEC_Outdoor_Tactical" => new USEC_Outdoor_Tactical().Set(),
-                "USEC_Rangemaster" => new USEC_Rangemaster().Set(),
-                "USEC_Ranger_Jeans" => new USEC_Ranger_Jeans().Set(),
-                "USEC_Sage_Warrior" => new USEC_Sage_Warrior().Set(),
-                "USEC_Taclife_Terrain" => new USEC_Taclife_Terrain().Set(),
-                "USEC_TIER3" => new USEC_TIER3().Set(),
-
-                //Skins
-                "Adik_Tracksuit" => new Adik_Tracksuit().Set(),
-                "USEC_Adaptive_Combat" => new USEC_Adaptive_Combat().Set(),
-                "USEC_Aggressor_TAC" => new USEC_Aggressor_TAC().Set(),
-                "USEC_Base_Upper" => new USEC_Base_Upper().Set(),
-                "USEC_BOSS_Delta" => new USEC_BOSS_Delta().Set(),
-                "USEC_Mission" => new USEC_Mission().Set(),
-                "USEC_PCU_Ironsight" => new USEC_PCU_Ironsight().Set(),
-                "USEC_Sandstone" => new USEC_Sandstone().Set(),
-                "USEC_Troubleshooter" => new USEC_Troubleshooter().Set(),
-
-                //money
-                "Dollar_1" => new Dollar_1().Set(),
-
-                //Useables
-                "AI_2" => new AI_2().Set(),
-
-                _ => throw new ArgumentException($"Invalid type {name}")
+                //fegyver adatok
+                MagasineSize = advancedItemRef.MagasineSize,
+                Spread = advancedItemRef.Spread,
+                Fpm = advancedItemRef.Fpm,
+                Recoil = advancedItemRef.Recoil,
+                Accturacy = advancedItemRef.Accturacy,
+                Range = advancedItemRef.Range,
+                Ergonomy = advancedItemRef.Ergonomy,
+                AmmoType = advancedItemRef.Caliber,
+                //hasznalhato e?
+                UseLeft = advancedItemRef.UseLeft,
+                //Advanced
+                SizeChanger = advancedItemRef.SizeChanger,
             };
-            completedItem.Quantity = count;
-            if (completedItem.IsAdvancedItem)
-            {
-                Item item = new()
-                {
-                    ImgPath = completedItem.ImgPath,
-                    ObjectPath = AdvancedItemObjectParth,
-                    ItemType = completedItem.ItemType,//ez alapján kerülhet be egy slotba ugyan is vannak pecifikus slotok melyeknek typusváltozójában benen kell, hogy legyen.
-                    ItemName = completedItem.ItemName,//ez alapján hozza létre egy item saját magát
-                    Description = completedItem.Description,
-                    Quantity = completedItem.Quantity,
-                    Value = completedItem.Value,
-                    SizeX = completedItem.SizeX,
-                    SizeY = completedItem.SizeY,
-                    MaxStackSize = completedItem.MaxStackSize,
-                    //Action
-                    IsDropAble = completedItem.IsDropAble,
-                    IsRemoveAble = completedItem.IsRemoveAble,
-                    IsUnloadAble = completedItem.IsUnloadAble,
-                    IsModificationAble = completedItem.IsModificationAble,
-                    IsOpenAble = completedItem.IsOpenAble,
-                    IsUsable = completedItem.IsUsable,
-                    IsAdvancedItem = completedItem.IsAdvancedItem,
-                    //tartalom
-                    Container = completedItem.Container,
-                    //fegyver adatok
-                    MagasineSize = completedItem.MagasineSize,
-                    Spread = completedItem.Spread,
-                    Fpm = completedItem.Fpm,
-                    Recoil = completedItem.Recoil,
-                    Accturacy = completedItem.Accturacy,
-                    Range = completedItem.Range,
-                    Ergonomy = completedItem.Ergonomy,
-                    BulletType = completedItem.BulletType,
-                    AmmoType = completedItem.AmmoType,
-                    //hasznalhato e?
-                    UseLeft = completedItem.UseLeft,
-                    //Advanced
-                    SizeChanger = completedItem.SizeChanger,
-                };
-                Parts = new List<Part>
-                {
-                    new(item)
-                };
-                //fügvény ami az össze spart ertekeit az advanced valtozoba tölti és adja össze
-                AdvancedItemContsruct();
 
-                //Debug.LogWarning($"Item(A) created {completedItem.ItemName}");
+            Parts = new List<Part>
+            {
+                new(item)
+            };
+
+            if (advancedItemRef.ContainerPath != "-")
+            {
+                item.Container = new Container(advancedItemRef.ContainerPath);
             }
             else
             {
-                ObjectPath = SimpleItemObjectParth;
-
-                //altalanos adatok
-                ImgPath = completedItem.ImgPath;
-                ItemType = completedItem.ItemType;//ez alapján kerülhet be egy slotba ugyan is vannak pecifikus slotok melyeknek typusváltozójában benen kell, hogy legyen.
-                ItemName = completedItem.ItemName;//ez alapján hozza létre egy item saját magát
-                Description = completedItem.Description;
-                Quantity = completedItem.Quantity;
-                Value = completedItem.Value;
-                SizeX = completedItem.SizeX;
-                SizeY = completedItem.SizeY;
-                MaxStackSize = completedItem.MaxStackSize;
-                //Action
-                IsDropAble = completedItem.IsDropAble;
-                IsRemoveAble = completedItem.IsRemoveAble;
-                IsUnloadAble = completedItem.IsUnloadAble;
-                IsModificationAble = completedItem.IsModificationAble;
-                IsOpenAble = completedItem.IsOpenAble;
-                IsUsable = completedItem.IsUsable;
-                IsAdvancedItem = completedItem.IsAdvancedItem;
-                //tartalom
-                Container = completedItem.Container;
-                //fegyver adatok
-                MagasineSize = completedItem.MagasineSize;
-                Spread = completedItem.Spread;
-                Fpm = completedItem.Fpm;
-                Recoil = completedItem.Recoil;
-                Accturacy = completedItem.Accturacy;
-                Range = completedItem.Range;
-                Ergonomy = completedItem.Ergonomy;
-                BulletType = completedItem.BulletType;
-                AmmoType = completedItem.AmmoType;
-                //hasznalhato e?
-                UseLeft = completedItem.UseLeft;
-
-                //Debug.Log($"Item(S) created {ItemName} - {Quantity}db");
+                item.Container = null;
             }
+
+            //fügvény ami az össze spart ertekeit az advanced valtozoba tölti és adja össze
+            AdvancedItemContsruct();
         }
-    }
-    public class SizeChanger
-    {
-        public SizeChanger(int plus, int maxPlus, string direction)
-        {
-            Plus = plus;
-            MaxPlus = maxPlus;
-            Direction = direction;
-        }
-        public int Plus { get; private set; }
-        public int MaxPlus { get; private set; }
-        public string Direction { get; private set; }
     }
     //a connection point inpectorban létező dolog ami lenyegeben statikusan jelen van nem kell generalni
     [System.Serializable]
@@ -922,11 +604,11 @@ namespace ItemHandler
         //statikus adatok melyek nem valtoznak
         public ConnectionPoint[] ConnectionPoints;//a tartalmazott pontok
         public Item item_s_Part;//az item aminek a partja
-        public ItemPartData PartData;
+        public PartData PartData;
         public Part(Item item)
         {
             item_s_Part = item;
-            PartData = AdvancedItemHandler.AdvancedItemDatas.GetPartData(item.ItemName);
+            PartData = AdvancedItemHandler.AdvancedItemDatas.GetPartData(item.SystemName);
             ConnectionPoints = new ConnectionPoint[PartData.CPs.Length];
 
             for (int i = 0; i < ConnectionPoints.Length; i++)
@@ -1026,8 +708,8 @@ namespace ItemHandler
     {
         private static readonly List<LootItem> weapons = new()
         {
-            new LootItem("Glock_17_9x19_pistol_PS9",1f),
-            new LootItem("AK103", 2f),
+            //new LootItem("Glock_17_9x19_pistol_PS9",1f),
+            //new LootItem("AK103", 2f),
             new LootItem("APOK_Tactical_Wasteland_Gladius",2f),
             new LootItem("7.62x39FMJ",2f,0.1f,0.5f)//jelentese, hogy 10% és 50% staksize között spawnolhat.
         };
@@ -1189,10 +871,10 @@ namespace ItemHandler
                 {
                     Item Parent = ActiveSlots.First().SlotParentItem;
 
-                    Item newItem = new(Incoming.ItemName, larger);
+                    Item newItem = new(Incoming.SystemName, larger);
 
                     GameObject itemObject = CreatePrefab(Incoming.ObjectPath);
-                    itemObject.name = newItem.ItemName;
+                    itemObject.name = newItem.SystemName;
                     newItem.SelfGameobject = itemObject;
                     newItem.ParentItem = Parent;
                     itemObject.GetComponent<ItemObject>().SetDataRoute(newItem, newItem.ParentItem);
@@ -1386,7 +1068,7 @@ namespace ItemHandler
         }
         public static bool CanMergable(Item Stand, Item Incoming)
         {
-            if (Stand != Incoming && Stand.MaxStackSize > 1 && Stand.ItemName == Incoming.ItemName)
+            if (Stand != Incoming && Stand.MaxStackSize > 1 && Stand.SystemName == Incoming.SystemName)
             {
                 return true;
             }
@@ -1463,7 +1145,7 @@ namespace ItemHandler
 
             Item RootData = new()
             {
-                ItemName = "Root",
+                SystemName = "Root",
                 Lvl = -1,
                 SectorId = 0,
                 Coordinates = new (int, int)[] { (0, 0) },
@@ -1552,13 +1234,13 @@ namespace ItemHandler
 
                 (int X, int Y) ChangedSize = new(AdvancedItem.SizeX, AdvancedItem.SizeY);
 
-                List<Part> ChangerParts = IncomingParts.Where(part => part.item_s_Part.SizeChanger != null).OrderBy(part => part.item_s_Part.SizeChanger.MaxPlus).ToList();
+                List<Part> ChangerParts = IncomingParts.Where(part => part.item_s_Part.SizeChanger.Direction != '-').OrderBy(part => part.item_s_Part.SizeChanger.MaxPlus).ToList();
 
                 foreach (Part part in ChangerParts)
                 {
                     SizeChanger sizeChanger = part.item_s_Part.SizeChanger;
 
-                    if (sizeChanger.Direction == "R" && ChangedSize.X < sizeChanger.MaxPlus)
+                    if (sizeChanger.Direction == 'R' && ChangedSize.X < sizeChanger.MaxPlus)
                     {
                         if ((sizeChanger.Plus + ChangedSize.X) > sizeChanger.MaxPlus)
                         {
@@ -1585,7 +1267,7 @@ namespace ItemHandler
                             }
                         }
                     }
-                    else if (sizeChanger.Direction == "L" && ChangedSize.X < sizeChanger.MaxPlus)
+                    else if (sizeChanger.Direction == 'L' && ChangedSize.X < sizeChanger.MaxPlus)
                     {
                         if ((sizeChanger.Plus + ChangedSize.X) > sizeChanger.MaxPlus)
                         {
@@ -1612,7 +1294,7 @@ namespace ItemHandler
                             }
                         }
                     }
-                    else if (sizeChanger.Direction == "U" && ChangedSize.Y < sizeChanger.MaxPlus)
+                    else if (sizeChanger.Direction == 'U' && ChangedSize.Y < sizeChanger.MaxPlus)
                     {
                         if ((sizeChanger.Plus + ChangedSize.Y) > sizeChanger.MaxPlus)
                         {
@@ -1640,7 +1322,7 @@ namespace ItemHandler
                             }
                         }
                     }
-                    else if (sizeChanger.Direction == "D" && ChangedSize.Y < sizeChanger.MaxPlus)
+                    else if (sizeChanger.Direction == 'D' && ChangedSize.Y < sizeChanger.MaxPlus)
                     {
                         if ((sizeChanger.Plus + ChangedSize.Y) > sizeChanger.MaxPlus)
                         {
@@ -1682,10 +1364,10 @@ namespace ItemHandler
                 (int X, int Y) ChangedSize = new(AdvancedItem.Parts.First().item_s_Part.SizeX, AdvancedItem.Parts.First().item_s_Part.SizeY);
 
                 //azok a partok amelyek nincsneek az incoming partokba és rendelkeznek sizechangerrel rendezve Maxplus szerint
-                List<Part> StandParts = AdvancedItem.Parts.Where(part=> !IncomingParts.Contains(part) && part.item_s_Part.SizeChanger != null).OrderBy(part=>part.item_s_Part.SizeChanger.MaxPlus).ToList();
+                List<Part> StandParts = AdvancedItem.Parts.Where(part=> !IncomingParts.Contains(part) && part.item_s_Part.SizeChanger.Direction != '-').OrderBy(part=>part.item_s_Part.SizeChanger.MaxPlus).ToList();
 
                 //azon incoming partok ameyleknek van sizechanger és rendezve vannak maxplus szeirtn
-                List<Part> ChangerParts = IncomingParts.Where(part => part.item_s_Part.SizeChanger != null).OrderBy(part => part.item_s_Part.SizeChanger.MaxPlus).ToList();
+                List<Part> ChangerParts = IncomingParts.Where(part => part.item_s_Part.SizeChanger.Direction != '-').OrderBy(part => part.item_s_Part.SizeChanger.MaxPlus).ToList();
 
                 //vegig megyunk azokon a partokaon amelyek maradnak és nem tavolitodnak el tovabba rendelkeznek sizechangerrel
                 //tájolás szerint biraljuk el sizechangerjuket
@@ -1694,7 +1376,7 @@ namespace ItemHandler
                 {
                     SizeChanger sizeChanger = part.item_s_Part.SizeChanger;
 
-                    if (sizeChanger.Direction == "R" && ChangedSize.X < sizeChanger.MaxPlus)
+                    if (sizeChanger.Direction == 'R' && ChangedSize.X < sizeChanger.MaxPlus)
                     {
                         if ((sizeChanger.Plus + ChangedSize.X) > sizeChanger.MaxPlus)
                         {
@@ -1705,7 +1387,7 @@ namespace ItemHandler
                             ChangedSize.X += sizeChanger.Plus;
                         }
                     }
-                    else if (sizeChanger.Direction == "L" && ChangedSize.X < sizeChanger.MaxPlus)
+                    else if (sizeChanger.Direction == 'L' && ChangedSize.X < sizeChanger.MaxPlus)
                     {
                         if ((sizeChanger.Plus + ChangedSize.X) > sizeChanger.MaxPlus)
                         {
@@ -1716,7 +1398,7 @@ namespace ItemHandler
                             ChangedSize.X += sizeChanger.Plus;
                         }
                     }
-                    else if (sizeChanger.Direction == "U" && ChangedSize.Y < sizeChanger.MaxPlus)
+                    else if (sizeChanger.Direction == 'U' && ChangedSize.Y < sizeChanger.MaxPlus)
                     {
                         if ((sizeChanger.Plus + ChangedSize.Y) > sizeChanger.MaxPlus)
                         {
@@ -1727,7 +1409,7 @@ namespace ItemHandler
                             ChangedSize.Y += sizeChanger.Plus;
                         }
                     }
-                    else if (sizeChanger.Direction == "D" && ChangedSize.Y < sizeChanger.MaxPlus)
+                    else if (sizeChanger.Direction == 'D' && ChangedSize.Y < sizeChanger.MaxPlus)
                     {
                         if ((sizeChanger.Plus + ChangedSize.Y) > sizeChanger.MaxPlus)
                         {
@@ -1748,7 +1430,7 @@ namespace ItemHandler
                 {
                     SizeChanger sizeChanger = part.item_s_Part.SizeChanger;
 
-                    if (sizeChanger.Direction == "R" && ChangedSize.X < sizeChanger.MaxPlus)
+                    if (sizeChanger.Direction == 'R' && ChangedSize.X < sizeChanger.MaxPlus)
                     {
                         if ((sizeChanger.Plus + ChangedSize.X) > sizeChanger.MaxPlus)
                         {
@@ -1775,7 +1457,7 @@ namespace ItemHandler
                             }
                         }
                     }
-                    else if (sizeChanger.Direction == "L" && ChangedSize.X < sizeChanger.MaxPlus)
+                    else if (sizeChanger.Direction == 'L' && ChangedSize.X < sizeChanger.MaxPlus)
                     {
                         if ((sizeChanger.Plus + ChangedSize.X) > sizeChanger.MaxPlus)
                         {
@@ -1802,7 +1484,7 @@ namespace ItemHandler
                             }
                         }
                     }
-                    else if (sizeChanger.Direction == "U" && ChangedSize.Y < sizeChanger.MaxPlus)
+                    else if (sizeChanger.Direction == 'U' && ChangedSize.Y < sizeChanger.MaxPlus)
                     {
                         if ((sizeChanger.Plus + ChangedSize.Y) > sizeChanger.MaxPlus)
                         {
@@ -1830,7 +1512,7 @@ namespace ItemHandler
                             }
                         }
                     }
-                    else if (sizeChanger.Direction == "D" && ChangedSize.Y < sizeChanger.MaxPlus)
+                    else if (sizeChanger.Direction == 'D' && ChangedSize.Y < sizeChanger.MaxPlus)
                     {
                         if ((sizeChanger.Plus + ChangedSize.Y) > sizeChanger.MaxPlus)
                         {
@@ -2150,12 +1832,12 @@ namespace ItemHandler
 
             if (!item.IsInPlayerInventory && StatusParent.IsInPlayerInventory)
             {
-                Debug.LogWarning($"{item.ItemName}   add player inventory");
+                Debug.LogWarning($"{item.SystemName}   add player inventory");
                 AddPlayerInventory(item);
             }
             else if (item.IsInPlayerInventory && !StatusParent.IsInPlayerInventory)
             {
-                Debug.LogWarning($"{item.ItemName}   remove player inventory");
+                Debug.LogWarning($"{item.SystemName}   remove player inventory");
                 RemovePlayerInventory(item);
             }
 

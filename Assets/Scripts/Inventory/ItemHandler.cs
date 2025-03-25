@@ -41,7 +41,7 @@ namespace ItemHandler
         public const string TemporaryItemObjectPath = "GameElements/TemporaryAdvancedItemObject";
         //system variables
 
-        #region SelfRefVariables
+        #region Ref Variables
 
         public ModificationWindow ModificationWindowRef;
         public LevelManager LevelManagerRef;
@@ -52,6 +52,7 @@ namespace ItemHandler
         public CharacterHand PlayerHandRef;
         public GameObject SelfGameobject { get; set; }
         public GameObject InGameSelfObject { get; set; }
+        public Item ParentItem { get; set; }//az az item ami tárolja ezt az itemet
         #endregion
 
         #region PlacerVariables
@@ -59,30 +60,10 @@ namespace ItemHandler
         public Item AvaiableParentItem { get; set; }
         #endregion
 
-        public List<Part> Parts { get; set; }//az item darabjai
-        public string ObjectPath { get; private set; }//az, hogy milyen obejctum tipust hasznal
-        public Item ParentItem { get; set; }//az az item ami tárolja ezt az itemet
+        #region System Variables
         public int Lvl { get; set; }
         public string HotKey { get; set; } = "";
-
-        //general variables
-        public string ItemType { get; set; }
-        public string SystemName { get; set; }
-        public string Description { get; set; } = "...";
-        public int MaxStackSize { get; set; } = 1;
-        public int Quantity { get; set; }
-        public int Value { get; set; } = 1;
-        public int SizeX { get; set; }
-        public int SizeY { get; set; }
         public float RotateDegree { get; set; } = 0f;
-        public bool IsInPlayerInventory { get; set; } = false;// a player inventory tagja az item
-        public bool IsEquipment { set; get; } = false;// az item egy equipment
-        public bool IsLoot { set; get; } = false;// az item a loot conténerekben van
-        public bool IsRoot { set; get; } = false;// az item egy root data
-        public bool IsEquipmentRoot { set; get; } = false;// az item a player equipmentjeinek rootja ebbol csak egy lehet
-        public bool IsAdvancedItem { set; get; } = false;// az item egy advanced item
-
-        //SlotUse
         public int SectorId { get; set; }
         private (int, int)[] coordinates;
         public (int, int)[] Coordinates
@@ -97,7 +78,18 @@ namespace ItemHandler
                 Array.Sort(coordinates);
             }
         }
-        //action (Műveletek)
+        public SizeChanger SizeChanger { get; set; }
+        #endregion
+
+        #region Status Flags
+        public bool IsInPlayerInventory { get; set; } = false;// a player inventory tagja az item
+        public bool IsEquipment { set; get; } = false;// az item egy equipment
+        public bool IsLoot { set; get; } = false;// az item a loot conténerekben van
+        public bool IsRoot { set; get; } = false;// az item egy root data
+        public bool IsEquipmentRoot { set; get; } = false;// az item a player equipmentjeinek rootja ebbol csak egy lehet
+        #endregion
+
+        #region Action Flags
         public bool IsDropAble { get; set; } = false;
         public bool IsRemoveAble { get; set; } = true;
         public bool IsUnloadAble { get; set; } = false;
@@ -105,28 +97,38 @@ namespace ItemHandler
         public bool IsOpenAble { get; set; } = false;
         public bool IsUsable { get; set; } = false;
         public bool CanReload { get; set; } = false;
+        #endregion
 
-        #region NonGeneric Variables
-        //Size Changer
-        public SizeChanger SizeChanger { get; set; }
-        //contain
+        #region Contaimnets
+        public List<Part> Parts { get; set; }//az item darabjai
         public Container Container { get; set; }
-        //weapon
-        public int? MagasineSize { get; set; }
-        public double? Spread { get; set; }
-        public int? Fpm { get; set; }
-        public double? Recoil { get; set; }
-        public double? Accturacy { get; set; }
-        public double? Range { get; set; }
-        public double? Ergonomy { get; set; }
-        public string AmmoType { get; set; } = "";
-        //usable
+        #endregion
+
+        #region General Variables
+        public string ItemType { get; set; }
+        public string SystemName { get; set; }
+        public string ItemName { get; set; }
+        public string Description { get; set; }
+        public int MaxStackSize { get; set; }
+        public int Quantity { get; set; }
+        public int Value { get; set; }
+        public int SizeX { get; set; }
+        public int SizeY { get; set; }
+        #endregion
+
+        #region NonGeneric Weapon Variables
+        public int MagasineSize { get; set; }
+        public double Spread { get; set; }
+        public int Fpm { get; set; }
+        public double Recoil { get; set; }
+        public double Accturacy { get; set; }
+        public double Range { get; set; }
+        public double Ergonomy { get; set; }
+        public string Caliber { get; set; }
+        #endregion
+
+        #region NonGeneric UseAble Items Variables
         public int UseLeft { get; set; } = 0;
-        //ammo
-
-        //med
-
-        //armor
         #endregion
 
         //Ez egy Totális Törlés ami azt jelenti, hogy mindenhonnan törli. Ez nem jo akkor ha valahonnan torolni akarjuk de mashol meg hozzadni
@@ -183,33 +185,41 @@ namespace ItemHandler
         {
             Item cloned = new()
             {
-                // Alap adatok
-                ObjectPath = this.ObjectPath,
-                ItemType = this.ItemType,
-                SystemName = this.SystemName,
-                Description = this.Description,
-                Quantity = this.Quantity,
-                Value = this.Value,
-                SizeX = this.SizeX,
-                SizeY = this.SizeY,
-                MaxStackSize = this.MaxStackSize,
+                // System variables
+                Lvl = this.Lvl,
+                HotKey = this.HotKey,
+                RotateDegree = this.RotateDegree,
+                SectorId = this.SectorId,
+                SizeChanger = this.SizeChanger,
 
-                // Akciók
-                IsDropAble = this.IsDropAble,
-                IsRemoveAble = this.IsRemoveAble,
-                IsUnloadAble = this.IsUnloadAble,
-                IsModificationAble = this.IsModificationAble,
-                IsOpenAble = this.IsOpenAble,
-                IsUsable = this.IsUsable,
-                IsAdvancedItem = this.IsAdvancedItem,
-
+                // Status Flags
                 IsRoot = this.IsRoot,
                 IsEquipment = this.IsEquipment,
                 IsLoot = this.IsLoot,
                 IsEquipmentRoot = this.IsEquipmentRoot,
                 IsInPlayerInventory = this.IsInPlayerInventory,
 
-                // Fegyver adatok
+                // Action Flags
+                IsDropAble = this.IsDropAble,
+                IsRemoveAble = this.IsRemoveAble,
+                IsUnloadAble = this.IsUnloadAble,
+                IsModificationAble = this.IsModificationAble,
+                IsOpenAble = this.IsOpenAble,
+                IsUsable = this.IsUsable,
+                CanReload = this.CanReload,
+
+                // Alap adatok
+                ItemType = this.ItemType,
+                SystemName = this.SystemName,
+                ItemName = this.ItemName,
+                Description = this.Description,
+                MaxStackSize = this.MaxStackSize,
+                Quantity = this.Quantity,
+                Value = this.Value,
+                SizeX = this.SizeX,
+                SizeY = this.SizeY,
+
+                // NonGeneral Weapon Veriables
                 MagasineSize = this.MagasineSize,
                 Spread = this.Spread,
                 Fpm = this.Fpm,
@@ -217,22 +227,10 @@ namespace ItemHandler
                 Accturacy = this.Accturacy,
                 Range = this.Range,
                 Ergonomy = this.Ergonomy,
-                AmmoType = this.AmmoType,
+                Caliber = this.Caliber,
 
-                // Használhatóság
+                // NonGeneral Usable Items Veriables
                 UseLeft = this.UseLeft,
-
-                // Advanced
-                SizeChanger = this.SizeChanger,
-
-                Lvl = this.Lvl,
-                SectorId = this.SectorId,
-
-                RotateDegree = this.RotateDegree,
-
-
-
-                //BulletType = this.BulletType,
             };
 
             if (Container != null)
@@ -249,24 +247,21 @@ namespace ItemHandler
         }
         public (ConnectionPoint SCP, ConnectionPoint ICP, bool IsPossible) PartPut_IsPossible(Item Incoming_AdvancedItem)
         {
-            if (IsAdvancedItem && Incoming_AdvancedItem.IsAdvancedItem)
+            //amit rá helyezunk
+            ConnectionPoint[] IncomingCPs = Incoming_AdvancedItem.Parts.SelectMany(x => x.ConnectionPoints).ToArray();//az összes connection point amitje az itemnek van
+                                                                                                                      //amire helyezunk
+            ConnectionPoint[] SelfCPs = Parts.SelectMany(x => x.ConnectionPoints).ToArray();//az össze sconnection point amihez hozzadhatja
+            /*
+             * ellenorizzuk, hogy a CP-k egyike sincs e hasznalva
+             * ellenorizzuk, hogy a self cp kompatibilis e az incoming cp-vel
+             */
+            foreach (ConnectionPoint SCP in SelfCPs)
             {
-                //amit rá helyezunk
-                ConnectionPoint[] IncomingCPs = Incoming_AdvancedItem.Parts.SelectMany(x => x.ConnectionPoints).ToArray();//az összes connection point amitje az itemnek van
-                                                                                                                          //amire helyezunk
-                ConnectionPoint[] SelfCPs = Parts.SelectMany(x => x.ConnectionPoints).ToArray();//az össze sconnection point amihez hozzadhatja
-                /*
-                 * ellenorizzuk, hogy a CP-k egyike sincs e hasznalva
-                 * ellenorizzuk, hogy a self cp kompatibilis e az incoming cp-vel
-                 */
-                foreach (ConnectionPoint SCP in SelfCPs)
+                foreach (ConnectionPoint ICP in IncomingCPs)
                 {
-                    foreach (ConnectionPoint ICP in IncomingCPs)
+                    if (!SCP.Used && !ICP.Used && SCP.CPData.CompatibleItemNames.Contains(ICP.SelfPart.PartData.PartName))
                     {
-                        if (!SCP.Used && !ICP.Used && SCP.CPData.CompatibleItemNames.Contains(ICP.SelfPart.PartData.PartName))
-                        {
-                            return (SCP, ICP, true);
-                        }
+                        return (SCP, ICP, true);
                     }
                 }
             }
@@ -341,29 +336,40 @@ namespace ItemHandler
                 MainItem mainItem = partFound.PartData.MainItem;
                 if (mainItem.NecessaryItemTypes.All(Type => Parts.Exists(part => part.item_s_Part.ItemType == Type)))
                 {
-                    Debug.LogWarning("MainItem");
                     SystemName = mainItem.SystemName;
+                    ItemName = mainItem.MainItemName;
                     Description = mainItem.Desctription;
                     ItemType = mainItem.Type;
                 }
                 else
                 {
-                    Debug.LogWarning("incompleted MainItem");
                     SystemName = $"Incompleted {mainItem.SystemName}";
+                    ItemName = $"Incompleted {mainItem.SystemName}";
                     Description = mainItem.Desctription;
                     ItemType = mainItem.Type;
                 }
             }
             else
             {
-                SystemName = FirstItem.SystemName;
+                if (Parts.Count>1)
+                {
+                    SystemName = FirstItem.SystemName +" ...";
+                    ItemName = FirstItem.ItemName + " ...";
+                    Description = FirstItem.Description;
+                    ItemType = FirstItem.ItemType;
+                }
+                else
+                {
+                    SystemName = FirstItem.SystemName;
+                    ItemName = FirstItem.ItemName;
+                    Description = FirstItem.Description;
+                    ItemType = FirstItem.ItemType;
+                }
             }
 
             Quantity = FirstItem.Quantity;
             MaxStackSize = FirstItem.MaxStackSize;
             IsModificationAble = true;
-            IsAdvancedItem = true;
-            ObjectPath = FirstItem.ObjectPath;
 
             SizeX = FirstItem.SizeX;
             SizeY = FirstItem.SizeY;
@@ -380,7 +386,7 @@ namespace ItemHandler
             {
                 Item item = part.item_s_Part;
                 Value += item.Value;
-                if (item.SizeChanger.Direction != '-')
+                if (Parts.Count>1 && item.SizeChanger.Direction != '-')
                 {
                     char direction = item.SizeChanger.Direction;
                     SizeChanger sizeChanger = item.SizeChanger;
@@ -422,9 +428,9 @@ namespace ItemHandler
                 {
                     IsUsable = item.IsUsable;
                 }
-                if (item.AmmoType != null)//csak 1 lehet
+                if (item.Caliber != null)//csak 1 lehet
                 {
-                    AmmoType = item.AmmoType;
+                    Caliber = item.Caliber;
                 }
                 if (item.Spread != 0)
                 {
@@ -476,9 +482,9 @@ namespace ItemHandler
 
             Item item = new()
             {
-                ObjectPath = AdvancedItemObjectParth,
                 ItemType = advancedItemRef.Type,//ez alapján kerülhet be egy slotba ugyan is vannak pecifikus slotok melyeknek typusváltozójában benen kell, hogy legyen.
                 SystemName = advancedItemRef.SystemName,//ez alapján hozza létre egy item saját magát
+                ItemName = advancedItemRef.ItemName,
                 Description = advancedItemRef.Description,
                 Quantity = count,
                 Value = advancedItemRef.Value,
@@ -492,7 +498,6 @@ namespace ItemHandler
                 IsModificationAble = advancedItemRef.IsModificationAble,
                 IsOpenAble = advancedItemRef.IsOpenAble,
                 IsUsable = advancedItemRef.IsUsable,
-                IsAdvancedItem = true,
                 //tartalom
 
                 //fegyver adatok
@@ -503,16 +508,11 @@ namespace ItemHandler
                 Accturacy = advancedItemRef.Accturacy,
                 Range = advancedItemRef.Range,
                 Ergonomy = advancedItemRef.Ergonomy,
-                AmmoType = advancedItemRef.Caliber,
+                Caliber = advancedItemRef.Caliber,
                 //hasznalhato e?
                 UseLeft = advancedItemRef.UseLeft,
                 //Advanced
                 SizeChanger = advancedItemRef.SizeChanger,
-            };
-
-            Parts = new List<Part>
-            {
-                new(item)
             };
 
             if (advancedItemRef.ContainerPath != "-")
@@ -523,6 +523,11 @@ namespace ItemHandler
             {
                 item.Container = null;
             }
+
+            Parts = new List<Part>
+            {
+                new(item)
+            };
 
             //fügvény ami az össze spart ertekeit az advanced valtozoba tölti és adja össze
             AdvancedItemContsruct();
@@ -661,10 +666,6 @@ namespace ItemHandler
                 }
             }
         }
-    }
-    public class BulletType
-    {
-
     }
     public class Container
     {
@@ -873,7 +874,7 @@ namespace ItemHandler
 
                     Item newItem = new(Incoming.SystemName, larger);
 
-                    GameObject itemObject = CreatePrefab(Incoming.ObjectPath);
+                    GameObject itemObject = CreatePrefab(Item.AdvancedItemObjectParth);
                     itemObject.name = newItem.SystemName;
                     newItem.SelfGameobject = itemObject;
                     newItem.ParentItem = Parent;
@@ -989,6 +990,69 @@ namespace ItemHandler
         #endregion
 
         #region Special
+        public static void ItemCompoundRefresh(ItemImgFitter ItemCompound,Item ActualData)
+        {
+            for (int i = ItemCompound.fitter.transform.childCount - 1; i >= 0; i--)
+            {
+                Transform child = ItemCompound.fitter.transform.GetChild(i);
+                child.SetParent(null);
+                GameObject.Destroy(child.gameObject);
+            }
+
+            ItemCompound.ResetFitter();
+
+            foreach (Part part in ActualData.Parts)
+            {
+                part.SetLive(ItemCompound.fitter.gameObject);
+                foreach (ConnectionPoint cp in part.ConnectionPoints)
+                {
+                    cp.SetLive();
+                }
+                part.PartObject.transform.localRotation = Quaternion.Euler(0, 0, 0);//nem tudom miert fordul el, de ezert szuksges a visszaallitas
+            }
+            foreach (Part part in ActualData.Parts)
+            {
+                foreach (ConnectionPoint connectionPoint in part.ConnectionPoints)
+                {
+                    if (connectionPoint.ConnectedPoint != null)
+                    {
+                        if (connectionPoint.SelfPart.HierarhicPlace < connectionPoint.ConnectedPoint.SelfPart.HierarhicPlace)
+                        {
+                            // 1. Referenciapontok lekérése és kiíratása
+                            RectTransform targetPoint1 = connectionPoint.RefPoint1.GetComponent<RectTransform>();
+                            RectTransform targetPoint2 = connectionPoint.RefPoint2.GetComponent<RectTransform>();
+
+                            // 2. Mozgatandó objektum és referencia pontok lekérése
+                            RectTransform toMoveObject = connectionPoint.ConnectedPoint.SelfPart.PartObject.GetComponent<RectTransform>();
+                            RectTransform toMovePoint1 = connectionPoint.ConnectedPoint.RefPoint1.GetComponent<RectTransform>();
+                            RectTransform toMovePoint2 = connectionPoint.ConnectedPoint.RefPoint2.GetComponent<RectTransform>();
+
+                            // 3. Skálázási faktor számítása
+                            float targetLocalDistance = Vector3.Distance(targetPoint1.position, targetPoint2.position);
+                            float toMoveLocalDistance = Vector3.Distance(toMovePoint1.position, toMovePoint2.position);
+                            float scaleFactor = targetLocalDistance / toMoveLocalDistance;
+                            //Debug.LogWarning(part.item_s_Part.ItemName+" "+scaleFactor+ " targetLocalDistante: " + targetLocalDistance+ " toMoveLocalDistance: "+ toMoveLocalDistance);
+                            if (float.IsNaN(scaleFactor))
+                            {
+                                scaleFactor = 1;
+                            }
+
+                            // 4. Alkalmazzuk a skálázást
+                            toMoveObject.localScale = new Vector3(scaleFactor, scaleFactor, 1);
+
+                            // 5. Pozíciók kiszámítása
+                            Vector3 targetMidLocal = (targetPoint1.position + targetPoint2.position) * 0.5f;
+                            Vector3 toMoveMidLocal = (toMovePoint1.position + toMovePoint2.position) * 0.5f;
+                            Vector3 translationLocal = targetMidLocal - toMoveMidLocal;
+
+                            // 6. Alkalmazzuk az eltolást
+                            toMoveObject.position += translationLocal;
+                        }
+                    }
+                }
+            }
+            ItemCompound.Fitting();
+        }
         public static void Placer(Item item, float originalRotation)
         {
             Action[] actions = item.AvaiablePlacerMetodes.ToArray();
@@ -1632,13 +1696,6 @@ namespace ItemHandler
                     Directions[key] *= -1;
                 }
 
-                //Debug.LogWarning($" Determination: changedSize:{ChangedSize} ------Directions:------");
-                //foreach (KeyValuePair<char,int> item in Directions)
-                //{
-                //    Debug.LogWarning($"key: {item.Key}    value: {item.Value}");
-                //}
-                //Debug.LogWarning("---------------------------");
-
                 return (ChangedSize, Directions);
             }
         }
@@ -1832,12 +1889,12 @@ namespace ItemHandler
 
             if (!item.IsInPlayerInventory && StatusParent.IsInPlayerInventory)
             {
-                Debug.LogWarning($"{item.SystemName}   add player inventory");
+                //Debug.LogWarning($"{item.SystemName}   add player inventory");
                 AddPlayerInventory(item);
             }
             else if (item.IsInPlayerInventory && !StatusParent.IsInPlayerInventory)
             {
-                Debug.LogWarning($"{item.SystemName}   remove player inventory");
+                //Debug.LogWarning($"{item.SystemName}   remove player inventory");
                 RemovePlayerInventory(item);
             }
 
@@ -2539,10 +2596,11 @@ namespace ItemHandler
             foreach (Item item in original.Items)
             {
                 Item clonedItem = item.ShallowClone();
+                Debug.LogWarning($"{clonedItem.ItemName}           {clonedItem.SystemName}     {clonedItem.Parts != null }      --------      cp ");
                 clonedItem.LevelManagerRef = clone;
 
                 // Ha fejlett (advanced) itemről van szó, klónozzuk a részeit (Part-eket).
-                if (clonedItem.IsAdvancedItem)
+                if (!clonedItem.IsRoot)
                 {
                     CloneParts(item, clonedItem);
                 }
@@ -2557,11 +2615,7 @@ namespace ItemHandler
                 SetupParentReference(original, clone, i);
                 SetupContainerReferences(original, clone, i);
                 SetupHotKeyReference(original, clone, i);
-
-                if (original.Items[i].IsAdvancedItem)
-                {
-                    SetupConnectionPoints(original, clone, i);
-                }
+                SetupConnectionPoints(original, clone, i);
             }
 
             return clone;
@@ -2629,7 +2683,9 @@ namespace ItemHandler
                     {
                         // Megkeressük az eredeti kapcsolódó partot, majd a connection point indexet.
                         Part usedPart = cp.ConnectedPoint.SelfPart;
-                        int itemIndex = original.Items.IndexOf(original.Items.Find(item => item.IsAdvancedItem && item.Parts.Contains(usedPart)));
+                        Debug.LogWarning($"{usedPart.PartData.PartName}      cp");
+                        Item item = original.Items.Find(item => !item.IsRoot && item.Parts.Contains(usedPart));
+                        int itemIndex = original.Items.IndexOf(item);
                         int partIndex = original.Items[itemIndex].Parts.IndexOf(usedPart);
                         int cpIndex = Array.IndexOf(original.Items[itemIndex].Parts[partIndex].ConnectionPoints, cp.ConnectedPoint);
 

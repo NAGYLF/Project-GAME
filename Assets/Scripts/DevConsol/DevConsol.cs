@@ -89,9 +89,6 @@ public class DevConsol : MonoBehaviour
                                 Debug.Log($"{text.GetComponent<TMP_InputField>().text}");
                                 Item[] items_AK74UTest = new Item[]
                                 {
-                                    new Item("AK103"),
-                                    new Item("AK103"),
-                                    new Item("Glock_17_9x19_pistol_PS9"),
                                     new Item("_6B43_6A_Zabralo_Sh_body_armor"),
                                     new Item("TestBackpack"),
                                     new Item("TestVest"),

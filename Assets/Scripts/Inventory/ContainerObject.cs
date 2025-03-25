@@ -174,7 +174,7 @@ public class ContainerObject : MonoBehaviour
                             }
                         }
 
-                        if (!(interactibleSlots.Count == IncomingItem.SizeX * IncomingItem.SizeY || interactibleSlots.First().IsEquipment))
+                        if (!(interactibleSlots.Count == IncomingItem.SizeX * IncomingItem.SizeY || (interactibleSlots.First().IsEquipment && interactibleSlots.Count == 1)))
                         {
                             //Debug.LogWarning("false 2");
                             CanBePlaceble = false;
@@ -320,7 +320,7 @@ public class ContainerObject : MonoBehaviour
         for (int i = 0; i < ActualData.Container.Items.Count; i++)//létrehozzuk itemObjektumait
         {
             //Debug.Log($"{ActualData.Container.Items[i].ItemName} creating into {ActualData.ItemName}'s container");
-            GameObject itemObject = CreatePrefab(ActualData.Container.Items[i].ObjectPath);
+            GameObject itemObject = CreatePrefab(Item.AdvancedItemObjectParth);
             itemObject.GetComponent<ItemObject>().SetDataRoute(ActualData.Container.Items[i], ActualData);//Létrehozzuk a szikronizálási utat ezen VirtualParentObject és a VirtualChildrenObject között
         }
     }

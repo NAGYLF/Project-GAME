@@ -533,6 +533,48 @@ namespace ItemHandler
             AdvancedItemContsruct();
         }
     }
+    public class SystemPoints
+    {
+        public GameObject RefPoint1 = null;//LIVE
+        public GameObject RefPoint2 = null;//LIVE
+
+        public SP SPData;
+        public Part SelfPart;//a part amelyikhez tartozik
+        public SystemPoints(SP sPData, Part selfPart)
+        {
+            SPData = sPData;
+            SelfPart = selfPart;
+        }
+        public void SetLive()
+        {
+            GameObject SP = CreatePrefab(AdvancedItemHandler.CPPath);
+
+            //!!! Ez változhat a fejlesztes soran szoval oda kell ra figyelni !!!
+            SP.transform.SetParent(SelfPart.PartObject.transform.GetChild(0).transform);
+            Texture2D texture = Resources.Load<Texture2D>(SelfPart.PartData.ImagePath);
+            float imgWidth = texture.width;
+            float imgHeight = texture.height;
+
+            //!!! miert valtozik a scale ez elott meg?
+            SP.GetComponent<RectTransform>().localScale = new Vector3(1, 1, 1);
+            SP.GetComponent<RectTransform>().sizeDelta = new Vector2(imgWidth, imgHeight);
+            SP.GetComponent<RectTransform>().localPosition = Vector2.zero;
+
+            SP.name = SPData.PointName;
+            RefPoint1 = SP.transform.GetChild(0).gameObject;
+            RefPoint2 = SP.transform.GetChild(1).gameObject;
+
+            RectTransform rt1 = RefPoint1.GetComponent<RectTransform>();
+            rt1.anchoredPosition = Vector2.zero;
+            rt1.anchorMin = new Vector2(SPData.AnchorMin1.X, SPData.AnchorMin1.Y);
+            rt1.anchorMax = new Vector2(SPData.AnchorMax1.X, SPData.AnchorMax1.Y);
+
+            RectTransform rt2 = RefPoint2.GetComponent<RectTransform>();
+            rt2.anchoredPosition = Vector2.zero;
+            rt2.anchorMin = new Vector2(SPData.AnchorMin2.X, SPData.AnchorMin2.Y);
+            rt2.anchorMax = new Vector2(SPData.AnchorMin2.X, SPData.AnchorMin2.Y);
+        }
+    }
     //a connection point inpectorban létező dolog ami lenyegeben statikusan jelen van nem kell generalni
     [System.Serializable]
     public class ConnectionPoint
@@ -608,6 +650,8 @@ namespace ItemHandler
 
         //statikus adatok melyek nem valtoznak
         public ConnectionPoint[] ConnectionPoints;//a tartalmazott pontok
+        public SystemPoints[] SystemPoints;
+
         public Item item_s_Part;//az item aminek a partja
         public PartData PartData;
         public Part(Item item)
@@ -615,10 +659,15 @@ namespace ItemHandler
             item_s_Part = item;
             PartData = AdvancedItemHandler.AdvancedItemDatas.GetPartData(item.SystemName);
             ConnectionPoints = new ConnectionPoint[PartData.CPs.Length];
+            SystemPoints = new SystemPoints[PartData.SPs.Length];
 
             for (int i = 0; i < ConnectionPoints.Length; i++)
             {
                 ConnectionPoints[i] = new ConnectionPoint(PartData.CPs[i], this);
+            }
+            for (int i = 0; i < SystemPoints.Length; i++)
+            {
+                SystemPoints[i] = new SystemPoints(PartData.SPs[i],this);
             }
         }
         public void SetLive(GameObject ParentObject)
@@ -1007,6 +1056,10 @@ namespace ItemHandler
                 foreach (ConnectionPoint cp in part.ConnectionPoints)
                 {
                     cp.SetLive();
+                }
+                foreach (SystemPoints sp in part.SystemPoints)
+                {
+                    sp.SetLive();
                 }
                 part.PartObject.transform.localRotation = Quaternion.Euler(0, 0, 0);//nem tudom miert fordul el, de ezert szuksges a visszaallitas
             }

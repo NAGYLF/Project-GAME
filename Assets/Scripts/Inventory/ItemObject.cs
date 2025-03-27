@@ -218,9 +218,9 @@ public class ItemObject : MonoBehaviour, IPointerDownHandler, IPointerUpHandler,
         {
             HotKeyPlate.text = "";
         }
-        if (ActualData.Caliber != "")
+        if (ActualData.CompatibleCaliber != "")
         {
-            AmmoPlate.text = ActualData.Caliber;
+            AmmoPlate.text = ActualData.CompatibleCaliber;
         }
         else
         {

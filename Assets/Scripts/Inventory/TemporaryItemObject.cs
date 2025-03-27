@@ -235,9 +235,9 @@ public class TemporaryItemObject : MonoBehaviour
         {
             HotKeyPlate.text = "";
         }
-        if (ActualData.Caliber != "")
+        if (ActualData.CompatibleCaliber != "")
         {
-            AmmoPlate.text = ActualData.Caliber;
+            AmmoPlate.text = ActualData.CompatibleCaliber;
         }
         else
         {

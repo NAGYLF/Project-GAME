@@ -16,6 +16,8 @@ using Assets.Scripts.Inventory;
 using DataHandler;
 using System.Collections;
 using MainData;
+using Newtonsoft.Json;
+using System.IO;
 
 namespace ItemHandler
 {
@@ -99,11 +101,6 @@ namespace ItemHandler
         public bool CanReload { get; set; } = false;
         #endregion
 
-        #region Contaimnets
-        public List<Part> Parts { get; set; }//az item darabjai
-        public Container Container { get; set; }
-        #endregion
-
         #region General Variables
         public string ItemType { get; set; }
         public string SystemName { get; set; }
@@ -114,23 +111,98 @@ namespace ItemHandler
         public int Value { get; set; }
         public int SizeX { get; set; }
         public int SizeY { get; set; }
+        public List<Part> Parts { get; set; } = new List<Part>();
+        public Container Container { get; set; }
         #endregion
 
         #region NonGeneric Weapon Variables
         public int MagasineSize { get; set; }
+        public Stack<Item> ActualAmmo { get; set; } = new Stack<Item>();
         public double Spread { get; set; }
         public int Fpm { get; set; }
         public double Recoil { get; set; }
         public double Accturacy { get; set; }
         public double Range { get; set; }
         public double Ergonomy { get; set; }
-        public string Caliber { get; set; }
+        public string CompatibleCaliber { get; set; }
         #endregion
 
         #region NonGeneric UseAble Items Variables
-        public int UseLeft { get; set; } = 0;
+        public int UseLeft { get; set; }
+        public int MaxUse { get; set; }
         #endregion
 
+        #region NonGeneric Ammo Variables
+        public float Caliber { get; set; }
+        public float Dmg { get; set; }
+        public float APPower { get; set; }
+        public float Mass { get; set; }
+        public float MuzzleVelocity { get; set; }
+        #endregion
+
+        public Item()//ha contume itememt akarunk letrehozni mint pl: egy Root item
+        {
+
+        }
+        public Item(string SystemName, int count = 1)// egy itemet mindeg név alapjan peldanyositunk
+        {
+            AdvancedItemStruct advancedItemRef = AdvancedItemHandler.AdvancedItemDatas.GetAdvancedItemData(SystemName);
+
+            Item item = new()
+            {
+                SystemName = advancedItemRef.SystemName,//ez alapján hozza létre egy item saját magát
+                ItemName = advancedItemRef.ItemName,
+                ItemType = advancedItemRef.Type,//ez alapján kerülhet be egy slotba ugyan is vannak pecifikus slotok melyeknek typusváltozójában benen kell, hogy legyen.
+                Description = advancedItemRef.Description,
+
+                Quantity = count,
+                MaxStackSize = advancedItemRef.MaxStackSize,
+                Value = advancedItemRef.Value,
+                SizeX = advancedItemRef.SizeX,
+                SizeY = advancedItemRef.SizeY,
+
+                SizeChanger = advancedItemRef.SizeChanger,
+
+                IsDropAble = advancedItemRef.IsDropAble,
+                IsRemoveAble = advancedItemRef.IsRemoveAble,
+                IsUnloadAble = advancedItemRef.IsUnloadAble,
+                IsModificationAble = advancedItemRef.IsModificationAble,
+                IsOpenAble = advancedItemRef.IsOpenAble,
+                IsUsable = advancedItemRef.IsUsable,
+
+                MagasineSize = advancedItemRef.MagasineSize,
+                Spread = advancedItemRef.MagasineSize,
+                Fpm = advancedItemRef.MagasineSize,
+                Recoil = advancedItemRef.Recoil,
+                Accturacy = advancedItemRef.Recoil,
+                Range = advancedItemRef.Range,
+                Ergonomy = advancedItemRef.Ergonomy,
+                CompatibleCaliber = advancedItemRef.CompatibleCaliber,
+
+                UseLeft = advancedItemRef.UseLeft,
+                MaxUse = advancedItemRef.MaxUse,
+
+                Caliber = advancedItemRef.Caliber,
+                Dmg = advancedItemRef.Dmg,
+                APPower = advancedItemRef.APPower,
+                Mass = advancedItemRef.Mass,
+                MuzzleVelocity = advancedItemRef.MuzzleVelocity,
+            };
+
+            if (advancedItemRef.ContainerPath != "-")
+            {
+                item.Container = new Container(advancedItemRef.ContainerPath);
+            }
+            else
+            {
+                item.Container = null;
+            }
+
+            Parts.Add(new(item));
+
+            //fügvény ami az össze spart ertekeit az advanced valtozoba tölti és adja össze
+            AdvancedItemContsruct();
+        }
         //Ez egy Totális Törlés ami azt jelenti, hogy mindenhonnan törli. Ez nem jo akkor ha valahonnan torolni akarjuk de mashol meg hozzadni
         public void Remove()
         {
@@ -181,6 +253,11 @@ namespace ItemHandler
         {
 
         }
+        //action (Only Live Inventory)
+        public void Shoot()
+        {
+
+        }
         public Item ShallowClone()
         {
             Item cloned = new()
@@ -227,10 +304,18 @@ namespace ItemHandler
                 Accturacy = this.Accturacy,
                 Range = this.Range,
                 Ergonomy = this.Ergonomy,
-                Caliber = this.Caliber,
+                CompatibleCaliber = this.CompatibleCaliber,
 
                 // NonGeneral Usable Items Veriables
                 UseLeft = this.UseLeft,
+                MaxUse = this.MaxUse,
+
+                // MonGeneral Ammo Variables
+                Caliber = this.Caliber,
+                Dmg = this.Dmg,
+                APPower = this.APPower,
+                Mass = this.Mass,
+                MuzzleVelocity = this.MuzzleVelocity,
             };
 
             if (Container != null)
@@ -428,9 +513,9 @@ namespace ItemHandler
                 {
                     IsUsable = item.IsUsable;
                 }
-                if (item.Caliber != null)//csak 1 lehet
+                if (item.CompatibleCaliber != null)//csak 1 lehet
                 {
-                    Caliber = item.Caliber;
+                    CompatibleCaliber = item.CompatibleCaliber;
                 }
                 if (item.Spread != 0)
                 {
@@ -466,71 +551,6 @@ namespace ItemHandler
                     UseLeft = item.UseLeft;
                 }
             }
-        }
-        //action (Only Live Inventory)
-        public void Shoot()
-        {
-
-        }
-        public Item()//ha contume itememt akarunk letrehozni mint pl: egy Root item
-        {
-
-        }
-        public Item(string SystemName, int count = 1)// egy itemet mindeg név alapjan peldanyositunk
-        {
-            AdvancedItemStruct advancedItemRef = AdvancedItemHandler.AdvancedItemDatas.GetAdvancedItemData(SystemName);
-
-            Item item = new()
-            {
-                ItemType = advancedItemRef.Type,//ez alapján kerülhet be egy slotba ugyan is vannak pecifikus slotok melyeknek typusváltozójában benen kell, hogy legyen.
-                SystemName = advancedItemRef.SystemName,//ez alapján hozza létre egy item saját magát
-                ItemName = advancedItemRef.ItemName,
-                Description = advancedItemRef.Description,
-                Quantity = count,
-                Value = advancedItemRef.Value,
-                SizeX = advancedItemRef.SizeX,
-                SizeY = advancedItemRef.SizeY,
-                MaxStackSize = advancedItemRef.MaxStackSize,
-                //Action
-                IsDropAble = advancedItemRef.IsDropAble,
-                IsRemoveAble = advancedItemRef.IsRemoveAble,
-                IsUnloadAble = advancedItemRef.IsUnloadAble,
-                IsModificationAble = advancedItemRef.IsModificationAble,
-                IsOpenAble = advancedItemRef.IsOpenAble,
-                IsUsable = advancedItemRef.IsUsable,
-                //tartalom
-
-                //fegyver adatok
-                MagasineSize = advancedItemRef.MagasineSize,
-                Spread = advancedItemRef.Spread,
-                Fpm = advancedItemRef.Fpm,
-                Recoil = advancedItemRef.Recoil,
-                Accturacy = advancedItemRef.Accturacy,
-                Range = advancedItemRef.Range,
-                Ergonomy = advancedItemRef.Ergonomy,
-                Caliber = advancedItemRef.Caliber,
-                //hasznalhato e?
-                UseLeft = advancedItemRef.UseLeft,
-                //Advanced
-                SizeChanger = advancedItemRef.SizeChanger,
-            };
-
-            if (advancedItemRef.ContainerPath != "-")
-            {
-                item.Container = new Container(advancedItemRef.ContainerPath);
-            }
-            else
-            {
-                item.Container = null;
-            }
-
-            Parts = new List<Part>
-            {
-                new(item)
-            };
-
-            //fügvény ami az össze spart ertekeit az advanced valtozoba tölti és adja össze
-            AdvancedItemContsruct();
         }
     }
     public class SystemPoints
@@ -1209,6 +1229,196 @@ namespace ItemHandler
             item.ParentItem = null;
             Parent.Container.Items.Remove(item);
             item.ContainerItemListRef = null;//unset ref
+        }
+
+        public static void InventorySave(ref LevelManager levelManager, string FilePath, string FileName)
+        {
+            JsonSerializerSettings settings = new JsonSerializerSettings
+            {
+                PreserveReferencesHandling = PreserveReferencesHandling.Objects,
+                Formatting = Formatting.Indented
+            };
+
+            string json = JsonConvert.SerializeObject(levelManager, settings);
+
+            Debug.Log(json);
+
+            File.WriteAllText(FilePath, json);
+        }
+        public static void InventoryLoad(ref LevelManager levelManager, string FilePath, string FileName)
+        {
+            string jsonFromFile = File.ReadAllText(FilePath);
+
+            JsonSerializerSettings settings = new JsonSerializerSettings
+            {
+                PreserveReferencesHandling = PreserveReferencesHandling.Objects,
+                Formatting = Formatting.Indented
+            };
+
+            levelManager = JsonConvert.DeserializeObject<LevelManager>(jsonFromFile, settings);
+        }
+        public static void InventoryDefault(ref LevelManager levelManager)
+        {
+            List<Item> TemporaryItemList = new List<Item>(levelManager.Items);
+            foreach (Item item in TemporaryItemList)
+            {
+                Delete(levelManager.Items.Find(i => i == item));
+            }
+            levelManager.Items.Clear();
+
+            Item RootRef = TemporaryItemList.First();
+
+            Item RootData = new()
+            {
+                SystemName = RootRef.SystemName,
+                ItemName = RootRef.ItemName,
+                Lvl = RootRef.Lvl,
+                SectorId = RootRef.SectorId,
+                Coordinates = RootRef.Coordinates.ToArray(),
+                IsRoot = RootRef.IsRoot,
+                IsEquipmentRoot = RootRef.IsEquipmentRoot,
+                IsInPlayerInventory = RootRef.IsInPlayerInventory,
+                Container = new Container(TemporaryItemList.First().Container.PrefabPath),
+                LevelManagerRef = levelManager,
+            };
+
+            levelManager.Items.Add(RootData);
+
+            levelManager.SetMaxLVL_And_Sort();
+
+            TemporaryItemList.Clear();
+        }
+        public static bool InventoryAdd(ref LevelManager levelManager, Item item)
+        {
+            bool ItemAdded = false;
+            int quantity = item.Quantity;
+            if (item.MaxStackSize > 1)//gyorsitott item hozzadas mely nem ad uj elemet hanem csak quanity-t novel
+            {
+                for (int lvl = 0; lvl <= levelManager.MaxLVL && !ItemAdded; lvl++)//equipment
+                {
+                    //Debug.LogWarning($"{item.ItemName}     maxlvl{levelManager.MaxLVL} / {lvl}");
+                    ItemAdded = AddingByCount(levelManager, lvl, item);
+                }
+            }
+            if (!ItemAdded)//uj item hozzaadasa
+            {
+                for (int lvl = -1; lvl <= levelManager.MaxLVL && !ItemAdded; lvl++)//vegig iterálunk az osszes equipmenten
+                {
+                    ItemAdded = AddingByNewItem(levelManager, lvl, item);
+                }
+            }
+            if (!ItemAdded)//uj item hozzaadasa rotate-vel
+            {
+                for (int lvl = -1; lvl <= levelManager.MaxLVL && !ItemAdded; lvl++)//vegig iterálunk az osszes equipmenten
+                {
+                    ItemAdded = AddingByNewItemByRotate(levelManager, lvl, item);
+                }
+            }
+            if (!ItemAdded)
+            {
+                Debug.LogWarning($"item: {item.SystemName} cannot added, probably no space for that");
+                return false;
+            }
+            return true;
+        }
+        public static bool InventoryAdd(ref LevelManager levelManager, Item item, int StartLVL = 1, int StopLVL = 1)
+        {
+            bool ItemAdded = false;
+            int quantity = item.Quantity;
+            if (item.MaxStackSize > 1)//gyorsitott item hozzadas mely nem ad uj elemet hanem csak quanity-t novel
+            {
+                for (int lvl = StartLVL; (lvl <= levelManager.MaxLVL || lvl <= StopLVL) && !ItemAdded; lvl++)//equipment
+                {
+                    //Debug.LogWarning($"{item.ItemName}     maxlvl{levelManager.MaxLVL} / {lvl}");
+                    ItemAdded = AddingByCount(levelManager, lvl, item);
+                }
+            }
+            if (!ItemAdded)//uj item hozzaadasa
+            {
+                for (int lvl = StartLVL; (lvl <= levelManager.MaxLVL || lvl <= StopLVL) && !ItemAdded; lvl++)//vegig iterálunk az osszes equipmenten
+                {
+                    ItemAdded = AddingByNewItem(levelManager, lvl, item);
+                }
+            }
+            if (!ItemAdded)//uj item hozzaadasa rotate-vel
+            {
+                for (int lvl = StartLVL; (lvl <= levelManager.MaxLVL || lvl <= StopLVL) && !ItemAdded; lvl++)//vegig iterálunk az osszes equipmenten
+                {
+                    ItemAdded = AddingByNewItemByRotate(levelManager, lvl, item);
+                }
+            }
+            if (!ItemAdded)
+            {
+                Debug.LogWarning($"item: {item.SystemName} cannot added, probably no space for that");
+                return false;
+            }
+            return true;
+        }
+        public static (bool IsCompleted, int Remaining) InventoryRemove(ref LevelManager levelManager, Item item, int count = 1)
+        {
+            if (levelManager.Items.Contains(item))
+            {
+                if ((item.Quantity - count) > 0)
+                {
+                    item.Quantity -= count;
+                    count -= item.Quantity;
+                }
+                else
+                {
+                    Delete(item);
+                    return (true, 0);
+                }
+            }
+            return (false, count);
+        }
+        public static (bool IsCompleted, int Remaining) InventoryRemove(ref LevelManager levelManager, string SystemName, int StartLVL = 1, int StopLVL = 1, int count = 1)
+        {
+            int Remaining = count;
+            for (int i = StartLVL; i <= StopLVL; i++)
+            {
+                foreach (var item in levelManager.Items.FindAll(item => item.Lvl == i))
+                {
+                    if (item.SystemName == SystemName)
+                    {
+                        if ((Remaining - item.Quantity) > 0)
+                        {
+                            item.Quantity -= Remaining;
+                            Remaining -= item.Quantity;
+                        }
+                        else
+                        {
+                            Delete(item);
+                            return (true, 0);
+                        }
+                    }
+                }
+            }
+            return (false, Remaining);
+        }
+        public static (bool IsContainsAllAmount, int Amount) InventoryContains(ref LevelManager levelManager, string ItemSystemName, int count = 1)
+        {
+            Item[] items = levelManager.Items.FindAll(item => item.SystemName == ItemSystemName).ToArray();
+            if (items.Length == 0)
+            {
+                return (false, 0);
+            }
+            else
+            {
+                int AllCount = 0;
+                foreach (var item in items)
+                {
+                    AllCount += item.Quantity;
+                }
+
+                if (AllCount >= count)
+                {
+                    return (true, AllCount);
+                }
+                else
+                {
+                    return (false, AllCount);
+                }
+            }
         }
 
         public static void AddPlayerInventory(Item item)
@@ -2747,6 +2957,129 @@ namespace ItemHandler
                     }
                 }
             }
+        }
+
+        private static bool AddingByNewItemByRotate(LevelManager levelManager, int lvl, Item Data)
+        {
+            Data.RotateDegree = 90;
+            List<Item> itemsOfLvl = levelManager.Items.Where(Item => Item.Lvl == lvl && Item.Container != null).ToList();
+            for (int itemIndex = 0; itemIndex < itemsOfLvl.Count; itemIndex++)
+            {
+                for (int sectorIndex = 0; sectorIndex < itemsOfLvl[itemIndex].Container.NonLive_Sectors.Length; sectorIndex++)//mivel a szector 2D array-okat tartalmaz ezert a sectorokon az az ezen 2D arrayokon iteralunk vegig
+                {
+                    if (itemsOfLvl[itemIndex].IsRoot || (itemsOfLvl[itemIndex].Container.NonLive_Sectors[sectorIndex].GetLength(1) >= Data.SizeY && itemsOfLvl[itemIndex].Container.NonLive_Sectors[sectorIndex].GetLength(0) >= Data.SizeX))
+                    {
+                        for (int Y = 0; Y < itemsOfLvl[itemIndex].Container.NonLive_Sectors[sectorIndex].GetLength(0); Y++)//vegig iterálunk a sorokon
+                        {
+                            for (int X = 0; X < itemsOfLvl[itemIndex].Container.NonLive_Sectors[sectorIndex].GetLength(1); X++)//a sorokon belul az oszlopokon
+                            {
+                                if ((itemsOfLvl[itemIndex].Container.NonLive_Sectors[sectorIndex][Y, X].SlotType.Contains(Data.ItemType) || itemsOfLvl[itemIndex].Container.NonLive_Sectors[sectorIndex][Y, X].SlotType == "") && itemsOfLvl[itemIndex].Container.NonLive_Sectors[sectorIndex][Y, X].PartOfItemData == null && (CanBePlace(itemsOfLvl[itemIndex].Container.NonLive_Sectors[sectorIndex], Y, X, Data) || itemsOfLvl[itemIndex].IsRoot))//ha a slot nem tagja egy itemnek sem akkor target
+                                {
+                                    Add(Data, itemsOfLvl[itemIndex]);
+                                    NonLive_Positioning(Y, X, sectorIndex, Data, itemsOfLvl[itemIndex]);
+                                    NonLive_Placing(Data, itemsOfLvl[itemIndex]);
+                                    HotKey_SetStatus_SupplementaryTransformation(Data, itemsOfLvl[itemIndex]);
+                                    //Debug.Log($"Item Added in container");
+                                    return true;
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+            Data.RotateDegree = 0;
+            return false;
+        }
+        private static bool AddingByNewItem(LevelManager levelManager, int lvl, Item Data)
+        {
+            List<Item> itemsOfLvl = levelManager.Items.Where(Item => Item.Lvl == lvl && Item.Container != null).ToList();
+            for (int itemIndex = 0; itemIndex < itemsOfLvl.Count; itemIndex++)
+            {
+                for (int sectorIndex = 0; sectorIndex < itemsOfLvl[itemIndex].Container.NonLive_Sectors.Length; sectorIndex++)//mivel a szector 2D array-okat tartalmaz ezert a sectorokon az az ezen 2D arrayokon iteralunk vegig
+                {
+                    if (itemsOfLvl[itemIndex].IsRoot || (itemsOfLvl[itemIndex].Container.NonLive_Sectors[sectorIndex].GetLength(1) >= Data.SizeX && itemsOfLvl[itemIndex].Container.NonLive_Sectors[sectorIndex].GetLength(0) >= Data.SizeY))
+                    {
+                        for (int Y = 0; Y < itemsOfLvl[itemIndex].Container.NonLive_Sectors[sectorIndex].GetLength(0); Y++)//vegig iterálunk a sorokon
+                        {
+                            for (int X = 0; X < itemsOfLvl[itemIndex].Container.NonLive_Sectors[sectorIndex].GetLength(1); X++)//a sorokon belul az oszlopokon
+                            {
+                                if ((itemsOfLvl[itemIndex].Container.NonLive_Sectors[sectorIndex][Y, X].SlotType.Contains(Data.ItemType) || itemsOfLvl[itemIndex].Container.NonLive_Sectors[sectorIndex][Y, X].SlotType == "") && itemsOfLvl[itemIndex].Container.NonLive_Sectors[sectorIndex][Y, X].PartOfItemData == null && (CanBePlace(itemsOfLvl[itemIndex].Container.NonLive_Sectors[sectorIndex], Y, X, Data) || itemsOfLvl[itemIndex].IsRoot))//ha a slot nem tagja egy itemnek sem akkor target
+                                {
+                                    //Debug.Log($"Item Added in container");
+                                    Add(Data, itemsOfLvl[itemIndex]);
+                                    NonLive_Positioning(Y, X, sectorIndex, Data, itemsOfLvl[itemIndex]);
+                                    NonLive_Placing(Data, itemsOfLvl[itemIndex]);
+                                    HotKey_SetStatus_SupplementaryTransformation(Data, itemsOfLvl[itemIndex]);
+                                    return true;
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+            return false;
+        }
+        private static bool AddingByCount(LevelManager levelManager, int lvl, Item Data)
+        {
+            bool ItemAdded = false;
+            List<Item> itemsOfLvl = levelManager.Items.Where(Item => Item.Lvl == lvl).ToList();
+            for (int itemIndex = 0; itemIndex < itemsOfLvl.Count; itemIndex++)
+            {
+                if (!ItemAdded && itemsOfLvl[itemIndex].SystemName == Data.SystemName && itemsOfLvl[itemIndex].Quantity != itemsOfLvl[itemIndex].MaxStackSize)
+                {
+                    int originalCount = itemsOfLvl[itemIndex].Quantity;
+                    itemsOfLvl[itemIndex].Quantity += Data.Quantity;
+                    if (itemsOfLvl[itemIndex].Quantity > itemsOfLvl[itemIndex].MaxStackSize)
+                    {
+                        Data.Quantity -= (itemsOfLvl[itemIndex].MaxStackSize - originalCount);
+                        itemsOfLvl[itemIndex].Quantity = itemsOfLvl[itemIndex].MaxStackSize;
+                    }
+                    else
+                    {
+                        ItemAdded = true;
+                    }
+                }
+            }
+            return ItemAdded;
+        }
+        private static bool CanBePlace(ItemSlotData[,] slots, int Y, int X, Item item)
+        {
+            if (item.RotateDegree == 0 || item.RotateDegree == 180)
+            {
+                if (X + item.SizeX <= slots.GetLength(1) && Y + item.SizeY <= slots.GetLength(0))
+                {
+                    for (int y = Y; y < Y + item.SizeY; y++)
+                    {
+                        for (int x = X; x < X + item.SizeX; x++)
+                        {
+                            if (slots[y, x].PartOfItemData != null)
+                            {
+                                return false;
+                            }
+                        }
+                    }
+                    return true;
+                }
+            }
+            else
+            {
+                if (X + item.SizeY <= slots.GetLength(1) && Y + item.SizeX <= slots.GetLength(0))
+                {
+                    for (int y = Y; y < Y + item.SizeX; y++)
+                    {
+                        for (int x = X; x < X + item.SizeY; x++)
+                        {
+                            if (slots[y, x].PartOfItemData != null)
+                            {
+                                return false;
+                            }
+                        }
+                    }
+                    return true;
+                }
+            }
+
+            return false;
         }
         #endregion
     }

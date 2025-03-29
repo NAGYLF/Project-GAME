@@ -9,8 +9,11 @@ using Newtonsoft.Json;
 using TMPro;
 using ItemHandler;
 using UnityEngine.SceneManagement;
-using DataHandler;
 using System.Threading.Tasks;
+using Items;
+using ExcelDataReader;
+using System.Data;
+using System.Text;
 
 namespace MainData
 {
@@ -203,19 +206,445 @@ namespace MainData
 
         public static PlayerData playerData;
 
-        public class AdvancedItemHandler
+        public class DataHandler
         {
             public const string PartPath = "GameElements/ItemOPart";
             public const string CPPath = "GameElements/ItemOCP";
             public const string AdvancedItemDataFilePath = "Assets/Resources/Items/AdvancedItemData.xlsx";
 
-            public static Func<string,(int height,int width)> ImgSizeGetter = (string path) =>
+            public static PartData[] ItemPartDatas { get; private set; }
+            public static MainItem[] MainItems { get; private set; }
+            public static AdvancedItemStruct[] AdvancedItems { get; private set; } = new AdvancedItemStruct[0];
+
+            public static Func<string,(int height,int width)> TextureSizeGetter = (string path) =>
             {
                 Texture2D texture = Resources.Load<Texture2D>(path);
                 return (texture.height, texture.width);
             };
 
-            public static DataLoader AdvancedItemDatas = new DataLoader(AdvancedItemDataFilePath,ImgSizeGetter);
+            //public static void ActionConnector(DataLoader advancedItemDatas)
+            //{
+            //    for (int i = 0; i < advancedItemDatas.AdvancedItems.Length; i++)
+            //    {
+            //        ref var item = ref advancedItemDatas.AdvancedItems[i];
+
+            //        switch (item.Type)
+            //        {
+            //            case "Carbine":
+            //                item.Actions = new Carbines();
+            //                break;
+            //            case "Pistol":
+            //                item.Actions = new Pistol();
+            //                break;
+            //            default:
+            //                break;
+            //        }
+            //    }
+            //}
+
+            public static void AdvancedItemHanderDataLoad()
+            {
+                // Regisztráljuk a kódolási providert, hogy a régebbi code page-ek elérhetőek legyenek.
+                Encoding.RegisterProvider(CodePagesEncodingProvider.Instance);
+
+                using (var fs = new FileStream(AdvancedItemDataFilePath, FileMode.Open, FileAccess.Read))
+                {
+                    using (var reader = ExcelReaderFactory.CreateReader(fs))
+                    {
+                        // Konfiguráció: header sor nem használatos (UseHeaderRow = false)
+                        var conf = new ExcelDataSetConfiguration()
+                        {
+                            ConfigureDataTable = _ => new ExcelDataTableConfiguration()
+                            {
+                                UseHeaderRow = false
+                            }
+                        };
+
+                        DataSet ds = reader.AsDataSet(conf);
+
+                        for (int i = 3; i < 29; i++)
+                        {
+                            DataTable advancedItemTable = ds.Tables[i];
+
+                            var advancedItemList = new List<AdvancedItemStruct>();
+
+                            for (int j = 1; j < advancedItemTable.Rows.Count; j++)
+                            {
+                                DataRow row = advancedItemTable.Rows[j];
+
+                                if (row[0] != DBNull.Value && !string.IsNullOrEmpty(row[0].ToString()))
+                                {
+                                    //advanced item data section
+                                    int index = 0;
+
+                                    string systemNames = row[index++].ToString();
+                                    string itemName = row[index++].ToString();
+                                    string type = row[index++].ToString();
+                                    string desctription = row[index++].ToString();
+
+                                    int quantity = int.Parse(row[index++].ToString());
+                                    int maxStackSize = int.Parse(row[index++].ToString());
+                                    int value = int.Parse(row[index++].ToString());
+                                    int sizeX = int.Parse(row[index++].ToString());
+                                    int sizeY = int.Parse(row[index++].ToString());
+
+                                    string[] sizeChangerDataArray;
+                                    SizeChanger sizeChanger;
+                                    if (row[index] != DBNull.Value && !string.IsNullOrEmpty(row[index].ToString()))
+                                    {
+                                        sizeChangerDataArray = row[index++]?.ToString().Split(';');
+                                        sizeChanger = new SizeChanger(int.Parse(sizeChangerDataArray[0]), int.Parse(sizeChangerDataArray[1]), char.Parse(sizeChangerDataArray[2]));
+                                    }
+                                    else
+                                    {
+                                        sizeChanger = new SizeChanger(0, 0, '-');
+                                        index++;
+                                    }
+
+                                    bool isDropAble = Convert.ToBoolean(int.Parse(row[index++].ToString()));
+                                    bool isRemoveAble = Convert.ToBoolean(int.Parse(row[index++].ToString()));
+                                    bool isUnloadAble = Convert.ToBoolean(int.Parse(row[index++].ToString()));
+                                    bool isModificationAble = Convert.ToBoolean(int.Parse(row[index++].ToString()));
+                                    bool isOpenAble = Convert.ToBoolean(int.Parse(row[index++].ToString()));
+                                    bool isUsable = Convert.ToBoolean(int.Parse(row[index++].ToString()));
+                                    bool canReload = Convert.ToBoolean(int.Parse(row[index++].ToString()));
+
+                                    string containerPath;
+                                    if (row[index] != DBNull.Value && !string.IsNullOrEmpty(row[index].ToString()))
+                                    {
+                                        containerPath = row[index++].ToString();
+                                    }
+                                    else
+                                    {
+                                        containerPath = "-";
+                                        index++;
+                                    }
+                                    //----------
+
+                                    //weapon section
+                                    int.TryParse(row[index++].ToString(), out int magasineSize);
+                                    double.TryParse(row[index++].ToString(), out double spread);
+                                    int.TryParse(row[index++].ToString(), out int fpm);
+                                    double.TryParse(row[index++].ToString(), out double recoil);
+                                    double.TryParse(row[index++].ToString(), out double accturacy);
+                                    double.TryParse(row[index++].ToString(), out double range);
+                                    double.TryParse(row[index++].ToString(), out double ergonomy);
+
+                                    string Caliber;
+                                    if (row[index] != DBNull.Value && !string.IsNullOrEmpty(row[index].ToString()))
+                                    {
+                                        Caliber = row[index++].ToString();
+                                    }
+                                    else
+                                    {
+                                        Caliber = "-";
+                                        index++;
+                                    }
+                                    //----------
+
+                                    //usable section
+                                    int.TryParse(row[index++].ToString(), out int maxUse);
+                                    int.TryParse(row[index++].ToString(), out int useLeft);
+                                    //----------
+
+                                    //ammo section
+                                    float.TryParse(row[index++].ToString(), out float caliber);
+                                    float.TryParse(row[index++].ToString(), out float dmg);
+                                    float.TryParse(row[index++].ToString(), out float apPower);
+                                    float.TryParse(row[index++].ToString(), out float mass);
+                                    float.TryParse(row[index++].ToString(), out float muzzleVelocity);
+                                    //----------
+
+                                    advancedItemList.Add(new AdvancedItemStruct(systemNames, itemName, type, desctription, quantity, maxStackSize, value, sizeX, sizeY, sizeChanger, isDropAble, isRemoveAble, isUnloadAble, isModificationAble, isOpenAble, isUsable, canReload, containerPath, magasineSize, spread, fpm, recoil, accturacy, range, ergonomy, Caliber, useLeft, maxUse, caliber, dmg, apPower, mass, muzzleVelocity));
+                                }
+                            }
+                            AdvancedItems = AdvancedItems.Concat(advancedItemList.ToArray()).ToArray();
+                        }
+                        // -------------------------------
+                        // 1. MainItem adatok beolvasása (Sheet index 1)
+                        // -------------------------------
+                        DataTable mainItemsTable = ds.Tables[1];
+                        var mainItemList = new List<MainItem>();
+
+                        // Feltételezzük, hogy az első sor (index 0) header, ezért i=1-től indulunk.
+                        for (int i = 1; i < mainItemsTable.Rows.Count; i++)
+                        {
+                            DataRow row = mainItemsTable.Rows[i];
+                            // Ellenőrizzük, hogy az első cella nem üres
+                            if (row[0] != DBNull.Value && !string.IsNullOrEmpty(row[0].ToString()))
+                            {
+                                string mainItemName = row[0].ToString();
+                                string systemName = row[1].ToString();
+                                string type = row[2].ToString();
+                                string desctription = row[3].ToString();
+                                string[] necessaryItemType = row[4].ToString().Split(';');
+                                string connectedItemName = row[5].ToString();
+                                mainItemList.Add(new MainItem(mainItemName, systemName, type, desctription, necessaryItemType, connectedItemName));
+                            }
+                        }
+                        MainItems = mainItemList.ToArray();
+
+                        // -------------------------------
+                        // 2. ItemPartData adatok beolvasása (Sheet index 0)
+                        // -------------------------------
+                        DataTable partDataTable = ds.Tables[0];
+                        var partDataList = new List<PartData>();
+                        int i0 = 1; // Első sor header, ezért i=1
+
+                        while (i0 < partDataTable.Rows.Count)
+                        {
+                            DataRow row = partDataTable.Rows[i0];
+                            if (row[0] != DBNull.Value && !string.IsNullOrEmpty(row[0].ToString()))
+                            {
+                                string partName = row[0].ToString();
+                                string imagePath = row[1].ToString();
+                                var cpList = new List<CP>();
+                                var spList = new List<SP>();
+
+                                // A do-while ciklus: addig olvassuk a CP adatokat,
+                                // amíg az aktuális sor első cellája üres (vagy null) és a harmadik cella nem üres.
+                                do
+                                {
+                                    string pointType = row[2].ToString();
+                                    if (pointType == "CP")
+                                    {
+                                        string pointName = row[3].ToString();
+                                        int.TryParse(row[4].ToString(), out int layer);
+                                        string[] compatibleItemNames = row[5].ToString().Split(';');
+                                        short.TryParse(row[6].ToString(), out short pixel_1_X);
+                                        short.TryParse(row[7].ToString(), out short pixel_1_Y);
+                                        short.TryParse(row[8].ToString(), out short pixel_2_X);
+                                        short.TryParse(row[9].ToString(), out short pixel_2_Y);
+                                        cpList.Add(new CP(pointName, layer, compatibleItemNames, pixel_1_X, pixel_1_Y, pixel_2_X, pixel_2_Y, TextureSizeGetter(imagePath)));
+                                    }
+                                    else
+                                    {
+                                        string pointName = row[3].ToString();
+                                        int.TryParse(row[4].ToString(), out int layer);
+
+                                        short.TryParse(row[6].ToString(), out short pixel_1_X);
+                                        short.TryParse(row[7].ToString(), out short pixel_1_Y);
+                                        short.TryParse(row[8].ToString(), out short pixel_2_X);
+                                        short.TryParse(row[9].ToString(), out short pixel_2_Y);
+                                        spList.Add(new SP(pointName, layer, pixel_1_X, pixel_1_Y, pixel_2_X, pixel_2_Y, TextureSizeGetter(imagePath)));
+                                    }
+                                    i0++;
+                                    if (i0 >= partDataTable.Rows.Count)
+                                        break;
+                                    row = partDataTable.Rows[i0];
+                                }
+                                while ((row[0] == DBNull.Value || string.IsNullOrEmpty(row[0].ToString()))
+                                       && row[2] != DBNull.Value && !string.IsNullOrEmpty(row[2].ToString()));
+
+                                partDataList.Add(new PartData(partName, imagePath, cpList.ToArray(), spList.ToArray(), GetMainItemData(partName)));
+                            }
+                            else
+                            {
+                                break;
+                            }
+                        }
+                        ItemPartDatas = partDataList.ToArray();
+                    }
+                }
+            }
+
+            public static PartData GetPartData(string SystemName)
+            {
+                return ItemPartDatas.FirstOrDefault(x => x.PartName == SystemName);
+            }
+            public static MainItem GetMainItemData(string ItemName)
+            {
+                return MainItems.FirstOrDefault(x => x.ConnectedItemName == ItemName);
+            }
+            public static AdvancedItemStruct GetAdvancedItemData(string SystemName)
+            {
+                return AdvancedItems.FirstOrDefault(x => x.SystemName == SystemName);
+            }
+        }
+
+        // -------------------------
+        // Advanced Item definíciók
+        // -------------------------
+        public struct AdvancedItemStruct
+        {
+            public string SystemName { set; get; }
+            public string ItemName { set; get; }
+            public string Type { set; get; }
+            public string Description { set; get; }
+            public int Quantity { set; get; }
+            public int MaxStackSize { set; get; }
+            public int Value { set; get; }
+            public int SizeX { set; get; }
+            public int SizeY { set; get; }
+
+            public SizeChanger SizeChanger { set; get; }
+
+            public bool IsDropAble { set; get; }
+            public bool IsRemoveAble { set; get; }
+            public bool IsUnloadAble { set; get; }
+            public bool IsModificationAble { set; get; }
+            public bool IsOpenAble { set; get; }
+            public bool IsUsable { set; get; }
+            public bool CanReload { set; get; }
+
+            public string ContainerPath { set; get; }
+
+            public int MagasineSize { get; set; }
+            public double Spread { get; set; }
+            public int Fpm { get; set; }
+            public double Recoil { get; set; }
+            public double Accturacy { get; set; }
+            public double Range { get; set; }
+            public double Ergonomy { get; set; }
+            public string CompatibleCaliber { get; set; }
+
+            public int UseLeft { get; set; }
+            public int MaxUse { get; set; }
+
+            public float Caliber { get; set; }
+            public float Dmg { get; set; }
+            public float APPower { get; set; }
+            public float Mass { get; set; }
+            public float MuzzleVelocity { get; set; }
+
+            public object Actions { get; set; }
+            public AdvancedItemStruct(string systemName, string itemName, string type, string description, int quantity, int maxStackSize, int value, int sizeX, int sizeY, SizeChanger sizeChanger, bool isDropAble, bool isRemoveAble, bool isUnloadAble, bool isModificationAble, bool isOpenAble, bool isUsable, bool canReload, string containerPath, int magasineSize, double spread, int fpm, double recoil, double accturacy, double range, double ergonomy, string compatibleCaliber, int useLeft, int maxUse, float caliber, float dmg, float aPPower, float mass, float muzzleVelocity)
+            {
+                SystemName = systemName;
+                ItemName = itemName;
+                Type = type;
+                Description = description;
+                Quantity = quantity;
+                MaxStackSize = maxStackSize;
+                Value = value;
+                SizeX = sizeX;
+                SizeY = sizeY;
+                SizeChanger = sizeChanger;
+                IsDropAble = isDropAble;
+                IsRemoveAble = isRemoveAble;
+                IsUnloadAble = isUnloadAble;
+                IsModificationAble = isModificationAble;
+                IsOpenAble = isOpenAble;
+                IsUsable = isUsable;
+                CanReload = canReload;
+                ContainerPath = containerPath;
+                MagasineSize = magasineSize;
+                Spread = spread;
+                Fpm = fpm;
+                Recoil = recoil;
+                Accturacy = accturacy;
+                Range = range;
+                Ergonomy = ergonomy;
+                CompatibleCaliber = compatibleCaliber;
+                UseLeft = useLeft;
+                MaxUse = maxUse;
+                Caliber = caliber;
+                Dmg = dmg;
+                APPower = aPPower;
+                Mass = mass;
+                MuzzleVelocity = muzzleVelocity;
+
+                Actions = null;
+            }
+        }
+        public struct SizeChanger
+        {
+            public int Plus { set; get; }
+            public int MaxPlus { set; get; }
+            public char Direction { set; get; }
+            public SizeChanger(int plus, int maxPlus, char direction)
+            {
+                Plus = plus;
+                MaxPlus = maxPlus;
+                Direction = direction;
+            }
+        }
+
+
+        // -------------------------
+        // Part definíciók
+        // -------------------------
+        public struct PartData
+        {
+            // Ez egy part neve és egyben annak az itemnek a neve, amié a part
+            public string PartName { set; get; }
+            public string ImagePath { set; get; }
+            public MainItem MainItem { set; get; }
+            public CP[] CPs { set; get; }
+            public SP[] SPs { set; get; }
+            public PartData(string partName, string imagePath, CP[] cPs, SP[] sPs, MainItem MainItem)
+            {
+                PartName = partName;
+                ImagePath = imagePath;
+                this.MainItem = MainItem;
+                CPs = cPs;
+                SPs = sPs;
+            }
+        }
+
+        public struct MainItem
+        {
+            public string MainItemName { set; get; }
+            public string SystemName { set; get; }
+            public string Type { set; get; }
+            public string Desctription { set; get; }
+            public string[] NecessaryItemTypes { set; get; }
+            public string ConnectedItemName { set; get; }
+            public MainItem(string mainItemName, string systemName, string type, string desctription, string[] necessaryItemTypes, string connectedItemName)
+            {
+                MainItemName = mainItemName;
+                SystemName = systemName;
+                Type = type;
+                Desctription = desctription;
+                NecessaryItemTypes = necessaryItemTypes;
+                ConnectedItemName = connectedItemName;
+            }
+        }
+
+        public struct CP
+        {
+            public string PointName { set; get; }
+            public int Layer { set; get; }
+            public string[] CompatibleItemNames { set; get; }
+            public Vector2 AnchorMin1 { get; private set; }
+            public Vector2 AnchorMax1 { get; private set; }
+            public Vector2 AnchorMin2 { get; private set; }
+            public Vector2 AnchorMax2 { get; private set; }
+
+            public CP(string pointName, int layer, string[] compatibleItemNames, short pixel_1_X, short pixel_1_Y, short pixel_2_X, short pixel_2_Y, (int Height, int Width) ImgSize)
+            {
+                float imgWidth = ImgSize.Width;
+                float imgHeight = ImgSize.Height;
+
+                PointName = pointName;
+                Layer = layer;
+                CompatibleItemNames = compatibleItemNames;
+                AnchorMin1 = new Vector2(pixel_1_X / imgWidth, 1 - (pixel_1_Y / imgHeight));
+                AnchorMax1 = new Vector2(pixel_1_X / imgWidth, 1 - (pixel_1_Y / imgHeight));
+                AnchorMin2 = new Vector2(pixel_2_X / imgWidth, 1 - (pixel_2_Y / imgHeight));
+                AnchorMax2 = new Vector2(pixel_2_X / imgWidth, 1 - (pixel_2_Y / imgHeight));
+            }
+        }
+        public struct SP
+        {
+            public string PointName { set; get; }
+            public int Layer { set; get; }
+            public Vector2 AnchorMin1 { get; private set; }
+            public Vector2 AnchorMax1 { get; private set; }
+            public Vector2 AnchorMin2 { get; private set; }
+            public Vector2 AnchorMax2 { get; private set; }
+            public SP(string pointName, int layer, short pixel_1_X, short pixel_1_Y, short pixel_2_X, short pixel_2_Y, (int Height, int Width) ImgSize)
+            {
+                float imgWidth = ImgSize.Width;
+                float imgHeight = ImgSize.Height;
+
+                PointName = pointName;
+                Layer = layer;
+                AnchorMin1 = new Vector2(pixel_1_X / imgWidth, 1 - (pixel_1_Y / imgHeight));
+                AnchorMax1 = new Vector2(pixel_1_X / imgWidth, 1 - (pixel_1_Y / imgHeight));
+                AnchorMin2 = new Vector2(pixel_2_X / imgWidth, 1 - (pixel_2_Y / imgHeight));
+                AnchorMax2 = new Vector2(pixel_2_X / imgWidth, 1 - (pixel_2_Y / imgHeight));
+            }
         }
     }
     #endregion

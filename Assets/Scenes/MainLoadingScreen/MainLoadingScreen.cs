@@ -66,7 +66,7 @@ public class MainLoadingScreen : MonoBehaviour
     }
     IEnumerator LoadData()
     {
-        Main.AdvancedItemHandler.AdvancedItemDatas.AdvancedItemHanderDataLoad();
+        Main.DataHandler.AdvancedItemHanderDataLoad();
 
         //Debug.Log("--------advancedItems----------");
         //foreach (var item in Main.AdvancedItemHandler.AdvancedItemDatas.AdvancedItems)

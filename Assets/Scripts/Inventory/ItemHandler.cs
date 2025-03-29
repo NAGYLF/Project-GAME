@@ -13,7 +13,6 @@ using static MainData.SupportScripts;
 using static MainData.Main;
 using UnityEngine.UI;
 using Assets.Scripts.Inventory;
-using DataHandler;
 using System.Collections;
 using MainData;
 using Newtonsoft.Json;
@@ -140,13 +139,17 @@ namespace ItemHandler
         public float MuzzleVelocity { get; set; }
         #endregion
 
+        #region Actions
+        public dynamic Actions { get; set; }
+        #endregion
+
         public Item()//ha contume itememt akarunk letrehozni mint pl: egy Root item
         {
 
         }
         public Item(string SystemName, int count = 1)// egy itemet mindeg név alapjan peldanyositunk
         {
-            AdvancedItemStruct advancedItemRef = AdvancedItemHandler.AdvancedItemDatas.GetAdvancedItemData(SystemName);
+            AdvancedItemStruct advancedItemRef = Main.DataHandler.GetAdvancedItemData(SystemName);
 
             Item item = new()
             {
@@ -187,6 +190,8 @@ namespace ItemHandler
                 APPower = advancedItemRef.APPower,
                 Mass = advancedItemRef.Mass,
                 MuzzleVelocity = advancedItemRef.MuzzleVelocity,
+
+                Actions = advancedItemRef.Actions,
             };
 
             if (advancedItemRef.ContainerPath != "-")
@@ -567,7 +572,7 @@ namespace ItemHandler
         }
         public void SetLive()
         {
-            GameObject SP = CreatePrefab(AdvancedItemHandler.CPPath);
+            GameObject SP = CreatePrefab(Main.DataHandler.CPPath);
 
             //!!! Ez változhat a fejlesztes soran szoval oda kell ra figyelni !!!
             SP.transform.SetParent(SelfPart.PartObject.transform.GetChild(0).transform);
@@ -586,13 +591,13 @@ namespace ItemHandler
 
             RectTransform rt1 = RefPoint1.GetComponent<RectTransform>();
             rt1.anchoredPosition = Vector2.zero;
-            rt1.anchorMin = new Vector2(SPData.AnchorMin1.X, SPData.AnchorMin1.Y);
-            rt1.anchorMax = new Vector2(SPData.AnchorMax1.X, SPData.AnchorMax1.Y);
+            rt1.anchorMin = new Vector2(SPData.AnchorMin1.x, SPData.AnchorMin1.y);
+            rt1.anchorMax = new Vector2(SPData.AnchorMax1.x , SPData.AnchorMax1.y);
 
             RectTransform rt2 = RefPoint2.GetComponent<RectTransform>();
             rt2.anchoredPosition = Vector2.zero;
-            rt2.anchorMin = new Vector2(SPData.AnchorMin2.X, SPData.AnchorMin2.Y);
-            rt2.anchorMax = new Vector2(SPData.AnchorMin2.X, SPData.AnchorMin2.Y);
+            rt2.anchorMin = new Vector2(SPData.AnchorMin2.x, SPData.AnchorMin2.y);
+            rt2.anchorMax = new Vector2(SPData.AnchorMin2.x , SPData.AnchorMin2.y);
         }
     }
     //a connection point inpectorban létező dolog ami lenyegeben statikusan jelen van nem kell generalni
@@ -631,7 +636,7 @@ namespace ItemHandler
         }
         public void SetLive()
         {
-            GameObject CP = CreatePrefab(AdvancedItemHandler.CPPath);
+            GameObject CP = CreatePrefab(Main.DataHandler.CPPath);
 
             //!!! Ez változhat a fejlesztes soran szoval oda kell ra figyelni !!!
             CP.transform.SetParent(SelfPart.PartObject.transform.GetChild(0).transform);
@@ -650,14 +655,14 @@ namespace ItemHandler
 
             RectTransform rt1 = RefPoint1.GetComponent<RectTransform>();
             rt1.anchoredPosition = Vector2.zero;
-            rt1.anchorMin = new Vector2(CPData.AnchorMin1.X, CPData.AnchorMin1.Y);
-            rt1.anchorMax = new Vector2(CPData.AnchorMax1.X, CPData.AnchorMax1.Y);
+            rt1.anchorMin = new Vector2(CPData.AnchorMin1.x, CPData.AnchorMin1.y);
+            rt1.anchorMax = new Vector2(CPData.AnchorMax1.x, CPData.AnchorMax1.y);
 
 
             RectTransform rt2 = RefPoint2.GetComponent<RectTransform>();
             rt2.anchoredPosition = Vector2.zero;
-            rt2.anchorMin = new Vector2(CPData.AnchorMin2.X, CPData.AnchorMin2.Y);
-            rt2.anchorMax = new Vector2(CPData.AnchorMin2.X, CPData.AnchorMin2.Y);
+            rt2.anchorMin = new Vector2(CPData.AnchorMin2.x, CPData.AnchorMin2.y);
+            rt2.anchorMax = new Vector2(CPData.AnchorMin2.x, CPData.AnchorMin2.y);
         }
     }
     public class Part
@@ -677,7 +682,7 @@ namespace ItemHandler
         public Part(Item item)
         {
             item_s_Part = item;
-            PartData = AdvancedItemHandler.AdvancedItemDatas.GetPartData(item.SystemName);
+            PartData = Main.DataHandler.GetPartData(item.SystemName);
             ConnectionPoints = new ConnectionPoint[PartData.CPs.Length];
             SystemPoints = new SystemPoints[PartData.SPs.Length];
 
@@ -693,7 +698,7 @@ namespace ItemHandler
         public void SetLive(GameObject ParentObject)
         {
             //Debug.LogWarning($"Set {PartData.PartName}");
-            GameObject Part = CreatePrefab(AdvancedItemHandler.PartPath);
+            GameObject Part = CreatePrefab(Main.DataHandler.PartPath);
             //Debug.LogWarning($"creted obejct {Part.GetInstanceID()}");
             PartObject = Part;
             //Debug.LogWarning($"referalt obejct {PartObject.GetInstanceID()}");

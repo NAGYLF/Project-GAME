@@ -7,7 +7,7 @@ using System.Linq;
 
 public class ModificationPartBox : MonoBehaviour, IPointerDownHandler
 {
-    public Item AdvancedItem;
+    public AdvancedItem AdvancedItem;
     public int PartIndex;
     public ModificationWindow window;
     public void OnPointerDown(PointerEventData eventData)
@@ -27,21 +27,21 @@ public class ModificationPartBox : MonoBehaviour, IPointerDownHandler
 
             if (NewPosition.IsPositionAble)
             {
-                InventorySystem.NonLive_Positioning(NewPosition.NonLiveCoordinates.First().Height, NewPosition.NonLiveCoordinates.First().Widht, NewPosition.SectorIndex, AdvancedItem, AdvancedItem.ParentItem);
+                InventorySystem.NonLive_Positioning(NewPosition.NonLiveCoordinates.First().Height, NewPosition.NonLiveCoordinates.First().Widht, NewPosition.SectorIndex, AdvancedItem, (AdvancedItem)AdvancedItem.ParentItem);
 
                 InventorySystem.NonLive_UnPlacing(AdvancedItem);
-                InventorySystem.NonLive_Placing(AdvancedItem, AdvancedItem.ParentItem);
+                InventorySystem.NonLive_Placing(AdvancedItem, (AdvancedItem)AdvancedItem.ParentItem);
 
                 InventorySystem.Live_UnPlacing(AdvancedItem);
-                InventorySystem.Live_Placing(AdvancedItem, AdvancedItem.ParentItem);
+                InventorySystem.Live_Placing(AdvancedItem, (AdvancedItem)AdvancedItem.ParentItem);
             }
 
             AdvancedItem.SelfGameobject.GetComponent<ItemObject>().SelfVisualisation();
 
             window.ItemPartTrasformation();
 
-            GameObject temporaryAdvancedItemObject = CreatePrefab(Item.TemporaryItemObjectPath);
-            Item newAdvancedItem = new()
+            GameObject temporaryAdvancedItemObject = CreatePrefab(AdvancedItem.TemporaryItemObjectPath);
+            AdvancedItem newAdvancedItem = new()
             {
                 Parts = new List<Part>()
             };

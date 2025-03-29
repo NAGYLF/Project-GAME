@@ -16,7 +16,7 @@ public class ModificationWindow : MonoBehaviour, IPointerDownHandler
     //!!! a fejlesztes soran valtozhat igy odafigylest igenyel !!!
     private const string ModificationPartBoxPath = "GameElements/ModificationPartBox";
 
-    public Item AdvancedItem;
+    public AdvancedItem AdvancedItem;
     public GameObject PartsPanel;
     public GameObject ItemPanel;
 
@@ -31,7 +31,7 @@ public class ModificationWindow : MonoBehaviour, IPointerDownHandler
     {
         mainCamera = InGameUI.Camera.GetComponent<Camera>();
     }
-    public void Openwindow(Item item)
+    public void Openwindow(AdvancedItem item)
     {
         this.AdvancedItem = item;
         AdvancedItem.ModificationWindowRef = this;

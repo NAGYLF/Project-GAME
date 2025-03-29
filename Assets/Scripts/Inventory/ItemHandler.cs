@@ -17,17 +17,23 @@ using System.Collections;
 using MainData;
 using Newtonsoft.Json;
 using System.IO;
+using Items;
+using System.Threading;
 
 namespace ItemHandler
 {
+    public interface IItemComponent
+    {
+        IItemComponent CloneComponent();
+    }
     public class ItemSlotData
     {
         public int SectorID;
         public (int Height, int Widht) Coordinate;
         public string SlotType;
-        public Item PartOfItemData;
+        public AdvancedItem PartOfItemData;
 
-        public ItemSlotData(int SectorID,int Height,int Width,string SlotType = "", Item PartOfItemData = null)
+        public ItemSlotData(int SectorID,int Height,int Width,string SlotType = "", AdvancedItem PartOfItemData = null)
         {
             this.SectorID = SectorID;
             this.Coordinate = (Height,Width);
@@ -35,30 +41,28 @@ namespace ItemHandler
             this.PartOfItemData = PartOfItemData;
         }
     }
-    public class Item
+    public class AdvancedItem
     {
         public const string SimpleItemObjectParth = "GameElements/SimpleItemObject";
         public const string AdvancedItemObjectParth = "GameElements/AdvancedItemObject";
         public const string TemporaryItemObjectPath = "GameElements/TemporaryAdvancedItemObject";
-        //system variables
 
         #region Ref Variables
-
         public ModificationWindow ModificationWindowRef;
         public LevelManager LevelManagerRef;
         public List<ItemSlotData> ItemSlotsDataRef = new List<ItemSlotData>();
-        public List<Item> ContainerItemListRef = new List<Item>();
+        public List<AdvancedItem> ContainerItemListRef = new List<AdvancedItem>();
         public HotKey hotKeyRef;
         public List<ItemSlot> ItemSlotObjectsRef = new List<ItemSlot>();
         public CharacterHand PlayerHandRef;
         public GameObject SelfGameobject { get; set; }
         public GameObject InGameSelfObject { get; set; }
-        public Item ParentItem { get; set; }//az az item ami tárolja ezt az itemet
+        public AdvancedItem ParentItem { get; set; }//az az item ami tárolja ezt az itemet
         #endregion
 
         #region PlacerVariables
         public List<Action> AvaiablePlacerMetodes = new List<Action>();
-        public Item AvaiableParentItem { get; set; }
+        public AdvancedItem AvaiableParentItem { get; set; }
         #endregion
 
         #region System Variables
@@ -79,7 +83,6 @@ namespace ItemHandler
                 Array.Sort(coordinates);
             }
         }
-        public SizeChanger SizeChanger { get; set; }
         #endregion
 
         #region Status Flags
@@ -114,94 +117,60 @@ namespace ItemHandler
         public Container Container { get; set; }
         #endregion
 
-        #region NonGeneric Weapon Variables
-        public int MagasineSize { get; set; }
-        public Stack<Item> ActualAmmo { get; set; } = new Stack<Item>();
-        public double Spread { get; set; }
-        public int Fpm { get; set; }
-        public double Recoil { get; set; }
-        public double Accturacy { get; set; }
-        public double Range { get; set; }
-        public double Ergonomy { get; set; }
-        public string CompatibleCaliber { get; set; }
-        #endregion
+        #region Componens Manager
+        private Dictionary<Type, IItemComponent> Components = new();
 
-        #region NonGeneric UseAble Items Variables
-        public int UseLeft { get; set; }
-        public int MaxUse { get; set; }
-        #endregion
+        public void AddComponent<T>(T component) where T : IItemComponent
+        {
+            var type = typeof(T);
 
-        #region NonGeneric Ammo Variables
-        public float Caliber { get; set; }
-        public float Dmg { get; set; }
-        public float APPower { get; set; }
-        public float Mass { get; set; }
-        public float MuzzleVelocity { get; set; }
-        #endregion
+            if (Components.TryGetValue(type, out var existing))
+            {
+                if (existing != null)
+                {
+                    MergeWith(existing,component);
+                    return;
+                }
+            }
 
-        #region Actions
-        public dynamic Actions { get; set; }
-        #endregion
+            Components[type] = component;
+        }
 
-        public Item()//ha contume itememt akarunk letrehozni mint pl: egy Root item
+        public bool RemoveComponent<T>() where T : IItemComponent
+        {
+            return Components.Remove(typeof(T));
+        }
+
+        public bool TryGetComponent<T>(out T component) where T : class, IItemComponent
+        {
+            if (Components.TryGetValue(typeof(T), out var found))
+            {
+                component = found as T;
+                return true;
+            }
+
+            component = null;
+            return false;
+        }
+
+        private void MergeWith(IItemComponent first,IItemComponent second)
+        {
+            //assault rifle data merge
+            if (first is WeaponBody && second is WeaponBody)
+            {
+
+            }
+        }
+        #endregion
+        public AdvancedItem()
         {
 
         }
-        public Item(string SystemName, int count = 1)// egy itemet mindeg név alapjan peldanyositunk
+        public AdvancedItem(string SystemName, int count = 1)// egy itemet mindeg név alapjan peldanyositunk
         {
-            AdvancedItemStruct advancedItemRef = Main.DataHandler.GetAdvancedItemData(SystemName);
+            AdvancedItemStruct advancedItemRef = DataHandler.GetAdvancedItemData(SystemName);
 
-            Item item = new()
-            {
-                SystemName = advancedItemRef.SystemName,//ez alapján hozza létre egy item saját magát
-                ItemName = advancedItemRef.ItemName,
-                ItemType = advancedItemRef.Type,//ez alapján kerülhet be egy slotba ugyan is vannak pecifikus slotok melyeknek typusváltozójában benen kell, hogy legyen.
-                Description = advancedItemRef.Description,
-
-                Quantity = count,
-                MaxStackSize = advancedItemRef.MaxStackSize,
-                Value = advancedItemRef.Value,
-                SizeX = advancedItemRef.SizeX,
-                SizeY = advancedItemRef.SizeY,
-
-                SizeChanger = advancedItemRef.SizeChanger,
-
-                IsDropAble = advancedItemRef.IsDropAble,
-                IsRemoveAble = advancedItemRef.IsRemoveAble,
-                IsUnloadAble = advancedItemRef.IsUnloadAble,
-                IsModificationAble = advancedItemRef.IsModificationAble,
-                IsOpenAble = advancedItemRef.IsOpenAble,
-                IsUsable = advancedItemRef.IsUsable,
-
-                MagasineSize = advancedItemRef.MagasineSize,
-                Spread = advancedItemRef.MagasineSize,
-                Fpm = advancedItemRef.MagasineSize,
-                Recoil = advancedItemRef.Recoil,
-                Accturacy = advancedItemRef.Recoil,
-                Range = advancedItemRef.Range,
-                Ergonomy = advancedItemRef.Ergonomy,
-                CompatibleCaliber = advancedItemRef.CompatibleCaliber,
-
-                UseLeft = advancedItemRef.UseLeft,
-                MaxUse = advancedItemRef.MaxUse,
-
-                Caliber = advancedItemRef.Caliber,
-                Dmg = advancedItemRef.Dmg,
-                APPower = advancedItemRef.APPower,
-                Mass = advancedItemRef.Mass,
-                MuzzleVelocity = advancedItemRef.MuzzleVelocity,
-
-                Actions = advancedItemRef.Actions,
-            };
-
-            if (advancedItemRef.ContainerPath != "-")
-            {
-                item.Container = new Container(advancedItemRef.ContainerPath);
-            }
-            else
-            {
-                item.Container = null;
-            }
+            SimpleItem item = new(advancedItemRef);
 
             Parts.Add(new(item));
 
@@ -221,22 +190,22 @@ namespace ItemHandler
                 }
             }
         }
-        public void Use()
-        {
-            if (IsUsable)
-            {
-                UseLeft--;
-                if (UseLeft == 0)
-                {
-                    InventorySystem.Delete(this);
-                    if (SelfGameobject)
-                    {
-                        SelfGameobject.GetComponent<ItemObject>().DestroyContainer();
-                        GameObject.Destroy(SelfGameobject);
-                    }
-                }
-            }
-        }
+        //public void Use()
+        //{
+        //    if (IsUsable)
+        //    {
+        //        UseLeft--;
+        //        if (UseLeft == 0)
+        //        {
+        //            InventorySystem.Delete(this);
+        //            if (SelfGameobject)
+        //            {
+        //                SelfGameobject.GetComponent<ItemObject>().DestroyContainer();
+        //                GameObject.Destroy(SelfGameobject);
+        //            }
+        //        }
+        //    }
+        //}
         //action (Live/NonLive Inventory)
         public void Open()
         {
@@ -263,25 +232,21 @@ namespace ItemHandler
         {
 
         }
-        public Item ShallowClone()
+        public AdvancedItem ShallowClone()
         {
-            Item cloned = new()
+            AdvancedItem cloned = new()
             {
-                // System variables
                 Lvl = this.Lvl,
                 HotKey = this.HotKey,
                 RotateDegree = this.RotateDegree,
                 SectorId = this.SectorId,
-                SizeChanger = this.SizeChanger,
 
-                // Status Flags
-                IsRoot = this.IsRoot,
+                IsInPlayerInventory = this.IsInPlayerInventory,
                 IsEquipment = this.IsEquipment,
                 IsLoot = this.IsLoot,
+                IsRoot = this.IsRoot,
                 IsEquipmentRoot = this.IsEquipmentRoot,
-                IsInPlayerInventory = this.IsInPlayerInventory,
 
-                // Action Flags
                 IsDropAble = this.IsDropAble,
                 IsRemoveAble = this.IsRemoveAble,
                 IsUnloadAble = this.IsUnloadAble,
@@ -290,7 +255,6 @@ namespace ItemHandler
                 IsUsable = this.IsUsable,
                 CanReload = this.CanReload,
 
-                // Alap adatok
                 ItemType = this.ItemType,
                 SystemName = this.SystemName,
                 ItemName = this.ItemName,
@@ -300,27 +264,6 @@ namespace ItemHandler
                 Value = this.Value,
                 SizeX = this.SizeX,
                 SizeY = this.SizeY,
-
-                // NonGeneral Weapon Veriables
-                MagasineSize = this.MagasineSize,
-                Spread = this.Spread,
-                Fpm = this.Fpm,
-                Recoil = this.Recoil,
-                Accturacy = this.Accturacy,
-                Range = this.Range,
-                Ergonomy = this.Ergonomy,
-                CompatibleCaliber = this.CompatibleCaliber,
-
-                // NonGeneral Usable Items Veriables
-                UseLeft = this.UseLeft,
-                MaxUse = this.MaxUse,
-
-                // MonGeneral Ammo Variables
-                Caliber = this.Caliber,
-                Dmg = this.Dmg,
-                APPower = this.APPower,
-                Mass = this.Mass,
-                MuzzleVelocity = this.MuzzleVelocity,
             };
 
             if (Container != null)
@@ -335,7 +278,7 @@ namespace ItemHandler
 
             return cloned;
         }
-        public (ConnectionPoint SCP, ConnectionPoint ICP, bool IsPossible) PartPut_IsPossible(Item Incoming_AdvancedItem)
+        public (ConnectionPoint SCP, ConnectionPoint ICP, bool IsPossible) PartPut_IsPossible(AdvancedItem Incoming_AdvancedItem)
         {
             //amit rá helyezunk
             ConnectionPoint[] IncomingCPs = Incoming_AdvancedItem.Parts.SelectMany(x => x.ConnectionPoints).ToArray();//az összes connection point amitje az itemnek van
@@ -357,7 +300,7 @@ namespace ItemHandler
             }
             return (null, null, false);
         }
-        public void PartPut(Item AdvancedItem, ConnectionPoint SCP, ConnectionPoint ICP)//ha egy item partjait belerakjuk akkor az item az inventoryban megmaradhat ezert azt torolni kellesz vagy vmi
+        public void PartPut(AdvancedItem AdvancedItem, ConnectionPoint SCP, ConnectionPoint ICP)//ha egy item partjait belerakjuk akkor az item az inventoryban megmaradhat ezert azt torolni kellesz vagy vmi
         {
             SCP.Connect(ICP);
 
@@ -418,7 +361,7 @@ namespace ItemHandler
         }
         public void AdvancedItemContsruct()
         {
-            Item FirstItem = Parts.First().item_s_Part;
+            SimpleItem FirstItem = Parts.First().item_s_Part;
 
             var partFound = Parts.FirstOrDefault(part => !string.IsNullOrEmpty(part.PartData.MainItem.SystemName));
             if (partFound != null)
@@ -441,9 +384,9 @@ namespace ItemHandler
             }
             else
             {
-                if (Parts.Count>1)
+                if (Parts.Count > 1)
                 {
-                    SystemName = FirstItem.SystemName +" ...";
+                    SystemName = FirstItem.SystemName + " ...";
                     ItemName = FirstItem.ItemName + " ...";
                     Description = FirstItem.Description;
                     ItemType = FirstItem.ItemType;
@@ -457,6 +400,7 @@ namespace ItemHandler
                 }
             }
 
+            Components.Clear();
             Quantity = FirstItem.Quantity;
             MaxStackSize = FirstItem.MaxStackSize;
             IsModificationAble = true;
@@ -464,19 +408,12 @@ namespace ItemHandler
             SizeX = FirstItem.SizeX;
             SizeY = FirstItem.SizeY;
             Container = FirstItem.Container;
-            Value = 0;
-            Spread = 0;
-            Fpm = 0;
-            Recoil = 0;
-            Accturacy = 0;
-            Range = 0;
-            Ergonomy = 0;
 
             foreach (Part part in Parts)
             {
-                Item item = part.item_s_Part;
+                SimpleItem item = part.item_s_Part;
                 Value += item.Value;
-                if (Parts.Count>1 && item.SizeChanger.Direction != '-')
+                if (Parts.Count > 1 && item.SizeChanger.Direction != '-')
                 {
                     char direction = item.SizeChanger.Direction;
                     SizeChanger sizeChanger = item.SizeChanger;
@@ -518,46 +455,644 @@ namespace ItemHandler
                 {
                     IsUsable = item.IsUsable;
                 }
-                if (item.CompatibleCaliber != null)//csak 1 lehet
-                {
-                    CompatibleCaliber = item.CompatibleCaliber;
-                }
-                if (item.Spread != 0)
-                {
-                    Spread += item.Spread;
-                }
-                if (item.Fpm != 0)
-                {
-                    Fpm += item.Fpm;
-                }
-                if (item.Recoil != 0)
-                {
-                    Recoil += item.Recoil;
-                }
-                if (item.Accturacy != 0)
-                {
-                    Accturacy += item.Accturacy;
-                }
-                if (item.Range != 0)
-                {
-                    Range += item.Range;
-                }
-                if (item.Ergonomy != 0)
-                {
-                    Ergonomy += item.Ergonomy;
-                }
-                if (item.MagasineSize != 0)
-                {
-                    MagasineSize += item.MagasineSize;
-                }
-                //hasznalhato e?
-                if (UseLeft != 0)
-                {
-                    UseLeft = item.UseLeft;
-                }
+
+                AddComponent<IItemComponent>(item.Component);
             }
         }
     }
+    public class SimpleItem
+    {
+        #region System Variables
+        public SizeChanger SizeChanger { get; set; }
+        #endregion
+
+        #region Action Flags
+        public bool IsDropAble { get; set; } = false;
+        public bool IsRemoveAble { get; set; } = true;
+        public bool IsUnloadAble { get; set; } = false;
+        public bool IsModificationAble { get; set; } = false;
+        public bool IsOpenAble { get; set; } = false;
+        public bool IsUsable { get; set; } = false;
+        public bool CanReload { get; set; } = false;
+        #endregion
+
+        #region General Variables
+        public string SystemName { get; set; }
+        public string ItemName { get; set; }
+        public string ItemType { get; set; }
+        public string Description { get; set; }
+        public int MaxStackSize { get; set; }
+        public int Quantity { get; set; }
+        public int Value { get; set; }
+        public int SizeX { get; set; }
+        public int SizeY { get; set; }
+        public Container Container { get; set; }
+        #endregion
+
+        public IItemComponent Component { get; set; }
+
+        private SimpleItem()
+        {
+
+        }
+        public SimpleItem(AdvancedItemStruct advancedItemStruct)
+        {
+            SizeChanger = advancedItemStruct.SizeChanger;
+
+            IsDropAble = advancedItemStruct.IsDropAble;
+            IsRemoveAble = advancedItemStruct.IsRemoveAble;
+            IsUnloadAble = advancedItemStruct.IsUnloadAble;
+            IsModificationAble = advancedItemStruct.IsModificationAble;
+            IsOpenAble = advancedItemStruct.IsOpenAble;
+            IsUsable = advancedItemStruct.IsUsable;
+            CanReload = advancedItemStruct.CanReload;
+
+            SystemName = advancedItemStruct.SystemName;
+            ItemName = advancedItemStruct.ItemName;
+            ItemType = advancedItemStruct.Type;
+            Description = advancedItemStruct.Description;
+            MaxStackSize = advancedItemStruct.MaxStackSize;
+            Quantity = advancedItemStruct.Quantity;
+            Value = advancedItemStruct.Value;
+            SizeX = advancedItemStruct.SizeX;
+            SizeY = advancedItemStruct.SizeY;
+
+            if (advancedItemStruct.ContainerPath != "-")
+            {
+                Container = new Container(advancedItemStruct.ContainerPath);
+            }
+
+            switch (ItemType)
+            {
+                case "WeaponBody":
+                    Component = new WeaponBody(advancedItemStruct);
+                    break;
+                default:
+                    break;
+            }
+        }
+
+        public SimpleItem ShallowClone()
+        {
+            SimpleItem clone = new SimpleItem()
+            {
+                SizeChanger = this.SizeChanger,
+
+                IsDropAble = this.IsDropAble,
+                IsRemoveAble = this.IsRemoveAble,
+                IsUnloadAble = this.IsUnloadAble,
+                IsModificationAble = this.IsModificationAble,
+                IsOpenAble = this.IsOpenAble,
+                IsUsable = this.IsUsable,
+                CanReload = this.CanReload,
+
+                SystemName = this.SystemName,
+                ItemName = this.ItemName,
+                ItemType = this.ItemType,
+                Description = this.Description,
+                MaxStackSize = this.MaxStackSize,
+                Quantity = this.Quantity,
+                Value = this.Value,
+                SizeX = this.SizeX,
+                SizeY = this.SizeY,
+            };
+
+            if (this.Container != null)
+            {
+                clone.Container = new Container(Container.PrefabPath);
+            }
+
+            if (Component != null)
+            {
+                clone.Component = this.Component.CloneComponent();
+            }
+
+            return clone;
+        }
+    }
+    //public class AdvancedItem
+    //{
+    //    public const string SimpleItemObjectParth = "GameElements/SimpleItemObject";
+    //    public const string AdvancedItemObjectParth = "GameElements/AdvancedItemObject";
+    //    public const string TemporaryItemObjectPath = "GameElements/TemporaryAdvancedItemObject";
+    //    //system variables
+
+    //    #region Ref Variables
+
+    //    public ModificationWindow ModificationWindowRef;
+    //    public LevelManager LevelManagerRef;
+    //    public List<ItemSlotData> ItemSlotsDataRef = new List<ItemSlotData>();
+    //    public List<AdvancedItem> ContainerItemListRef = new List<AdvancedItem>();
+    //    public HotKey hotKeyRef;
+    //    public List<ItemSlot> ItemSlotObjectsRef = new List<ItemSlot>();
+    //    public CharacterHand PlayerHandRef;
+    //    public GameObject SelfGameobject { get; set; }
+    //    public GameObject InGameSelfObject { get; set; }
+    //    public AdvancedItem ParentItem { get; set; }//az az item ami tárolja ezt az itemet
+    //    #endregion
+
+    //    #region PlacerVariables
+    //    public List<Action> AvaiablePlacerMetodes = new List<Action>();
+    //    public AdvancedItem AvaiableParentItem { get; set; }
+    //    #endregion
+
+    //    #region System Variables
+    //    public int Lvl { get; set; }
+    //    public string HotKey { get; set; } = "";
+    //    public float RotateDegree { get; set; } = 0f;
+    //    public int SectorId { get; set; }
+    //    private (int, int)[] coordinates;
+    //    public (int, int)[] Coordinates
+    //    {
+    //        get
+    //        {
+    //            return coordinates;
+    //        }
+    //        set
+    //        {
+    //            coordinates = value;
+    //            Array.Sort(coordinates);
+    //        }
+    //    }
+    //    public SizeChanger SizeChanger { get; set; }
+    //    #endregion
+
+    //    #region Status Flags
+    //    public bool IsInPlayerInventory { get; set; } = false;// a player inventory tagja az item
+    //    public bool IsEquipment { set; get; } = false;// az item egy equipment
+    //    public bool IsLoot { set; get; } = false;// az item a loot conténerekben van
+    //    public bool IsRoot { set; get; } = false;// az item egy root data
+    //    public bool IsEquipmentRoot { set; get; } = false;// az item a player equipmentjeinek rootja ebbol csak egy lehet
+    //    #endregion
+
+    //    #region Action Flags
+    //    public bool IsDropAble { get; set; } = false;
+    //    public bool IsRemoveAble { get; set; } = true;
+    //    public bool IsUnloadAble { get; set; } = false;
+    //    public bool IsModificationAble { get; set; } = false;
+    //    public bool IsOpenAble { get; set; } = false;
+    //    public bool IsUsable { get; set; } = false;
+    //    public bool CanReload { get; set; } = false;
+    //    #endregion
+
+    //    #region General Variables
+    //    public string ItemType { get; set; }
+    //    public string SystemName { get; set; }
+    //    public string ItemName { get; set; }
+    //    public string Description { get; set; }
+    //    public int MaxStackSize { get; set; }
+    //    public int Quantity { get; set; }
+    //    public int Value { get; set; }
+    //    public int SizeX { get; set; }
+    //    public int SizeY { get; set; }
+    //    public List<Part> Parts { get; set; } = new List<Part>();
+    //    public Container Container { get; set; }
+    //    #endregion
+
+    //    #region NonGeneric Weapon Variables
+    //    public int MagasineSize { get; set; }
+    //    public Stack<AdvancedItem> ActualAmmo { get; set; } = new Stack<AdvancedItem>();
+    //    public double Spread { get; set; }
+    //    public int Fpm { get; set; }
+    //    public double Recoil { get; set; }
+    //    public double Accturacy { get; set; }
+    //    public double Range { get; set; }
+    //    public double Ergonomy { get; set; }
+    //    public string CompatibleCaliber { get; set; }
+    //    #endregion
+
+    //    #region NonGeneric UseAble Items Variables
+    //    public int UseLeft { get; set; }
+    //    public int MaxUse { get; set; }
+    //    #endregion
+
+    //    #region NonGeneric Ammo Variables
+    //    public float Caliber { get; set; }
+    //    public float Dmg { get; set; }
+    //    public float APPower { get; set; }
+    //    public float Mass { get; set; }
+    //    public float MuzzleVelocity { get; set; }
+    //    #endregion
+
+    //    #region Actions
+    //    public dynamic Actions { get; set; }
+    //    #endregion
+
+    //    public AdvancedItem()//ha contume itememt akarunk letrehozni mint pl: egy Root item
+    //    {
+
+    //    }
+    //    public AdvancedItem(string SystemName, int count = 1)// egy itemet mindeg név alapjan peldanyositunk
+    //    {
+    //        AdvancedItemStruct advancedItemRef = Main.DataHandler.GetAdvancedItemData(SystemName);
+
+    //        AdvancedItem item = new()
+    //        {
+    //            SystemName = advancedItemRef.SystemName,//ez alapján hozza létre egy item saját magát
+    //            ItemName = advancedItemRef.ItemName,
+    //            ItemType = advancedItemRef.Type,//ez alapján kerülhet be egy slotba ugyan is vannak pecifikus slotok melyeknek typusváltozójában benen kell, hogy legyen.
+    //            Description = advancedItemRef.Description,
+
+    //            Quantity = count,
+    //            MaxStackSize = advancedItemRef.MaxStackSize,
+    //            Value = advancedItemRef.Value,
+    //            SizeX = advancedItemRef.SizeX,
+    //            SizeY = advancedItemRef.SizeY,
+
+    //            SizeChanger = advancedItemRef.SizeChanger,
+
+    //            IsDropAble = advancedItemRef.IsDropAble,
+    //            IsRemoveAble = advancedItemRef.IsRemoveAble,
+    //            IsUnloadAble = advancedItemRef.IsUnloadAble,
+    //            IsModificationAble = advancedItemRef.IsModificationAble,
+    //            IsOpenAble = advancedItemRef.IsOpenAble,
+    //            IsUsable = advancedItemRef.IsUsable,
+
+    //            MagasineSize = advancedItemRef.MagasineSize,
+    //            Spread = advancedItemRef.MagasineSize,
+    //            Fpm = advancedItemRef.MagasineSize,
+    //            Recoil = advancedItemRef.Recoil,
+    //            Accturacy = advancedItemRef.Recoil,
+    //            Range = advancedItemRef.Range,
+    //            Ergonomy = advancedItemRef.Ergonomy,
+    //            CompatibleCaliber = advancedItemRef.CompatibleCaliber,
+
+    //            UseLeft = advancedItemRef.UseLeft,
+    //            MaxUse = advancedItemRef.MaxUse,
+
+    //            Caliber = advancedItemRef.Caliber,
+    //            Dmg = advancedItemRef.Dmg,
+    //            APPower = advancedItemRef.APPower,
+    //            Mass = advancedItemRef.Mass,
+    //            MuzzleVelocity = advancedItemRef.MuzzleVelocity,
+
+    //            Actions = advancedItemRef.Actions,
+    //        };
+
+    //        if (advancedItemRef.ContainerPath != "-")
+    //        {
+    //            item.Container = new Container(advancedItemRef.ContainerPath);
+    //        }
+    //        else
+    //        {
+    //            item.Container = null;
+    //        }
+
+    //        Parts.Add(new(item));
+
+    //        //fügvény ami az össze spart ertekeit az advanced valtozoba tölti és adja össze
+    //        AdvancedItemContsruct();
+    //    }
+    //    //Ez egy Totális Törlés ami azt jelenti, hogy mindenhonnan törli. Ez nem jo akkor ha valahonnan torolni akarjuk de mashol meg hozzadni
+    //    public void Remove()
+    //    {
+    //        if (IsRemoveAble)
+    //        {
+    //            InventorySystem.Delete(this);
+    //            if (SelfGameobject)
+    //            {
+    //                SelfGameobject.GetComponent<ItemObject>().DestroyContainer();
+    //                GameObject.Destroy(SelfGameobject);
+    //            }
+    //        }
+    //    }
+    //    public void Use()
+    //    {
+    //        if (IsUsable)
+    //        {
+    //            UseLeft--;
+    //            if (UseLeft == 0)
+    //            {
+    //                InventorySystem.Delete(this);
+    //                if (SelfGameobject)
+    //                {
+    //                    SelfGameobject.GetComponent<ItemObject>().DestroyContainer();
+    //                    GameObject.Destroy(SelfGameobject);
+    //                }
+    //            }
+    //        }
+    //    }
+    //    //action (Live/NonLive Inventory)
+    //    public void Open()
+    //    {
+
+    //    }
+    //    public void Modification()
+    //    {
+    //        InGameUI.PlayerInventory.GetComponent<WindowManager>().CreateModificationPanel(this);
+    //    }
+    //    public void Reload()
+    //    {
+
+    //    }
+    //    public void Unload()
+    //    {
+
+    //    }
+    //    public void Drop()
+    //    {
+
+    //    }
+    //    //action (Only Live Inventory)
+    //    public void Shoot()
+    //    {
+
+    //    }
+    //    public AdvancedItem ShallowClone()
+    //    {
+    //        AdvancedItem cloned = new()
+    //        {
+    //            // System variables
+    //            Lvl = this.Lvl,
+    //            HotKey = this.HotKey,
+    //            RotateDegree = this.RotateDegree,
+    //            SectorId = this.SectorId,
+    //            SizeChanger = this.SizeChanger,
+
+    //            // Status Flags
+    //            IsRoot = this.IsRoot,
+    //            IsEquipment = this.IsEquipment,
+    //            IsLoot = this.IsLoot,
+    //            IsEquipmentRoot = this.IsEquipmentRoot,
+    //            IsInPlayerInventory = this.IsInPlayerInventory,
+
+    //            // Action Flags
+    //            IsDropAble = this.IsDropAble,
+    //            IsRemoveAble = this.IsRemoveAble,
+    //            IsUnloadAble = this.IsUnloadAble,
+    //            IsModificationAble = this.IsModificationAble,
+    //            IsOpenAble = this.IsOpenAble,
+    //            IsUsable = this.IsUsable,
+    //            CanReload = this.CanReload,
+
+    //            // Alap adatok
+    //            ItemType = this.ItemType,
+    //            SystemName = this.SystemName,
+    //            ItemName = this.ItemName,
+    //            Description = this.Description,
+    //            MaxStackSize = this.MaxStackSize,
+    //            Quantity = this.Quantity,
+    //            Value = this.Value,
+    //            SizeX = this.SizeX,
+    //            SizeY = this.SizeY,
+
+    //            // NonGeneral Weapon Veriables
+    //            MagasineSize = this.MagasineSize,
+    //            Spread = this.Spread,
+    //            Fpm = this.Fpm,
+    //            Recoil = this.Recoil,
+    //            Accturacy = this.Accturacy,
+    //            Range = this.Range,
+    //            Ergonomy = this.Ergonomy,
+    //            CompatibleCaliber = this.CompatibleCaliber,
+
+    //            // NonGeneral Usable Items Veriables
+    //            UseLeft = this.UseLeft,
+    //            MaxUse = this.MaxUse,
+
+    //            // MonGeneral Ammo Variables
+    //            Caliber = this.Caliber,
+    //            Dmg = this.Dmg,
+    //            APPower = this.APPower,
+    //            Mass = this.Mass,
+    //            MuzzleVelocity = this.MuzzleVelocity,
+    //        };
+
+    //        if (Container != null)
+    //        {
+    //            cloned.Container = new Container(this.Container.PrefabPath);
+    //        }
+
+    //        if (Coordinates != null)
+    //        {
+    //            cloned.Coordinates = this.Coordinates.ToArray();
+    //        }
+
+    //        return cloned;
+    //    }
+    //    public (ConnectionPoint SCP, ConnectionPoint ICP, bool IsPossible) PartPut_IsPossible(AdvancedItem Incoming_AdvancedItem)
+    //    {
+    //        //amit rá helyezunk
+    //        ConnectionPoint[] IncomingCPs = Incoming_AdvancedItem.Parts.SelectMany(x => x.ConnectionPoints).ToArray();//az összes connection point amitje az itemnek van
+    //                                                                                                                  //amire helyezunk
+    //        ConnectionPoint[] SelfCPs = Parts.SelectMany(x => x.ConnectionPoints).ToArray();//az össze sconnection point amihez hozzadhatja
+    //        /*
+    //         * ellenorizzuk, hogy a CP-k egyike sincs e hasznalva
+    //         * ellenorizzuk, hogy a self cp kompatibilis e az incoming cp-vel
+    //         */
+    //        foreach (ConnectionPoint SCP in SelfCPs)
+    //        {
+    //            foreach (ConnectionPoint ICP in IncomingCPs)
+    //            {
+    //                if (!SCP.Used && !ICP.Used && SCP.CPData.CompatibleItemNames.Contains(ICP.SelfPart.PartData.PartName))
+    //                {
+    //                    return (SCP, ICP, true);
+    //                }
+    //            }
+    //        }
+    //        return (null, null, false);
+    //    }
+    //    public void PartPut(AdvancedItem AdvancedItem, ConnectionPoint SCP, ConnectionPoint ICP)//ha egy item partjait belerakjuk akkor az item az inventoryban megmaradhat ezert azt torolni kellesz vagy vmi
+    //    {
+    //        SCP.Connect(ICP);
+
+    //        int baseHierarhicPlace = SCP.SelfPart.HierarhicPlace;
+    //        int IncomingCPPlace = ICP.SelfPart.HierarhicPlace;
+    //        int hierarhicPlaceChanger = 0;
+
+    //        if (baseHierarhicPlace < IncomingCPPlace)
+    //        {
+    //            hierarhicPlaceChanger = (IncomingCPPlace - (++baseHierarhicPlace)) * -1;
+    //        }
+    //        else if (baseHierarhicPlace > IncomingCPPlace)
+    //        {
+    //            hierarhicPlaceChanger = baseHierarhicPlace - IncomingCPPlace + 1;
+    //        }
+    //        else
+    //        {
+    //            hierarhicPlaceChanger = 1;
+    //        }
+
+    //        foreach (Part part in AdvancedItem.Parts)
+    //        {
+    //            part.HierarhicPlace += hierarhicPlaceChanger;
+    //        }
+
+    //        Parts.AddRange(AdvancedItem.Parts);
+
+    //        Parts = Parts.OrderBy(part => part.HierarhicPlace).ToList();
+
+    //        InventorySystem.Delete(AdvancedItem);//törli az advanced itemet amely a partokat tartalmazta
+
+    //        AdvancedItemContsruct();
+    //    }
+    //    public List<Part> PartCut(Part part)
+    //    {
+    //        //Debug.LogWarning(Parts.SelectMany(x => x.ConnectionPoints).ToArray().Last().ConnectedPoint.SelfPart != null);
+    //        ConnectionPoint CPStand = Parts.SelectMany(x => x.ConnectionPoints).FirstOrDefault(y => y.ConnectedPoint?.SelfPart == part);
+    //        ConnectionPoint CPOff = Parts.SelectMany(x => x.ConnectionPoints).FirstOrDefault(y => y.SelfPart == part);
+    //        CPStand.Disconnect();
+    //        List<Part> parts = new()
+    //        {
+    //            part
+    //        };
+    //        part.GetConnectedPartsTree(parts);
+    //        //Debug.LogWarning("-----------------------------PartCut-------------------------------");
+    //        foreach (Part part_ in parts)
+    //        {
+    //            Parts.Remove(part_);
+    //            //Debug.LogWarning(part_.PartData.PartName);
+    //        }
+    //        //Debug.LogWarning("------------------------------------------------------------");
+    //        Parts = Parts.OrderBy(part => part.HierarhicPlace).ToList();
+    //        parts = parts.OrderBy(part => part.HierarhicPlace).ToList();
+
+    //        AdvancedItemContsruct();
+
+    //        return parts;
+    //    }
+    //    public void AdvancedItemContsruct()
+    //    {
+    //        AdvancedItem FirstItem = Parts.First().item_s_Part;
+
+    //        var partFound = Parts.FirstOrDefault(part => !string.IsNullOrEmpty(part.PartData.MainItem.SystemName));
+    //        if (partFound != null)
+    //        {
+    //            MainItem mainItem = partFound.PartData.MainItem;
+    //            if (mainItem.NecessaryItemTypes.All(Type => Parts.Exists(part => part.item_s_Part.ItemType == Type)))
+    //            {
+    //                SystemName = mainItem.SystemName;
+    //                ItemName = mainItem.MainItemName;
+    //                Description = mainItem.Desctription;
+    //                ItemType = mainItem.Type;
+    //            }
+    //            else
+    //            {
+    //                SystemName = $"Incompleted {mainItem.SystemName}";
+    //                ItemName = $"Incompleted {mainItem.SystemName}";
+    //                Description = mainItem.Desctription;
+    //                ItemType = mainItem.Type;
+    //            }
+    //        }
+    //        else
+    //        {
+    //            if (Parts.Count>1)
+    //            {
+    //                SystemName = FirstItem.SystemName +" ...";
+    //                ItemName = FirstItem.ItemName + " ...";
+    //                Description = FirstItem.Description;
+    //                ItemType = FirstItem.ItemType;
+    //            }
+    //            else
+    //            {
+    //                SystemName = FirstItem.SystemName;
+    //                ItemName = FirstItem.ItemName;
+    //                Description = FirstItem.Description;
+    //                ItemType = FirstItem.ItemType;
+    //            }
+    //        }
+
+    //        Quantity = FirstItem.Quantity;
+    //        MaxStackSize = FirstItem.MaxStackSize;
+    //        IsModificationAble = true;
+
+    //        SizeX = FirstItem.SizeX;
+    //        SizeY = FirstItem.SizeY;
+    //        Container = FirstItem.Container;
+    //        Value = 0;
+    //        Spread = 0;
+    //        Fpm = 0;
+    //        Recoil = 0;
+    //        Accturacy = 0;
+    //        Range = 0;
+    //        Ergonomy = 0;
+
+    //        foreach (Part part in Parts)
+    //        {
+    //            AdvancedItem item = part.item_s_Part;
+    //            Value += item.Value;
+    //            if (Parts.Count>1 && item.SizeChanger.Direction != '-')
+    //            {
+    //                char direction = item.SizeChanger.Direction;
+    //                SizeChanger sizeChanger = item.SizeChanger;
+    //                if (direction == 'R' || direction == 'L')
+    //                {
+    //                    SizeX += sizeChanger.Plus;
+    //                    if (SizeX > sizeChanger.MaxPlus)
+    //                    {
+    //                        SizeX = sizeChanger.MaxPlus;
+    //                    }
+    //                }
+    //                else
+    //                {
+    //                    SizeY += sizeChanger.Plus;
+    //                    if (SizeY > sizeChanger.MaxPlus)
+    //                    {
+    //                        SizeY = sizeChanger.MaxPlus;
+    //                    }
+    //                }
+    //                //Debug.Log($"{SizeX} x {SizeY}");
+    //            }
+    //            if (item.IsDropAble)
+    //            {
+    //                IsDropAble = item.IsDropAble;
+    //            }
+    //            if (item.IsUnloadAble)
+    //            {
+    //                IsUnloadAble = item.IsUnloadAble;
+    //            }
+    //            if (item.IsRemoveAble)
+    //            {
+    //                IsRemoveAble = item.IsRemoveAble;
+    //            }
+    //            if (item.IsOpenAble)
+    //            {
+    //                IsOpenAble = item.IsOpenAble;
+    //            }
+    //            if (item.IsUsable)
+    //            {
+    //                IsUsable = item.IsUsable;
+    //            }
+    //            if (item.CompatibleCaliber != null)//csak 1 lehet
+    //            {
+    //                CompatibleCaliber = item.CompatibleCaliber;
+    //            }
+    //            if (item.Spread != 0)
+    //            {
+    //                Spread += item.Spread;
+    //            }
+    //            if (item.Fpm != 0)
+    //            {
+    //                Fpm += item.Fpm;
+    //            }
+    //            if (item.Recoil != 0)
+    //            {
+    //                Recoil += item.Recoil;
+    //            }
+    //            if (item.Accturacy != 0)
+    //            {
+    //                Accturacy += item.Accturacy;
+    //            }
+    //            if (item.Range != 0)
+    //            {
+    //                Range += item.Range;
+    //            }
+    //            if (item.Ergonomy != 0)
+    //            {
+    //                Ergonomy += item.Ergonomy;
+    //            }
+    //            if (item.MagasineSize != 0)
+    //            {
+    //                MagasineSize += item.MagasineSize;
+    //            }
+    //            //hasznalhato e?
+    //            if (UseLeft != 0)
+    //            {
+    //                UseLeft = item.UseLeft;
+    //            }
+    //        }
+    //    }
+    //}
     public class SystemPoints
     {
         public GameObject RefPoint1 = null;//LIVE
@@ -677,12 +1212,12 @@ namespace ItemHandler
         public ConnectionPoint[] ConnectionPoints;//a tartalmazott pontok
         public SystemPoints[] SystemPoints;
 
-        public Item item_s_Part;//az item aminek a partja
+        public SimpleItem item_s_Part;//az item aminek a partja
         public PartData PartData;
-        public Part(Item item)
+        public Part(SimpleItem item)
         {
             item_s_Part = item;
-            PartData = Main.DataHandler.GetPartData(item.SystemName);
+            PartData = DataHandler.GetPartData(item.SystemName);
             ConnectionPoints = new ConnectionPoint[PartData.CPs.Length];
             SystemPoints = new SystemPoints[PartData.SPs.Length];
 
@@ -698,7 +1233,7 @@ namespace ItemHandler
         public void SetLive(GameObject ParentObject)
         {
             //Debug.LogWarning($"Set {PartData.PartName}");
-            GameObject Part = CreatePrefab(Main.DataHandler.PartPath);
+            GameObject Part = CreatePrefab(DataHandler.PartPath);
             //Debug.LogWarning($"creted obejct {Part.GetInstanceID()}");
             PartObject = Part;
             //Debug.LogWarning($"referalt obejct {PartObject.GetInstanceID()}");
@@ -749,7 +1284,7 @@ namespace ItemHandler
         //az item pédányosításánál igy egy új példány készül a containerből is mely alapvetően tartalmazza a container PrefabPath-ét
         //a kostructora az igy megkapott prefabPath-ből lekerdezi a Sectorokat
         public string PrefabPath;
-        public List<Item> Items { get; set; }
+        public List<AdvancedItem> Items { get; set; }
         public ItemSlotData[][,] NonLive_Sectors { get; set; }
         public ItemSlot[][,] Live_Sector { get; set; }//ezek referanca pontokat atralamaznak amelyeken kersztul a tenyleges gameobjectumokat manipulalhatjuk
         public GameObject ContainerObject { get; set; }//conainer objectum
@@ -759,7 +1294,7 @@ namespace ItemHandler
             ContainerObject containerObject = Resources.Load(prefabPath).GetComponent<ContainerObject>();
             ContainerObject.SectorData[] staticSectorDatas = containerObject.StaticSectorDatas;
 
-            Items = new List<Item>();
+            Items = new List<AdvancedItem>();
             NonLive_Sectors = new ItemSlotData[staticSectorDatas.Length][,];
             Live_Sector = new ItemSlot[staticSectorDatas.Length][,];
 
@@ -859,10 +1394,10 @@ namespace ItemHandler
             while (MaxSlotNumber > ActualSlotNumber)
             {
                 LootItem LootItem = WeightedList[UnityEngine.Random.Range(0, WeightedList.Count)];
-                Item item = new(LootItem.Name);
+                AdvancedItem item = new(LootItem.Name);
                 if (item.MaxStackSize > 1)
                 {
-                    item = new Item(LootItem.Name, UnityEngine.Random.Range(Mathf.RoundToInt(item.MaxStackSize * LootItem.MinStack), Mathf.RoundToInt(item.MaxStackSize * LootItem.MaxStack)));
+                    item = new AdvancedItem(LootItem.Name, UnityEngine.Random.Range(Mathf.RoundToInt(item.MaxStackSize * LootItem.MinStack), Mathf.RoundToInt(item.MaxStackSize * LootItem.MaxStack)));
                 }
                 ActualSlotNumber += item.SizeX * item.SizeY;
                 simpleInventory.InventoryAdd(item);
@@ -874,9 +1409,9 @@ namespace ItemHandler
         #region Placer Metodes
         public class Merge
         {
-            public Item Stand { get; private set; }
-            public Item Incoming { get; private set; }
-            public Merge(Item stand, Item incoming)
+            public AdvancedItem Stand { get; private set; }
+            public AdvancedItem Incoming { get; private set; }
+            public Merge(AdvancedItem stand, AdvancedItem incoming)
             {
                 Stand = stand;
                 Incoming = incoming;
@@ -901,10 +1436,10 @@ namespace ItemHandler
         }
         public class Split
         {
-            public Item Incoming { get; private set; }
+            public AdvancedItem Incoming { get; private set; }
             public ItemSlot[] ActiveSlots { get; private set; }
-            public Item Stand { get; private set; } = null;
-            public Split(Item incoming, ItemSlot[] activeSlots)
+            public AdvancedItem Stand { get; private set; } = null;
+            public Split(AdvancedItem incoming, ItemSlot[] activeSlots)
             {
                 Incoming = incoming;
                 ActiveSlots = activeSlots.ToArray();
@@ -944,11 +1479,11 @@ namespace ItemHandler
                 }
                 else
                 {
-                    Item Parent = ActiveSlots.First().SlotParentItem;
+                    AdvancedItem Parent = ActiveSlots.First().SlotParentItem;
 
-                    Item newItem = new(Incoming.SystemName, larger);
+                    AdvancedItem newItem = new(Incoming.SystemName, larger);
 
-                    GameObject itemObject = CreatePrefab(Item.AdvancedItemObjectParth);
+                    GameObject itemObject = CreatePrefab(AdvancedItem.AdvancedItemObjectParth);
                     itemObject.name = newItem.SystemName;
                     newItem.SelfGameobject = itemObject;
                     newItem.ParentItem = Parent;
@@ -976,14 +1511,14 @@ namespace ItemHandler
         }
         public class MergeParts
         {
-            public Item IncomingItem { get; private set; }
-            public Item InteractiveItem { get; private set; }
+            public AdvancedItem IncomingItem { get; private set; }
+            public AdvancedItem InteractiveItem { get; private set; }
             public bool IsPossible { get; private set; }
 
             private ((int X, int Y) ChangedSize, Dictionary<char, int> Directions) Effect;
             private (HashSet<(int Height, int Widht)> NonLiveCoordinates, int SectorIndex, bool IsPositionAble) NewPosition;
             private (ConnectionPoint SCP, ConnectionPoint ICP, bool IsPossible) Data;
-            public MergeParts(Item interactiveItem,Item incomingItem)
+            public MergeParts(AdvancedItem interactiveItem,AdvancedItem incomingItem)
             {
                 IncomingItem = incomingItem;
                 InteractiveItem = interactiveItem;
@@ -1027,15 +1562,15 @@ namespace ItemHandler
         }
         public class RePlace
         {
-            public RePlace(Item item, Item Parent,ItemSlot[] activeSlots)
+            public RePlace(AdvancedItem item, AdvancedItem Parent,ItemSlot[] activeSlots)
             {
                 this.item = item;
                 this.PossibleNewParent = Parent;
                 this.activeSlots = activeSlots.ToArray();
             }
 
-            public Item PossibleNewParent{ get; private set; }
-            public Item item { get; private set; }
+            public AdvancedItem PossibleNewParent{ get; private set; }
+            public AdvancedItem item { get; private set; }
             public ItemSlot[] activeSlots { get; private set; }
 
             public void Execute_RePlace()
@@ -1064,7 +1599,7 @@ namespace ItemHandler
         #endregion
 
         #region Special
-        public static void ItemCompoundRefresh(ItemImgFitter ItemCompound,Item ActualData)
+        public static void ItemCompoundRefresh(ItemImgFitter ItemCompound,AdvancedItem ActualData)
         {
             for (int i = ItemCompound.fitter.transform.childCount - 1; i >= 0; i--)
             {
@@ -1131,7 +1666,7 @@ namespace ItemHandler
             }
             ItemCompound.Fitting();
         }
-        public static void Placer(Item item, float originalRotation)
+        public static void Placer(AdvancedItem item, float originalRotation)
         {
             Action[] actions = item.AvaiablePlacerMetodes.ToArray();
 
@@ -1168,7 +1703,7 @@ namespace ItemHandler
             item.AvaiablePlacerMetodes.Clear();
             item.AvaiableParentItem = null;
         }
-        public static void Delete(Item item)
+        public static void Delete(AdvancedItem item)
         {
             //Debug.LogWarning($"Delete {item.ItemName}");
 
@@ -1196,7 +1731,7 @@ namespace ItemHandler
                 }
             }
         }
-        public static bool CanSplitable(Item Stand, Item Incoming)
+        public static bool CanSplitable(AdvancedItem Stand, AdvancedItem Incoming)
         {
             if (Incoming.Quantity > 1 && Stand == null)
             {
@@ -1208,7 +1743,7 @@ namespace ItemHandler
             }
             return false;
         }
-        public static bool CanMergable(Item Stand, Item Incoming)
+        public static bool CanMergable(AdvancedItem Stand, AdvancedItem Incoming)
         {
             if (Stand != Incoming && Stand.MaxStackSize > 1 && Stand.SystemName == Incoming.SystemName)
             {
@@ -1216,20 +1751,20 @@ namespace ItemHandler
             }
             return false;
         }
-        public static void LiveCleaning(Item item)//ha az inventory-t bezarjuk akkor megsemisulnek a refernciak es egy nullokkal teli lista lesz, ez ezt hivatott orvosolni
+        public static void LiveCleaning(AdvancedItem item)//ha az inventory-t bezarjuk akkor megsemisulnek a refernciak es egy nullokkal teli lista lesz, ez ezt hivatott orvosolni
         {
             item.ItemSlotObjectsRef.Clear();
         }
         #endregion
 
         #region Data Manipulation
-        public static void Add(Item item, Item Parent)
+        public static void Add(AdvancedItem item, AdvancedItem Parent)
         {
             item.ParentItem = Parent;
             Parent.Container.Items.Add(item);
             item.ContainerItemListRef = Parent.Container.Items;//set ref
         }
-        public static void Remove(Item item, Item Parent)
+        public static void Remove(AdvancedItem item, AdvancedItem Parent)
         {
             item.ParentItem = null;
             Parent.Container.Items.Remove(item);
@@ -1264,16 +1799,16 @@ namespace ItemHandler
         }
         public static void InventoryDefault(ref LevelManager levelManager)
         {
-            List<Item> TemporaryItemList = new List<Item>(levelManager.Items);
-            foreach (Item item in TemporaryItemList)
+            List<AdvancedItem> TemporaryItemList = new List<AdvancedItem>(levelManager.Items);
+            foreach (AdvancedItem item in TemporaryItemList)
             {
                 Delete(levelManager.Items.Find(i => i == item));
             }
             levelManager.Items.Clear();
 
-            Item RootRef = TemporaryItemList.First();
+            AdvancedItem RootRef = TemporaryItemList.First();
 
-            Item RootData = new()
+            AdvancedItem RootData = new()
             {
                 SystemName = RootRef.SystemName,
                 ItemName = RootRef.ItemName,
@@ -1293,7 +1828,7 @@ namespace ItemHandler
 
             TemporaryItemList.Clear();
         }
-        public static bool InventoryAdd(ref LevelManager levelManager, Item item)
+        public static bool InventoryAdd(ref LevelManager levelManager, AdvancedItem item)
         {
             bool ItemAdded = false;
             int quantity = item.Quantity;
@@ -1326,7 +1861,7 @@ namespace ItemHandler
             }
             return true;
         }
-        public static bool InventoryAdd(ref LevelManager levelManager, Item item, int StartLVL = 1, int StopLVL = 1)
+        public static bool InventoryAdd(ref LevelManager levelManager, AdvancedItem item, int StartLVL = 1, int StopLVL = 1)
         {
             bool ItemAdded = false;
             int quantity = item.Quantity;
@@ -1359,7 +1894,7 @@ namespace ItemHandler
             }
             return true;
         }
-        public static (bool IsCompleted, int Remaining) InventoryRemove(ref LevelManager levelManager, Item item, int count = 1)
+        public static (bool IsCompleted, int Remaining) InventoryRemove(ref LevelManager levelManager, AdvancedItem item, int count = 1)
         {
             if (levelManager.Items.Contains(item))
             {
@@ -1402,7 +1937,7 @@ namespace ItemHandler
         }
         public static (bool IsContainsAllAmount, int Amount) InventoryContains(ref LevelManager levelManager, string ItemSystemName, int count = 1)
         {
-            Item[] items = levelManager.Items.FindAll(item => item.SystemName == ItemSystemName).ToArray();
+            AdvancedItem[] items = levelManager.Items.FindAll(item => item.SystemName == ItemSystemName).ToArray();
             if (items.Length == 0)
             {
                 return (false, 0);
@@ -1426,14 +1961,14 @@ namespace ItemHandler
             }
         }
 
-        public static void AddPlayerInventory(Item item)
+        public static void AddPlayerInventory(AdvancedItem item)
         {
             item.IsInPlayerInventory = true;
             item.LevelManagerRef = InventoryObjectRef.GetComponent<PlayerInventory>().levelManager;//set ref
             InventoryObjectRef.GetComponent<PlayerInventory>().levelManager.Items.Add(item);
             InventoryObjectRef.GetComponent<PlayerInventory>().levelManager.SetMaxLVL_And_Sort();
         }
-        public static void RemovePlayerInventory(Item item)
+        public static void RemovePlayerInventory(AdvancedItem item)
         {
             item.IsInPlayerInventory = false;
             item.LevelManagerRef.Items.Remove(item);
@@ -1444,8 +1979,8 @@ namespace ItemHandler
         {
             if (levelManager.Items.Count > 0)
             {
-                List<Item> TemporaryItemList_ = new List<Item>(levelManager.Items);
-                foreach (Item item in TemporaryItemList_)
+                List<AdvancedItem> TemporaryItemList_ = new List<AdvancedItem>(levelManager.Items);
+                foreach (AdvancedItem item in TemporaryItemList_)
                 {
                     Delete(levelManager.Items.Find(i => i == item));
                 }
@@ -1456,7 +1991,7 @@ namespace ItemHandler
 
             levelManager = PlayerInventoryClone(LoadFrom);
 
-            foreach (Item item in levelManager.Items)
+            foreach (AdvancedItem item in levelManager.Items)
             {
                 if (item.hotKeyRef != null)
                 {
@@ -1466,8 +2001,8 @@ namespace ItemHandler
         }
         public static void PlayerInventoryDefault(ref LevelManager levelManager)
         {
-            List<Item> TemporaryItemList = new List<Item>(levelManager.Items);
-            foreach (Item item in TemporaryItemList)
+            List<AdvancedItem> TemporaryItemList = new List<AdvancedItem>(levelManager.Items);
+            foreach (AdvancedItem item in TemporaryItemList)
             {
                 Delete(levelManager.Items.Find(i => i == item));
             }
@@ -1475,7 +2010,7 @@ namespace ItemHandler
             TemporaryItemList.Clear();
             levelManager.Items.Clear();
 
-            Item RootData = new()
+            AdvancedItem RootData = new()
             {
                 SystemName = "Root",
                 Lvl = -1,
@@ -1498,7 +2033,7 @@ namespace ItemHandler
         #endregion
 
         #region Positioning
-        public static void NonLive_Positioning(int Y, int X, int sectorIndex, Item item, Item Parent)
+        public static void NonLive_Positioning(int Y, int X, int sectorIndex, AdvancedItem item, AdvancedItem Parent)
         {
             item.SectorId = sectorIndex;
             if (Parent.IsEquipmentRoot)
@@ -1535,7 +2070,7 @@ namespace ItemHandler
 
             SetHierarhicLVL(item, item.ParentItem);
         }
-        public static void Live_Positioning(Item item, ItemSlot[] activeSlots)
+        public static void Live_Positioning(AdvancedItem item, ItemSlot[] activeSlots)
         {
             List<(int, int)> coordiantes = new List<(int, int)>();
             for (int i = 0; i < activeSlots.Length; i++)
@@ -1550,7 +2085,7 @@ namespace ItemHandler
             SetHierarhicLVL(item, item.ParentItem);
         }
 
-        public static ((int X,int Y) ChangedSize, Dictionary<char,int> Directions) AdvancedItem_SizeChanger_EffectDetermination(Item AdvancedItem,List<Part> IncomingParts,bool Add)
+        public static ((int X,int Y) ChangedSize, Dictionary<char,int> Directions) AdvancedItem_SizeChanger_EffectDetermination(AdvancedItem AdvancedItem,List<Part> IncomingParts,bool Add)
         {
             /*
              * meghaatrozza, hogy a megadott sizechanger az advanced itememet merre és menyivel mozgatja
@@ -1967,7 +2502,7 @@ namespace ItemHandler
                 return (ChangedSize, Directions);
             }
         }
-        public static (HashSet<(int Height, int Widht)> NonLiveCoordinates,int SectorIndex, bool IsPositionAble) Try_PartPositioning(Item AdvancedItem, (int X, int Y) ChangedSize, Dictionary<char, int> Directions)
+        public static (HashSet<(int Height, int Widht)> NonLiveCoordinates,int SectorIndex, bool IsPositionAble) Try_PartPositioning(AdvancedItem AdvancedItem, (int X, int Y) ChangedSize, Dictionary<char, int> Directions)
         {
             /*
              * egy megvaltoztataott referncia meretbol meghatarozza hogy az advanced itemet kicsinyiteni kell e vagy nagyobbitani
@@ -2071,7 +2606,7 @@ namespace ItemHandler
         #endregion
 
         #region Placing
-        public static void Live_Placing(Item item, Item PlacingInto)
+        public static void Live_Placing(AdvancedItem item, AdvancedItem PlacingInto)
         {
             foreach (ItemSlot[,] sector in PlacingInto.Container.Live_Sector)
             {
@@ -2088,7 +2623,7 @@ namespace ItemHandler
                 }
             }
         }
-        public static void Live_UnPlacing(Item item)
+        public static void Live_UnPlacing(AdvancedItem item)
         {
             foreach (ItemSlot slotObject in item.ItemSlotObjectsRef)
             {
@@ -2097,7 +2632,7 @@ namespace ItemHandler
             item.ItemSlotObjectsRef.Clear();//unset ref
         }
 
-        public static void NonLive_Placing(Item item, Item AddTo)
+        public static void NonLive_Placing(AdvancedItem item, AdvancedItem AddTo)
         {
             foreach (ItemSlotData[,] sector in AddTo.Container.NonLive_Sectors)
             {
@@ -2114,7 +2649,7 @@ namespace ItemHandler
                 }
             }
         }
-        public static void NonLive_UnPlacing(Item item)
+        public static void NonLive_UnPlacing(AdvancedItem item)
         {
             foreach (ItemSlotData slotData in item.ItemSlotsDataRef)
             {
@@ -2125,7 +2660,7 @@ namespace ItemHandler
         #endregion
 
         #region Status
-        public static void HotKey_SetStatus_SupplementaryTransformation(Item item, Item StatusParent)
+        public static void HotKey_SetStatus_SupplementaryTransformation(AdvancedItem item, AdvancedItem StatusParent)
         {
             #region Hotkey
             if (item.hotKeyRef != null)
@@ -2176,7 +2711,7 @@ namespace ItemHandler
             }
             #endregion
         }
-        public static void UnsetHotKey(Item item)
+        public static void UnsetHotKey(AdvancedItem item)
         {
             if (item.hotKeyRef != null)
             {
@@ -2186,7 +2721,7 @@ namespace ItemHandler
         #endregion
 
         #region Inventory-System Support Scripts
-        private static (int X, int Y)[] Get_ItemCoodinateLine_AtDataGrid(Item AdvancedItem, HashSet<(int X, int Y)> ExtendCoordinates,char Orientation)
+        private static (int X, int Y)[] Get_ItemCoodinateLine_AtDataGrid(AdvancedItem AdvancedItem, HashSet<(int X, int Y)> ExtendCoordinates,char Orientation)
         {
             if (Orientation == 'U')
             {
@@ -2317,7 +2852,7 @@ namespace ItemHandler
                 return null;
             }
         }
-        private static bool Try_UpWayScaling(Item AdvancedItem, ItemSlotData[,] NonLiveGrid, int ChangedSize, HashSet<(int X, int Y)> ExtendCoordinates)
+        private static bool Try_UpWayScaling(AdvancedItem AdvancedItem, ItemSlotData[,] NonLiveGrid, int ChangedSize, HashSet<(int X, int Y)> ExtendCoordinates)
         {
             (int Height, int Width)[] ActualDownLine = null;
             int Value = 0;//a kezdo ertek
@@ -2433,7 +2968,7 @@ namespace ItemHandler
 
             return AllCoordianateIsEmpty;
         }
-        public static bool Try_DownWayScaling(Item AdvancedItem, ItemSlotData[,] NonLiveGrid, int ChangedSize, HashSet<(int X, int Y)> ExtendCoordinates)
+        public static bool Try_DownWayScaling(AdvancedItem AdvancedItem, ItemSlotData[,] NonLiveGrid, int ChangedSize, HashSet<(int X, int Y)> ExtendCoordinates)
         {
             (int Height, int Width)[] ActualDownLine = null;
             int Value = 0;//a kezdo ertek
@@ -2549,7 +3084,7 @@ namespace ItemHandler
 
             return AllCoordianateIsEmpty;
         }
-        private static bool Try_RightWayScaling(Item AdvancedItem, ItemSlotData[,] NonLiveGrid, int ChangedSize, HashSet<(int X, int Y)> ExtendCoordinates)
+        private static bool Try_RightWayScaling(AdvancedItem AdvancedItem, ItemSlotData[,] NonLiveGrid, int ChangedSize, HashSet<(int X, int Y)> ExtendCoordinates)
         {
             (int Height, int Width)[] ActualDownLine = null;
             int Value = 0;//a kezdo ertek
@@ -2674,7 +3209,7 @@ namespace ItemHandler
 
             return AllCoordianateIsEmpty;
         }
-        private static bool Try_LeftWayScaling(Item AdvancedItem, ItemSlotData[,] NonLiveGrid, int ChangedSize, HashSet<(int X, int Y)> ExtendCoordinates)
+        private static bool Try_LeftWayScaling(AdvancedItem AdvancedItem, ItemSlotData[,] NonLiveGrid, int ChangedSize, HashSet<(int X, int Y)> ExtendCoordinates)
         {
             (int Height, int Width)[] ActualDownLine = null;
             int Value = 0;//a kezdo ertek
@@ -2791,11 +3326,11 @@ namespace ItemHandler
             return AllCoordianateIsEmpty;
         }
 
-        private static void StatusIsInPlayerInventory(Item Data)
+        private static void StatusIsInPlayerInventory(AdvancedItem Data)
         {
             if (Data.Container != null)
             {
-                foreach (Item item in Data.Container.Items)
+                foreach (AdvancedItem item in Data.Container.Items)
                 {
                     if (!item.IsInPlayerInventory && Data.IsInPlayerInventory)
                     {
@@ -2815,12 +3350,12 @@ namespace ItemHandler
                 }
             }
         }
-        private static void SetHierarhicLVL(Item item, Item Parent)
+        private static void SetHierarhicLVL(AdvancedItem item, AdvancedItem Parent)
         {
             int lvl = Parent.Lvl;
             item.Lvl = ++lvl;
         }
-        private static void AutoSetHotKey(Item SetIn)
+        private static void AutoSetHotKey(AdvancedItem SetIn)
         {
             switch (SetIn.Coordinates.First())
             {
@@ -2857,13 +3392,13 @@ namespace ItemHandler
         {
             LevelManager clone = new()
             {
-                Items = new List<Item>()
+                Items = new List<AdvancedItem>()
             };
 
             // 1. Klónozzuk az összes itemet, és beállítjuk a LevelManager referenciát.
-            foreach (Item item in original.Items)
+            foreach (AdvancedItem item in original.Items)
             {
-                Item clonedItem = item.ShallowClone();
+                AdvancedItem clonedItem = item.ShallowClone();
                 Debug.LogWarning($"{clonedItem.ItemName}           {clonedItem.SystemName}     {clonedItem.Parts != null }      --------      cp ");
                 clonedItem.LevelManagerRef = clone;
 
@@ -2888,13 +3423,13 @@ namespace ItemHandler
 
             return clone;
         }
-        private static void CloneParts(Item originalItem, Item clonedItem)
+        private static void CloneParts(AdvancedItem originalItem, AdvancedItem clonedItem)
         {
             clonedItem.Parts = new List<Part>();
             foreach (var partRef in originalItem.Parts)
             {
                 // Klónozzuk a part-hoz tartozó itemet, majd létrehozunk egy új Part példányt.
-                Item clonedPartItem = partRef.item_s_Part.ShallowClone();
+                SimpleItem clonedPartItem = partRef.item_s_Part.ShallowClone();
                 clonedItem.Parts.Add(new Part(clonedPartItem));
                 clonedItem.Parts.Last().HierarhicPlace = partRef.HierarhicPlace;
             }
@@ -2902,15 +3437,15 @@ namespace ItemHandler
         private static void SetupParentReference(LevelManager original, LevelManager clone, int index)
         {
             // Megkeressük az eredeti item parentjának indexét, majd a klónban beállítjuk a referenciát.
-            Item originalItem = original.Items[index];
+            AdvancedItem originalItem = original.Items[index];
             int parentIndex = original.Items.IndexOf(originalItem.ParentItem);
             clone.Items[index].ParentItem = clone.Items[parentIndex];
         }
         private static void SetupContainerReferences(LevelManager original, LevelManager clone, int index)
         {
             // Beállítjuk a container listát és a grid referenciákat.
-            Item clonedItem = clone.Items[index];
-            Item parent = clonedItem.ParentItem;
+            AdvancedItem clonedItem = clone.Items[index];
+            AdvancedItem parent = clonedItem.ParentItem;
 
             // Hozzáadjuk a klón itemet a parent container listájához, majd tároljuk a referenciát.
             parent.Container.Items.Add(clonedItem);
@@ -2936,8 +3471,8 @@ namespace ItemHandler
         {
             // Fejlett itemek esetén végigiterálunk a partok connection pointjain,
             // és újracsatlakoztatjuk őket a megfelelő kapcsolatokat létrehozva az eredeti kapcsolatok alapján.
-            Item clonedItem = clone.Items[index];
-            Item originalItem = original.Items[index];
+            AdvancedItem clonedItem = clone.Items[index];
+            AdvancedItem originalItem = original.Items[index];
 
             for (int j = 0; j < originalItem.Parts.Count; j++)
             {
@@ -2952,7 +3487,7 @@ namespace ItemHandler
                         // Megkeressük az eredeti kapcsolódó partot, majd a connection point indexet.
                         Part usedPart = cp.ConnectedPoint.SelfPart;
                         Debug.LogWarning($"{usedPart.PartData.PartName}      cp");
-                        Item item = original.Items.Find(item => !item.IsRoot && item.Parts.Contains(usedPart));
+                        AdvancedItem item = original.Items.Find(item => !item.IsRoot && item.Parts.Contains(usedPart));
                         int itemIndex = original.Items.IndexOf(item);
                         int partIndex = original.Items[itemIndex].Parts.IndexOf(usedPart);
                         int cpIndex = Array.IndexOf(original.Items[itemIndex].Parts[partIndex].ConnectionPoints, cp.ConnectedPoint);
@@ -2964,10 +3499,10 @@ namespace ItemHandler
             }
         }
 
-        private static bool AddingByNewItemByRotate(LevelManager levelManager, int lvl, Item Data)
+        private static bool AddingByNewItemByRotate(LevelManager levelManager, int lvl, AdvancedItem Data)
         {
             Data.RotateDegree = 90;
-            List<Item> itemsOfLvl = levelManager.Items.Where(Item => Item.Lvl == lvl && Item.Container != null).ToList();
+            List<AdvancedItem> itemsOfLvl = levelManager.Items.Where(Item => Item.Lvl == lvl && Item.Container != null).ToList();
             for (int itemIndex = 0; itemIndex < itemsOfLvl.Count; itemIndex++)
             {
                 for (int sectorIndex = 0; sectorIndex < itemsOfLvl[itemIndex].Container.NonLive_Sectors.Length; sectorIndex++)//mivel a szector 2D array-okat tartalmaz ezert a sectorokon az az ezen 2D arrayokon iteralunk vegig
@@ -2995,9 +3530,9 @@ namespace ItemHandler
             Data.RotateDegree = 0;
             return false;
         }
-        private static bool AddingByNewItem(LevelManager levelManager, int lvl, Item Data)
+        private static bool AddingByNewItem(LevelManager levelManager, int lvl, AdvancedItem Data)
         {
-            List<Item> itemsOfLvl = levelManager.Items.Where(Item => Item.Lvl == lvl && Item.Container != null).ToList();
+            List<AdvancedItem> itemsOfLvl = levelManager.Items.Where(Item => Item.Lvl == lvl && Item.Container != null).ToList();
             for (int itemIndex = 0; itemIndex < itemsOfLvl.Count; itemIndex++)
             {
                 for (int sectorIndex = 0; sectorIndex < itemsOfLvl[itemIndex].Container.NonLive_Sectors.Length; sectorIndex++)//mivel a szector 2D array-okat tartalmaz ezert a sectorokon az az ezen 2D arrayokon iteralunk vegig
@@ -3024,10 +3559,10 @@ namespace ItemHandler
             }
             return false;
         }
-        private static bool AddingByCount(LevelManager levelManager, int lvl, Item Data)
+        private static bool AddingByCount(LevelManager levelManager, int lvl, AdvancedItem Data)
         {
             bool ItemAdded = false;
-            List<Item> itemsOfLvl = levelManager.Items.Where(Item => Item.Lvl == lvl).ToList();
+            List<AdvancedItem> itemsOfLvl = levelManager.Items.Where(Item => Item.Lvl == lvl).ToList();
             for (int itemIndex = 0; itemIndex < itemsOfLvl.Count; itemIndex++)
             {
                 if (!ItemAdded && itemsOfLvl[itemIndex].SystemName == Data.SystemName && itemsOfLvl[itemIndex].Quantity != itemsOfLvl[itemIndex].MaxStackSize)
@@ -3047,7 +3582,7 @@ namespace ItemHandler
             }
             return ItemAdded;
         }
-        private static bool CanBePlace(ItemSlotData[,] slots, int Y, int X, Item item)
+        private static bool CanBePlace(ItemSlotData[,] slots, int Y, int X, AdvancedItem item)
         {
             if (item.RotateDegree == 0 || item.RotateDegree == 180)
             {

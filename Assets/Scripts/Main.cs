@@ -188,7 +188,7 @@ namespace MainData
     public static class Main
     {
         public const int targetFPS = 60;
-        private static List<Item> InvetnoryElemetList;
+        private static List<AdvancedItem> InvetnoryElemetList;
         public static float DefaultHeight = 0f;//az InGameUI allija be
         public static float DefaultWidth = 0f;//az InGameUI allija be
         public const float DefaultItemSlotSize = 10f;

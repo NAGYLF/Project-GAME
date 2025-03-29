@@ -14,7 +14,7 @@ using System;
 public class ContainerObject : MonoBehaviour
 {
     #region DataSynch
-    public Item ActualData;//ezek alapján vizualizálja es szinkronizálja az itemeket az az ha valami ezt az objektumot staterként megkapja akkor ezt kell megvaltoztatni a szinkronizalashoz
+    public AdvancedItem ActualData;//ezek alapján vizualizálja es szinkronizálja az itemeket az az ha valami ezt az objektumot staterként megkapja akkor ezt kell megvaltoztatni a szinkronizalashoz
     #endregion
 
     #region Personal variables
@@ -42,7 +42,7 @@ public class ContainerObject : MonoBehaviour
 
     private Camera mainCam;
 
-    private Item IncomingItem = null;
+    private AdvancedItem IncomingItem = null;
     #endregion
 
     #region Active Slot Handler
@@ -123,7 +123,7 @@ public class ContainerObject : MonoBehaviour
                 {
                     ItemSlot PrioritySlot = interactibleSlots.FirstOrDefault(slot => slot.MouseOver && slot.PartOfItemObject != null && slot.PartOfItemObject != IncomingItem.SelfGameobject);
 
-                    Item InteractiveItem = PrioritySlot?.PartOfItemObject.GetComponent<ItemObject>().ActualData;
+                    AdvancedItem InteractiveItem = PrioritySlot?.PartOfItemObject.GetComponent<ItemObject>().ActualData;
 
                     //ha van interactive item
                     if (PrioritySlot != null)
@@ -276,7 +276,7 @@ public class ContainerObject : MonoBehaviour
 
         yield return null;
     }
-    public void SetDataRoute(Item Data)//(ezen eljárás ezen objektum játékbakerülése elõtt zajlik le)    Célja, hogy a gyökérbõl továbbított és egyben ennek az objektumnak szánt adatokat ezen VCP megkapja
+    public void SetDataRoute(AdvancedItem Data)//(ezen eljárás ezen objektum játékbakerülése elõtt zajlik le)    Célja, hogy a gyökérbõl továbbított és egyben ennek az objektumnak szánt adatokat ezen VCP megkapja
     {
         ActualData = Data;
     }
@@ -320,7 +320,7 @@ public class ContainerObject : MonoBehaviour
         for (int i = 0; i < ActualData.Container.Items.Count; i++)//létrehozzuk itemObjektumait
         {
             //Debug.Log($"{ActualData.Container.Items[i].ItemName} creating into {ActualData.ItemName}'s container");
-            GameObject itemObject = CreatePrefab(Item.AdvancedItemObjectParth);
+            GameObject itemObject = CreatePrefab(AdvancedItem.AdvancedItemObjectParth);
             itemObject.GetComponent<ItemObject>().SetDataRoute(ActualData.Container.Items[i], ActualData);//Létrehozzuk a szikronizálási utat ezen VirtualParentObject és a VirtualChildrenObject között
         }
     }

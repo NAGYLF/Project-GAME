@@ -13,7 +13,7 @@ public class ItemWindow : MonoBehaviour,IPointerExitHandler
 {
     [SerializeField] public GameObject Content;
     [HideInInspector] public GameObject itemObject;
-    private Item item;
+    private AdvancedItem item;
     public void OnPointerExit(PointerEventData eventData)
     {
         Destroy(gameObject);
@@ -46,13 +46,13 @@ public class ItemWindow : MonoBehaviour,IPointerExitHandler
     }
     private void ActionConstruction()
     {
-        if (item.IsUsable)
-        {
-            GameObject button = CreatePrefab("GameElements/ItemWindowButton");
-            button.GetComponent<Button>().onClick.AddListener(Use);
-            button.transform.SetParent(Content.transform,false);
-            button.transform.GetChild(0).GetComponent<TextMeshPro>().text = "Use";
-        }
+        //if (item.IsUsable)
+        //{
+        //    GameObject button = CreatePrefab("GameElements/ItemWindowButton");
+        //    button.GetComponent<Button>().onClick.AddListener(Use);
+        //    button.transform.SetParent(Content.transform,false);
+        //    button.transform.GetChild(0).GetComponent<TextMeshPro>().text = "Use";
+        //}
         if (item.IsOpenAble)
         {
             GameObject button = CreatePrefab("GameElements/ItemWindowButton");
@@ -114,9 +114,9 @@ public class ItemWindow : MonoBehaviour,IPointerExitHandler
         item.Open();
         Destroy(gameObject);
     }
-    private void Use()
-    {
-        item.Use();
-        Destroy(gameObject);
-    }
+    //private void Use()
+    //{
+    //    item.Use();
+    //    Destroy(gameObject);
+    //}
 }

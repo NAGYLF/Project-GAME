@@ -27,7 +27,7 @@ public class DevConsol : MonoBehaviour
                         {
                             case "item":
                                 Debug.Log($"{text.GetComponent<TMP_InputField>().text}");
-                                Item item = new Item(Command[3]);
+                                AdvancedItem item = new AdvancedItem(Command[3]);
                                 if (Command.Length>=5)
                                 {
                                     item.Quantity = int.Parse(Command[4]);
@@ -36,100 +36,100 @@ public class DevConsol : MonoBehaviour
                                 break;
                             case "DevInventory":
                                 Debug.Log($"{text.GetComponent<TMP_InputField>().text}");
-                                Item[] items00 = new Item[]
+                                AdvancedItem[] items00 = new AdvancedItem[]
                                 {
-                                    new Item("AK103"),
-                                    new Item("AK103"),
-                                    new Item("Glock_17_9x19_pistol_PS9"),
-                                    new Item("_6B43_6A_Zabralo_Sh_body_armor"),
-                                    new Item("TestBackpack"),
-                                    new Item("TestVest"),
-                                    new Item("TestBoots"),
-                                    new Item("TestFingers"),
-                                    new Item("GSSh_01_active_headset"),
-                                    new Item("Galvion_Caiman_Hybrid_helmet_Grey"),
-                                    new Item("Atomic_Defense_CQCM_ballistic_mask_Black"),
-                                    new Item("APOK_Tactical_Wasteland_Gladius"),
-                                    new Item("USEC_Base"),
-                                    new Item("USEC_Base_Upper"),
+                                    new AdvancedItem("AK103"),
+                                    new AdvancedItem("AK103"),
+                                    new AdvancedItem("Glock_17_9x19_pistol_PS9"),
+                                    new AdvancedItem("_6B43_6A_Zabralo_Sh_body_armor"),
+                                    new AdvancedItem("TestBackpack"),
+                                    new AdvancedItem("TestVest"),
+                                    new AdvancedItem("TestBoots"),
+                                    new AdvancedItem("TestFingers"),
+                                    new AdvancedItem("GSSh_01_active_headset"),
+                                    new AdvancedItem("Galvion_Caiman_Hybrid_helmet_Grey"),
+                                    new AdvancedItem("Atomic_Defense_CQCM_ballistic_mask_Black"),
+                                    new AdvancedItem("APOK_Tactical_Wasteland_Gladius"),
+                                    new AdvancedItem("USEC_Base"),
+                                    new AdvancedItem("USEC_Base_Upper"),
                                 };
-                                foreach (Item item_ in items00)
+                                foreach (AdvancedItem item_ in items00)
                                 {
                                     inventory.GetComponent<PlayerInventory>().InventoryAdd(item_);
                                 }
                                 break;
                             case "DevInventory_FullGear":
                                 Debug.Log($"{text.GetComponent<TMP_InputField>().text}");
-                                Item[] items02 = new Item[]
+                                AdvancedItem[] items02 = new AdvancedItem[]
                                            {
-                                    new Item("AK103"),
-                                    new Item("U_S_Ordnance_M60E6_7_62x51_light_machine_gun_Default"),
-                                    new Item("Glock_17_9x19_pistol_PS9"),
-                                    new Item("_6B43_6A_Zabralo_Sh_body_armor"),
-                                    new Item("TestBackpack"),
-                                    new Item("TestVest"),
-                                    new Item("TestBoots"),
-                                    new Item("TestFingers"),
-                                    new Item("GSSh_01_active_headset"),
-                                    new Item("Galvion_Caiman_Hybrid_helmet_Grey"),
-                                    new Item("Atomic_Defense_CQCM_ballistic_mask_Black"),
-                                    new Item("APOK_Tactical_Wasteland_Gladius"),
-                                    new Item("USEC_Base"),
-                                    new Item("USEC_Base_Upper"),
-                                    new Item("_7_62x39mm_T_45M1_gzh",180),
-                                    new Item("_5_56x45mm_M856",180),
-                                    new Item("_9x19mm_Green_Tracer",60),
+                                    new AdvancedItem("AK103"),
+                                    new AdvancedItem("U_S_Ordnance_M60E6_7_62x51_light_machine_gun_Default"),
+                                    new AdvancedItem("Glock_17_9x19_pistol_PS9"),
+                                    new AdvancedItem("_6B43_6A_Zabralo_Sh_body_armor"),
+                                    new AdvancedItem("TestBackpack"),
+                                    new AdvancedItem("TestVest"),
+                                    new AdvancedItem("TestBoots"),
+                                    new AdvancedItem("TestFingers"),
+                                    new AdvancedItem("GSSh_01_active_headset"),
+                                    new AdvancedItem("Galvion_Caiman_Hybrid_helmet_Grey"),
+                                    new AdvancedItem("Atomic_Defense_CQCM_ballistic_mask_Black"),
+                                    new AdvancedItem("APOK_Tactical_Wasteland_Gladius"),
+                                    new AdvancedItem("USEC_Base"),
+                                    new AdvancedItem("USEC_Base_Upper"),
+                                    new AdvancedItem("_7_62x39mm_T_45M1_gzh",180),
+                                    new AdvancedItem("_5_56x45mm_M856",180),
+                                    new AdvancedItem("_9x19mm_Green_Tracer",60),
                                            };
-                                foreach (Item item_ in items02)
+                                foreach (AdvancedItem item_ in items02)
                                 {
                                     inventory.GetComponent<PlayerInventory>().InventoryAdd(item_);
                                 }
                                 break;
                             case "DevInvenotry_AKS74UAdvnacedItem":
                                 Debug.Log($"{text.GetComponent<TMP_InputField>().text}");
-                                Item[] items_AK74UTest = new Item[]
+                                AdvancedItem[] items_AK74UTest = new AdvancedItem[]
                                 {
-                                    new Item("_6B43_6A_Zabralo_Sh_body_armor"),
-                                    new Item("TestBackpack"),
-                                    new Item("TestVest"),
-                                    new Item("TestBoots"),
-                                    new Item("TestFingers"),
-                                    new Item("GSSh_01_active_headset"),
-                                    new Item("Galvion_Caiman_Hybrid_helmet_Grey"),
-                                    new Item("Atomic_Defense_CQCM_ballistic_mask_Black"),
-                                    new Item("APOK_Tactical_Wasteland_Gladius"),
-                                    new Item("USEC_Base"),
-                                    new Item("USEC_Base_Upper"),
-                                    new Item("AKS-74U_Body"),
+                                    new AdvancedItem("_6B43_6A_Zabralo_Sh_body_armor"),
+                                    new AdvancedItem("TestBackpack"),
+                                    new AdvancedItem("TestVest"),
+                                    new AdvancedItem("TestBoots"),
+                                    new AdvancedItem("TestFingers"),
+                                    new AdvancedItem("GSSh_01_active_headset"),
+                                    new AdvancedItem("Galvion_Caiman_Hybrid_helmet_Grey"),
+                                    new AdvancedItem("Atomic_Defense_CQCM_ballistic_mask_Black"),
+                                    new AdvancedItem("APOK_Tactical_Wasteland_Gladius"),
+                                    new AdvancedItem("USEC_Base"),
+                                    new AdvancedItem("USEC_Base_Upper"),
+                                    new AdvancedItem("AKS-74U_Body"),
                                 };
-                                Item[] parts_AKS74U = new Item[]
+                                AdvancedItem[] parts_AKS74U = new AdvancedItem[]
                                 {
-                                    new Item("AKS-74U_Legal_Arsenal_Pilgrim_railed_dust_cover"),
-                                    new Item("AKS-74U_Zenit_B-11_handguard"),
-                                    new Item("AKS-74U_bakelite_pistol_grip"),
-                                    new Item("AK-74_5.45x39_6L20_30-round_magasine"),
-                                    new Item("KAC_vertical_foregrip"),
-                                    new Item("AK-105_5.45x39_muzzle_brake-compensator"),
-                                    new Item("Walther_MRS_reflex_sight"),
-                                    new Item("AKS-74U_Skeletonized_Stock"),
+                                    new AdvancedItem("AKS-74U_Legal_Arsenal_Pilgrim_railed_dust_cover"),
+                                    new AdvancedItem("AKS-74U_Zenit_B-11_handguard"),
+                                    new AdvancedItem("AKS-74U_bakelite_pistol_grip"),
+                                    new AdvancedItem("AK-74_5.45x39_6L20_30-round_magasine"),
+                                    new AdvancedItem("KAC_vertical_foregrip"),
+                                    new AdvancedItem("AK-105_5.45x39_muzzle_brake-compensator"),
+                                    new AdvancedItem("Walther_MRS_reflex_sight"),
+                                    new AdvancedItem("AKS-74U_Skeletonized_Stock"),
                                 };
-                                foreach (Item item_ in parts_AKS74U)
+                                foreach (AdvancedItem item_ in parts_AKS74U)
                                 {
                                     (ConnectionPoint SCP, ConnectionPoint ICP, bool IsPossible) Data = items_AK74UTest.Last().PartPut_IsPossible(item_);
                                     items_AK74UTest.Last().PartPut(item_,Data.SCP,Data.ICP);
                                 }
-                                foreach (Item item_ in items_AK74UTest)
+                                foreach (AdvancedItem item_ in items_AK74UTest)
                                 {
                                     inventory.GetComponent<PlayerInventory>().InventoryAdd(item_);
                                 }
                                 break;
                             case "_7.62x39FMJx600":
                                 Debug.Log($"{text.GetComponent<TMP_InputField>().text}");
-                                Item[] items03 = new Item[]
+                                AdvancedItem[] items03 = new AdvancedItem[]
                                            {
-                                    new Item("7.62x39FMJ",600),
+                                    new AdvancedItem("7.62x39FMJ",600),
                                            };
-                                foreach (Item item_ in items03)
+                                foreach (AdvancedItem item_ in items03)
                                 {
                                     inventory.GetComponent<PlayerInventory>().InventoryAdd(item_);
                                 }
@@ -150,7 +150,7 @@ public class DevConsol : MonoBehaviour
                         {
                             case "item":
                                 Debug.Log($"{text.GetComponent<TMP_InputField>().text}");
-                                Item item = new Item(Command[3]);
+                                AdvancedItem item = new AdvancedItem(Command[3]);
                                 if (Command.Length > 4)
                                 {
                                     item.Quantity = int.Parse(Command[4]);

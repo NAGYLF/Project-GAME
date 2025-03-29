@@ -11,10 +11,10 @@ namespace NaturalInventorys
         [SerializeField] public float Fullness;
         [SerializeField] public string PrefabPath;//container prefab path
 
-        [HideInInspector] public Item Root;// ez lényegében az inventory adatait tartlamazza
+        [HideInInspector] public AdvancedItem Root;// ez lényegében az inventory adatait tartlamazza
         public void Awake()
         {
-            Root = new Item()
+            Root = new AdvancedItem()
             {
                 SystemName = "Root",
                 Lvl = -1,
@@ -27,7 +27,7 @@ namespace NaturalInventorys
             };
             LootRandomizer.FillSimpleInvenotry(GetComponent<SimpleInventory>(),PaletteName,Fullness);
         }
-        public void InventoryAdd(Item Data)
+        public void InventoryAdd(AdvancedItem Data)
         {
             bool ItemAdded = false;
             if (!ItemAdded)//container
@@ -115,7 +115,7 @@ namespace NaturalInventorys
         //        Debug.LogWarning($"item: {item.ItemName} cannot removed, probably the item doesn't exist");
         //    }
         //}
-        private bool CanBePlace(ItemSlotData[,] slots, int Y, int X, Item item)
+        private bool CanBePlace(ItemSlotData[,] slots, int Y, int X, AdvancedItem item)
         {
             if (X + item.SizeX <= slots.GetLength(1) && Y + item.SizeY <= slots.GetLength(0))
             {

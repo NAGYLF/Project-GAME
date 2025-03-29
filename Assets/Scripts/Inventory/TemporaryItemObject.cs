@@ -8,6 +8,7 @@ using System.Linq;
 using static PlayerInventoryClass.PlayerInventory;
 using TMPro;
 using PlayerInventoryClass;
+using Items;
 
 public class TemporaryItemObject : MonoBehaviour
 {
@@ -17,8 +18,8 @@ public class TemporaryItemObject : MonoBehaviour
     public TextMeshProUGUI Counter;
     public GameObject ItemCompound;
     private bool IsHavePurpose = true;
-    public Item ActualData { get; private set; }
-    public Item AdvancedItem { get; set; }
+    public AdvancedItem ActualData { get; private set; }
+    public AdvancedItem AdvancedItem { get; set; }
     public ModificationWindow window;
 
     private void Start()
@@ -53,7 +54,7 @@ public class TemporaryItemObject : MonoBehaviour
 
         SelfVisualisation();
     }
-    public void SetDataRoute(Item Data)
+    public void SetDataRoute(AdvancedItem Data)
     {
         ActualData = Data;
     }
@@ -93,7 +94,7 @@ public class TemporaryItemObject : MonoBehaviour
 
             if (ActualData.AvaiablePlacerMetodes.Count > 0)//ha van lehetseges placer metodus
             {
-                GameObject ItemObject = SupportScripts.CreatePrefab(Item.AdvancedItemObjectParth);
+                GameObject ItemObject = SupportScripts.CreatePrefab(AdvancedItem.AdvancedItemObjectParth);
                 ItemObject.transform.SetParent(InventoryObjectRef.transform, false);
                 ItemObject.GetComponent<ItemObject>().SetDataRoute(ActualData, ActualData.AvaiableParentItem);
 
@@ -235,9 +236,9 @@ public class TemporaryItemObject : MonoBehaviour
         {
             HotKeyPlate.text = "";
         }
-        if (ActualData.CompatibleCaliber != "")
+        if (ActualData.TryGetComponent<WeaponBody>(out var weaponBody))
         {
-            AmmoPlate.text = ActualData.CompatibleCaliber;
+            AmmoPlate.text = weaponBody.CompatibleCaliber;
         }
         else
         {
@@ -284,13 +285,13 @@ public class TemporaryItemObject : MonoBehaviour
 
             if (NewPosition.IsPositionAble)
             {
-                InventorySystem.NonLive_Positioning(NewPosition.NonLiveCoordinates.First().Height, NewPosition.NonLiveCoordinates.First().Widht, NewPosition.SectorIndex, AdvancedItem, AdvancedItem.ParentItem);
+                InventorySystem.NonLive_Positioning(NewPosition.NonLiveCoordinates.First().Height, NewPosition.NonLiveCoordinates.First().Widht, NewPosition.SectorIndex, AdvancedItem, (AdvancedItem)AdvancedItem.ParentItem);
 
                 InventorySystem.NonLive_UnPlacing(AdvancedItem);
-                InventorySystem.NonLive_Placing(AdvancedItem, AdvancedItem.ParentItem);
+                InventorySystem.NonLive_Placing(AdvancedItem, (AdvancedItem)AdvancedItem.ParentItem);
 
                 InventorySystem.Live_UnPlacing(AdvancedItem);
-                InventorySystem.Live_Placing(AdvancedItem, AdvancedItem.ParentItem);
+                InventorySystem.Live_Placing(AdvancedItem, (AdvancedItem)AdvancedItem.ParentItem);
             }
 
             AdvancedItem.SelfGameobject.GetComponent<ItemObject>().SelfVisualisation();

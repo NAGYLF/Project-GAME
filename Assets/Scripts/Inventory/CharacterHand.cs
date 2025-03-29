@@ -4,7 +4,7 @@ using UI;
 
 public class CharacterHand : MonoBehaviour
 {
-    public Item SelectedItem;
+    public AdvancedItem SelectedItem;
     public InGameItemObject SelectedItemObject;
 
     private bool Flipped = false;
@@ -58,7 +58,7 @@ public class CharacterHand : MonoBehaviour
             }
         }
     }
-    public void SetItem(Item item)
+    public void SetItem(AdvancedItem item)
     {
         if (item != null)
         {

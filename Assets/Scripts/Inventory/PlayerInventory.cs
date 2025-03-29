@@ -30,7 +30,7 @@ namespace PlayerInventoryClass
         #endregion
         public class LevelManager
         {
-            public List<Item> Items;
+            public List<AdvancedItem> Items;
             public int MaxLVL { get; private set; }
             public void SetMaxLVL_And_Sort()
             {
@@ -46,7 +46,7 @@ namespace PlayerInventoryClass
             }
             public LevelManager()
             {
-                Items = new List<Item>();
+                Items = new List<AdvancedItem>();
             }
         }
         private void Awake()
@@ -72,7 +72,7 @@ namespace PlayerInventoryClass
         }
         public void CreateEmptyInvenotry()
         {
-            Item RootData = new()
+            AdvancedItem RootData = new()
             {
                 SystemName = "Root",
                 Lvl = -1,
@@ -108,7 +108,7 @@ namespace PlayerInventoryClass
                 CreateEmptyInvenotry();
             }
         }
-        private bool CanBePlace(ItemSlotData[,] slots, int Y, int X, Item item)
+        private bool CanBePlace(ItemSlotData[,] slots, int Y, int X, AdvancedItem item)
         {
             if (item.RotateDegree == 0 || item.RotateDegree == 180)
             {
@@ -147,10 +147,10 @@ namespace PlayerInventoryClass
 
             return false;
         }
-        private bool AddingByCount(int lvl, Item Data)
+        private bool AddingByCount(int lvl, AdvancedItem Data)
         {
             bool ItemAdded = false;
-            List<Item> itemsOfLvl = levelManager.Items.Where(Item => Item.Lvl == lvl).ToList();
+            List<AdvancedItem> itemsOfLvl = levelManager.Items.Where(Item => Item.Lvl == lvl).ToList();
             for (int itemIndex = 0; itemIndex < itemsOfLvl.Count; itemIndex++)
             {
                 if (!ItemAdded && itemsOfLvl[itemIndex].SystemName == Data.SystemName && itemsOfLvl[itemIndex].Quantity != itemsOfLvl[itemIndex].MaxStackSize)
@@ -170,9 +170,9 @@ namespace PlayerInventoryClass
             }
             return ItemAdded;
         }
-        private bool AddingByNewItem(int lvl, Item Data)
+        private bool AddingByNewItem(int lvl, AdvancedItem Data)
         {
-            List<Item> itemsOfLvl = levelManager.Items.Where(Item => Item.Lvl == lvl && Item.Container != null).ToList();
+            List<AdvancedItem> itemsOfLvl = levelManager.Items.Where(Item => Item.Lvl == lvl && Item.Container != null).ToList();
             for (int itemIndex = 0; itemIndex < itemsOfLvl.Count; itemIndex++)
             {
                 for (int sectorIndex = 0; sectorIndex < itemsOfLvl[itemIndex].Container.NonLive_Sectors.Length; sectorIndex++)//mivel a szector 2D array-okat tartalmaz ezert a sectorokon az az ezen 2D arrayokon iteralunk vegig
@@ -199,10 +199,10 @@ namespace PlayerInventoryClass
             }
             return false;
         }
-        private bool AddingByNewItemByRotate(int lvl, Item Data)
+        private bool AddingByNewItemByRotate(int lvl, AdvancedItem Data)
         {
             Data.RotateDegree = 90;
-            List<Item> itemsOfLvl = levelManager.Items.Where(Item => Item.Lvl == lvl && Item.Container != null).ToList();
+            List<AdvancedItem> itemsOfLvl = levelManager.Items.Where(Item => Item.Lvl == lvl && Item.Container != null).ToList();
             for (int itemIndex = 0; itemIndex < itemsOfLvl.Count; itemIndex++)
             {
                 for (int sectorIndex = 0; sectorIndex < itemsOfLvl[itemIndex].Container.NonLive_Sectors.Length; sectorIndex++)//mivel a szector 2D array-okat tartalmaz ezert a sectorokon az az ezen 2D arrayokon iteralunk vegig
@@ -230,7 +230,7 @@ namespace PlayerInventoryClass
             Data.RotateDegree = 0;
             return false;
         }
-        public void InventoryAdd(Item item)//az equipmentekbe nem ad count szerint.
+        public void InventoryAdd(AdvancedItem item)//az equipmentekbe nem ad count szerint.
         {
             bool ItemAdded = false;
             int quantity = item.Quantity;
@@ -261,10 +261,10 @@ namespace PlayerInventoryClass
                 Debug.LogWarning($"item: {item.SystemName} cannot added, probably no space for that");
             }
         }
-        private bool Removing(int lvl,Item Data)
+        private bool Removing(int lvl,AdvancedItem Data)
         {
             bool ItemRemoved = false;
-            List<Item> itemsOfLvl = levelManager.Items.Where(Item => Item.Lvl == lvl).ToList();
+            List<AdvancedItem> itemsOfLvl = levelManager.Items.Where(Item => Item.Lvl == lvl).ToList();
             for (int itemIndex = 0; itemIndex < itemsOfLvl.Count && !ItemRemoved; itemIndex++)
             {
                 if (itemsOfLvl[itemIndex].SystemName == Data.SystemName && (itemsOfLvl[itemIndex].Container == null || itemsOfLvl[itemIndex].Container.Items.Count == 0))
@@ -291,7 +291,7 @@ namespace PlayerInventoryClass
             return ItemRemoved;
         }
 
-        public void InventoryRemove(Item item)//newm torol olyan itemet melynek van item a containerében
+        public void InventoryRemove(AdvancedItem item)//newm torol olyan itemet melynek van item a containerében
         {
             Debug.Log($"Remove: {item.SystemName} - {item.Quantity}db in progress");
             bool ItemRemoved = false;

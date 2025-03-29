@@ -13,7 +13,7 @@ namespace UI
 {
     public class HotKey
     {
-        public Item Item;
+        public AdvancedItem Item;
 
         public int Key;
 
@@ -23,7 +23,7 @@ namespace UI
         {
             Key = key;
         }
-        public void SetWithUI(Item item)
+        public void SetWithUI(AdvancedItem item)
         {
             if (Item == item)
             {
@@ -56,7 +56,7 @@ namespace UI
                 Item = null;
             }
         }
-        public void SetHotKey(Item SetIn)
+        public void SetHotKey(AdvancedItem SetIn)
         {
             if (Item == null)
             {
@@ -778,14 +778,14 @@ namespace UI
             Thirst -= count;
             SetThirstBar(count);
         }
-        private static void SetPlayerHand(Item item)//ez inicializálja az uj selected itemet
+        private static void SetPlayerHand(AdvancedItem item)//ez inicializálja az uj selected itemet
         {
             Player.GetComponent<Player>().Hand.GetComponent<CharacterHand>().SelectedItem = item;
             HandHUDRefresh();
         }
         private static void HandHUDRefresh()//ez a selected item alapján frissiti a HUD-ot
         {
-            Item selectedItem = Player.GetComponent<Player>().Hand.GetComponent<CharacterHand>().SelectedItem;
+            AdvancedItem selectedItem = Player.GetComponent<Player>().Hand.GetComponent<CharacterHand>().SelectedItem;
             Player player = Player.GetComponent<Player>();
             GameObject playerObject = Player;
         }

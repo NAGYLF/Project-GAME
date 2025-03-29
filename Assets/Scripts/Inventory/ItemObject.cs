@@ -11,6 +11,7 @@ using TMPro;
 using UnityEngine.EventSystems;
 using PlayerInventoryClass;
 using UI;
+using Items;
 
 public class ItemObject : MonoBehaviour, IPointerDownHandler, IPointerUpHandler, IPointerEnterHandler, IPointerExitHandler
 {
@@ -21,7 +22,7 @@ public class ItemObject : MonoBehaviour, IPointerDownHandler, IPointerUpHandler,
     public GameObject ItemCompound;
     //public List<GameObject> ItemObjectParts;//opcionálisan használandó
     private GameObject Window;
-    public Item ActualData { get; private set; }
+    public AdvancedItem ActualData { get; private set; }
 
     private Transform originalParent;
     private Vector3 originalPosition;
@@ -146,7 +147,7 @@ public class ItemObject : MonoBehaviour, IPointerDownHandler, IPointerUpHandler,
             Destroy(gameObject);
         }
     }
-    public void SetDataRoute(Item Data, Item Parent)
+    public void SetDataRoute(AdvancedItem Data, AdvancedItem Parent)
     {
         ActualData = Data;
         ActualData.ParentItem = Parent;
@@ -218,9 +219,9 @@ public class ItemObject : MonoBehaviour, IPointerDownHandler, IPointerUpHandler,
         {
             HotKeyPlate.text = "";
         }
-        if (ActualData.CompatibleCaliber != "")
+        if (ActualData.TryGetComponent<WeaponBody>(out var weaponBody))
         {
-            AmmoPlate.text = ActualData.CompatibleCaliber;
+            AmmoPlate.text = weaponBody.CompatibleCaliber;
         }
         else
         {

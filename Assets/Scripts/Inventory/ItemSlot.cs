@@ -13,7 +13,7 @@ namespace Assets.Scripts
         public string SlotType;//azon tipusok melyeket befogadhat, ha nincs megadva akkor mindent.
         #endregion
 
-        public Item SlotParentItem;
+        public AdvancedItem SlotParentItem;
         public int sectorId;
         public (int Height,int Width) Coordinate;
 

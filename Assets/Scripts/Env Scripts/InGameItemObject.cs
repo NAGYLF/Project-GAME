@@ -8,7 +8,7 @@ using System.Linq;
 public class InGameItemObject : MonoBehaviour
 {
     public ItemImgFitter ItemCompound;
-    public Item ActualData { get; private set; }
+    public AdvancedItem ActualData { get; private set; }
 
     public void Inicialisation()//manualisan és automatikusan is vegrehajtodik, elofodulaht hogy za obejctuma meg nem letezik és az is hogy letezik
     {
@@ -30,7 +30,7 @@ public class InGameItemObject : MonoBehaviour
             }
         }
     }
-    public void SetDataRoute(Item Data)
+    public void SetDataRoute(AdvancedItem Data)
     {
         ActualData = Data;
     }

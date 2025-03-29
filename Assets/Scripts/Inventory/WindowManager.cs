@@ -17,7 +17,7 @@ namespace Assets.Scripts.Inventory
         {
             windows = new List<GameObject>();
         }
-        public void CreateModificationPanel(Item item)
+        public void CreateModificationPanel(AdvancedItem item)
         {
             GameObject window = CreatePrefab(modificationWindow);
             window.transform.SetParent(gameObject.transform);

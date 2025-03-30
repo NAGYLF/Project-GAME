@@ -5,6 +5,7 @@ using ItemHandler;
 using static MainData.Main;
 using System.Linq;
 using UnityEngine.UI;
+using UI;
 
 namespace Items
 {
@@ -66,36 +67,45 @@ namespace Items
         {
             if (Shoot && Input.GetMouseButton(0) && !isShooting) // Bal klikk
             {
-                Debug.LogWarning("FIre on");
                 isShooting = true;
+                Debug.LogWarning("FIre on");
 
-                var gg = advancedItem.Parts.SelectMany(part => part.SystemPoints);
-                    
-                var sp =   gg.LastOrDefault(sp => sp.SPData.PointName == "Fire");
-                GameObject Bullet = new GameObject("Bullet");
+                var sp = advancedItem.Parts.SelectMany(part => part.SystemPoints).LastOrDefault(sp => sp.SPData.PointName == "Fire");
+
+                //muzzle flash
                 GameObject Fire = new GameObject("Fire", typeof(RectTransform), typeof(CanvasRenderer), typeof(Image));
 
-                // Szülõ beállítása
                 RectTransform rectTransform = Fire.GetComponent<RectTransform>();
-                rectTransform.SetParent(sp.RefPoint1.transform.parent.transform,false);
+                rectTransform.SetParent(sp.InGameRefPoint1.transform.parent.transform, false);
 
-                // Méret (sprite alapján, vagy fix érték)
-                int randomIndex = Random.Range(1, 3); // 1 vagy 2 (a felsõ határ kizárva)
+                int randomIndex = Random.Range(1, 3);
                 string path = $"Textures/EffectTextures/fire{randomIndex}";
                 Sprite sprite = Resources.Load<Sprite>(path);
                 Vector2 size = sprite.rect.size;
 
                 rectTransform.pivot = new Vector2(1f, 0.5f);
                 rectTransform.sizeDelta = size*0.2f;
-                rectTransform.anchoredPosition = sp.RefPoint1.transform.localPosition;
+                rectTransform.anchoredPosition = sp.InGameRefPoint1.transform.localPosition;
 
-                rectTransform.SetParent(advancedItem.InGameSelfObject.GetComponent<InGameItemObject>().ItemCompound.GetComponent<ItemImgFitter>().fitter, true);
-                // Kép beállítása
                 Image img = Fire.GetComponent<Image>();
                 img.sprite = sprite;
                 img.preserveAspect = true;
 
+                rectTransform.SetParent(advancedItem.InGameSelfObject.GetComponent<InGameItemObject>().ItemCompound.GetComponent<ItemImgFitter>().fitter, true);
 
+                //bullet
+                GameObject Bullet = new GameObject("Bullet");
+                Bullet.transform.position = sp.InGameRefPoint1.transform.position;
+                Bullet.transform.rotation = Quaternion.LookRotation(Vector3.forward, InGameUI.Player.GetComponent<Player>().Hand.transform.up); // irányhoz igazítva
+
+                SpriteRenderer renderer = Bullet.AddComponent<SpriteRenderer>();
+                renderer.sprite = Resources.Load<Sprite>("Textures/EffectTextures/BulletTEST");
+                renderer.sortingOrder = 10;
+                renderer.transform.localScale = new Vector3(0.5f, 0.5f, 0.5f); // kisebb méret
+
+                SimpleItem ammunitionTest = new SimpleItem(DataHandler.GetAdvancedItemData("7.62x39FMJ"));
+                var bulletScript = Bullet.AddComponent<Bullet>();
+                bulletScript.Initialize(ammunitionTest.Component as Ammunition, InGameUI.Player.GetComponent<Player>().Hand.transform.right);
 
                 float delay = 60f /Fpm;
 
@@ -103,8 +113,6 @@ namespace Items
 
                 yield return new WaitForSeconds(delay);
 
-
-                GameObject.Destroy(Bullet);
                 GameObject.Destroy(Fire);
 
                 isShooting = false;
@@ -124,39 +132,6 @@ namespace Items
             {
                 // Céloz
             }
-            yield return null;
-        }
-        public IEnumerable Shoot()
-        {
-            yield return null;
-        }
-        public IEnumerable Reload(AdvancedItem advancedItem, Part selfPart)
-        {
-            SimpleItem KeyItem = selfPart.item_s_Part;
-            PlayerInventoryClass.PlayerInventory.LevelManager playerInventoryItems = advancedItem.LevelManagerRef;
-
-
-
-            //AudioSource audioComponent = advancedItem.SelfGameobject.GetComponent<AudioSource>();
-
-            ////tar kivetele
-            //AudioClip audioClip = Resources.Load<AudioClip>("Hangok/Loves");
-            //audioComponent.PlayOneShot(audioClip);
-
-            //inventoryba helyzi a megmaradt loszert ha van
-            //Item RemaingAmmo = KeyItem
-
-            //playerInventoryItems.Items.Find(item=>item.Caliber == KeyItem.Caliber);
-
-            //yield return new WaitForSeconds(audioClip.length);
-
-            ////tar behelyezese
-            //audioClip = Resources.Load<AudioClip>("Hangok/Loves");
-            //audioComponent.PlayOneShot(audioClip);
-
-            //yield return new WaitForSeconds(audioClip.length);
-
-            //inevntorybol eltavolitja a szukseges vagy talat menyiseget a loszerbol
             yield return null;
         }
     }

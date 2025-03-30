@@ -36,6 +36,6 @@ public class InGameItemObject : MonoBehaviour
     }
     public void SelfVisualisation()//az adatok alapjan vizualizalja az itemet
     {
-        InventorySystem.ItemCompoundRefresh(ItemCompound,ActualData);
+        InventorySystem.ItemCompoundRefresh_Live(ItemCompound,ActualData);
     }
 }

@@ -537,8 +537,11 @@ namespace ItemHandler
 
             switch (ItemType)
             {
-                case "WeaponBody":
+                case nameof(WeaponBody):
                     Component = new WeaponBody(advancedItemStruct);
+                    break;
+                case nameof(Ammunition):
+                    Component = new Ammunition(advancedItemStruct);
                     break;
                 default:
                     break;
@@ -583,533 +586,13 @@ namespace ItemHandler
             return clone;
         }
     }
-    //public class AdvancedItem
-    //{
-    //    public const string SimpleItemObjectParth = "GameElements/SimpleItemObject";
-    //    public const string AdvancedItemObjectParth = "GameElements/AdvancedItemObject";
-    //    public const string TemporaryItemObjectPath = "GameElements/TemporaryAdvancedItemObject";
-    //    //system variables
-
-    //    #region Ref Variables
-
-    //    public ModificationWindow ModificationWindowRef;
-    //    public LevelManager LevelManagerRef;
-    //    public List<ItemSlotData> ItemSlotsDataRef = new List<ItemSlotData>();
-    //    public List<AdvancedItem> ContainerItemListRef = new List<AdvancedItem>();
-    //    public HotKey hotKeyRef;
-    //    public List<ItemSlot> ItemSlotObjectsRef = new List<ItemSlot>();
-    //    public CharacterHand PlayerHandRef;
-    //    public GameObject SelfGameobject { get; set; }
-    //    public GameObject InGameSelfObject { get; set; }
-    //    public AdvancedItem ParentItem { get; set; }//az az item ami tárolja ezt az itemet
-    //    #endregion
-
-    //    #region PlacerVariables
-    //    public List<Action> AvaiablePlacerMetodes = new List<Action>();
-    //    public AdvancedItem AvaiableParentItem { get; set; }
-    //    #endregion
-
-    //    #region System Variables
-    //    public int Lvl { get; set; }
-    //    public string HotKey { get; set; } = "";
-    //    public float RotateDegree { get; set; } = 0f;
-    //    public int SectorId { get; set; }
-    //    private (int, int)[] coordinates;
-    //    public (int, int)[] Coordinates
-    //    {
-    //        get
-    //        {
-    //            return coordinates;
-    //        }
-    //        set
-    //        {
-    //            coordinates = value;
-    //            Array.Sort(coordinates);
-    //        }
-    //    }
-    //    public SizeChanger SizeChanger { get; set; }
-    //    #endregion
-
-    //    #region Status Flags
-    //    public bool IsInPlayerInventory { get; set; } = false;// a player inventory tagja az item
-    //    public bool IsEquipment { set; get; } = false;// az item egy equipment
-    //    public bool IsLoot { set; get; } = false;// az item a loot conténerekben van
-    //    public bool IsRoot { set; get; } = false;// az item egy root data
-    //    public bool IsEquipmentRoot { set; get; } = false;// az item a player equipmentjeinek rootja ebbol csak egy lehet
-    //    #endregion
-
-    //    #region Action Flags
-    //    public bool IsDropAble { get; set; } = false;
-    //    public bool IsRemoveAble { get; set; } = true;
-    //    public bool IsUnloadAble { get; set; } = false;
-    //    public bool IsModificationAble { get; set; } = false;
-    //    public bool IsOpenAble { get; set; } = false;
-    //    public bool IsUsable { get; set; } = false;
-    //    public bool CanReload { get; set; } = false;
-    //    #endregion
-
-    //    #region General Variables
-    //    public string ItemType { get; set; }
-    //    public string SystemName { get; set; }
-    //    public string ItemName { get; set; }
-    //    public string Description { get; set; }
-    //    public int MaxStackSize { get; set; }
-    //    public int Quantity { get; set; }
-    //    public int Value { get; set; }
-    //    public int SizeX { get; set; }
-    //    public int SizeY { get; set; }
-    //    public List<Part> Parts { get; set; } = new List<Part>();
-    //    public Container Container { get; set; }
-    //    #endregion
-
-    //    #region NonGeneric Weapon Variables
-    //    public int MagasineSize { get; set; }
-    //    public Stack<AdvancedItem> ActualAmmo { get; set; } = new Stack<AdvancedItem>();
-    //    public double Spread { get; set; }
-    //    public int Fpm { get; set; }
-    //    public double Recoil { get; set; }
-    //    public double Accturacy { get; set; }
-    //    public double Range { get; set; }
-    //    public double Ergonomy { get; set; }
-    //    public string CompatibleCaliber { get; set; }
-    //    #endregion
-
-    //    #region NonGeneric UseAble Items Variables
-    //    public int UseLeft { get; set; }
-    //    public int MaxUse { get; set; }
-    //    #endregion
-
-    //    #region NonGeneric Ammo Variables
-    //    public float Caliber { get; set; }
-    //    public float Dmg { get; set; }
-    //    public float APPower { get; set; }
-    //    public float Mass { get; set; }
-    //    public float MuzzleVelocity { get; set; }
-    //    #endregion
-
-    //    #region Actions
-    //    public dynamic Actions { get; set; }
-    //    #endregion
-
-    //    public AdvancedItem()//ha contume itememt akarunk letrehozni mint pl: egy Root item
-    //    {
-
-    //    }
-    //    public AdvancedItem(string SystemName, int count = 1)// egy itemet mindeg név alapjan peldanyositunk
-    //    {
-    //        AdvancedItemStruct advancedItemRef = Main.DataHandler.GetAdvancedItemData(SystemName);
-
-    //        AdvancedItem item = new()
-    //        {
-    //            SystemName = advancedItemRef.SystemName,//ez alapján hozza létre egy item saját magát
-    //            ItemName = advancedItemRef.ItemName,
-    //            ItemType = advancedItemRef.Type,//ez alapján kerülhet be egy slotba ugyan is vannak pecifikus slotok melyeknek typusváltozójában benen kell, hogy legyen.
-    //            Description = advancedItemRef.Description,
-
-    //            Quantity = count,
-    //            MaxStackSize = advancedItemRef.MaxStackSize,
-    //            Value = advancedItemRef.Value,
-    //            SizeX = advancedItemRef.SizeX,
-    //            SizeY = advancedItemRef.SizeY,
-
-    //            SizeChanger = advancedItemRef.SizeChanger,
-
-    //            IsDropAble = advancedItemRef.IsDropAble,
-    //            IsRemoveAble = advancedItemRef.IsRemoveAble,
-    //            IsUnloadAble = advancedItemRef.IsUnloadAble,
-    //            IsModificationAble = advancedItemRef.IsModificationAble,
-    //            IsOpenAble = advancedItemRef.IsOpenAble,
-    //            IsUsable = advancedItemRef.IsUsable,
-
-    //            MagasineSize = advancedItemRef.MagasineSize,
-    //            Spread = advancedItemRef.MagasineSize,
-    //            Fpm = advancedItemRef.MagasineSize,
-    //            Recoil = advancedItemRef.Recoil,
-    //            Accturacy = advancedItemRef.Recoil,
-    //            Range = advancedItemRef.Range,
-    //            Ergonomy = advancedItemRef.Ergonomy,
-    //            CompatibleCaliber = advancedItemRef.CompatibleCaliber,
-
-    //            UseLeft = advancedItemRef.UseLeft,
-    //            MaxUse = advancedItemRef.MaxUse,
-
-    //            Caliber = advancedItemRef.Caliber,
-    //            Dmg = advancedItemRef.Dmg,
-    //            APPower = advancedItemRef.APPower,
-    //            Mass = advancedItemRef.Mass,
-    //            MuzzleVelocity = advancedItemRef.MuzzleVelocity,
-
-    //            Actions = advancedItemRef.Actions,
-    //        };
-
-    //        if (advancedItemRef.ContainerPath != "-")
-    //        {
-    //            item.Container = new Container(advancedItemRef.ContainerPath);
-    //        }
-    //        else
-    //        {
-    //            item.Container = null;
-    //        }
-
-    //        Parts.Add(new(item));
-
-    //        //fügvény ami az össze spart ertekeit az advanced valtozoba tölti és adja össze
-    //        AdvancedItemContsruct();
-    //    }
-    //    //Ez egy Totális Törlés ami azt jelenti, hogy mindenhonnan törli. Ez nem jo akkor ha valahonnan torolni akarjuk de mashol meg hozzadni
-    //    public void Remove()
-    //    {
-    //        if (IsRemoveAble)
-    //        {
-    //            InventorySystem.Delete(this);
-    //            if (SelfGameobject)
-    //            {
-    //                SelfGameobject.GetComponent<ItemObject>().DestroyContainer();
-    //                GameObject.Destroy(SelfGameobject);
-    //            }
-    //        }
-    //    }
-    //    public void Use()
-    //    {
-    //        if (IsUsable)
-    //        {
-    //            UseLeft--;
-    //            if (UseLeft == 0)
-    //            {
-    //                InventorySystem.Delete(this);
-    //                if (SelfGameobject)
-    //                {
-    //                    SelfGameobject.GetComponent<ItemObject>().DestroyContainer();
-    //                    GameObject.Destroy(SelfGameobject);
-    //                }
-    //            }
-    //        }
-    //    }
-    //    //action (Live/NonLive Inventory)
-    //    public void Open()
-    //    {
-
-    //    }
-    //    public void Modification()
-    //    {
-    //        InGameUI.PlayerInventory.GetComponent<WindowManager>().CreateModificationPanel(this);
-    //    }
-    //    public void Reload()
-    //    {
-
-    //    }
-    //    public void Unload()
-    //    {
-
-    //    }
-    //    public void Drop()
-    //    {
-
-    //    }
-    //    //action (Only Live Inventory)
-    //    public void Shoot()
-    //    {
-
-    //    }
-    //    public AdvancedItem ShallowClone()
-    //    {
-    //        AdvancedItem cloned = new()
-    //        {
-    //            // System variables
-    //            Lvl = this.Lvl,
-    //            HotKey = this.HotKey,
-    //            RotateDegree = this.RotateDegree,
-    //            SectorId = this.SectorId,
-    //            SizeChanger = this.SizeChanger,
-
-    //            // Status Flags
-    //            IsRoot = this.IsRoot,
-    //            IsEquipment = this.IsEquipment,
-    //            IsLoot = this.IsLoot,
-    //            IsEquipmentRoot = this.IsEquipmentRoot,
-    //            IsInPlayerInventory = this.IsInPlayerInventory,
-
-    //            // Action Flags
-    //            IsDropAble = this.IsDropAble,
-    //            IsRemoveAble = this.IsRemoveAble,
-    //            IsUnloadAble = this.IsUnloadAble,
-    //            IsModificationAble = this.IsModificationAble,
-    //            IsOpenAble = this.IsOpenAble,
-    //            IsUsable = this.IsUsable,
-    //            CanReload = this.CanReload,
-
-    //            // Alap adatok
-    //            ItemType = this.ItemType,
-    //            SystemName = this.SystemName,
-    //            ItemName = this.ItemName,
-    //            Description = this.Description,
-    //            MaxStackSize = this.MaxStackSize,
-    //            Quantity = this.Quantity,
-    //            Value = this.Value,
-    //            SizeX = this.SizeX,
-    //            SizeY = this.SizeY,
-
-    //            // NonGeneral Weapon Veriables
-    //            MagasineSize = this.MagasineSize,
-    //            Spread = this.Spread,
-    //            Fpm = this.Fpm,
-    //            Recoil = this.Recoil,
-    //            Accturacy = this.Accturacy,
-    //            Range = this.Range,
-    //            Ergonomy = this.Ergonomy,
-    //            CompatibleCaliber = this.CompatibleCaliber,
-
-    //            // NonGeneral Usable Items Veriables
-    //            UseLeft = this.UseLeft,
-    //            MaxUse = this.MaxUse,
-
-    //            // MonGeneral Ammo Variables
-    //            Caliber = this.Caliber,
-    //            Dmg = this.Dmg,
-    //            APPower = this.APPower,
-    //            Mass = this.Mass,
-    //            MuzzleVelocity = this.MuzzleVelocity,
-    //        };
-
-    //        if (Container != null)
-    //        {
-    //            cloned.Container = new Container(this.Container.PrefabPath);
-    //        }
-
-    //        if (Coordinates != null)
-    //        {
-    //            cloned.Coordinates = this.Coordinates.ToArray();
-    //        }
-
-    //        return cloned;
-    //    }
-    //    public (ConnectionPoint SCP, ConnectionPoint ICP, bool IsPossible) PartPut_IsPossible(AdvancedItem Incoming_AdvancedItem)
-    //    {
-    //        //amit rá helyezunk
-    //        ConnectionPoint[] IncomingCPs = Incoming_AdvancedItem.Parts.SelectMany(x => x.ConnectionPoints).ToArray();//az összes connection point amitje az itemnek van
-    //                                                                                                                  //amire helyezunk
-    //        ConnectionPoint[] SelfCPs = Parts.SelectMany(x => x.ConnectionPoints).ToArray();//az össze sconnection point amihez hozzadhatja
-    //        /*
-    //         * ellenorizzuk, hogy a CP-k egyike sincs e hasznalva
-    //         * ellenorizzuk, hogy a self cp kompatibilis e az incoming cp-vel
-    //         */
-    //        foreach (ConnectionPoint SCP in SelfCPs)
-    //        {
-    //            foreach (ConnectionPoint ICP in IncomingCPs)
-    //            {
-    //                if (!SCP.Used && !ICP.Used && SCP.CPData.CompatibleItemNames.Contains(ICP.SelfPart.PartData.PartName))
-    //                {
-    //                    return (SCP, ICP, true);
-    //                }
-    //            }
-    //        }
-    //        return (null, null, false);
-    //    }
-    //    public void PartPut(AdvancedItem AdvancedItem, ConnectionPoint SCP, ConnectionPoint ICP)//ha egy item partjait belerakjuk akkor az item az inventoryban megmaradhat ezert azt torolni kellesz vagy vmi
-    //    {
-    //        SCP.Connect(ICP);
-
-    //        int baseHierarhicPlace = SCP.SelfPart.HierarhicPlace;
-    //        int IncomingCPPlace = ICP.SelfPart.HierarhicPlace;
-    //        int hierarhicPlaceChanger = 0;
-
-    //        if (baseHierarhicPlace < IncomingCPPlace)
-    //        {
-    //            hierarhicPlaceChanger = (IncomingCPPlace - (++baseHierarhicPlace)) * -1;
-    //        }
-    //        else if (baseHierarhicPlace > IncomingCPPlace)
-    //        {
-    //            hierarhicPlaceChanger = baseHierarhicPlace - IncomingCPPlace + 1;
-    //        }
-    //        else
-    //        {
-    //            hierarhicPlaceChanger = 1;
-    //        }
-
-    //        foreach (Part part in AdvancedItem.Parts)
-    //        {
-    //            part.HierarhicPlace += hierarhicPlaceChanger;
-    //        }
-
-    //        Parts.AddRange(AdvancedItem.Parts);
-
-    //        Parts = Parts.OrderBy(part => part.HierarhicPlace).ToList();
-
-    //        InventorySystem.Delete(AdvancedItem);//törli az advanced itemet amely a partokat tartalmazta
-
-    //        AdvancedItemContsruct();
-    //    }
-    //    public List<Part> PartCut(Part part)
-    //    {
-    //        //Debug.LogWarning(Parts.SelectMany(x => x.ConnectionPoints).ToArray().Last().ConnectedPoint.SelfPart != null);
-    //        ConnectionPoint CPStand = Parts.SelectMany(x => x.ConnectionPoints).FirstOrDefault(y => y.ConnectedPoint?.SelfPart == part);
-    //        ConnectionPoint CPOff = Parts.SelectMany(x => x.ConnectionPoints).FirstOrDefault(y => y.SelfPart == part);
-    //        CPStand.Disconnect();
-    //        List<Part> parts = new()
-    //        {
-    //            part
-    //        };
-    //        part.GetConnectedPartsTree(parts);
-    //        //Debug.LogWarning("-----------------------------PartCut-------------------------------");
-    //        foreach (Part part_ in parts)
-    //        {
-    //            Parts.Remove(part_);
-    //            //Debug.LogWarning(part_.PartData.PartName);
-    //        }
-    //        //Debug.LogWarning("------------------------------------------------------------");
-    //        Parts = Parts.OrderBy(part => part.HierarhicPlace).ToList();
-    //        parts = parts.OrderBy(part => part.HierarhicPlace).ToList();
-
-    //        AdvancedItemContsruct();
-
-    //        return parts;
-    //    }
-    //    public void AdvancedItemContsruct()
-    //    {
-    //        AdvancedItem FirstItem = Parts.First().item_s_Part;
-
-    //        var partFound = Parts.FirstOrDefault(part => !string.IsNullOrEmpty(part.PartData.MainItem.SystemName));
-    //        if (partFound != null)
-    //        {
-    //            MainItem mainItem = partFound.PartData.MainItem;
-    //            if (mainItem.NecessaryItemTypes.All(Type => Parts.Exists(part => part.item_s_Part.ItemType == Type)))
-    //            {
-    //                SystemName = mainItem.SystemName;
-    //                ItemName = mainItem.MainItemName;
-    //                Description = mainItem.Desctription;
-    //                ItemType = mainItem.Type;
-    //            }
-    //            else
-    //            {
-    //                SystemName = $"Incompleted {mainItem.SystemName}";
-    //                ItemName = $"Incompleted {mainItem.SystemName}";
-    //                Description = mainItem.Desctription;
-    //                ItemType = mainItem.Type;
-    //            }
-    //        }
-    //        else
-    //        {
-    //            if (Parts.Count>1)
-    //            {
-    //                SystemName = FirstItem.SystemName +" ...";
-    //                ItemName = FirstItem.ItemName + " ...";
-    //                Description = FirstItem.Description;
-    //                ItemType = FirstItem.ItemType;
-    //            }
-    //            else
-    //            {
-    //                SystemName = FirstItem.SystemName;
-    //                ItemName = FirstItem.ItemName;
-    //                Description = FirstItem.Description;
-    //                ItemType = FirstItem.ItemType;
-    //            }
-    //        }
-
-    //        Quantity = FirstItem.Quantity;
-    //        MaxStackSize = FirstItem.MaxStackSize;
-    //        IsModificationAble = true;
-
-    //        SizeX = FirstItem.SizeX;
-    //        SizeY = FirstItem.SizeY;
-    //        Container = FirstItem.Container;
-    //        Value = 0;
-    //        Spread = 0;
-    //        Fpm = 0;
-    //        Recoil = 0;
-    //        Accturacy = 0;
-    //        Range = 0;
-    //        Ergonomy = 0;
-
-    //        foreach (Part part in Parts)
-    //        {
-    //            AdvancedItem item = part.item_s_Part;
-    //            Value += item.Value;
-    //            if (Parts.Count>1 && item.SizeChanger.Direction != '-')
-    //            {
-    //                char direction = item.SizeChanger.Direction;
-    //                SizeChanger sizeChanger = item.SizeChanger;
-    //                if (direction == 'R' || direction == 'L')
-    //                {
-    //                    SizeX += sizeChanger.Plus;
-    //                    if (SizeX > sizeChanger.MaxPlus)
-    //                    {
-    //                        SizeX = sizeChanger.MaxPlus;
-    //                    }
-    //                }
-    //                else
-    //                {
-    //                    SizeY += sizeChanger.Plus;
-    //                    if (SizeY > sizeChanger.MaxPlus)
-    //                    {
-    //                        SizeY = sizeChanger.MaxPlus;
-    //                    }
-    //                }
-    //                //Debug.Log($"{SizeX} x {SizeY}");
-    //            }
-    //            if (item.IsDropAble)
-    //            {
-    //                IsDropAble = item.IsDropAble;
-    //            }
-    //            if (item.IsUnloadAble)
-    //            {
-    //                IsUnloadAble = item.IsUnloadAble;
-    //            }
-    //            if (item.IsRemoveAble)
-    //            {
-    //                IsRemoveAble = item.IsRemoveAble;
-    //            }
-    //            if (item.IsOpenAble)
-    //            {
-    //                IsOpenAble = item.IsOpenAble;
-    //            }
-    //            if (item.IsUsable)
-    //            {
-    //                IsUsable = item.IsUsable;
-    //            }
-    //            if (item.CompatibleCaliber != null)//csak 1 lehet
-    //            {
-    //                CompatibleCaliber = item.CompatibleCaliber;
-    //            }
-    //            if (item.Spread != 0)
-    //            {
-    //                Spread += item.Spread;
-    //            }
-    //            if (item.Fpm != 0)
-    //            {
-    //                Fpm += item.Fpm;
-    //            }
-    //            if (item.Recoil != 0)
-    //            {
-    //                Recoil += item.Recoil;
-    //            }
-    //            if (item.Accturacy != 0)
-    //            {
-    //                Accturacy += item.Accturacy;
-    //            }
-    //            if (item.Range != 0)
-    //            {
-    //                Range += item.Range;
-    //            }
-    //            if (item.Ergonomy != 0)
-    //            {
-    //                Ergonomy += item.Ergonomy;
-    //            }
-    //            if (item.MagasineSize != 0)
-    //            {
-    //                MagasineSize += item.MagasineSize;
-    //            }
-    //            //hasznalhato e?
-    //            if (UseLeft != 0)
-    //            {
-    //                UseLeft = item.UseLeft;
-    //            }
-    //        }
-    //    }
-    //}
     public class SystemPoints
     {
         public GameObject RefPoint1 = null;//LIVE
         public GameObject RefPoint2 = null;//LIVE
+
+        public GameObject InGameRefPoint1 = null;//LIVE
+        public GameObject InGameRefPoint2 = null;//LIVE
 
         public SP SPData;
         public Part SelfPart;//a part amelyikhez tartozik
@@ -1147,6 +630,36 @@ namespace ItemHandler
             rt2.anchorMin = new Vector2(SPData.AnchorMin2.x, SPData.AnchorMin2.y);
             rt2.anchorMax = new Vector2(SPData.AnchorMin2.x , SPData.AnchorMin2.y);
         }
+        public void SetLiveInGame()
+        {
+            GameObject SP = CreatePrefab(Main.DataHandler.CPPath);
+
+            //!!! Ez változhat a fejlesztes soran szoval oda kell ra figyelni !!!
+            SP.transform.SetParent(SelfPart.InGamePartObject.transform.GetChild(0).transform);
+            Texture2D texture = Resources.Load<Texture2D>(SelfPart.PartData.ImagePath);
+            float imgWidth = texture.width;
+            float imgHeight = texture.height;
+
+            //!!! miert valtozik a scale ez elott meg?
+            SP.GetComponent<RectTransform>().localScale = new Vector3(1, 1, 1);
+            SP.GetComponent<RectTransform>().sizeDelta = new Vector2(imgWidth, imgHeight);
+            SP.GetComponent<RectTransform>().localPosition = Vector2.zero;
+
+            SP.name = SPData.PointName;
+            InGameRefPoint1 = SP.transform.GetChild(0).gameObject;
+            InGameRefPoint2 = SP.transform.GetChild(1).gameObject;
+
+            RectTransform rt1 = InGameRefPoint1.GetComponent<RectTransform>();
+            rt1.anchoredPosition = Vector2.zero;
+            rt1.anchorMin = new Vector2(SPData.AnchorMin1.x, SPData.AnchorMin1.y);
+            rt1.anchorMax = new Vector2(SPData.AnchorMax1.x, SPData.AnchorMax1.y);
+
+
+            RectTransform rt2 = InGameRefPoint2.GetComponent<RectTransform>();
+            rt2.anchoredPosition = Vector2.zero;
+            rt2.anchorMin = new Vector2(SPData.AnchorMin2.x, SPData.AnchorMin2.y);
+            rt2.anchorMax = new Vector2(SPData.AnchorMin2.x, SPData.AnchorMin2.y);
+        }
     }
     //a connection point inpectorban létező dolog ami lenyegeben statikusan jelen van nem kell generalni
     [System.Serializable]
@@ -1155,6 +668,9 @@ namespace ItemHandler
         //Live adatok meylek addig vannak amig a connectionPoint létezik
         public GameObject RefPoint1 = null;//LIVE
         public GameObject RefPoint2 = null;//LIVE
+
+        public GameObject InGameRefPoint1 = null;//LIVE
+        public GameObject InGameRefPoint2 = null;//LIVE
 
         //active adatok melyek valtozhatnak
         public ConnectionPoint ConnectedPoint = null;//amelyik ponttal össze van kötve
@@ -1212,11 +728,42 @@ namespace ItemHandler
             rt2.anchorMin = new Vector2(CPData.AnchorMin2.x, CPData.AnchorMin2.y);
             rt2.anchorMax = new Vector2(CPData.AnchorMin2.x, CPData.AnchorMin2.y);
         }
+        public void SetLiveInGame()
+        {
+            GameObject CP = CreatePrefab(Main.DataHandler.CPPath);
+
+            //!!! Ez változhat a fejlesztes soran szoval oda kell ra figyelni !!!
+            CP.transform.SetParent(SelfPart.InGamePartObject.transform.GetChild(0).transform);
+            Texture2D texture = Resources.Load<Texture2D>(SelfPart.PartData.ImagePath);
+            float imgWidth = texture.width;
+            float imgHeight = texture.height;
+
+            //!!! miert valtozik a scale ez elott meg?
+            CP.GetComponent<RectTransform>().localScale = new Vector3(1, 1, 1);
+            CP.GetComponent<RectTransform>().sizeDelta = new Vector2(imgWidth, imgHeight);
+            CP.GetComponent<RectTransform>().localPosition = Vector2.zero;
+
+            CP.name = CPData.PointName;
+            InGameRefPoint1 = CP.transform.GetChild(0).gameObject;
+            InGameRefPoint2 = CP.transform.GetChild(1).gameObject;
+
+            RectTransform rt1 = InGameRefPoint1.GetComponent<RectTransform>();
+            rt1.anchoredPosition = Vector2.zero;
+            rt1.anchorMin = new Vector2(CPData.AnchorMin1.x, CPData.AnchorMin1.y);
+            rt1.anchorMax = new Vector2(CPData.AnchorMax1.x, CPData.AnchorMax1.y);
+
+
+            RectTransform rt2 = InGameRefPoint2.GetComponent<RectTransform>();
+            rt2.anchoredPosition = Vector2.zero;
+            rt2.anchorMin = new Vector2(CPData.AnchorMin2.x, CPData.AnchorMin2.y);
+            rt2.anchorMax = new Vector2(CPData.AnchorMin2.x, CPData.AnchorMin2.y);
+        }
     }
     public class Part
     {
         //Live adatok meylek addig vannak amig a connectionPoint létezik
         public GameObject PartObject;//csak live ban van
+        public GameObject InGamePartObject;
 
         //active adatok melyek valtozhatnak
         public int HierarhicPlace = 0;
@@ -1267,6 +814,30 @@ namespace ItemHandler
             Part.GetComponent<RectTransform>().sizeDelta = new Vector2(imgWidth, imgHeight);
             Part.transform.GetChild(0).GetComponent<RectTransform>().sizeDelta = new Vector2(imgWidth, imgHeight);
         }
+        public void SetLiveInGame(GameObject ParentObject)
+        {
+            //Debug.LogWarning($"Set {PartData.PartName}");
+            GameObject InGamePart = CreatePrefab(DataHandler.PartPath);
+            //Debug.LogWarning($"creted obejct {Part.GetInstanceID()}");
+            InGamePartObject = InGamePart;
+            //Debug.LogWarning($"referalt obejct {PartObject.GetInstanceID()}");
+            InGamePart.name = PartData.PartName;
+            InGamePart.GetComponent<PartObject>().SelfData = this;
+
+            //!!! Ez változhat a fejlesztes soran szoval oda kell ra figyelni !!!
+            InGamePart.transform.SetParent(ParentObject.transform);
+
+            //!!! Ez változhat a fejlesztes soran szoval oda kell ra figyelni !!!
+            Sprite sprite = Resources.Load<Sprite>(PartData.ImagePath);
+            InGamePart.transform.GetChild(0).GetComponent<Image>().sprite = sprite;
+            InGamePart.GetComponent<RectTransform>().localPosition = Vector2.zero;
+            InGamePart.GetComponent<RectTransform>().localScale = Vector3.one;
+            Texture2D texture = Resources.Load<Texture2D>(PartData.ImagePath);
+            float imgWidth = texture.width;
+            float imgHeight = texture.height;
+            InGamePart.GetComponent<RectTransform>().sizeDelta = new Vector2(imgWidth, imgHeight);
+            InGamePart.transform.GetChild(0).GetComponent<RectTransform>().sizeDelta = new Vector2(imgWidth, imgHeight);
+        }
         public void UnSetLive()//out of order
         {
             //Debug.LogWarning($"UnsetPart {PartData.PartName}");
@@ -1275,6 +846,11 @@ namespace ItemHandler
                 //Debug.LogWarning($"deleted obejct {PartObject.GetInstanceID()}");
                 PartObject.transform.SetParent(null);
                 UnityEngine.Object.Destroy(PartObject);
+            }
+            if (InGamePartObject != null)//??? nem bitios hoyg mukodik
+            {
+                InGamePartObject.transform.SetParent(null);
+                UnityEngine.Object.Destroy(InGamePartObject);
             }
         }
         public void GetConnectedPartsTree(List<Part> FillableList)
@@ -1612,6 +1188,73 @@ namespace ItemHandler
         #endregion
 
         #region Special
+        public static void ItemCompoundRefresh_Live(ItemImgFitter ItemCompound, AdvancedItem ActualData)
+        {
+            for (int i = ItemCompound.fitter.transform.childCount - 1; i >= 0; i--)
+            {
+                Transform child = ItemCompound.fitter.transform.GetChild(i);
+                child.SetParent(null);
+                GameObject.Destroy(child.gameObject);
+            }
+
+            ItemCompound.ResetFitter();
+
+            foreach (Part part in ActualData.Parts)
+            {
+                part.SetLiveInGame(ItemCompound.fitter.gameObject);
+                foreach (ConnectionPoint cp in part.ConnectionPoints)
+                {
+                    cp.SetLiveInGame();
+                }
+                foreach (SystemPoints sp in part.SystemPoints)
+                {
+                    sp.SetLiveInGame();
+                }
+                part.InGamePartObject.transform.localRotation = Quaternion.Euler(0, 0, 0);//nem tudom miert fordul el, de ezert szuksges a visszaallitas
+            }
+            foreach (Part part in ActualData.Parts)
+            {
+                foreach (ConnectionPoint connectionPoint in part.ConnectionPoints)
+                {
+                    if (connectionPoint.ConnectedPoint != null)
+                    {
+                        if (connectionPoint.SelfPart.HierarhicPlace < connectionPoint.ConnectedPoint.SelfPart.HierarhicPlace)
+                        {
+                            // 1. Referenciapontok lekérése és kiíratása
+                            RectTransform targetPoint1 = connectionPoint.InGameRefPoint1.GetComponent<RectTransform>();
+                            RectTransform targetPoint2 = connectionPoint.InGameRefPoint2.GetComponent<RectTransform>();
+
+                            // 2. Mozgatandó objektum és referencia pontok lekérése
+                            RectTransform toMoveObject = connectionPoint.ConnectedPoint.SelfPart.InGamePartObject.GetComponent<RectTransform>();
+                            RectTransform toMovePoint1 = connectionPoint.ConnectedPoint.InGameRefPoint1.GetComponent<RectTransform>();
+                            RectTransform toMovePoint2 = connectionPoint.ConnectedPoint.InGameRefPoint2.GetComponent<RectTransform>();
+
+                            // 3. Skálázási faktor számítása
+                            float targetLocalDistance = Vector3.Distance(targetPoint1.position, targetPoint2.position);
+                            float toMoveLocalDistance = Vector3.Distance(toMovePoint1.position, toMovePoint2.position);
+                            float scaleFactor = targetLocalDistance / toMoveLocalDistance;
+                            //Debug.LogWarning(part.item_s_Part.ItemName+" "+scaleFactor+ " targetLocalDistante: " + targetLocalDistance+ " toMoveLocalDistance: "+ toMoveLocalDistance);
+                            if (float.IsNaN(scaleFactor))
+                            {
+                                scaleFactor = 1;
+                            }
+
+                            // 4. Alkalmazzuk a skálázást
+                            toMoveObject.localScale = new Vector3(scaleFactor, scaleFactor, 1);
+
+                            // 5. Pozíciók kiszámítása
+                            Vector3 targetMidLocal = (targetPoint1.position + targetPoint2.position) * 0.5f;
+                            Vector3 toMoveMidLocal = (toMovePoint1.position + toMovePoint2.position) * 0.5f;
+                            Vector3 translationLocal = targetMidLocal - toMoveMidLocal;
+
+                            // 6. Alkalmazzuk az eltolást
+                            toMoveObject.position += translationLocal;
+                        }
+                    }
+                }
+            }
+            ItemCompound.Fitting();
+        }
         public static void ItemCompoundRefresh(ItemImgFitter ItemCompound,AdvancedItem ActualData)
         {
             for (int i = ItemCompound.fitter.transform.childCount - 1; i >= 0; i--)

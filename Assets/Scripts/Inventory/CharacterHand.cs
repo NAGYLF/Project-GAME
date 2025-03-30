@@ -1,6 +1,7 @@
 using UnityEngine;
 using ItemHandler;
 using UI;
+using Items;
 
 public class CharacterHand : MonoBehaviour
 {
@@ -71,6 +72,8 @@ public class CharacterHand : MonoBehaviour
             SelectedItemObject.SetDataRoute(item);
             SelectedItemObject.Inicialisation();
 
+            test();
+
             Vector3 scale = transform.localScale;
             scale.x = -Mathf.Abs(scale.x);
             transform.localScale = scale;
@@ -94,5 +97,9 @@ public class CharacterHand : MonoBehaviour
             SelectedItemObject.SetDataRoute(null);
             SelectedItemObject.Inicialisation();
         }
+    }
+    private void test()
+    {
+        Debug.LogWarning($"TEST           {SelectedItem.ItemName}                 {SelectedItem.TryGetComponent<WeaponBody>(out var weapon)}  {weapon}");
     }
 }

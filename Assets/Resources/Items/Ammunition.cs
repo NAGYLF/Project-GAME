@@ -36,5 +36,13 @@ namespace Items
                 MuzzleVelocity = this.MuzzleVelocity,
             };
         }
+        public void Inicialisation(AdvancedItem advancedItem, Part selfPart)
+        {
+
+        }
+        public IEnumerable Control(bool Shoot, bool Reload, bool Use, bool Unload, bool Aim)
+        {
+            yield return null;
+        }
     }
 }

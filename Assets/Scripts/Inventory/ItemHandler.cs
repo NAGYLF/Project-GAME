@@ -18,13 +18,14 @@ using MainData;
 using Newtonsoft.Json;
 using System.IO;
 using Items;
-using System.Threading;
 
 namespace ItemHandler
 {
     public interface IItemComponent
     {
         IItemComponent CloneComponent();
+        void Inicialisation(AdvancedItem advancedItem, Part selfPart);
+        IEnumerable Control(bool Shoot,bool Reload,bool Use,bool Unload,bool Aim);
     }
     public class ItemSlotData
     {
@@ -118,19 +119,19 @@ namespace ItemHandler
         #endregion
 
         #region Componens Manager
-        private Dictionary<Type, IItemComponent> Components = new();
+        public Dictionary<Type, IItemComponent> Components { private set; get; } = new();
 
-        public void AddComponent<T>(T component) where T : IItemComponent
+        public void AddComponent(IItemComponent component)
         {
-            var type = typeof(T);
+            if (component == null) return;
+
+            var type = component.GetType();
+            if (type == typeof(IItemComponent)) return; // Ne tároljon általános interfészt
 
             if (Components.TryGetValue(type, out var existing))
             {
-                if (existing != null)
-                {
-                    MergeWith(existing,component);
-                    return;
-                }
+                MergeWith(existing,component);//out of order
+                return;
             }
 
             Components[type] = component;
@@ -138,15 +139,24 @@ namespace ItemHandler
 
         public bool RemoveComponent<T>() where T : IItemComponent
         {
-            return Components.Remove(typeof(T));
+            var type = typeof(T);
+            if (type == typeof(IItemComponent)) return false;
+            return Components.Remove(type);
         }
 
         public bool TryGetComponent<T>(out T component) where T : class, IItemComponent
         {
-            if (Components.TryGetValue(typeof(T), out var found))
+            var type = typeof(T);
+            if (type == typeof(IItemComponent))
+            {
+                component = null;
+                return false;
+            }
+
+            if (Components.TryGetValue(type, out var found))
             {
                 component = found as T;
-                return true;
+                return component != null;
             }
 
             component = null;
@@ -456,7 +466,10 @@ namespace ItemHandler
                     IsUsable = item.IsUsable;
                 }
 
-                AddComponent<IItemComponent>(item.Component);
+                if (item.Component != null)
+                {
+                    AddComponent(item.Component);
+                }
             }
         }
     }

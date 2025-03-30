@@ -40,7 +40,7 @@ namespace Items
         {
 
         }
-        public IEnumerable Control(bool Shoot, bool Reload, bool Use, bool Unload, bool Aim)
+        public IEnumerator Control(bool Shoot, bool Reload, bool Use, bool Unload, bool Aim)
         {
             yield return null;
         }

@@ -4,6 +4,7 @@ using UnityEngine;
 using ItemHandler;
 using static MainData.Main;
 using System.Linq;
+using UnityEngine.UI;
 
 namespace Items
 {
@@ -61,18 +62,51 @@ namespace Items
             this.advancedItem = advancedItem;
             this.selfPart = selfPart;
         }
-        public IEnumerable Control(bool Shoot, bool Reload, bool Use, bool Unload, bool Aim)
+        public IEnumerator Control(bool Shoot, bool Reload, bool Use, bool Unload, bool Aim)
         {
-            if (Shoot && Input.GetMouseButtonDown(0) && !isShooting) // Bal klikk
+            if (Shoot && Input.GetMouseButton(0) && !isShooting) // Bal klikk
             {
+                Debug.LogWarning("FIre on");
                 isShooting = true;
 
-                var sp = advancedItem.Parts.SelectMany(part => part.SystemPoints).LastOrDefault(sp => sp.SPData.PointName == "Fire");
+                var gg = advancedItem.Parts.SelectMany(part => part.SystemPoints);
+                    
+                var sp =   gg.LastOrDefault(sp => sp.SPData.PointName == "Fire");
+                GameObject Bullet = new GameObject("Bullet");
+                GameObject Fire = new GameObject("Fire", typeof(RectTransform), typeof(CanvasRenderer), typeof(Image));
+
+                // Szülõ beállítása
+                RectTransform rectTransform = Fire.GetComponent<RectTransform>();
+                rectTransform.SetParent(sp.RefPoint1.transform.parent.transform,false);
+
+                // Méret (sprite alapján, vagy fix érték)
+                int randomIndex = Random.Range(1, 3); // 1 vagy 2 (a felsõ határ kizárva)
+                string path = $"Textures/EffectTextures/fire{randomIndex}";
+                Sprite sprite = Resources.Load<Sprite>(path);
+                Vector2 size = sprite.rect.size;
+
+                rectTransform.pivot = new Vector2(1f, 0.5f);
+                rectTransform.sizeDelta = size*0.2f;
+                rectTransform.anchoredPosition = sp.RefPoint1.transform.localPosition;
+
+                rectTransform.SetParent(advancedItem.InGameSelfObject.GetComponent<InGameItemObject>().ItemCompound.GetComponent<ItemImgFitter>().fitter, true);
+                // Kép beállítása
+                Image img = Fire.GetComponent<Image>();
+                img.sprite = sprite;
+                img.preserveAspect = true;
 
 
 
                 float delay = 60f /Fpm;
+
+
+
                 yield return new WaitForSeconds(delay);
+
+
+                GameObject.Destroy(Bullet);
+                GameObject.Destroy(Fire);
+
                 isShooting = false;
             }
 

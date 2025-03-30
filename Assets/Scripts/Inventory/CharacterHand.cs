@@ -2,11 +2,19 @@ using UnityEngine;
 using ItemHandler;
 using UI;
 using Items;
+using System.Collections.Generic;
+using System;
 
 public class CharacterHand : MonoBehaviour
 {
     public AdvancedItem SelectedItem;
     public InGameItemObject SelectedItemObject;
+
+    public static bool Shoot = true;
+    public static bool Reload = false;
+    public static bool Unload = false;
+    public static bool Aim = false;
+    public static bool Use = false;
 
     private bool Flipped = false;
     // Update is called once per frame
@@ -14,6 +22,13 @@ public class CharacterHand : MonoBehaviour
     {
         RotateObject();
         FlipObject();
+        if (SelectedItem != null)
+        {
+            foreach (KeyValuePair<Type,IItemComponent> contontrol in SelectedItem.Components)
+            {
+                StartCoroutine(contontrol.Value.Control(Shoot, Reload, Use, Unload, Aim));
+            }
+        }
     }
     private void RotateObject()
     {
@@ -72,6 +87,13 @@ public class CharacterHand : MonoBehaviour
             SelectedItemObject.SetDataRoute(item);
             SelectedItemObject.Inicialisation();
 
+            foreach (Part part in SelectedItem.Parts)
+            {
+                if (part.item_s_Part.Component != null)
+                {
+                    part.item_s_Part.Component.Inicialisation(item,part);
+                }
+            }
             test();
 
             Vector3 scale = transform.localScale;

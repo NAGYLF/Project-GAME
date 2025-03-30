@@ -25,7 +25,7 @@ namespace ItemHandler
     {
         IItemComponent CloneComponent();
         void Inicialisation(AdvancedItem advancedItem, Part selfPart);
-        IEnumerable Control(bool Shoot,bool Reload,bool Use,bool Unload,bool Aim);
+        IEnumerator Control(bool Shoot,bool Reload,bool Use,bool Unload,bool Aim);
     }
     public class ItemSlotData
     {

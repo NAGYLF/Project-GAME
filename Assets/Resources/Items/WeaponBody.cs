@@ -6,7 +6,6 @@ using static MainData.Main;
 using System.Linq;
 using UnityEngine.UI;
 using UI;
-using Unity.VisualScripting;
 
 namespace Items
 {
@@ -69,7 +68,6 @@ namespace Items
             if (Shoot && Input.GetMouseButton(0) && !isReloading && !isShooting && !isUnloading) // Bal klikk
             {
                 isShooting = true;
-                Debug.LogWarning("FIre on");
 
                 var sp = advancedItem.Parts.SelectMany(part => part.SystemPoints).LastOrDefault(sp => sp.SPData.PointName == "Fire");
 

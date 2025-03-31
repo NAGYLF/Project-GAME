@@ -11,8 +11,8 @@ public class CharacterHand : MonoBehaviour
     public InGameItemObject SelectedItemObject;
 
     public static bool Shoot = true;
-    public static bool Reload = false;
-    public static bool Unload = false;
+    public static bool Reload = true;
+    public static bool Unload = true;
     public static bool Aim = false;
     public static bool Use = false;
 

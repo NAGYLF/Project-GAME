@@ -389,7 +389,7 @@ namespace ItemHandler
                     SystemName = $"Incompleted {mainItem.SystemName}";
                     ItemName = $"Incompleted {mainItem.SystemName}";
                     Description = mainItem.Desctription;
-                    ItemType = mainItem.Type;
+                    ItemType = $"Incompleted {mainItem.Type}";
                 }
             }
             else

@@ -6,6 +6,7 @@ using static MainData.Main;
 using System.Linq;
 using UnityEngine.UI;
 using UI;
+using Unity.VisualScripting;
 
 namespace Items
 {
@@ -65,12 +66,14 @@ namespace Items
         }
         public IEnumerator Control(bool Shoot, bool Reload, bool Use, bool Unload, bool Aim)
         {
-            if (Shoot && Input.GetMouseButton(0) && !isShooting) // Bal klikk
+            if (Shoot && Input.GetMouseButton(0) && !isReloading && !isShooting && !isUnloading) // Bal klikk
             {
                 isShooting = true;
                 Debug.LogWarning("FIre on");
 
                 var sp = advancedItem.Parts.SelectMany(part => part.SystemPoints).LastOrDefault(sp => sp.SPData.PointName == "Fire");
+
+
 
                 //muzzle flash
                 GameObject Fire = new GameObject("Fire", typeof(RectTransform), typeof(CanvasRenderer), typeof(Image));
@@ -93,6 +96,8 @@ namespace Items
 
                 rectTransform.SetParent(advancedItem.InGameSelfObject.GetComponent<InGameItemObject>().ItemCompound.GetComponent<ItemImgFitter>().fitter, true);
 
+
+
                 //bullet
                 GameObject Bullet = new GameObject("Bullet");
                 Bullet.transform.position = sp.InGameRefPoint1.transform.position;
@@ -111,21 +116,58 @@ namespace Items
 
 
 
+                AudioSource audioSource = advancedItem.InGameSelfObject.GetComponent<AudioSource>();
+                AudioClip audioClipShoot = Resources.Load<AudioClip>("Sounds/WeaponTEST/TESTShoot");
+                audioSource.PlayOneShot(audioClipShoot);
+
                 yield return new WaitForSeconds(delay);
 
                 GameObject.Destroy(Fire);
 
                 isShooting = false;
+
+                float waitTime = (float)Mathf.Round(Random.Range(0.3f, 0.8f) * 10000f) / 10000f;
+                yield return new WaitForSeconds(waitTime);
+
+                AudioClip audioClipCasingDrop = Resources.Load<AudioClip>("Sounds/WeaponTEST/TESTCasingDrop");
+                audioSource.PlayOneShot(audioClipCasingDrop);
             }
 
-            if (Reload && Input.GetKeyDown(KeyCode.R) && !isReloading) // R lenyomás
+            if (Reload && Input.GetKeyDown(KeyCode.R) && !isReloading && !isShooting && !isUnloading) // R lenyomás
             {
-                // Tölt újra
+                isReloading = true;
+
+                AudioSource audioSource = advancedItem.InGameSelfObject.GetComponent<AudioSource>();
+                AudioClip audioClip = Resources.Load<AudioClip>("Sounds/WeaponTEST/TESTUnload");
+                audioSource.PlayOneShot(audioClip);
+
+                yield return new WaitForSeconds(audioClip.length);
+
+                audioClip = Resources.Load<AudioClip>("Sounds/WeaponTEST/TESTReload");
+                audioSource.PlayOneShot(audioClip);
+
+                yield return new WaitForSeconds(audioClip.length);
+
+                audioSource = advancedItem.InGameSelfObject.GetComponent<AudioSource>();
+                audioClip = Resources.Load<AudioClip>("Sounds/WeaponTEST/TESTChamber");
+                audioSource.PlayOneShot(audioClip);
+
+                yield return new WaitForSeconds(audioClip.length);
+
+                isReloading = false;
             }
 
-            if (Unload && Input.GetKeyDown(KeyCode.U) &&!isUnloading) // U lenyomás
+            if (Unload && Input.GetKeyDown(KeyCode.U) && !isReloading && !isShooting && !isUnloading) // U lenyomás
             {
-                // Ürít
+                isUnloading = true;
+
+                AudioSource audioSource = advancedItem.InGameSelfObject.GetComponent<AudioSource>();
+                AudioClip audioClip = Resources.Load<AudioClip>("Sounds/WeaponTEST/TESTUnload");
+                audioSource.PlayOneShot(audioClip);
+
+                yield return new WaitForSeconds(audioClip.length);
+
+                isUnloading = false;
             }
 
             if (Aim && Input.GetMouseButton(1)) // Jobb klikk lenyomva

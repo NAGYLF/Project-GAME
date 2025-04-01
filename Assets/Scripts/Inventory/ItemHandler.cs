@@ -18,14 +18,15 @@ using MainData;
 using Newtonsoft.Json;
 using System.IO;
 using Items;
+using static CharacterHand;
 
 namespace ItemHandler
 {
     public interface IItemComponent
     {
         IItemComponent CloneComponent();
-        void Inicialisation(AdvancedItem advancedItem, Part selfPart);
-        IEnumerator Control(bool Shoot,bool Reload,bool Use,bool Unload,bool Aim);
+        void Inicialisation(AdvancedItem advancedItem);
+        IEnumerator Control(InputFrameData input);
     }
     public class ItemSlotData
     {
@@ -102,6 +103,15 @@ namespace ItemHandler
         public bool IsOpenAble { get; set; } = false;
         public bool IsUsable { get; set; } = false;
         public bool CanReload { get; set; } = false;
+        #endregion
+
+        //nem szukseges clonozni
+        #region Live Action Flags
+        public bool IsShooting { get; set; } = false;
+        public bool IsReloading { get; set; } = false;
+        public bool IsUnloading { get; set; } = false;
+        public bool IsAiming{ get; set; } = false;
+        public bool IsUsing { get; set; } = false;
         #endregion
 
         #region General Variables
@@ -181,6 +191,7 @@ namespace ItemHandler
             AdvancedItemStruct advancedItemRef = DataHandler.GetAdvancedItemData(SystemName);
 
             SimpleItem item = new(advancedItemRef);
+            item.Quantity = count;
 
             Parts.Add(new(item));
 
@@ -542,6 +553,9 @@ namespace ItemHandler
                     break;
                 case nameof(Ammunition):
                     Component = new Ammunition(advancedItemStruct);
+                    break;
+                case nameof(Magasine):
+                    Component = new Magasine(advancedItemStruct);
                     break;
                 default:
                     break;
@@ -1427,6 +1441,34 @@ namespace ItemHandler
             item.ContainerItemListRef = null;//unset ref
         }
 
+        public static (List<AdvancedItem> items,int remaing) InventoryTakeOut(ref LevelManager levelManager, string SystemName, int count = 1)
+        {
+            List<AdvancedItem> advancedItems = new List<AdvancedItem>();
+            List<AdvancedItem> removableItems = new List<AdvancedItem>();
+            foreach (AdvancedItem item in levelManager.Items)
+            {
+                if (count > 0 && item.SystemName == SystemName)
+                {
+                    if (item.Quantity-count < 1)
+                    {
+                        count -= item.Quantity;
+                        removableItems.Add(item);
+                        advancedItems.Add(item);
+                    }
+                    else
+                    {
+                        item.Quantity-= count;
+                        advancedItems.Add(item);
+                        count = 0;
+                    }
+                }
+            }
+            foreach (AdvancedItem item in removableItems)
+            {
+                Delete(item);
+            }
+            return (advancedItems,count);
+        }
         public static void InventorySave(ref LevelManager levelManager, string FilePath, string FileName)
         {
             JsonSerializerSettings settings = new JsonSerializerSettings
@@ -1590,31 +1632,6 @@ namespace ItemHandler
                 }
             }
             return (false, Remaining);
-        }
-        public static (bool IsContainsAllAmount, int Amount) InventoryContains(ref LevelManager levelManager, string ItemSystemName, int count = 1)
-        {
-            AdvancedItem[] items = levelManager.Items.FindAll(item => item.SystemName == ItemSystemName).ToArray();
-            if (items.Length == 0)
-            {
-                return (false, 0);
-            }
-            else
-            {
-                int AllCount = 0;
-                foreach (var item in items)
-                {
-                    AllCount += item.Quantity;
-                }
-
-                if (AllCount >= count)
-                {
-                    return (true, AllCount);
-                }
-                else
-                {
-                    return (false, AllCount);
-                }
-            }
         }
 
         public static void AddPlayerInventory(AdvancedItem item)

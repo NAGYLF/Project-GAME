@@ -100,7 +100,10 @@ public class DevConsol : MonoBehaviour
                                     new AdvancedItem("APOK_Tactical_Wasteland_Gladius"),
                                     new AdvancedItem("USEC_Base"),
                                     new AdvancedItem("USEC_Base_Upper"),
+                                    new AdvancedItem("_5_45x39mm_FMJ",60),
+                                    new AdvancedItem("_5_45x39mm_FMJ",60),
                                     new AdvancedItem("AKS-74U_Body"),
+
                                 };
                                 AdvancedItem[] parts_AKS74U = new AdvancedItem[]
                                 {

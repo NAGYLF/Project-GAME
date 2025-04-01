@@ -6,68 +6,66 @@ using static MainData.Main;
 using System.Linq;
 using UnityEngine.UI;
 using UI;
+using static CharacterHand;
 
 namespace Items
 {
     public class WeaponBody : IItemComponent
     {
-        public int MagasineSize { get; set; }
-        public Stack<IItemComponent> ActualAmmo { get; set; }
+        public int ChamberSize { get; set; }
+        public Stack<Ammunition> Chamber { get; set; }
         public double Spread { get; set; }
         public int Fpm { get; set; }
         public double Recoil { get; set; }
         public double Accturacy { get; set; }
         public double Range { get; set; }
         public double Ergonomy { get; set; }
-        public string CompatibleCaliber { get; set; }
-
-        private bool isShooting = false;
-        private bool isReloading = false;
-        private bool isUnloading = false;
+        public float Caliber_Weapon { get; set; }
+        public float CartridgeSize_Weapon { get; set; }
 
         private AdvancedItem advancedItem;
-        private Part selfPart;
         private WeaponBody()
         {
 
         }
         public WeaponBody(AdvancedItemStruct advancedItemStruct)
         {
-            MagasineSize = advancedItemStruct.MagasineSize;
-            ActualAmmo = new Stack<IItemComponent>();
+            ChamberSize = advancedItemStruct.MagasineSize;
+            Chamber = new Stack<Ammunition>();
             Spread = advancedItemStruct.Spread;
             Fpm = advancedItemStruct.Fpm;
             Recoil = advancedItemStruct.Recoil;
             Accturacy = advancedItemStruct.Accturacy;
             Range = advancedItemStruct.Range;
             Ergonomy = advancedItemStruct.Ergonomy;
-            CompatibleCaliber = advancedItemStruct.CompatibleCaliber;
+            Caliber_Weapon = advancedItemStruct.Caliber_Weapon;
+            CartridgeSize_Weapon = advancedItemStruct.CartridgeSize_Weapon;
         }
         public IItemComponent CloneComponent()
         {
             return new WeaponBody()
             {
-                MagasineSize = this.MagasineSize,
-                ActualAmmo = new Stack<IItemComponent>(this.ActualAmmo.Select(ammo => ammo.CloneComponent()).Reverse()),
+                ChamberSize = this.ChamberSize,
+                Chamber = new Stack<Ammunition>((IEnumerable<Ammunition>)this.Chamber.Select(ammo => ammo.CloneComponent()).Reverse()),
                 Spread = this.Spread,
                 Fpm = this.Fpm,
                 Recoil = this.Recoil,
                 Accturacy = this.Accturacy,
                 Range = this.Range,
                 Ergonomy = this.Ergonomy,
-                CompatibleCaliber = this.CompatibleCaliber
+                Caliber_Weapon= this.Caliber_Weapon,
+                CartridgeSize_Weapon= this.CartridgeSize_Weapon,
             };
         }
-        public void Inicialisation(AdvancedItem advancedItem, Part selfPart)
+        public void Inicialisation(AdvancedItem advancedItem)
         {
             this.advancedItem = advancedItem;
-            this.selfPart = selfPart;
         }
-        public IEnumerator Control(bool Shoot, bool Reload, bool Use, bool Unload, bool Aim)
+        public IEnumerator Control(InputFrameData input)
         {
-            if (Shoot && Input.GetMouseButton(0) && !isReloading && !isShooting && !isUnloading) // Bal klikk
+            if (input.ShootPressed && !advancedItem.IsReloading && !advancedItem.IsShooting && !advancedItem.IsUnloading) // Bal klikk
             {
-                isShooting = true;
+                advancedItem.IsShooting = true;
 
                 var sp = advancedItem.Parts.SelectMany(part => part.SystemPoints).LastOrDefault(sp => sp.SPData.PointName == "Fire");
 
@@ -85,7 +83,7 @@ namespace Items
                 Vector2 size = sprite.rect.size;
 
                 rectTransform.pivot = new Vector2(1f, 0.5f);
-                rectTransform.sizeDelta = size*0.2f;
+                rectTransform.sizeDelta = size * 0.2f;
                 rectTransform.anchoredPosition = sp.InGameRefPoint1.transform.localPosition;
 
                 Image img = Fire.GetComponent<Image>();
@@ -110,7 +108,7 @@ namespace Items
                 var bulletScript = Bullet.AddComponent<Bullet>();
                 bulletScript.Initialize(ammunitionTest.Component as Ammunition, InGameUI.Player.GetComponent<Player>().Hand.transform.right);
 
-                float delay = 60f /Fpm;
+                float delay = 60f / Fpm;
 
 
 
@@ -122,18 +120,23 @@ namespace Items
 
                 GameObject.Destroy(Fire);
 
-                isShooting = false;
+                advancedItem.IsShooting = false;
 
                 float waitTime = (float)Mathf.Round(Random.Range(0.3f, 0.8f) * 10000f) / 10000f;
                 yield return new WaitForSeconds(waitTime);
 
                 AudioClip audioClipCasingDrop = Resources.Load<AudioClip>("Sounds/WeaponTEST/TESTCasingDrop");
-                audioSource.PlayOneShot(audioClipCasingDrop);
+                audioSource.PlayOneShot(audioClipCasingDrop, 0.1f);
             }
 
-            if (Reload && Input.GetKeyDown(KeyCode.R) && !isReloading && !isShooting && !isUnloading) // R lenyomás
+            if (input.ReloadPressed && !advancedItem.IsReloading && !advancedItem.IsShooting && !advancedItem.IsUnloading) // R lenyomás
             {
-                isReloading = true;
+                yield return Reload();
+            }
+
+            if (input.UnloadPressed && !advancedItem.IsReloading && !advancedItem.IsShooting && !advancedItem.IsUnloading) // U lenyomás
+            {
+                advancedItem.IsUnloading = true;
 
                 AudioSource audioSource = advancedItem.InGameSelfObject.GetComponent<AudioSource>();
                 AudioClip audioClip = Resources.Load<AudioClip>("Sounds/WeaponTEST/TESTUnload");
@@ -141,38 +144,49 @@ namespace Items
 
                 yield return new WaitForSeconds(audioClip.length);
 
-                audioClip = Resources.Load<AudioClip>("Sounds/WeaponTEST/TESTReload");
-                audioSource.PlayOneShot(audioClip);
-
-                yield return new WaitForSeconds(audioClip.length);
-
-                audioSource = advancedItem.InGameSelfObject.GetComponent<AudioSource>();
-                audioClip = Resources.Load<AudioClip>("Sounds/WeaponTEST/TESTChamber");
-                audioSource.PlayOneShot(audioClip);
-
-                yield return new WaitForSeconds(audioClip.length);
-
-                isReloading = false;
+                advancedItem.IsUnloading = false;
             }
 
-            if (Unload && Input.GetKeyDown(KeyCode.U) && !isReloading && !isShooting && !isUnloading) // U lenyomás
-            {
-                isUnloading = true;
-
-                AudioSource audioSource = advancedItem.InGameSelfObject.GetComponent<AudioSource>();
-                AudioClip audioClip = Resources.Load<AudioClip>("Sounds/WeaponTEST/TESTUnload");
-                audioSource.PlayOneShot(audioClip);
-
-                yield return new WaitForSeconds(audioClip.length);
-
-                isUnloading = false;
-            }
-
-            if (Aim && Input.GetMouseButton(1)) // Jobb klikk lenyomva
+            if (input.AimPressed) // Jobb klikk lenyomva
             {
                 // Céloz
             }
             yield return null;
+        }
+
+        public IEnumerator Reload()
+        {
+            Debug.LogWarning("reload body");
+            advancedItem.IsReloading = true;
+            AudioSource audioSource;
+            AudioClip audioClip;
+            WeaponBody body = (advancedItem.Parts.FirstOrDefault(part => part.item_s_Part.ItemType == nameof(WeaponBody)).item_s_Part.Component as WeaponBody);
+            Magasine magasine = (advancedItem.Parts.FirstOrDefault(part => part.item_s_Part.ItemType == nameof(Magasine)).item_s_Part.Component as Magasine);
+            //ha van tar
+            if (magasine != null)
+            {
+                //ha a tarban van loszer
+                if (magasine.MagasineSize > magasine.ContainedAmmo.Count)
+                {
+                    //ha a chamber nincs tele
+                    if (body.Chamber.Count < body.ChamberSize)
+                    {
+                        //chamber tarazas
+                        audioSource = advancedItem.InGameSelfObject.GetComponent<AudioSource>();
+                        audioClip = Resources.Load<AudioClip>("Sounds/WeaponTEST/TESTChamber");
+                        audioSource.PlayOneShot(audioClip);
+
+                        yield return new WaitForSeconds(audioClip.length);
+
+                        for (int i = 0; 0 < magasine.ContainedAmmo.Count && i < body.ChamberSize; i++)
+                        {
+                            Ammunition ammunition = magasine.ContainedAmmo.Pop();
+                            body.Chamber.Push(ammunition);
+                        }
+                    }
+                }
+            }
+            advancedItem.IsReloading = false;
         }
     }
 }

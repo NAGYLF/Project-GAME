@@ -31,9 +31,9 @@ public class MainMenu : MonoBehaviour
         }
     }
     //az elhomályosodás eljarasa
-    private IEnumerator StartFadeOutScreen(VideoPlayer videoPlayer,GameObject fadeOutScreen)
+    private IEnumerator StartFadeOutScreen(AudioSource audioSource,GameObject fadeOutScreen)
     {
-        float startVolume = videoPlayer.GetDirectAudioVolume(0); ; // Kezdõ hangerõ
+        float startVolume = 1f; ; // Kezdõ hangerõ
         float elapsedTime = 0f;
 
         UnityEngine.UI.Image image = fadeOutScreen.GetComponent<UnityEngine.UI.Image>();
@@ -55,13 +55,13 @@ public class MainMenu : MonoBehaviour
 
 
             float newVolume = Mathf.Lerp(startVolume, 0, elapsedTime / fadeDuration);
-            videoPlayer.SetDirectAudioVolume(0,newVolume);
+            audioSource.volume = newVolume;
             elapsedTime += Time.deltaTime;
             yield return null; // Várj egy frame-et
         }
 
         // Állítsd be a hangerõt 0-ra véglegesen
-        videoPlayer.SetDirectAudioVolume(0,0);
+        audioSource.volume = 0f;
         image.color = new Color(0, 0, 0, 255);
         SceneManager.LoadScene("NewGameCutScene");
     }
@@ -70,19 +70,9 @@ public class MainMenu : MonoBehaviour
     {
         if (Main.playerData != null)
         {
-            VideoPlayer videoPlayer = GameObject.FindWithTag("VideoPlayerMainMenu").GetComponent<VideoPlayer>();
+            AudioSource audioSource = GetComponent<AudioSource>();
             GameObject fadeOutScreen = GameObject.Find("FadeOutScreen");
-
-            if (videoPlayer != null)
-            {
-                Debug.Log("VideoPlayer found!");
-                StartCoroutine(StartFadeOutScreen(videoPlayer, fadeOutScreen));
-
-            }
-            else
-            {
-                Debug.Log("No VideoPlayer component found on this object.");
-            }
+            StartCoroutine(StartFadeOutScreen(audioSource, fadeOutScreen));
         }
         else
         {

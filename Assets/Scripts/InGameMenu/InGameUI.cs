@@ -6,8 +6,6 @@ using System;
 using UnityEngine.UI;
 using ItemHandler;
 using TMPro;
-using Newtonsoft.Json.Linq;
-using static System.Collections.Specialized.BitVector32;
 
 namespace UI
 {
@@ -80,6 +78,10 @@ namespace UI
     }
     public class InGameUI : MonoBehaviour
     {
+        #region Flags
+        public static bool CharacterHandControl = true;
+        #endregion
+
         #region UI/HUD Inspector objects
         public static GameObject InGameUI_;
 

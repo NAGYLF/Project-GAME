@@ -4,30 +4,45 @@ using UI;
 using Items;
 using System.Collections.Generic;
 using System;
+using System.Collections;
 
 public class CharacterHand : MonoBehaviour
 {
+    public class InputFrameData
+    {
+        public bool ReloadPressed;
+        public bool ShootPressed;
+        public bool UnloadPressed;
+        public bool AimPressed;
+    }
+
     public AdvancedItem SelectedItem;
     public InGameItemObject SelectedItemObject;
 
-    public static bool Shoot = true;
-    public static bool Reload = true;
-    public static bool Unload = true;
-    public static bool Aim = false;
-    public static bool Use = false;
-
     private bool Flipped = false;
-    // Update is called once per frame
     void Update()
     {
         RotateObject();
         FlipObject();
-        if (SelectedItem != null)
+        if (InGameUI.CharacterHandControl && SelectedItem != null)
         {
-            foreach (KeyValuePair<Type,IItemComponent> contontrol in SelectedItem.Components)
+            InputFrameData input = new InputFrameData
             {
-                StartCoroutine(contontrol.Value.Control(Shoot, Reload, Use, Unload, Aim));
-            }
+                ReloadPressed = Input.GetKeyDown(KeyCode.R),
+                ShootPressed = Input.GetMouseButton(0),
+                UnloadPressed = Input.GetKeyDown(KeyCode.U),
+                AimPressed = Input.GetMouseButton(1)
+            };
+
+            StartCoroutine(RunItemControlsSequentially(input));
+        }
+    }
+    IEnumerator RunItemControlsSequentially(InputFrameData input)
+    {
+        foreach (var contontrol in SelectedItem.Components)
+        {
+            Debug.Log(contontrol.Key.Name);
+            yield return StartCoroutine(contontrol.Value.Control(input));
         }
     }
     private void RotateObject()
@@ -91,7 +106,7 @@ public class CharacterHand : MonoBehaviour
             {
                 if (part.item_s_Part.Component != null)
                 {
-                    part.item_s_Part.Component.Inicialisation(item,part);
+                    part.item_s_Part.Component.Inicialisation(item);
                 }
             }
             test();

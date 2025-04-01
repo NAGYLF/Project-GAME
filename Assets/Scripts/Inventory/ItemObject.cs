@@ -221,7 +221,7 @@ public class ItemObject : MonoBehaviour, IPointerDownHandler, IPointerUpHandler,
         }
         if (ActualData.TryGetComponent<WeaponBody>(out var weaponBody))
         {
-            AmmoPlate.text = weaponBody.CompatibleCaliber;
+            AmmoPlate.text = weaponBody.Caliber_Weapon + "x" + weaponBody.CartridgeSize_Weapon;
         }
         else
         {

@@ -9,9 +9,9 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 4325690899304636144}
-  - component: {fileID: 8912637033205795176}
   - component: {fileID: 3432574906166607636}
   - component: {fileID: 2249314599257868737}
+  - component: {fileID: 3676071883843291638}
   m_Layer: 0
   m_Name: kuka
   m_TagString: Untagged
@@ -27,39 +27,13 @@ Transform:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 1817121814827891154}
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: 0, y: 0, z: 0}
+  m_LocalPosition: {x: 0.12, y: 0.08, z: 0}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []
   m_Father: {fileID: 0}
   m_RootOrder: 0
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
---- !u!61 &8912637033205795176
-BoxCollider2D:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 1817121814827891154}
-  m_Enabled: 1
-  m_Density: 1
-  m_Material: {fileID: 0}
-  m_IsTrigger: 0
-  m_UsedByEffector: 0
-  m_UsedByComposite: 0
-  m_Offset: {x: 0, y: -10}
-  m_SpriteTilingProperty:
-    border: {x: 0, y: 0, z: 0, w: 0}
-    pivot: {x: 0.5, y: 0.5}
-    oldSize: {x: 69.666664, y: 79.333336}
-    newSize: {x: 2.09, y: 2.38}
-    adaptiveTilingThreshold: 0.5
-    drawMode: 0
-    adaptiveTiling: 0
-  m_AutoTiling: 0
-  serializedVersion: 2
-  m_Size: {x: 50, y: 50}
-  m_EdgeRadius: 0
 --- !u!212 &3432574906166607636
 SpriteRenderer:
   m_ObjectHideFlags: 0
@@ -99,7 +73,7 @@ SpriteRenderer:
   m_AutoUVMaxAngle: 89
   m_LightmapParameters: {fileID: 0}
   m_SortingLayerID: 202653477
-  m_SortingLayer: -2
+  m_SortingLayer: -1
   m_SortingOrder: 0
   m_Sprite: {fileID: 21300000, guid: 59340b8c5f7aa564baaac79fa35fee3a, type: 3}
   m_Color: {r: 1, g: 1, b: 1, a: 1}
@@ -124,3 +98,66 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 58f7c342b845e6f4aacb5f49a40c7640, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+--- !u!60 &3676071883843291638
+PolygonCollider2D:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1817121814827891154}
+  m_Enabled: 1
+  m_Density: 1
+  m_Material: {fileID: 0}
+  m_IsTrigger: 0
+  m_UsedByEffector: 0
+  m_UsedByComposite: 0
+  m_Offset: {x: 0, y: 0}
+  m_SpriteTilingProperty:
+    border: {x: 0, y: 0, z: 0, w: 0}
+    pivot: {x: 0.5, y: 0.5}
+    oldSize: {x: 16.076923, y: 18.307692}
+    newSize: {x: 2.09, y: 2.38}
+    adaptiveTilingThreshold: 0.5
+    drawMode: 0
+    adaptiveTiling: 0
+  m_AutoTiling: 0
+  m_Points:
+    m_Paths:
+    - - {x: 4.192308, y: -5.5384617}
+      - {x: 4.961539, y: -2.6923077}
+      - {x: 5.961539, y: 0.923077}
+      - {x: 6.8846154, y: 2.3846154}
+      - {x: 7.115385, y: 2.923077}
+      - {x: 6.769789, y: 3.1285772}
+      - {x: 6.4368277, y: 3.2066176}
+      - {x: 6.9072847, y: 2.9996333}
+      - {x: 6.7623553, y: 3.090307}
+      - {x: 6.3677053, y: 3.1166928}
+      - {x: 5.9440703, y: 3.0598388}
+      - {x: 4.81921, y: 3.0572386}
+      - {x: 3.812893, y: 3.1215267}
+      - {x: 2.5758064, y: 3.1378794}
+      - {x: 1.3450371, y: 3.173181}
+      - {x: -0.22129333, y: 3.173181}
+      - {x: -1.4936826, y: 3.1378794}
+      - {x: -2.1064672, y: 3.19845}
+      - {x: -2.8377948, y: 3.2426705}
+      - {x: -3.706617, y: 3.1620307}
+      - {x: -4.2803807, y: 3.1999328}
+      - {x: -4.9058003, y: 3.1635144}
+      - {x: -5.6296945, y: 3.2556717}
+      - {x: -6.4368277, y: 3.2292857}
+      - {x: -6.7281704, y: 2.8851733}
+      - {x: -7.0384617, y: 2.4615386}
+      - {x: -6.269231, y: 1.3846154}
+      - {x: -5.961539, y: 0.23076925}
+      - {x: -4.5, y: -5.2307696}
+      - {x: -4.423077, y: -5.846154}
+      - {x: -3.9615386, y: -6.615385}
+      - {x: -3.1923077, y: -7.3076925}
+      - {x: -2.0384617, y: -7.846154}
+      - {x: -0.9615385, y: -8.153847}
+      - {x: 1.3461539, y: -8.153847}
+      - {x: 2.7307694, y: -7.5384617}
+      - {x: 3.6538463, y: -6.615385}
+      - {x: 3.8846154, y: -6.2307696}

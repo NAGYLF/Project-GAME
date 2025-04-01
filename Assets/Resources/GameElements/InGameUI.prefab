@@ -220,6 +220,8 @@ MonoBehaviour:
   HungerIndicadorObject: {fileID: 6174271312734246415}
   ThirstyIndicadorObject: {fileID: 7130567635521999488}
   WeightIndicadorObject: {fileID: 4750137464308402693}
+  ChamberIndiatorObject: {fileID: 5883243566197539843}
+  MagasineIndicatorObject: {fileID: 5035486590826962302}
   cursorTexture: {fileID: 2800000, guid: 2ada661fd5caaf54c89e29fbca373109, type: 3}
   SelectedObject: {fileID: 0}
   IntecativeObjects: []
@@ -784,7 +786,7 @@ MonoBehaviour:
   m_faceColor:
     serializedVersion: 2
     rgba: 4294967295
-  m_fontSize: 3.55
+  m_fontSize: 3.85
   m_fontSizeBase: 20
   m_fontWeight: 400
   m_enableAutoSizing: 1
@@ -1053,7 +1055,7 @@ MonoBehaviour:
   m_faceColor:
     serializedVersion: 2
     rgba: 4294967295
-  m_fontSize: 1.75
+  m_fontSize: 2.25
   m_fontSizeBase: 20
   m_fontWeight: 400
   m_enableAutoSizing: 1
@@ -1417,7 +1419,7 @@ MonoBehaviour:
   m_faceColor:
     serializedVersion: 2
     rgba: 4294967295
-  m_fontSize: 3.55
+  m_fontSize: 3.85
   m_fontSizeBase: 20
   m_fontWeight: 400
   m_enableAutoSizing: 1
@@ -1552,7 +1554,7 @@ MonoBehaviour:
   m_faceColor:
     serializedVersion: 2
     rgba: 4294967295
-  m_fontSize: 1.75
+  m_fontSize: 2.65
   m_fontSizeBase: 20
   m_fontWeight: 400
   m_enableAutoSizing: 1
@@ -1687,7 +1689,7 @@ MonoBehaviour:
   m_faceColor:
     serializedVersion: 2
     rgba: 4294967295
-  m_fontSize: 2.75
+  m_fontSize: 3.85
   m_fontSizeBase: 20
   m_fontWeight: 400
   m_enableAutoSizing: 1
@@ -1956,7 +1958,7 @@ MonoBehaviour:
   m_faceColor:
     serializedVersion: 2
     rgba: 4294967295
-  m_fontSize: 3.55
+  m_fontSize: 3.85
   m_fontSizeBase: 20
   m_fontWeight: 400
   m_enableAutoSizing: 1
@@ -2447,6 +2449,16 @@ PrefabInstance:
 --- !u!1 &4381501863692346256 stripped
 GameObject:
   m_CorrespondingSourceObject: {fileID: 7884527260312320654, guid: 3d908f1b7e2b4e7449a7f6e3c5b748c7, type: 3}
+  m_PrefabInstance: {fileID: 5883195899216435486}
+  m_PrefabAsset: {fileID: 0}
+--- !u!1 &5035486590826962302 stripped
+GameObject:
+  m_CorrespondingSourceObject: {fileID: 1460550701740409952, guid: 3d908f1b7e2b4e7449a7f6e3c5b748c7, type: 3}
+  m_PrefabInstance: {fileID: 5883195899216435486}
+  m_PrefabAsset: {fileID: 0}
+--- !u!1 &5883243566197539843 stripped
+GameObject:
+  m_CorrespondingSourceObject: {fileID: 58985983647005, guid: 3d908f1b7e2b4e7449a7f6e3c5b748c7, type: 3}
   m_PrefabInstance: {fileID: 5883195899216435486}
   m_PrefabAsset: {fileID: 0}
 --- !u!224 &6149013599418877506 stripped

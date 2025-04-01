@@ -11,14 +11,20 @@ using static CharacterHand;
 
 namespace Items
 {
-    public class Magasine : MonoBehaviour, IItemComponent
+    internal class AmmoToAdd
+    {
+        public AdvancedItem SourceItem;
+        public Ammunition AmmoTemplate;
+        public int Count;
+    }
+    public class Magasine : IItemComponent
     {
         public string SystemName { get; private set; }
         public int MagasineSize { get; set; }
         public Stack<Ammunition> ContainedAmmo = new Stack<Ammunition>();
         public double Ergonomy { get; set; }
-        public float Caliber_Weapon { get; set; }
-        public float CartridgeSize_Weapon { get; set; }
+        public float Caliber { get; set; }
+        public float CartridgeSize { get; set; }
 
         private AdvancedItem advancedItem;
 
@@ -27,8 +33,8 @@ namespace Items
             SystemName = advancedItemStruct.SystemName;
             MagasineSize = advancedItemStruct.MagasineSize;
             Ergonomy = advancedItemStruct.Ergonomy;
-            Caliber_Weapon = advancedItemStruct.Caliber_Weapon;
-            CartridgeSize_Weapon = advancedItemStruct.CartridgeSize_Weapon;
+            Caliber = advancedItemStruct.Caliber;
+            CartridgeSize = advancedItemStruct.CartridgeSize;
         }
 
         public IItemComponent CloneComponent()
@@ -36,14 +42,12 @@ namespace Items
             throw new NotImplementedException();
         }
 
-        public void Control(InputFrameData input)
+        public IEnumerator Control(InputFrameData input)
         {
             Debug.LogWarning($"magasine in action {input.ReloadPressed && !advancedItem.IsReloading && !advancedItem.IsShooting && !advancedItem.IsUnloading}");
             if (input.ReloadPressed && !advancedItem.IsReloading && !advancedItem.IsShooting && !advancedItem.IsUnloading)
             {
-                Debug.LogWarning("magasine in action");
-               
-                StartCoroutine(Reload());
+                yield return Reload();
             }
         }
 
@@ -61,9 +65,10 @@ namespace Items
             WeaponBody body = (advancedItem.Parts.FirstOrDefault(part => part.item_s_Part.ItemType == nameof(WeaponBody)).item_s_Part.Component as WeaponBody);
             Magasine magasine = (advancedItem.Parts.FirstOrDefault(part => part.item_s_Part.ItemType == nameof(Magasine)).item_s_Part.Component as Magasine);
             //ha van body
-            if (body != null)
+            if (body != null && magasine != null)
             {
                 //ha a tar tele van
+                Debug.LogWarning($"magaisne 1 {magasine.MagasineSize}  {magasine.ContainedAmmo.Count}");
                 if (magasine.MagasineSize == magasine.ContainedAmmo.Count)
                 {
                     //ha a chamber nincs tele
@@ -76,7 +81,9 @@ namespace Items
                 else
                 {
                     //keresssen loszert
-                    AdvancedItem[] possibleAmmoes = advancedItem.LevelManagerRef.Items.Where(item =>item.Components.TryGetValue(typeof(Ammunition), out var component) && component is Ammunition ammo && ammo.Caliber == Caliber_Weapon && ammo.CartridgeSize == CartridgeSize_Weapon).ToArray();
+                    Debug.LogWarning($"magasine datas: {Caliber}  {CartridgeSize}");
+                    AdvancedItem[] possibleAmmoes = advancedItem.LevelManagerRef.Items.Where(item =>item.Components.TryGetValue(typeof(Ammunition), out var component) && component is Ammunition ammo && ammo.Caliber == Caliber && ammo.CartridgeSize == CartridgeSize).ToArray();
+                    Debug.LogWarning(possibleAmmoes.Length);
                     if (possibleAmmoes.Length>0)
                     {
                         audioSource = advancedItem.InGameSelfObject.GetComponent<AudioSource>();
@@ -87,21 +94,34 @@ namespace Items
 
                         List<AdvancedItem> RemovableAdvancedItems = new List<AdvancedItem>();
                         List<AdvancedItem> AddableAdvancedItems = new List<AdvancedItem>();
+                        List<AmmoToAdd> ammoToAddList = new List<AmmoToAdd>();
                         int nessesaryAmmo = MagasineSize-ContainedAmmo.Count;
+                        Debug.LogWarning($"nessesay ammo  {nessesaryAmmo}");
                         int index = 0;
-                        while (nessesaryAmmo > 0 && index<possibleAmmoes.Length)
+                        while (nessesaryAmmo > 0 && index < possibleAmmoes.Length)
                         {
-                            if (possibleAmmoes[index].Quantity - nessesaryAmmo > 0)
+                            var item = possibleAmmoes[index];
+
+                            if (!item.Components.TryGetValue(typeof(Ammunition), out var comp) || comp is not Ammunition ammo)
                             {
-                                AddableAdvancedItems.Add(possibleAmmoes[index]);
-                                possibleAmmoes[index].Quantity -= nessesaryAmmo;
+                                index++;
+                                continue;
+                            }
+
+                            if (item.Quantity > nessesaryAmmo)
+                            {
+                                ammoToAddList.Add(new AmmoToAdd { SourceItem = item, AmmoTemplate = ammo, Count = nessesaryAmmo });
+                                item.Quantity -= nessesaryAmmo;
+                                nessesaryAmmo = 0;
                             }
                             else
                             {
-                                nessesaryAmmo-=possibleAmmoes[index].Quantity;
-                                AddableAdvancedItems.Add(possibleAmmoes[index]);
-                                RemovableAdvancedItems.Add(possibleAmmoes[index]);
+                                ammoToAddList.Add(new AmmoToAdd { SourceItem = item, AmmoTemplate = ammo, Count = item.Quantity });
+                                nessesaryAmmo -= item.Quantity;
+                                RemovableAdvancedItems.Add(item);
                             }
+
+                            index++;
                         }
 
                         //int index2 = 0;
@@ -113,31 +133,12 @@ namespace Items
                         //    }
                         //}
 
-                        int index2 = 0;
-                        while (ContainedAmmo.Count < MagasineSize && index2 < AddableAdvancedItems.Count)
+                        foreach (var ammoEntry in ammoToAddList)
                         {
-                            var item = AddableAdvancedItems[index2];
-
-                            if (!item.Components.TryGetValue(typeof(Ammunition), out var comp))
+                            for (int i = 0; i < ammoEntry.Count && ContainedAmmo.Count < MagasineSize; i++)
                             {
-                                index2++;
-                                continue;
+                                ContainedAmmo.Push(ammoEntry.AmmoTemplate.CloneComponent() as Ammunition);
                             }
-
-                            var ammo = comp as Ammunition;
-                            if (ammo == null)
-                            {
-                                index2++;
-                                continue;
-                            }
-
-                            while (item.Quantity > 0 && ContainedAmmo.Count < MagasineSize)
-                            {
-                                ContainedAmmo.Push(ammo.CloneComponent() as Ammunition);
-                                item.Quantity--;
-                            }
-
-                            index2++;
                         }
 
                         foreach (AdvancedItem item in RemovableAdvancedItems)
@@ -151,10 +152,19 @@ namespace Items
 
                         yield return new WaitForSeconds(audioClip.length);
 
+                        foreach (var item in AddableAdvancedItems)
+                        {
+                            if (item.SelfGameobject != null)
+                            {
+                                item.SelfGameobject.GetComponent<ItemObject>().SelfVisualisation();
+                            }
+                        }
+
                         //ha a chamber nincs tele
                         if (body.Chamber.Count < body.ChamberSize)
                         {
-                            body.Reload();
+                            Debug.LogWarning($"body.Chamber.Count {body.Chamber.Count}       body.ChamberSize {body.ChamberSize}");
+                            yield return body.Reload();
                         }
                     }
                 }

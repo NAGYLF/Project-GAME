@@ -5,6 +5,7 @@ using Items;
 using System.Collections.Generic;
 using System;
 using System.Collections;
+using TMPro;
 
 public class CharacterHand : MonoBehaviour
 {
@@ -20,21 +21,27 @@ public class CharacterHand : MonoBehaviour
     public InGameItemObject SelectedItemObject;
 
     private bool Flipped = false;
+    private bool LockDown = false;
     void Update()
     {
         RotateObject();
         FlipObject();
         if (InGameUI.CharacterHandControl && SelectedItem != null)
         {
-            InputFrameData input = new InputFrameData
+            bool inputDetected = Input.GetKeyDown(KeyCode.R) || Input.GetKeyDown(KeyCode.U) || Input.GetMouseButton(0) || Input.GetMouseButton(1);
+            if (inputDetected && !LockDown)
             {
-                ReloadPressed = Input.GetKeyDown(KeyCode.R),
-                ShootPressed = Input.GetMouseButton(0),
-                UnloadPressed = Input.GetKeyDown(KeyCode.U),
-                AimPressed = Input.GetMouseButton(1)
-            };
+                LockDown = true;
+                InputFrameData input = new InputFrameData
+                {
+                    ReloadPressed = Input.GetKeyDown(KeyCode.R),
+                    ShootPressed = Input.GetMouseButton(0),
+                    UnloadPressed = Input.GetKeyDown(KeyCode.U),
+                    AimPressed = Input.GetMouseButton(1)
+                };
 
-            StartCoroutine(RunItemControlsSequentially(input));
+                StartCoroutine(RunItemControlsSequentially(input));
+            }
         }
     }
     IEnumerator RunItemControlsSequentially(InputFrameData input)
@@ -44,6 +51,8 @@ public class CharacterHand : MonoBehaviour
             Debug.Log(contontrol.Key.Name);
             yield return StartCoroutine(contontrol.Value.Control(input));
         }
+        SetIndicators();
+        LockDown = false;
     }
     private void RotateObject()
     {
@@ -89,6 +98,28 @@ public class CharacterHand : MonoBehaviour
             }
         }
     }
+    public void SetIndicators()
+    {
+        SelectedItem.Components.TryGetValue(typeof(Magasine), out var magasine);
+        if (magasine != null)
+        {
+            Debug.LogWarning(InGameUI.MagasineIndicator.GetComponent<TextMeshProUGUI>().text);
+            InGameUI.MagasineIndicator.GetComponent<TextMeshProUGUI>().text = $"In Magasine: {(magasine as Magasine).ContainedAmmo.Count}";
+        }
+        else
+        {
+            InGameUI.MagasineIndicator.GetComponent<TextMeshProUGUI>().text = $"In Magasine: - ";
+        }
+        SelectedItem.Components.TryGetValue(typeof(WeaponBody), out var weaponBody);
+        if (weaponBody != null)
+        {
+            InGameUI.ChamberIndiator.GetComponent<TextMeshProUGUI>().text = $"In Chamber: {(weaponBody as WeaponBody).Chamber.Count}";
+        }
+        else
+        {
+            InGameUI.ChamberIndiator.GetComponent<TextMeshProUGUI>().text = $"In Chamber: - ";
+        }
+    }
     public void SetItem(AdvancedItem item)
     {
         if (item != null)
@@ -115,10 +146,13 @@ public class CharacterHand : MonoBehaviour
             scale.x = -Mathf.Abs(scale.x);
             transform.localScale = scale;
             //Debug.LogWarning($"{item.ItemName} setted to player hand");
+            SetIndicators();
         }
         else
         {
             SelectedItem = null;
+            InGameUI.MagasineIndicator.GetComponent<TextMeshProUGUI>().text = $"In Magasine: - ";
+            InGameUI.ChamberIndiator.GetComponent<TextMeshProUGUI>().text = $"In Chamber: - ";
         }
     }
     public void UnsetItem()

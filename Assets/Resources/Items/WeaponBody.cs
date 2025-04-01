@@ -20,8 +20,8 @@ namespace Items
         public double Accturacy { get; set; }
         public double Range { get; set; }
         public double Ergonomy { get; set; }
-        public float Caliber_Weapon { get; set; }
-        public float CartridgeSize_Weapon { get; set; }
+        public float Caliber { get; set; }
+        public float CartridgeSize { get; set; }
 
         private AdvancedItem advancedItem;
         private WeaponBody()
@@ -38,8 +38,8 @@ namespace Items
             Accturacy = advancedItemStruct.Accturacy;
             Range = advancedItemStruct.Range;
             Ergonomy = advancedItemStruct.Ergonomy;
-            Caliber_Weapon = advancedItemStruct.Caliber_Weapon;
-            CartridgeSize_Weapon = advancedItemStruct.CartridgeSize_Weapon;
+            Caliber = advancedItemStruct.Caliber;
+            CartridgeSize = advancedItemStruct.CartridgeSize;
         }
         public IItemComponent CloneComponent()
         {
@@ -53,8 +53,8 @@ namespace Items
                 Accturacy = this.Accturacy,
                 Range = this.Range,
                 Ergonomy = this.Ergonomy,
-                Caliber_Weapon= this.Caliber_Weapon,
-                CartridgeSize_Weapon= this.CartridgeSize_Weapon,
+                Caliber= this.Caliber,
+                CartridgeSize= this.CartridgeSize,
             };
         }
         public void Inicialisation(AdvancedItem advancedItem)
@@ -63,7 +63,40 @@ namespace Items
         }
         public IEnumerator Control(InputFrameData input)
         {
+            Debug.LogWarning($"shoot in action {input.ShootPressed && !advancedItem.IsReloading && !advancedItem.IsShooting && !advancedItem.IsUnloading}");
             if (input.ShootPressed && !advancedItem.IsReloading && !advancedItem.IsShooting && !advancedItem.IsUnloading) // Bal klikk
+            {
+                yield return Shoot();
+            }
+
+            Debug.LogWarning($"body reload in action {input.ReloadPressed && !advancedItem.IsReloading && !advancedItem.IsShooting && !advancedItem.IsUnloading}");
+            if (input.ReloadPressed && !advancedItem.IsReloading && !advancedItem.IsShooting && !advancedItem.IsUnloading) // R lenyomás
+            {
+                yield return Reload();
+            }
+
+            if (input.UnloadPressed && !advancedItem.IsReloading && !advancedItem.IsShooting && !advancedItem.IsUnloading) // U lenyomás
+            {
+                advancedItem.IsUnloading = true;
+
+                AudioSource audioSource = advancedItem.InGameSelfObject.GetComponent<AudioSource>();
+                AudioClip audioClip = Resources.Load<AudioClip>("Sounds/WeaponTEST/TESTUnload");
+                audioSource.PlayOneShot(audioClip);
+
+                yield return new WaitForSeconds(audioClip.length);
+
+                advancedItem.IsUnloading = false;
+            }
+
+            if (input.AimPressed) // Jobb klikk lenyomva
+            {
+                // Céloz
+            }
+        }
+
+        public IEnumerator Shoot()
+        {
+            if (Chamber.Count>0)
             {
                 advancedItem.IsShooting = true;
 
@@ -104,9 +137,18 @@ namespace Items
                 renderer.sortingOrder = 10;
                 renderer.transform.localScale = new Vector3(0.5f, 0.5f, 0.5f); // kisebb méret
 
-                SimpleItem ammunitionTest = new SimpleItem(DataHandler.GetAdvancedItemData("7.62x39FMJ"));
+
+                Ammunition ammo = Chamber.Pop();
+
                 var bulletScript = Bullet.AddComponent<Bullet>();
-                bulletScript.Initialize(ammunitionTest.Component as Ammunition, InGameUI.Player.GetComponent<Player>().Hand.transform.right);
+                bulletScript.Initialize(ammo, InGameUI.Player.GetComponent<Player>().Hand.transform.right);
+
+                Magasine magasine = (advancedItem.Parts.FirstOrDefault(part => part.item_s_Part.ItemType == nameof(Magasine)).item_s_Part.Component as Magasine);
+                if (magasine.ContainedAmmo.Count>0)
+                {
+                    Chamber.Push(magasine.ContainedAmmo.Pop());
+                }
+
 
                 float delay = 60f / Fpm;
 
@@ -122,38 +164,9 @@ namespace Items
 
                 advancedItem.IsShooting = false;
 
-                float waitTime = (float)Mathf.Round(Random.Range(0.3f, 0.8f) * 10000f) / 10000f;
-                yield return new WaitForSeconds(waitTime);
-
-                AudioClip audioClipCasingDrop = Resources.Load<AudioClip>("Sounds/WeaponTEST/TESTCasingDrop");
-                audioSource.PlayOneShot(audioClipCasingDrop, 0.1f);
+                advancedItem.InGameSelfObject.GetComponent<MonoBehaviour>().StartCoroutine(CaseDrop());
             }
-
-            if (input.ReloadPressed && !advancedItem.IsReloading && !advancedItem.IsShooting && !advancedItem.IsUnloading) // R lenyomás
-            {
-                yield return Reload();
-            }
-
-            if (input.UnloadPressed && !advancedItem.IsReloading && !advancedItem.IsShooting && !advancedItem.IsUnloading) // U lenyomás
-            {
-                advancedItem.IsUnloading = true;
-
-                AudioSource audioSource = advancedItem.InGameSelfObject.GetComponent<AudioSource>();
-                AudioClip audioClip = Resources.Load<AudioClip>("Sounds/WeaponTEST/TESTUnload");
-                audioSource.PlayOneShot(audioClip);
-
-                yield return new WaitForSeconds(audioClip.length);
-
-                advancedItem.IsUnloading = false;
-            }
-
-            if (input.AimPressed) // Jobb klikk lenyomva
-            {
-                // Céloz
-            }
-            yield return null;
         }
-
         public IEnumerator Reload()
         {
             Debug.LogWarning("reload body");
@@ -166,7 +179,7 @@ namespace Items
             if (magasine != null)
             {
                 //ha a tarban van loszer
-                if (magasine.MagasineSize > magasine.ContainedAmmo.Count)
+                if (0 < magasine.ContainedAmmo.Count)
                 {
                     //ha a chamber nincs tele
                     if (body.Chamber.Count < body.ChamberSize)
@@ -187,6 +200,16 @@ namespace Items
                 }
             }
             advancedItem.IsReloading = false;
+        }
+
+        private IEnumerator CaseDrop()
+        {
+            float waitTime = (float)Mathf.Round(Random.Range(0.3f, 0.8f) * 10000f) / 10000f;
+            yield return new WaitForSeconds(waitTime);
+
+            AudioSource audioSource = advancedItem.InGameSelfObject.GetComponent<AudioSource>();
+            AudioClip audioClipCasingDrop = Resources.Load<AudioClip>("Sounds/WeaponTEST/TESTCasingDrop");
+            audioSource.PlayOneShot(audioClipCasingDrop, 0.1f);
         }
     }
 }

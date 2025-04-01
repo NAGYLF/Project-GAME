@@ -1202,7 +1202,7 @@ namespace ItemHandler
         #endregion
 
         #region Special
-        public static void ItemCompoundRefresh_Live(ItemImgFitter ItemCompound, AdvancedItem ActualData)
+        public static void ItemCompoundRefresh_InGame(ItemImgFitter ItemCompound, AdvancedItem ActualData)
         {
             for (int i = ItemCompound.fitter.transform.childCount - 1; i >= 0; i--)
             {

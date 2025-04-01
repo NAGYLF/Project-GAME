@@ -141,6 +141,12 @@ namespace UI
 
         public static GameObject WeightIndicador;//Out of order
         [SerializeField] public GameObject WeightIndicadorObject;
+
+        public static GameObject ChamberIndiator;
+        [SerializeField] private GameObject ChamberIndiatorObject;
+
+        public static GameObject MagasineIndicator;
+        [SerializeField] private GameObject MagasineIndicatorObject;
         #endregion
 
         #region UI Other Variables
@@ -260,6 +266,9 @@ namespace UI
             HungerIndicador = HungerIndicadorObject;
             ThirstyIndicador = ThirstyIndicadorObject;
             WeightIndicador = WeightIndicadorObject;
+
+            ChamberIndiator = ChamberIndiatorObject;
+            MagasineIndicator = MagasineIndicatorObject;
             #endregion
 
             #region Set Indicators

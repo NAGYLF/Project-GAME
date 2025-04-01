@@ -329,8 +329,6 @@ namespace MainData
                                     double.TryParse(row[index++].ToString(), out double accturacy);
                                     double.TryParse(row[index++].ToString(), out double range);
                                     double.TryParse(row[index++].ToString(), out double ergonomy);
-                                    float.TryParse(row[index++].ToString(), out float caliber_weapon);
-                                    float.TryParse(row[index++].ToString(), out float cartridgeSize_weapon);
                                     //----------
 
                                     //usable section
@@ -347,7 +345,7 @@ namespace MainData
                                     float.TryParse(row[index++].ToString(), out float muzzleVelocity);
                                     //----------
 
-                                    advancedItemList.Add(new AdvancedItemStruct(systemNames, itemName, type, desctription, quantity, maxStackSize, value, sizeX, sizeY, sizeChanger, isDropAble, isRemoveAble, isUnloadAble, isModificationAble, isOpenAble, isUsable, canReload, containerPath, magasineSize, spread, fpm, recoil, accturacy, range, ergonomy, caliber_weapon,cartridgeSize_weapon, useLeft, maxUse, caliber, cartridgeSize, dmg, apPower, mass, muzzleVelocity));
+                                    advancedItemList.Add(new AdvancedItemStruct(systemNames, itemName, type, desctription, quantity, maxStackSize, value, sizeX, sizeY, sizeChanger, isDropAble, isRemoveAble, isUnloadAble, isModificationAble, isOpenAble, isUsable, canReload, containerPath, magasineSize, spread, fpm, recoil, accturacy, range, ergonomy, useLeft, maxUse, caliber, cartridgeSize, dmg, apPower, mass, muzzleVelocity));
                                 }
                             }
                             AdvancedItems = AdvancedItems.Concat(advancedItemList.ToArray()).ToArray();
@@ -488,8 +486,6 @@ namespace MainData
             public double Accturacy { get; set; }
             public double Range { get; set; }
             public double Ergonomy { get; set; }
-            public float Caliber_Weapon { get; set; }
-            public float CartridgeSize_Weapon { get; set; }
 
             public int UseLeft { get; set; }
             public int MaxUse { get; set; }
@@ -502,7 +498,7 @@ namespace MainData
             public float MuzzleVelocity { get; set; }
 
             public object Actions { get; set; }
-            public AdvancedItemStruct(string systemName, string itemName, string type, string description, int quantity, int maxStackSize, int value, int sizeX, int sizeY, SizeChanger sizeChanger, bool isDropAble, bool isRemoveAble, bool isUnloadAble, bool isModificationAble, bool isOpenAble, bool isUsable, bool canReload, string containerPath, int magasineSize, double spread, int fpm, double recoil, double accturacy, double range, double ergonomy, float caliber_weapon,float cartridgeSize_weapon, int useLeft, int maxUse, float caliber,float cartridgeSize ,float dmg, float aPPower, float mass, float muzzleVelocity)
+            public AdvancedItemStruct(string systemName, string itemName, string type, string description, int quantity, int maxStackSize, int value, int sizeX, int sizeY, SizeChanger sizeChanger, bool isDropAble, bool isRemoveAble, bool isUnloadAble, bool isModificationAble, bool isOpenAble, bool isUsable, bool canReload, string containerPath, int magasineSize, double spread, int fpm, double recoil, double accturacy, double range, double ergonomy, int useLeft, int maxUse, float caliber,float cartridgeSize ,float dmg, float aPPower, float mass, float muzzleVelocity)
             {
                 SystemName = systemName;
                 ItemName = itemName;
@@ -533,8 +529,6 @@ namespace MainData
                 Accturacy = accturacy;
                 Range = range;
                 Ergonomy = ergonomy;
-                Caliber_Weapon = caliber_weapon;
-                CartridgeSize_Weapon = cartridgeSize_weapon;
 
                 UseLeft = useLeft;
                 MaxUse = maxUse;

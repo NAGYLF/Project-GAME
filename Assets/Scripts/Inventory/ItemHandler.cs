@@ -18,14 +18,32 @@ using MainData;
 using Newtonsoft.Json;
 using System.IO;
 using Items;
-using static CharacterHand;
 
 namespace ItemHandler
 {
+    //a fegyverek ammo szuksegletenek ellenorzesehez kell
+    internal class AmmoToAdd
+    {
+        public AdvancedItem SourceItem;
+        public Ammunition AmmoTemplate;
+        public int Count;
+    }
+    //a fegyvrek kezeleseihez szuksegse inputokat egysegbe helyezi a konyebb küldeshez
+    public class InputFrameData
+    {
+        public bool ReloadPressed;
+        public bool ShootPressed;
+        public bool UnloadPressed;
+        public bool AimPressed;
+    }
     public interface IItemComponent
     {
         IItemComponent CloneComponent();
+    }
+    public interface IItemControl
+    {
         void Inicialisation(AdvancedItem advancedItem);
+
         IEnumerator Control(InputFrameData input);
     }
     public class ItemSlotData
@@ -385,6 +403,16 @@ namespace ItemHandler
             SimpleItem FirstItem = Parts.First().item_s_Part;
 
             var partFound = Parts.FirstOrDefault(part => !string.IsNullOrEmpty(part.PartData.MainItem.SystemName));
+
+            Components.Clear();
+            Quantity = FirstItem.Quantity;
+            MaxStackSize = FirstItem.MaxStackSize;
+            IsModificationAble = true;
+
+            SizeX = FirstItem.SizeX;
+            SizeY = FirstItem.SizeY;
+            Container = FirstItem.Container;
+
             if (partFound != null)
             {
                 MainItem mainItem = partFound.PartData.MainItem;
@@ -394,6 +422,39 @@ namespace ItemHandler
                     ItemName = mainItem.MainItemName;
                     Description = mainItem.Desctription;
                     ItemType = mainItem.Type;
+
+                    switch (mainItem.Type)
+                    {
+                        case nameof(AssaultRifle):
+                            AddComponent(new AssaultRifle(mainItem));
+                            break;
+                        case nameof(BattleRifle):
+                            AddComponent(new BattleRifle(mainItem));
+                            break;
+                        case nameof(Carbine):
+                            AddComponent(new Carbine(mainItem));
+                            break;
+                        case nameof(HandGun):
+                            AddComponent(new HandGun(mainItem));
+                            break;
+                        case nameof(MachineGun):
+                            AddComponent(new MachineGun(mainItem));
+                            break;
+                        case nameof(Rifle):
+                            AddComponent(new Rifle(mainItem));
+                            break;
+                        case nameof(ShotGun):
+                            AddComponent(new ShotGun(mainItem));
+                            break;
+                        case nameof(SMG):
+                            AddComponent(new SMG(mainItem));
+                            break;
+                        case nameof(SniperRifle):
+                            AddComponent(new SniperRifle(mainItem));
+                            break;
+                        default:
+                            break;
+                    }
                 }
                 else
                 {
@@ -420,15 +481,6 @@ namespace ItemHandler
                     ItemType = FirstItem.ItemType;
                 }
             }
-
-            Components.Clear();
-            Quantity = FirstItem.Quantity;
-            MaxStackSize = FirstItem.MaxStackSize;
-            IsModificationAble = true;
-
-            SizeX = FirstItem.SizeX;
-            SizeY = FirstItem.SizeY;
-            Container = FirstItem.Container;
 
             foreach (Part part in Parts)
             {

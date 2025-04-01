@@ -359,17 +359,23 @@ namespace MainData
                         // Feltételezzük, hogy az első sor (index 0) header, ezért i=1-től indulunk.
                         for (int i = 1; i < mainItemsTable.Rows.Count; i++)
                         {
+                            int index = 0;
                             DataRow row = mainItemsTable.Rows[i];
                             // Ellenőrizzük, hogy az első cella nem üres
-                            if (row[0] != DBNull.Value && !string.IsNullOrEmpty(row[0].ToString()))
+                            if (row[index] != DBNull.Value && !string.IsNullOrEmpty(row[index].ToString()))
                             {
-                                string mainItemName = row[0].ToString();
-                                string systemName = row[1].ToString();
-                                string type = row[2].ToString();
-                                string desctription = row[3].ToString();
-                                string[] necessaryItemType = row[4].ToString().Split(';');
-                                string connectedItemName = row[5].ToString();
-                                mainItemList.Add(new MainItem(mainItemName, systemName, type, desctription, necessaryItemType, connectedItemName));
+                                string mainItemName = row[index++].ToString();
+                                string systemName = row[index++].ToString();
+                                string type = row[index++].ToString();
+                                string desctription = row[index++].ToString();
+                                string[] necessaryItemType = row[index++].ToString().Split(';');
+                                string connectedItemName = row[index++].ToString();
+                                string shootSoundPath = row[index++].ToString();
+                                string reloadSoundPath = row[index++].ToString();
+                                string unloadSoundPath = row[index++].ToString();
+                                string chamberSoundPath = row[index++].ToString();
+                                string bulletTexturePath = row[index++].ToString();
+                                mainItemList.Add(new MainItem(mainItemName, systemName, type, desctription, necessaryItemType, connectedItemName,shootSoundPath,reloadSoundPath,unloadSoundPath,chamberSoundPath,bulletTexturePath));
                             }
                         }
                         MainItems = mainItemList.ToArray();
@@ -586,7 +592,14 @@ namespace MainData
             public string Desctription { set; get; }
             public string[] NecessaryItemTypes { set; get; }
             public string ConnectedItemName { set; get; }
-            public MainItem(string mainItemName, string systemName, string type, string desctription, string[] necessaryItemTypes, string connectedItemName)
+
+            public string ShootSoundPath { set; get; }
+            public string ReloadSoundPath { set; get; }
+            public string UnloadSoundPath { set; get; }
+            public string ChamberSoundPath { set; get; }
+
+            public string BulletTexturePath { set; get; }
+            public MainItem(string mainItemName, string systemName, string type, string desctription, string[] necessaryItemTypes, string connectedItemName, string shootSoundPath, string reloadSoundPath, string unloadSoundPath, string chamberSoundPath, string bulletTexturePath)
             {
                 MainItemName = mainItemName;
                 SystemName = systemName;
@@ -594,6 +607,11 @@ namespace MainData
                 Desctription = desctription;
                 NecessaryItemTypes = necessaryItemTypes;
                 ConnectedItemName = connectedItemName;
+                ShootSoundPath = shootSoundPath;
+                ReloadSoundPath = reloadSoundPath;
+                UnloadSoundPath = unloadSoundPath;
+                ChamberSoundPath = chamberSoundPath;
+                BulletTexturePath = bulletTexturePath;
             }
         }
 

@@ -9,14 +9,6 @@ using TMPro;
 
 public class CharacterHand : MonoBehaviour
 {
-    public class InputFrameData
-    {
-        public bool ReloadPressed;
-        public bool ShootPressed;
-        public bool UnloadPressed;
-        public bool AimPressed;
-    }
-
     public AdvancedItem SelectedItem;
     public InGameItemObject SelectedItemObject;
 
@@ -52,7 +44,10 @@ public class CharacterHand : MonoBehaviour
         foreach (var contontrol in SelectedItem.Components)
         {
             Debug.Log(contontrol.Key.Name);
-            yield return StartCoroutine(contontrol.Value.Control(input));
+            if (contontrol.Value is IItemControl)
+            {
+                yield return StartCoroutine((contontrol.Value as IItemControl).Control(input));
+            }
         }
         SetIndicators();
         LockDown = false;
@@ -108,7 +103,6 @@ public class CharacterHand : MonoBehaviour
             SelectedItem.Components.TryGetValue(typeof(Magasine), out var magasine);
             if (magasine != null)
             {
-                Debug.LogWarning(InGameUI.MagasineIndicator.GetComponent<TextMeshProUGUI>().text);
                 InGameUI.MagasineIndicator.GetComponent<TextMeshProUGUI>().text = $"In Magasine: {(magasine as Magasine).ContainedAmmo.Count}";
             }
             else
@@ -144,19 +138,18 @@ public class CharacterHand : MonoBehaviour
             SelectedItemObject.SetDataRoute(item);
             SelectedItemObject.Inicialisation();
 
-            foreach (Part part in SelectedItem.Parts)
+            foreach (var component in SelectedItem.Components)
             {
-                if (part.item_s_Part.Component != null)
+                if (component.Value is IItemControl)
                 {
-                    part.item_s_Part.Component.Inicialisation(item);
+                    (component.Value as IItemControl).Inicialisation(item);
                 }
             }
-            test();
 
             Vector3 scale = transform.localScale;
             scale.x = -Mathf.Abs(scale.x);
             transform.localScale = scale;
-            //Debug.LogWarning($"{item.ItemName} setted to player hand");
+
             SetIndicators();
         }
         else
@@ -179,9 +172,5 @@ public class CharacterHand : MonoBehaviour
             SelectedItemObject.SetDataRoute(null);
             SelectedItemObject.Inicialisation();
         }
-    }
-    private void test()
-    {
-        Debug.LogWarning($"TEST           {SelectedItem.ItemName}                 {SelectedItem.TryGetComponent<WeaponBody>(out var weapon)}  {weapon}");
     }
 }

@@ -219,7 +219,7 @@ public class TemporaryItemObject : MonoBehaviour
     }
     public void SelfVisualisation()//ha az item equipment slotban van
     {
-        NamePlate.text = ActualData.SystemName;
+        NamePlate.text = ActualData.ItemName;
         if (ActualData.Quantity == 1)
         {
             Counter.text = "";

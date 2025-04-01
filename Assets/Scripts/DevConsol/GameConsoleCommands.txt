@@ -62,14 +62,14 @@ add Admin item 7.62x39FMJ 60
 
 add Admin item 7.62x39FMJ 113
 
-
+add Admin item _5_45x39mm_FMJ 60
 
 
 #----------------Remove Items--------------------#
 
 remove Admin item TestHandgun
 
-remove Admin item 7.62x39FMJ 113
+remove Admin item _5_45x39mm_FMJ 60
 
 
 

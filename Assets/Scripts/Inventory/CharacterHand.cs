@@ -24,23 +24,26 @@ public class CharacterHand : MonoBehaviour
     private bool LockDown = false;
     void Update()
     {
-        RotateObject();
-        FlipObject();
-        if (InGameUI.CharacterHandControl && SelectedItem != null)
+        if (InGameUI.CharacterHandControl)
         {
-            bool inputDetected = Input.GetKeyDown(KeyCode.R) || Input.GetKeyDown(KeyCode.U) || Input.GetMouseButton(0) || Input.GetMouseButton(1);
-            if (inputDetected && !LockDown)
+            RotateObject();
+            FlipObject();
+            if (InGameUI.CharacterHandControl && SelectedItem != null)
             {
-                LockDown = true;
-                InputFrameData input = new InputFrameData
+                bool inputDetected = Input.GetKeyDown(KeyCode.R) || Input.GetKeyDown(KeyCode.U) || Input.GetMouseButton(0) || Input.GetMouseButton(1);
+                if (inputDetected && !LockDown)
                 {
-                    ReloadPressed = Input.GetKeyDown(KeyCode.R),
-                    ShootPressed = Input.GetMouseButton(0),
-                    UnloadPressed = Input.GetKeyDown(KeyCode.U),
-                    AimPressed = Input.GetMouseButton(1)
-                };
+                    LockDown = true;
+                    InputFrameData input = new InputFrameData
+                    {
+                        ReloadPressed = Input.GetKeyDown(KeyCode.R),
+                        ShootPressed = Input.GetMouseButton(0),
+                        UnloadPressed = Input.GetKeyDown(KeyCode.U),
+                        AimPressed = Input.GetMouseButton(1)
+                    };
 
-                StartCoroutine(RunItemControlsSequentially(input));
+                    StartCoroutine(RunItemControlsSequentially(input));
+                }
             }
         }
     }
@@ -100,23 +103,31 @@ public class CharacterHand : MonoBehaviour
     }
     public void SetIndicators()
     {
-        SelectedItem.Components.TryGetValue(typeof(Magasine), out var magasine);
-        if (magasine != null)
+        if (SelectedItem != null)
         {
-            Debug.LogWarning(InGameUI.MagasineIndicator.GetComponent<TextMeshProUGUI>().text);
-            InGameUI.MagasineIndicator.GetComponent<TextMeshProUGUI>().text = $"In Magasine: {(magasine as Magasine).ContainedAmmo.Count}";
+            SelectedItem.Components.TryGetValue(typeof(Magasine), out var magasine);
+            if (magasine != null)
+            {
+                Debug.LogWarning(InGameUI.MagasineIndicator.GetComponent<TextMeshProUGUI>().text);
+                InGameUI.MagasineIndicator.GetComponent<TextMeshProUGUI>().text = $"In Magasine: {(magasine as Magasine).ContainedAmmo.Count}";
+            }
+            else
+            {
+                InGameUI.MagasineIndicator.GetComponent<TextMeshProUGUI>().text = $"In Magasine: - ";
+            }
+            SelectedItem.Components.TryGetValue(typeof(WeaponBody), out var weaponBody);
+            if (weaponBody != null)
+            {
+                InGameUI.ChamberIndiator.GetComponent<TextMeshProUGUI>().text = $"In Chamber: {(weaponBody as WeaponBody).Chamber.Count}";
+            }
+            else
+            {
+                InGameUI.ChamberIndiator.GetComponent<TextMeshProUGUI>().text = $"In Chamber: - ";
+            }
         }
         else
         {
             InGameUI.MagasineIndicator.GetComponent<TextMeshProUGUI>().text = $"In Magasine: - ";
-        }
-        SelectedItem.Components.TryGetValue(typeof(WeaponBody), out var weaponBody);
-        if (weaponBody != null)
-        {
-            InGameUI.ChamberIndiator.GetComponent<TextMeshProUGUI>().text = $"In Chamber: {(weaponBody as WeaponBody).Chamber.Count}";
-        }
-        else
-        {
             InGameUI.ChamberIndiator.GetComponent<TextMeshProUGUI>().text = $"In Chamber: - ";
         }
     }

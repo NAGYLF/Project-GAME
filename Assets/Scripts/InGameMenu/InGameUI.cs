@@ -682,10 +682,12 @@ namespace UI
         public void OpenHUD()
         {
             HUD.SetActive(true);
+            CharacterHandControl = true;
         }
         private void CloseHUD()
         {
             HUD.SetActive(false);
+            CharacterHandControl = false;
         }
         #endregion
 
@@ -789,17 +791,17 @@ namespace UI
             Thirst -= count;
             SetThirstBar(count);
         }
-        private static void SetPlayerHand(AdvancedItem item)//ez inicializálja az uj selected itemet
-        {
-            Player.GetComponent<Player>().Hand.GetComponent<CharacterHand>().SelectedItem = item;
-            HandHUDRefresh();
-        }
-        private static void HandHUDRefresh()//ez a selected item alapján frissiti a HUD-ot
-        {
-            AdvancedItem selectedItem = Player.GetComponent<Player>().Hand.GetComponent<CharacterHand>().SelectedItem;
-            Player player = Player.GetComponent<Player>();
-            GameObject playerObject = Player;
-        }
+        //private static void SetPlayerHand(AdvancedItem item)//ez inicializálja az uj selected itemet
+        //{
+        //    Player.GetComponent<Player>().Hand.GetComponent<CharacterHand>().SelectedItem = item;
+        //    HandHUDRefresh();
+        //}
+        //private static void HandHUDRefresh()//ez a selected item alapján frissiti a HUD-ot
+        //{
+        //    AdvancedItem selectedItem = Player.GetComponent<Player>().Hand.GetComponent<CharacterHand>().SelectedItem;
+        //    Player player = Player.GetComponent<Player>();
+        //    GameObject playerObject = Player;
+        //}
         private void PlayerAnimation()
         {
             //A SpriteRenderer a Unityben egy komponens, amely lehetővé teszi a 2D grafikai elemek (spritek) megjelenítését a játékban. Ez a komponens felelős azért, hogy a spritet a megfelelő helyen és méretben jelenítse meg a képernyőn.

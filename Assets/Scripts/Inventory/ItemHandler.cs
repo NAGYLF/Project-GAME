@@ -1458,7 +1458,7 @@ namespace ItemHandler
                     else
                     {
                         item.Quantity-= count;
-                        advancedItems.Add(item);
+                        advancedItems.Add(item.ShallowClone());
                         count = 0;
                     }
                 }

@@ -137,6 +137,7 @@ public class ItemObject : MonoBehaviour, IPointerDownHandler, IPointerUpHandler,
 
             InventorySystem.LiveCleaning(ActualData);
             InventorySystem.Live_Placing(ActualData, ActualData.ParentItem);
+            Debug.LogWarning(ActualData.ItemSlotObjectsRef.Count);
 
             BuildContainer();
 

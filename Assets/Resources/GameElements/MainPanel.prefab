@@ -19060,7 +19060,7 @@ PrefabInstance:
     m_Modifications:
     - target: {fileID: 971360063081360299, guid: 4cdff866dfedfa345b75d6477a854892, type: 3}
       propertyPath: SlotType
-      value: WeaponSecondary;Melee
+      value: HandGun;Melee
       objectReference: {fileID: 0}
     - target: {fileID: 4371443974846095652, guid: 4cdff866dfedfa345b75d6477a854892, type: 3}
       propertyPath: m_Name

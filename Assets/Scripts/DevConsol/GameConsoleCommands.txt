@@ -4,12 +4,6 @@
 #----------------Add Items--------------------#
 
 
-add Admin item AK103
-
-
-add Admin item Glock_17_9x19_pistol_PS9
-
-
 add Admin item TestBackpack
 
 
@@ -49,8 +43,6 @@ add Admin item Dollar_1
 add Admin item AI_2
 
 
-add Admin item TestCenter
-
 #----------------Add ammo--------------------#
 
 
@@ -67,7 +59,6 @@ add Admin item _5_45x39mm_FMJ 60
 
 #----------------Remove Items--------------------#
 
-remove Admin item TestHandgun
 
 remove Admin item _5_45x39mm_FMJ 60
 

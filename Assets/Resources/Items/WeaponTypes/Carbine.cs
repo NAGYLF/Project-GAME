@@ -20,6 +20,10 @@ namespace Items
         public string BulletTexturePath { get; set; }
 
         private AdvancedItem advancedItem { get; set; }
+        public Carbine() 
+        {
+
+        }
         public Carbine(MainItem mainItem)
         {
             ShootSoundPath = mainItem.ShootSoundPath;
@@ -32,7 +36,15 @@ namespace Items
 
         public IItemComponent CloneComponent()
         {
-            throw new NotImplementedException();
+            return new Carbine()
+            {
+                ShootSoundPath = this.ShootSoundPath,
+                ReloadSoundPath = this.ShootSoundPath,
+                UnloadSoundPath = this.UnloadSoundPath,
+                ChamberSoundPath = this.ChamberSoundPath,
+
+                BulletTexturePath = this.BulletTexturePath,
+            };
         }
 
         public IEnumerator Control(InputFrameData input)

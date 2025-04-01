@@ -117,15 +117,8 @@ public class TemporaryItemObject : MonoBehaviour
 
         }
     }
-    public void ItemPartTrasformation()
+    private void ItemCompoundTrasformationInicialisation()
     {
-        ItemCompound.GetComponent<ItemImgFitter>().ResetFitter();
-
-        //foreach (Part part in ActualData.Parts)
-        //{
-        //    part.UnSetLive();
-        //}
-
         List<Part> clonedParts = new();
 
         foreach (Part part in ActualData.Parts)
@@ -159,64 +152,80 @@ public class TemporaryItemObject : MonoBehaviour
             }
         }
 
-        //egyebkent feltetelezheto hogy rendezve kerul el idaig de biztonsagi okokbol rendezzuk
-        //clonedParts.OrderBy(part => part.HierarhicPlace);
+        AdvancedItem TemporaryIsolatedADVItem = new AdvancedItem();
+        TemporaryIsolatedADVItem.Parts = clonedParts;
 
-        foreach (Part part in clonedParts)
-        {
-            part.SetLive(ItemCompound.GetComponent<ItemImgFitter>().fitter.gameObject);
-            foreach (ConnectionPoint cp in part.ConnectionPoints)
-            {
-                cp.SetLive();
-            }
-        }
-        foreach (Part part in clonedParts)
-        {
-            //Debug.LogWarning($"CP part ###########  {part.item_s_Part.ItemName}");
-            foreach (ConnectionPoint connectionPoint in part.ConnectionPoints)
-            {
-                //Debug.LogWarning($"CP connected   {connectionPoint.ConnectedPoint != null}");
-                if (connectionPoint.ConnectedPoint != null)
-                {
-                    if (connectionPoint.SelfPart.HierarhicPlace < connectionPoint.ConnectedPoint.SelfPart.HierarhicPlace)
-                    {
-
-                        //Debug.LogWarning($"{connectionPoint.SelfPart.item_s_Part.ItemName} CP action   -------------------+++++++++++++++++++++++");
-                        // 1. Referenciapontok lekérése és kiíratása
-                        RectTransform targetPoint1 = connectionPoint.RefPoint1.GetComponent<RectTransform>();
-                        RectTransform targetPoint2 = connectionPoint.RefPoint2.GetComponent<RectTransform>();
-
-                        // 2. Mozgatandó objektum és referencia pontok lekérése
-                        RectTransform toMoveObject = connectionPoint.ConnectedPoint.SelfPart.PartObject.GetComponent<RectTransform>();
-                        RectTransform toMovePoint1 = connectionPoint.ConnectedPoint.RefPoint1.GetComponent<RectTransform>();
-                        RectTransform toMovePoint2 = connectionPoint.ConnectedPoint.RefPoint2.GetComponent<RectTransform>();
-
-                        // 3. Skálázási faktor számítása
-                        float targetLocalDistance = Vector3.Distance(targetPoint1.position, targetPoint2.position);
-                        float toMoveLocalDistance = Vector3.Distance(toMovePoint1.position, toMovePoint2.position);
-                        float scaleFactor = targetLocalDistance / toMoveLocalDistance;
-                        //Debug.LogWarning(part.item_s_Part.ItemName+" "+scaleFactor+ " targetLocalDistante: " + targetLocalDistance+ " toMoveLocalDistance: "+ toMoveLocalDistance);
-                        if (float.IsNaN(scaleFactor))
-                        {
-                            scaleFactor = 1;
-                        }
-
-                        // 4. Alkalmazzuk a skálázást
-                        toMoveObject.localScale = new Vector3(scaleFactor, scaleFactor, 1);
-
-                        //5. Pozíciók kiszámítása
-                        Vector3 targetMidLocal = (targetPoint1.position + targetPoint2.position) * 0.5f;
-                        Vector3 toMoveMidLocal = (toMovePoint1.position + toMovePoint2.position) * 0.5f;
-                        Vector3 translationLocal = targetMidLocal - toMoveMidLocal;
-
-                        // 6. Alkalmazzuk az eltolást
-                        toMoveObject.position += translationLocal;
-                    }
-                }
-            }
-        }
-        ItemCompound.GetComponent<ItemImgFitter>().Fitting();
+        InventorySystem.ItemCompoundRefresh(ItemCompound.GetComponent<ItemImgFitter>(),TemporaryIsolatedADVItem);
     }
+    //public void ItemPartTrasformation()
+    //{
+    //    ItemCompound.GetComponent<ItemImgFitter>().ResetFitter();
+
+    //    //foreach (Part part in ActualData.Parts)
+    //    //{
+    //    //    part.UnSetLive();
+    //    //}
+
+
+
+    //    //egyebkent feltetelezheto hogy rendezve kerul el idaig de biztonsagi okokbol rendezzuk
+    //    //clonedParts.OrderBy(part => part.HierarhicPlace);
+
+    //    foreach (Part part in clonedParts)
+    //    {
+    //        part.SetLive(ItemCompound.GetComponent<ItemImgFitter>().fitter.gameObject);
+    //        foreach (ConnectionPoint cp in part.ConnectionPoints)
+    //        {
+    //            cp.SetLive();
+    //        }
+    //    }
+    //    foreach (Part part in clonedParts)
+    //    {
+    //        //Debug.LogWarning($"CP part ###########  {part.item_s_Part.ItemName}");
+    //        foreach (ConnectionPoint connectionPoint in part.ConnectionPoints)
+    //        {
+    //            //Debug.LogWarning($"CP connected   {connectionPoint.ConnectedPoint != null}");
+    //            if (connectionPoint.ConnectedPoint != null)
+    //            {
+    //                if (connectionPoint.SelfPart.HierarhicPlace < connectionPoint.ConnectedPoint.SelfPart.HierarhicPlace)
+    //                {
+
+    //                    //Debug.LogWarning($"{connectionPoint.SelfPart.item_s_Part.ItemName} CP action   -------------------+++++++++++++++++++++++");
+    //                    // 1. Referenciapontok lekérése és kiíratása
+    //                    RectTransform targetPoint1 = connectionPoint.RefPoint1.GetComponent<RectTransform>();
+    //                    RectTransform targetPoint2 = connectionPoint.RefPoint2.GetComponent<RectTransform>();
+
+    //                    // 2. Mozgatandó objektum és referencia pontok lekérése
+    //                    RectTransform toMoveObject = connectionPoint.ConnectedPoint.SelfPart.PartObject.GetComponent<RectTransform>();
+    //                    RectTransform toMovePoint1 = connectionPoint.ConnectedPoint.RefPoint1.GetComponent<RectTransform>();
+    //                    RectTransform toMovePoint2 = connectionPoint.ConnectedPoint.RefPoint2.GetComponent<RectTransform>();
+
+    //                    // 3. Skálázási faktor számítása
+    //                    float targetLocalDistance = Vector3.Distance(targetPoint1.position, targetPoint2.position);
+    //                    float toMoveLocalDistance = Vector3.Distance(toMovePoint1.position, toMovePoint2.position);
+    //                    float scaleFactor = targetLocalDistance / toMoveLocalDistance;
+    //                    //Debug.LogWarning(part.item_s_Part.ItemName+" "+scaleFactor+ " targetLocalDistante: " + targetLocalDistance+ " toMoveLocalDistance: "+ toMoveLocalDistance);
+    //                    if (float.IsNaN(scaleFactor))
+    //                    {
+    //                        scaleFactor = 1;
+    //                    }
+
+    //                    // 4. Alkalmazzuk a skálázást
+    //                    toMoveObject.localScale = new Vector3(scaleFactor, scaleFactor, 1);
+
+    //                    //5. Pozíciók kiszámítása
+    //                    Vector3 targetMidLocal = (targetPoint1.position + targetPoint2.position) * 0.5f;
+    //                    Vector3 toMoveMidLocal = (toMovePoint1.position + toMovePoint2.position) * 0.5f;
+    //                    Vector3 translationLocal = targetMidLocal - toMoveMidLocal;
+
+    //                    // 6. Alkalmazzuk az eltolást
+    //                    toMoveObject.position += translationLocal;
+    //                }
+    //            }
+    //        }
+    //    }
+    //    ItemCompound.GetComponent<ItemImgFitter>().Fitting();
+    //}
     public void SelfVisualisation()//ha az item equipment slotban van
     {
         NamePlate.text = ActualData.ItemName;
@@ -256,7 +265,7 @@ public class TemporaryItemObject : MonoBehaviour
 
         RectTransform itemObjectRectTransform = gameObject.GetComponent<RectTransform>();
 
-        ItemPartTrasformation();
+        ItemCompoundTrasformationInicialisation();
 
         gameObject.transform.rotation = Quaternion.Euler(0, 0, ActualData.RotateDegree);
 
@@ -297,7 +306,7 @@ public class TemporaryItemObject : MonoBehaviour
             AdvancedItem.SelfGameobject.GetComponent<ItemObject>().SelfVisualisation();
             //AdvancedItem.PartPut(ActualData);
             //AdvancedItem.SelfGameobject.GetComponent<ItemObject>().SelfVisualisation();
-            window.ItemPartTrasformation();
+            window.ItemCompoundRefreshInicialisation();
             Destroy(gameObject);
         }
     }

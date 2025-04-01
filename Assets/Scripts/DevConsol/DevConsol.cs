@@ -102,8 +102,19 @@ public class DevConsol : MonoBehaviour
                                     new AdvancedItem("USEC_Base_Upper"),
                                     new AdvancedItem("_5_45x39mm_FMJ",60),
                                     new AdvancedItem("_5_45x39mm_FMJ",60),
+                                    new AdvancedItem("_5_45x39mm_FMJ",60),
                                     new AdvancedItem("AKS-74U_Body"),
+                                    new AdvancedItem("Glock_19X_9x19_pistol_body"),
 
+                                };
+                                AdvancedItem[] parts_Glock19X = new AdvancedItem[]
+                                {
+                                    new AdvancedItem("Glock_9x19_19-round_magasine_(Coyote)"),
+                                    new AdvancedItem("Glock_19X_9x19_barrel"),
+                                    new AdvancedItem("Glock_19X_pistol_slide"),
+                                    new AdvancedItem("Glock_19X_front_sight"),
+                                    new AdvancedItem("Glock_19X_rear_sight"),
+                                    new AdvancedItem("Olight_Baldr_Pro_tactical_flashlight_with_laser_(tan)"),
                                 };
                                 AdvancedItem[] parts_AKS74U = new AdvancedItem[]
                                 {
@@ -118,8 +129,13 @@ public class DevConsol : MonoBehaviour
                                 };
                                 foreach (AdvancedItem item_ in parts_AKS74U)
                                 {
-                                    (ConnectionPoint SCP, ConnectionPoint ICP, bool IsPossible) Data = items_AK74UTest.Last().PartPut_IsPossible(item_);
-                                    items_AK74UTest.Last().PartPut(item_,Data.SCP,Data.ICP);
+                                    (ConnectionPoint SCP, ConnectionPoint ICP, bool IsPossible) Data = items_AK74UTest[items_AK74UTest.Length-2].PartPut_IsPossible(item_);
+                                    items_AK74UTest[items_AK74UTest.Length - 2].PartPut(item_,Data.SCP,Data.ICP);
+                                }
+                                foreach (AdvancedItem item_ in parts_Glock19X)
+                                {
+                                    (ConnectionPoint SCP, ConnectionPoint ICP, bool IsPossible) Data = items_AK74UTest[items_AK74UTest.Length - 1].PartPut_IsPossible(item_);
+                                    items_AK74UTest[items_AK74UTest.Length - 1].PartPut(item_, Data.SCP, Data.ICP);
                                 }
                                 foreach (AdvancedItem item_ in items_AK74UTest)
                                 {

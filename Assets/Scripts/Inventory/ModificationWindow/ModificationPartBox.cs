@@ -38,7 +38,7 @@ public class ModificationPartBox : MonoBehaviour, IPointerDownHandler
 
             AdvancedItem.SelfGameobject.GetComponent<ItemObject>().SelfVisualisation();
 
-            window.ItemPartTrasformation();
+            window.ItemCompoundRefreshInicialisation();
 
             GameObject temporaryAdvancedItemObject = CreatePrefab(AdvancedItem.TemporaryItemObjectPath);
             AdvancedItem newAdvancedItem = new()

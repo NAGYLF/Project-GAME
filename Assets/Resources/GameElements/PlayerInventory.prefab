@@ -271,7 +271,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 55651362305422408, guid: 9cfd4bb57f079eb4db53e5fbec9f120b, type: 3}
       propertyPath: SlotType
-      value: Carbine;Pistol;Melee
+      value: Carbine;HandGun;Melee
       objectReference: {fileID: 0}
     - target: {fileID: 72320512633475940, guid: 9cfd4bb57f079eb4db53e5fbec9f120b, type: 3}
       propertyPath: m_SortingLayer
@@ -451,7 +451,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 3749445490061431789, guid: 9cfd4bb57f079eb4db53e5fbec9f120b, type: 3}
       propertyPath: SlotType
-      value: Pistol
+      value: HandGun
       objectReference: {fileID: 0}
     - target: {fileID: 3836711686491924881, guid: 9cfd4bb57f079eb4db53e5fbec9f120b, type: 3}
       propertyPath: m_AnchoredPosition.x
@@ -631,7 +631,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 5522699335229501732, guid: 9cfd4bb57f079eb4db53e5fbec9f120b, type: 3}
       propertyPath: SlotType
-      value: Carbine;Pistol;Melee
+      value: Carbine;HandGun;Melee
       objectReference: {fileID: 0}
     - target: {fileID: 5583960947797484564, guid: 9cfd4bb57f079eb4db53e5fbec9f120b, type: 3}
       propertyPath: m_SortingLayer

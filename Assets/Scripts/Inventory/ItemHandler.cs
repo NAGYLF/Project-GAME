@@ -208,6 +208,7 @@ namespace ItemHandler
         {
             AdvancedItemStruct advancedItemRef = DataHandler.GetAdvancedItemData(SystemName);
 
+            Debug.LogWarning(advancedItemRef.SystemName);
             SimpleItem item = new(advancedItemRef);
             item.Quantity = count;
 
@@ -1211,7 +1212,7 @@ namespace ItemHandler
 
                 if (InteractiveItem.ModificationWindowRef != null)
                 {
-                    InteractiveItem.ModificationWindowRef.ItemPartTrasformation();
+                    InteractiveItem.ModificationWindowRef.ItemCompoundRefreshInicialisation();
                 }
             }
         }
@@ -1319,6 +1320,23 @@ namespace ItemHandler
                     }
                 }
             }
+            List<(GameObject, int)> sortedList = new List<(GameObject, int)>();
+            foreach (Part part in ActualData.Parts)
+            {
+                foreach (ConnectionPoint cp in part.ConnectionPoints)
+                {
+                    if (cp.Used && cp.ConnectedPoint.SelfPart.HierarhicPlace > cp.SelfPart.HierarhicPlace)
+                    {
+                        sortedList.Add((cp.ConnectedPoint.SelfPart.InGamePartObject, cp.ConnectedPoint.CPData.Layer));
+                    }
+                }
+            }
+            sortedList = sortedList.OrderBy(element => element.Item2).ToList();
+
+            for (int i = 0; i < sortedList.Count; i++)
+            {
+                sortedList[i].Item1.transform.SetSiblingIndex(i);
+            }
             ItemCompound.Fitting();
         }
         public static void ItemCompoundRefresh(ItemImgFitter ItemCompound,AdvancedItem ActualData)
@@ -1385,6 +1403,27 @@ namespace ItemHandler
                         }
                     }
                 }
+            }
+            List<(GameObject, int)> sortedList = new List<(GameObject, int)>
+            {
+                (ActualData.Parts.First().PartObject, 0)
+            };
+            foreach (Part part in ActualData.Parts)
+            {
+                foreach (ConnectionPoint cp in part.ConnectionPoints)
+                {
+                    if (cp.Used && cp.ConnectedPoint.SelfPart.HierarhicPlace > cp.SelfPart.HierarhicPlace)
+                    {
+                        sortedList.Add((cp.ConnectedPoint.SelfPart.PartObject, cp.CPData.Layer));
+                    }
+                }
+            }
+
+            sortedList = sortedList.OrderBy(element => element.Item2).ToList();
+
+            for (int i = 0; i < sortedList.Count; i++)
+            {
+                sortedList[i].Item1.transform.SetSiblingIndex(i);
             }
             ItemCompound.Fitting();
         }

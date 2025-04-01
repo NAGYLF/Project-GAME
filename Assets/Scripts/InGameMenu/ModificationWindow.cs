@@ -38,7 +38,7 @@ public class ModificationWindow : MonoBehaviour, IPointerDownHandler
         cloneParts = new();
         cloneParts2 = new();
         Boxes = new();
-        ItemPartTrasformation();
+        ItemCompoundRefreshInicialisation();
     }
     public void CloseWindow()
     {
@@ -55,12 +55,8 @@ public class ModificationWindow : MonoBehaviour, IPointerDownHandler
         // Számoljuk ki az offset-et
         offset = transform.position - mainCamera.ScreenToWorldPoint(mousePoint);
     }
-    public void ItemPartTrasformation()
+    public void ItemCompoundRefreshInicialisation()
     {
-        ItemPanel.GetComponent<ItemImgFitter>().ResetFitter();
-        //parts panel !!!
-
-        // 1. unset live all part
         foreach (Part part in cloneParts)
         {
             part.UnSetLive();
@@ -95,67 +91,11 @@ public class ModificationWindow : MonoBehaviour, IPointerDownHandler
             }
         }
 
-        //egyebkent feltetelezheto hogy rendezve kerul el idaig de biztonsagi okokbol rendezzuk
-        //cloneParts.OrderBy(part => part.HierarhicPlace);
+        AdvancedItem advancedItem = new AdvancedItem();
+        advancedItem.Parts = cloneParts;
 
-        // 5. CP set live
-        foreach (Part part in cloneParts)
-        {
-            part.SetLive(ItemPanel.GetComponent<ItemImgFitter>().fitter.gameObject);
-            foreach (ConnectionPoint cp in part.ConnectionPoints)
-            {
-                cp.SetLive();
-            }
-        }
 
-        // 6. a partokat pozitcionaljuk egymashoz
-        foreach (Part part in cloneParts)
-        {
-            //Debug.LogWarning($"part CP fitting Start: {part.item_s_Part.ItemName}");
-            foreach (ConnectionPoint connectionPoint in part.ConnectionPoints)
-            {
-                //Debug.LogWarning($"CP connected   {connectionPoint.ConnectedPoint != null}");
-                if (connectionPoint.ConnectedPoint != null)
-                {
-                    if (connectionPoint.SelfPart.HierarhicPlace < connectionPoint.ConnectedPoint.SelfPart.HierarhicPlace)
-                    {
-
-                        //Debug.LogWarning($"{connectionPoint.SelfPart.item_s_Part.ItemName} CP action   -------------------+++++++++++++++++++++++");
-                        // 1. Referenciapontok lekérése és kiíratása
-                        RectTransform targetPoint1 = connectionPoint.RefPoint1.GetComponent<RectTransform>();
-                        RectTransform targetPoint2 = connectionPoint.RefPoint2.GetComponent<RectTransform>();
-
-                        // 2. Mozgatandó objektum és referencia pontok lekérése
-                        RectTransform toMoveObject = connectionPoint.ConnectedPoint.SelfPart.PartObject.GetComponent<RectTransform>();
-                        RectTransform toMovePoint1 = connectionPoint.ConnectedPoint.RefPoint1.GetComponent<RectTransform>();
-                        RectTransform toMovePoint2 = connectionPoint.ConnectedPoint.RefPoint2.GetComponent<RectTransform>();
-
-                        // 3. Skálázási faktor számítása
-                        float targetLocalDistance = Vector3.Distance(targetPoint1.position, targetPoint2.position);
-                        float toMoveLocalDistance = Vector3.Distance(toMovePoint1.position, toMovePoint2.position);
-                        float scaleFactor = targetLocalDistance / toMoveLocalDistance;
-                        //Debug.LogWarning(part.item_s_Part.ItemName+" "+scaleFactor+ " targetLocalDistante: " + targetLocalDistance+ " toMoveLocalDistance: "+ toMoveLocalDistance);
-                        if (float.IsNaN(scaleFactor))
-                        {
-                            scaleFactor = 1;
-                        }
-
-                        // 4. Alkalmazzuk a skálázást
-                        toMoveObject.localScale = new Vector3(scaleFactor, scaleFactor, 1);
-
-                        //5. Pozíciók kiszámítása
-                        Vector3 targetMidLocal = (targetPoint1.position + targetPoint2.position) * 0.5f;
-                        Vector3 toMoveMidLocal = (toMovePoint1.position + toMovePoint2.position) * 0.5f;
-                        Vector3 translationLocal = targetMidLocal - toMoveMidLocal;
-
-                        // 6. Alkalmazzuk az eltolást
-                        toMoveObject.position += translationLocal;
-                    }
-                }
-            }
-        }
-        ItemPanel.GetComponent<ItemImgFitter>().Fitting();
-
+        InventorySystem.ItemCompoundRefresh(ItemPanel.GetComponent<ItemImgFitter>(),advancedItem);
 
 
 
@@ -214,6 +154,80 @@ public class ModificationWindow : MonoBehaviour, IPointerDownHandler
             box.GetComponent<ItemImgFitter>().Fitting();
         }
     }
+    //public void ItemPartTrasformation()
+    //{
+    //    ItemPanel.GetComponent<ItemImgFitter>().ResetFitter();
+    //    //parts panel !!!
+
+    //    // 1. unset live all part
+
+
+    //    //egyebkent feltetelezheto hogy rendezve kerul el idaig de biztonsagi okokbol rendezzuk
+    //    //cloneParts.OrderBy(part => part.HierarhicPlace);
+
+    //    // 5. CP set live
+    //    foreach (Part part in cloneParts)
+    //    {
+    //        part.SetLive(ItemPanel.GetComponent<ItemImgFitter>().fitter.gameObject);
+    //        foreach (ConnectionPoint cp in part.ConnectionPoints)
+    //        {
+    //            cp.SetLive();
+    //        }
+    //    }
+
+    //    // 6. a partokat pozitcionaljuk egymashoz
+    //    foreach (Part part in cloneParts)
+    //    {
+    //        //Debug.LogWarning($"part CP fitting Start: {part.item_s_Part.ItemName}");
+    //        foreach (ConnectionPoint connectionPoint in part.ConnectionPoints)
+    //        {
+    //            //Debug.LogWarning($"CP connected   {connectionPoint.ConnectedPoint != null}");
+    //            if (connectionPoint.ConnectedPoint != null)
+    //            {
+    //                if (connectionPoint.SelfPart.HierarhicPlace < connectionPoint.ConnectedPoint.SelfPart.HierarhicPlace)
+    //                {
+
+    //                    //Debug.LogWarning($"{connectionPoint.SelfPart.item_s_Part.ItemName} CP action   -------------------+++++++++++++++++++++++");
+    //                    // 1. Referenciapontok lekérése és kiíratása
+    //                    RectTransform targetPoint1 = connectionPoint.RefPoint1.GetComponent<RectTransform>();
+    //                    RectTransform targetPoint2 = connectionPoint.RefPoint2.GetComponent<RectTransform>();
+
+    //                    // 2. Mozgatandó objektum és referencia pontok lekérése
+    //                    RectTransform toMoveObject = connectionPoint.ConnectedPoint.SelfPart.PartObject.GetComponent<RectTransform>();
+    //                    RectTransform toMovePoint1 = connectionPoint.ConnectedPoint.RefPoint1.GetComponent<RectTransform>();
+    //                    RectTransform toMovePoint2 = connectionPoint.ConnectedPoint.RefPoint2.GetComponent<RectTransform>();
+
+    //                    // 3. Skálázási faktor számítása
+    //                    float targetLocalDistance = Vector3.Distance(targetPoint1.position, targetPoint2.position);
+    //                    float toMoveLocalDistance = Vector3.Distance(toMovePoint1.position, toMovePoint2.position);
+    //                    float scaleFactor = targetLocalDistance / toMoveLocalDistance;
+    //                    //Debug.LogWarning(part.item_s_Part.ItemName+" "+scaleFactor+ " targetLocalDistante: " + targetLocalDistance+ " toMoveLocalDistance: "+ toMoveLocalDistance);
+    //                    if (float.IsNaN(scaleFactor))
+    //                    {
+    //                        scaleFactor = 1;
+    //                    }
+
+    //                    // 4. Alkalmazzuk a skálázást
+    //                    toMoveObject.localScale = new Vector3(scaleFactor, scaleFactor, 1);
+
+    //                    //5. Pozíciók kiszámítása
+    //                    Vector3 targetMidLocal = (targetPoint1.position + targetPoint2.position) * 0.5f;
+    //                    Vector3 toMoveMidLocal = (toMovePoint1.position + toMovePoint2.position) * 0.5f;
+    //                    Vector3 translationLocal = targetMidLocal - toMoveMidLocal;
+
+    //                    // 6. Alkalmazzuk az eltolást
+    //                    toMoveObject.position += translationLocal;
+    //                }
+    //            }
+    //        }
+    //    }
+    //    ItemPanel.GetComponent<ItemImgFitter>().Fitting();
+
+
+
+
+
+    //}
     private float CalculateBoxSize(int totalItems, RectTransform containerRect)
     {
         // A konténer méretei (feltételezzük, hogy ezek a rendelkezésre álló területet adják meg)

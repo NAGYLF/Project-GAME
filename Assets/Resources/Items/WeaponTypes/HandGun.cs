@@ -3,8 +3,6 @@ using System;
 using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using static MainData.Main;
 
 namespace Items
@@ -17,6 +15,12 @@ namespace Items
         public string ChamberSoundPath { get; set; }
 
         public string BulletTexturePath { get; set; }
+
+        private AdvancedItem AdvancedItem { get; set; }
+        public HandGun()
+        {
+
+        }
         public HandGun(MainItem mainItem)
         {
             ShootSoundPath = mainItem.ShootSoundPath;
@@ -29,7 +33,15 @@ namespace Items
 
         public IItemComponent CloneComponent()
         {
-            throw new NotImplementedException();
+            return new HandGun()
+            {
+                ShootSoundPath = this.ShootSoundPath,
+                ReloadSoundPath = this.ShootSoundPath,
+                UnloadSoundPath = this.UnloadSoundPath,
+                ChamberSoundPath = this.ChamberSoundPath,
+
+                BulletTexturePath = this.BulletTexturePath,
+            };
         }
 
         public IEnumerator Control(InputFrameData input)
@@ -39,7 +51,7 @@ namespace Items
 
         public void Inicialisation(AdvancedItem advancedItem)
         {
-            throw new NotImplementedException();
+            AdvancedItem = advancedItem;
         }
     }
 }

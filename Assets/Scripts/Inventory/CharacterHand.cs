@@ -29,9 +29,11 @@ public class CharacterHand : MonoBehaviour
                     InputFrameData input = new InputFrameData
                     {
                         ReloadPressed = Input.GetKeyDown(KeyCode.R),
-                        ShootPressed = Input.GetMouseButton(0),
+                        AutoShoot = Input.GetMouseButton(0),
                         UnloadPressed = Input.GetKeyDown(KeyCode.U),
-                        AimPressed = Input.GetMouseButton(1)
+                        AimPressed = Input.GetMouseButton(1),
+
+                        SingleShoot = Input.GetMouseButtonDown(0),
                     };
 
                     StartCoroutine(RunItemControlsSequentially(input));

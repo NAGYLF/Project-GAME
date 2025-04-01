@@ -49,7 +49,7 @@ namespace Items
 
         public IEnumerator Control(InputFrameData input)
         {
-            if (input.ShootPressed && !advancedItem.IsReloading && !advancedItem.IsShooting && !advancedItem.IsUnloading) // Bal klikk
+            if (input.AutoShoot && !advancedItem.IsReloading && !advancedItem.IsShooting && !advancedItem.IsUnloading) // Bal klikk
             {
                 yield return Shoot();
             }
@@ -103,7 +103,7 @@ namespace Items
                 Vector2 size = sprite.rect.size;
 
                 rectTransform.pivot = new Vector2(1f, 0.5f);
-                rectTransform.sizeDelta = size * 0.2f;
+                rectTransform.sizeDelta = size * 0.1f;
                 rectTransform.anchoredPosition = sp.InGameRefPoint1.transform.localPosition;
 
                 Image img = Fire.GetComponent<Image>();

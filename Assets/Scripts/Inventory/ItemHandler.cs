@@ -32,9 +32,11 @@ namespace ItemHandler
     public class InputFrameData
     {
         public bool ReloadPressed;
-        public bool ShootPressed;
+        public bool AutoShoot;
         public bool UnloadPressed;
         public bool AimPressed;
+
+        public bool SingleShoot;
     }
     public interface IItemComponent
     {

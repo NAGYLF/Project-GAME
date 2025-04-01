@@ -103,6 +103,8 @@ public class DevConsol : MonoBehaviour
                                     new AdvancedItem("_5_45x39mm_FMJ",60),
                                     new AdvancedItem("_5_45x39mm_FMJ",60),
                                     new AdvancedItem("_5_45x39mm_FMJ",60),
+                                    new AdvancedItem("_9x19mm_Green_Tracer",60),
+                                    new AdvancedItem("_9x19mm_Green_Tracer",60),
                                     new AdvancedItem("AKS-74U_Body"),
                                     new AdvancedItem("Glock_19X_9x19_pistol_body"),
 

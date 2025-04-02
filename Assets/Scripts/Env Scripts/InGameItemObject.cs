@@ -4,6 +4,7 @@ using UnityEngine.UI;
 using UnityEngine;
 using ItemHandler;
 using System.Linq;
+using UnityEngine.UIElements;
 
 public class InGameItemObject : MonoBehaviour
 {
@@ -19,6 +20,8 @@ public class InGameItemObject : MonoBehaviour
             ActualData.InGameSelfObject = gameObject;
 
             SelfVisualisation();//itt nem allitunk be referenciat
+
+            SetInGameItemSize();
         }
         else
         {
@@ -28,7 +31,25 @@ public class InGameItemObject : MonoBehaviour
             {
                 Destroy(ItemCompound.fitter.transform.GetChild(i).gameObject);
             }
+
+            ReSetInGameItemSize();
         }
+    }
+    public void SetInGameItemSize()
+    {
+        SystemPoints sp = ActualData?.Parts.SelectMany(part => part.SystemPoints).FirstOrDefault(sp => sp.SPData.PointName == "FirstHand");
+        if (sp != null)
+        {
+            float distance = Vector2.Distance(sp.InGameRefPoint1.transform.position, sp.InGameRefPoint2.transform.position);
+            Debug.LogWarning(distance);
+            float scale = MainData.Main.CharacterHandSize / distance;
+            //SelectedItemObject.gameObject.GetComponent<RectTransform>().localScale = Vector3.one;
+            ItemCompound.gameObject.GetComponent<RectTransform>().localScale = new Vector3(scale, scale, 1);
+        }
+    }
+    public void ReSetInGameItemSize()
+    {
+        ItemCompound.gameObject.GetComponent<RectTransform>().localScale = new Vector3(1, 1, 1);
     }
     public void SetDataRoute(AdvancedItem Data)
     {

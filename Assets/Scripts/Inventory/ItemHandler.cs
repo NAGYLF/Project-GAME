@@ -210,7 +210,6 @@ namespace ItemHandler
         {
             AdvancedItemStruct advancedItemRef = DataHandler.GetAdvancedItemData(SystemName);
 
-            Debug.LogWarning(advancedItemRef.SystemName);
             SimpleItem item = new(advancedItemRef);
             item.Quantity = count;
 
@@ -976,10 +975,8 @@ namespace ItemHandler
     {
         private static readonly List<LootItem> weapons = new()
         {
-            //new LootItem("Glock_17_9x19_pistol_PS9",1f),
-            //new LootItem("AK103", 2f),
-            new LootItem("APOK_Tactical_Wasteland_Gladius",2f),
-            new LootItem("7.62x39FMJ",2f,0.1f,0.5f)//jelentese, hogy 10% és 50% staksize között spawnolhat.
+            new LootItem("_5_45x39mm_FMJ",4f,0.2f,0.9f),//jelentese, hogy 10% és 50% staksize között spawnolhat.
+            new LootItem("_9x19mm_Green_Tracer",4f,0.2f,0.9f)//jelentese, hogy 10% és 50% staksize között spawnolhat.
         };
         private static readonly List<LootItem> equipments = new()
         {

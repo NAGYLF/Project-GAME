@@ -194,6 +194,7 @@ namespace MainData
         public const float DefaultItemSlotSize = 10f;
         public const float EquipmentSlotColliderScale = 0.35f;
         public const float SectorScale = 1.3f;//ez az inventorySlotok scale-je ez befolyásolja egy item meretet is
+        public const float CharacterHandSize = 2f;// az a tvaolsag ami a kéz (kör) átmérője lehet, ehez az ertekhez nagyitja vagy kicsinyiti egy item itemcompound-jat a first hand 2 refpontja közötti tavolsagot vaszi refrenciaul
         public static void Save()
         {
 
@@ -221,26 +222,6 @@ namespace MainData
                 Texture2D texture = Resources.Load<Texture2D>(path);
                 return (texture.height, texture.width);
             };
-
-            //public static void ActionConnector(DataLoader advancedItemDatas)
-            //{
-            //    for (int i = 0; i < advancedItemDatas.AdvancedItems.Length; i++)
-            //    {
-            //        ref var item = ref advancedItemDatas.AdvancedItems[i];
-
-            //        switch (item.Type)
-            //        {
-            //            case "Carbine":
-            //                item.Actions = new Carbines();
-            //                break;
-            //            case "Pistol":
-            //                item.Actions = new Pistol();
-            //                break;
-            //            default:
-            //                break;
-            //        }
-            //    }
-            //}
 
             public static void AdvancedItemHanderDataLoad()
             {

@@ -162,67 +162,72 @@ namespace Items
             Magasine magasine = (advancedItem.Parts.FirstOrDefault(part => part.item_s_Part.ItemType == nameof(Magasine))?.item_s_Part.Component as Magasine);
             WeaponBody weaponBody = (advancedItem.Parts.FirstOrDefault(part => part.item_s_Part.ItemType == nameof(WeaponBody))?.item_s_Part.Component as WeaponBody);
 
-            audioClip = Resources.Load<AudioClip>(this.UnloadSoundPath);
-            audioSource.PlayOneShot(audioClip);
-            yield return new WaitForSeconds(audioClip.length);
-
-            audioClip = Resources.Load<AudioClip>(this.ReloadSoundPath);
-            audioSource.PlayOneShot(audioClip);
-            yield return new WaitForSeconds(audioClip.length);
-
-            int nessesaryAmmo = magasine.MagasineSize - magasine.ContainedAmmo.Count;
-            List<AmmoToAdd> ammoToAddList = new();
-            List<AdvancedItem> removableItems = new();
-
             var possibleAmmoes = advancedItem.LevelManagerRef.Items
-                .Where(item => item.Components.TryGetValue(typeof(Ammunition), out var component)
-                    && component is Ammunition ammo
-                    && ammo.Caliber == weaponBody.Caliber
-                    && ammo.CartridgeSize == weaponBody.CartridgeSize)
-                .ToArray();
+            .Where(item => item.Components.TryGetValue(typeof(Ammunition), out var component)
+                && component is Ammunition ammo
+                && ammo.Caliber == weaponBody.Caliber
+                && ammo.CartridgeSize == weaponBody.CartridgeSize)
+            .ToArray();
 
-            int index = 0;
-            while (nessesaryAmmo > 0 && index < possibleAmmoes.Length)
+            if (possibleAmmoes.Length>0)
             {
-                var item = possibleAmmoes[index];
+                audioClip = Resources.Load<AudioClip>(this.UnloadSoundPath);
+                audioSource.PlayOneShot(audioClip);
+                yield return new WaitForSeconds(audioClip.length);
 
-                if (!item.Components.TryGetValue(typeof(Ammunition), out var comp) || comp is not Ammunition ammo)
+                audioClip = Resources.Load<AudioClip>(this.ReloadSoundPath);
+                audioSource.PlayOneShot(audioClip);
+                yield return new WaitForSeconds(audioClip.length);
+
+                int nessesaryAmmo = magasine.MagasineSize - magasine.ContainedAmmo.Count;
+                List<AmmoToAdd> ammoToAddList = new();
+                List<AdvancedItem> removableItems = new();
+
+
+
+                int index = 0;
+                while (nessesaryAmmo > 0 && index < possibleAmmoes.Length)
                 {
+                    var item = possibleAmmoes[index];
+
+                    if (!item.Components.TryGetValue(typeof(Ammunition), out var comp) || comp is not Ammunition ammo)
+                    {
+                        index++;
+                        continue;
+                    }
+
+                    if (item.Quantity > nessesaryAmmo)
+                    {
+                        ammoToAddList.Add(new AmmoToAdd { SourceItem = item, AmmoTemplate = ammo, Count = nessesaryAmmo });
+                        item.Quantity -= nessesaryAmmo;
+                        nessesaryAmmo = 0;
+                    }
+                    else
+                    {
+                        ammoToAddList.Add(new AmmoToAdd { SourceItem = item, AmmoTemplate = ammo, Count = item.Quantity });
+                        nessesaryAmmo -= item.Quantity;
+                        removableItems.Add(item);
+                    }
+
                     index++;
-                    continue;
                 }
 
-                if (item.Quantity > nessesaryAmmo)
+                foreach (var ammoEntry in ammoToAddList)
                 {
-                    ammoToAddList.Add(new AmmoToAdd { SourceItem = item, AmmoTemplate = ammo, Count = nessesaryAmmo });
-                    item.Quantity -= nessesaryAmmo;
-                    nessesaryAmmo = 0;
-                }
-                else
-                {
-                    ammoToAddList.Add(new AmmoToAdd { SourceItem = item, AmmoTemplate = ammo, Count = item.Quantity });
-                    nessesaryAmmo -= item.Quantity;
-                    removableItems.Add(item);
+                    for (int i = 0; i < ammoEntry.Count && magasine.ContainedAmmo.Count < magasine.MagasineSize; i++)
+                    {
+                        magasine.ContainedAmmo.Push(ammoEntry.AmmoTemplate.CloneComponent() as Ammunition);
+                    }
+                    if (ammoEntry.SourceItem.SelfGameobject != null)
+                    {
+                        ammoEntry.SourceItem.SelfGameobject.GetComponent<ItemObject>().SelfVisualisation();
+                    }
                 }
 
-                index++;
-            }
-
-            foreach (var ammoEntry in ammoToAddList)
-            {
-                for (int i = 0; i < ammoEntry.Count && magasine.ContainedAmmo.Count < magasine.MagasineSize; i++)
+                foreach (var item in removableItems)
                 {
-                    magasine.ContainedAmmo.Push(ammoEntry.AmmoTemplate.CloneComponent() as Ammunition);
+                    InventorySystem.Delete(item);
                 }
-                if (ammoEntry.SourceItem.SelfGameobject != null)
-                {
-                    ammoEntry.SourceItem.SelfGameobject.GetComponent<ItemObject>().SelfVisualisation();
-                }
-            }
-
-            foreach (var item in removableItems)
-            {
-                InventorySystem.Delete(item);
             }
         }
         private IEnumerator ReloadChamber()
@@ -249,64 +254,69 @@ namespace Items
 
             WeaponBody weaponBody = (advancedItem.Parts.FirstOrDefault(part => part.item_s_Part.ItemType == nameof(WeaponBody))?.item_s_Part.Component as WeaponBody);
 
-            audioClip = Resources.Load<AudioClip>(this.ChamberSoundPath);
-            audioSource.PlayOneShot(audioClip);
-            yield return new WaitForSeconds(audioClip.length);
-
-            int nessesaryAmmo = weaponBody.ChamberSize - weaponBody.Chamber.Count;
-
-            List<AmmoToAdd> ammoToAddList = new();
-            List<AdvancedItem> removableItems = new();
-
             var possibleAmmoes = advancedItem.LevelManagerRef.Items
-                .Where(item => item.Components.TryGetValue(typeof(Ammunition), out var component)
-                    && component is Ammunition ammo
-                    && ammo.Caliber == weaponBody.Caliber
-                    && ammo.CartridgeSize == weaponBody.CartridgeSize)
-                .ToArray();
+            .Where(item => item.Components.TryGetValue(typeof(Ammunition), out var component)
+                && component is Ammunition ammo
+                && ammo.Caliber == weaponBody.Caliber
+                && ammo.CartridgeSize == weaponBody.CartridgeSize)
+            .ToArray();
 
-            int index = 0;
-            while (nessesaryAmmo > 0 && index < possibleAmmoes.Length)
+
+            if (possibleAmmoes.Length > 0)
             {
-                var item = possibleAmmoes[index];
+                audioClip = Resources.Load<AudioClip>(this.ChamberSoundPath);
+                audioSource.PlayOneShot(audioClip);
+                yield return new WaitForSeconds(audioClip.length);
 
-                if (!item.Components.TryGetValue(typeof(Ammunition), out var comp) || comp is not Ammunition ammo)
+                int nessesaryAmmo = weaponBody.ChamberSize - weaponBody.Chamber.Count;
+
+                List<AmmoToAdd> ammoToAddList = new();
+                List<AdvancedItem> removableItems = new();
+
+
+                int index = 0;
+                while (nessesaryAmmo > 0 && index < possibleAmmoes.Length)
                 {
+                    var item = possibleAmmoes[index];
+
+                    if (!item.Components.TryGetValue(typeof(Ammunition), out var comp) || comp is not Ammunition ammo)
+                    {
+                        index++;
+                        continue;
+                    }
+
+                    if (item.Quantity > nessesaryAmmo)
+                    {
+                        ammoToAddList.Add(new AmmoToAdd { SourceItem = item, AmmoTemplate = ammo, Count = nessesaryAmmo });
+                        item.Quantity -= nessesaryAmmo;
+                        nessesaryAmmo = 0;
+                    }
+                    else
+                    {
+                        ammoToAddList.Add(new AmmoToAdd { SourceItem = item, AmmoTemplate = ammo, Count = item.Quantity });
+                        nessesaryAmmo -= item.Quantity;
+                        removableItems.Add(item);
+                    }
+
                     index++;
-                    continue;
                 }
 
-                if (item.Quantity > nessesaryAmmo)
+                foreach (var ammoEntry in ammoToAddList)
                 {
-                    ammoToAddList.Add(new AmmoToAdd { SourceItem = item, AmmoTemplate = ammo, Count = nessesaryAmmo });
-                    item.Quantity -= nessesaryAmmo;
-                    nessesaryAmmo = 0;
-                }
-                else
-                {
-                    ammoToAddList.Add(new AmmoToAdd { SourceItem = item, AmmoTemplate = ammo, Count = item.Quantity });
-                    nessesaryAmmo -= item.Quantity;
-                    removableItems.Add(item);
+                    for (int i = 0; i < ammoEntry.Count && weaponBody.Chamber.Count < weaponBody.ChamberSize; i++)
+                    {
+                        weaponBody.Chamber.Push(ammoEntry.AmmoTemplate.CloneComponent() as Ammunition);
+                    }
+                    if (ammoEntry.SourceItem.SelfGameobject != null)
+                    {
+                        ammoEntry.SourceItem.SelfGameobject.GetComponent<ItemObject>().SelfVisualisation();
+                    }
                 }
 
-                index++;
-            }
-
-            foreach (var ammoEntry in ammoToAddList)
-            {
-                for (int i = 0; i < ammoEntry.Count && weaponBody.Chamber.Count < weaponBody.ChamberSize; i++)
+                foreach (var item in removableItems)
                 {
-                    weaponBody.Chamber.Push(ammoEntry.AmmoTemplate.CloneComponent() as Ammunition);
+                    InventorySystem.Delete(item);
                 }
-                if (ammoEntry.SourceItem.SelfGameobject != null)
-                {
-                    ammoEntry.SourceItem.SelfGameobject.GetComponent<ItemObject>().SelfVisualisation();
-                }
-            }
-
-            foreach (var item in removableItems)
-            {
-                InventorySystem.Delete(item);
             }
         }
         public IEnumerator Reload()

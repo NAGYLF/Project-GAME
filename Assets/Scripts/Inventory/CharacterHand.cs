@@ -6,6 +6,7 @@ using System.Collections.Generic;
 using System;
 using System.Collections;
 using TMPro;
+using System.Linq;
 
 public class CharacterHand : MonoBehaviour
 {
@@ -148,6 +149,7 @@ public class CharacterHand : MonoBehaviour
                 }
             }
 
+            //ez az oebcjtum flipje
             Vector3 scale = transform.localScale;
             scale.x = -Mathf.Abs(scale.x);
             transform.localScale = scale;

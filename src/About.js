@@ -15,7 +15,7 @@ function About(props) {
     }
   }
   return (
-    <div className="content" style={{marginTop: "-50px"}} onClick={handleContentClick}>
+    <div className="content" onClick={handleContentClick}>
     <div className="cards" >
     <div className="card-client">
         <div className="user-picture">

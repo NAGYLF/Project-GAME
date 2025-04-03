@@ -6,6 +6,7 @@
   font-optical-sizing: auto;
   font-style: normal;
 }
+
 /*--------*/
 
 /* Oldal */
@@ -25,13 +26,23 @@
 }
 
 @-webkit-keyframes spin {
-  0% { -webkit-transform: rotate(0deg); }
-  100% { -webkit-transform: rotate(360deg); }
+  0% {
+    -webkit-transform: rotate(0deg);
+  }
+
+  100% {
+    -webkit-transform: rotate(360deg);
+  }
 }
 
 @keyframes spin {
-  0% { transform: rotate(0deg); }
-  100% { transform: rotate(360deg); }
+  0% {
+    transform: rotate(0deg);
+  }
+
+  100% {
+    transform: rotate(360deg);
+  }
 }
 
 .content {
@@ -43,16 +54,16 @@
 }
 
 .box {
-  background-color: rgba(50, 50, 50, 0.8); 
+  background-color: rgba(50, 50, 50, 0.8);
   padding: 20px;
-  width: 40vw!important;
+  width: 40vw !important;
   min-width: 100px;
   max-width: 100%;
   border-radius: 5px;
   border: 1px solid rgb(120, 120, 120);
   box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
   text-align: justify;
-  color:azure;
+  color: azure;
   width: 50%;
   margin-bottom: 70px;
   user-select: none;
@@ -60,7 +71,7 @@
   overflow-y: scroll;
 }
 
-.left{
+.left {
   float: left;
   text-align: left;
   margin: 2.5px;
@@ -71,14 +82,16 @@
   overflow-y: scroll;
 }
 
-.left p{
+.left p {
   margin-bottom: 5px;
 }
 
-img, a{
+img,
+a {
   -webkit-user-drag: none;
   user-select: none;
 }
+
 /*--------*/
 
 /* Search box */
@@ -138,15 +151,16 @@ img, a{
 ::-webkit-scrollbar {
   width: 0px;
 }
+
 /*-----*/
 
 /* Navbar */
-#logo:hover{
-  height: 48.5px!important;
+#logo:hover {
+  height: 48.5px !important;
   transition: 0.5s;
 }
 
-#about{
+#about {
   min-width: 75%;
 }
 
@@ -159,49 +173,50 @@ img, a{
   object-fit: cover;
   z-index: -1;
 }
+
 .navbar-nav .nav-link {
-  background-color: rgb(10,10,10);
+  background-color: rgb(10, 10, 10);
   border-radius: 5px;
-  color:azure;
-  width: 90px!important;
+  color: azure;
+  width: 90px !important;
   text-align: center;
   margin: 0 5px;
   transition: 0.5s;
   font-size: 14px;
 }
 
-#current{
+#current {
   background-color: rgb(255, 255, 255);
   color: black;
 }
 
-#download{
-  background-color: rgb(10,10,10);
+#download {
+  background-color: rgb(10, 10, 10);
   border-radius: 5px;
-  color:azure;
+  color: azure;
   text-align: center;
   margin: 0 5px;
   padding: 6.5px;
   font-size: 14px;
   cursor: pointer;
-  width: 40px!important;
+  width: 40px !important;
 }
 
-#download:hover{
-  background-color:rgb(255, 255, 255)!important;
-  color: black!important;
+#download:hover {
+  background-color: rgb(255, 255, 255) !important;
+  color: black !important;
 }
 
-#logreg{
-  width: 120px!important;
+#logreg {
+  width: 120px !important;
   margin: 0 5px;
 }
 
-#languagechanger{
-  background-color: rgb(10,10,10);
+#languagechanger {
+  background-color: rgb(10, 10, 10);
   border: none;
-  color:azure;
-  width: 90px!important;
+  color: azure;
+  width: 90px !important;
   margin: 0 5px;
   transition: 0.5s;
   font-size: 14px;
@@ -209,32 +224,33 @@ img, a{
 }
 
 #languagechanger:focus-visible {
-  box-shadow: none!important;
-  border: none!important;
+  box-shadow: none !important;
+  border: none !important;
 }
 
 
-input:focus{
-  box-shadow: none!important;
-  border: 1px solid azure!important;
+input:focus {
+  box-shadow: none !important;
+  border: 1px solid azure !important;
 }
 
-#search:focus{
-  border: none!important;
+#search:focus {
+  border: none !important;
 }
 
-#newAdminPassword{
+#newAdminPassword {
   cursor: default;
 }
 
-.custom-nav{
-  background-color: #171717;
+.custom-nav {
+  background-color: rgb(0, 0, 0, 0);
   width: 100%;
   z-index: 999;
 }
+
 .navbar-nav .nav-link:hover {
-  background-color:rgb(255, 255, 255);
-  color:rgb(0, 0, 0)!important;
+  background-color: rgb(255, 255, 255);
+  color: rgb(0, 0, 0) !important;
   margin: 0 5px;
 }
 
@@ -254,16 +270,16 @@ input:focus{
   transform: translateX(-50%);
 }
 
-#badge{
+#badge {
   height: 22.5px;
   bottom: -40%;
   pointer-events: none;
 }
 
-#badgesrc{
+#badgesrc {
   position: absolute;
-  height: 22.5px!important;
-  width: 22.5px!important;
+  height: 22.5px !important;
+  width: 22.5px !important;
   left: 40%;
   bottom: 25%;
   margin: 1px;
@@ -279,13 +295,13 @@ input:focus{
   user-select: none;
 }
 
-.footer p{
-  color: rgb(170,170,170);
+.footer p {
+  color: rgb(170, 170, 170);
 }
 
-.dropdown-item:hover{
-  background-color: rgb(77, 77, 77)!important;
-  color: rgb(255, 255, 255)!important;
+.dropdown-item:hover {
+  background-color: rgb(77, 77, 77) !important;
+  color: rgb(255, 255, 255) !important;
 }
 
 /*--------*/
@@ -322,31 +338,60 @@ input:focus{
 }
 
 @-webkit-keyframes fadein {
-  from {bottom: 0; opacity: 0;} 
-  to {bottom: 30px; opacity: 1;}
+  from {
+    bottom: 0;
+    opacity: 0;
+  }
+
+  to {
+    bottom: 30px;
+    opacity: 1;
+  }
 }
 
 @keyframes fadein {
-  from {bottom: 0; opacity: 0;}
-  to {bottom: 30px; opacity: 1;}
+  from {
+    bottom: 0;
+    opacity: 0;
+  }
+
+  to {
+    bottom: 30px;
+    opacity: 1;
+  }
 }
 
 @-webkit-keyframes fadeout {
-  from {bottom: 30px; opacity: 1;} 
-  to {bottom: 0; opacity: 0;}
+  from {
+    bottom: 30px;
+    opacity: 1;
+  }
+
+  to {
+    bottom: 0;
+    opacity: 0;
+  }
 }
 
 @keyframes fadeout {
-  from {bottom: 30px; opacity: 1;}
-  to {bottom: 0; opacity: 0;}
+  from {
+    bottom: 30px;
+    opacity: 1;
+  }
+
+  to {
+    bottom: 0;
+    opacity: 0;
+  }
 }
+
 /*--------*/
 
 /* Media */
 @media (max-width: 1222px) {
-  .center-logo{
+  .center-logo {
     margin-left: 7.5%;
-    height: 40px!important;
+    height: 40px !important;
   }
 
   #searchbox .row .styled-link {
@@ -354,7 +399,7 @@ input:focus{
     max-width: 40%;
   }
 
-  #download{
+  #download {
     display: none;
   }
 }
@@ -362,37 +407,37 @@ input:focus{
 @media (max-width: 1025px) {
   .navbar-nav {
     display: flex;
-    flex-direction: row!important;
+    flex-direction: row !important;
     align-items: center;
     justify-content: center;
-    width: 100%;
+    width: 90%;
     max-height: 50px;
   }
 
-  #searchbox{
+  #searchbox {
     height: 80%;
   }
 
-  .left{
+  .left {
     height: 50%;
   }
 
-  #badge{
-    height: 25px!important;
+  #badge {
+    height: 25px !important;
     bottom: -25%;
   }
 
-  #badgesrc{
-    width: 15px!important;
-    height: 15px!important;
+  #badgesrc {
+    width: 15px !important;
+    height: 15px !important;
   }
-  
-  #kep{
+
+  #kep {
     margin-top: 15px;
   }
 
 
-  .footer{
+  .footer {
     font-size: small;
   }
 
@@ -401,9 +446,9 @@ input:focus{
     max-width: 75px;
   }
 
-  #logreg{
+  #logreg {
     max-width: 100px;
-    margin: 50px!important;
+    margin: 50px !important;
   }
 
   .center-logo {
@@ -415,8 +460,8 @@ input:focus{
     height: 40px !important;
   }
 
-  #logo:hover{
-    height: 38.5px!important;
+  #logo:hover {
+    height: 38.5px !important;
   }
 
   .navbar-nav.ms-auto {
@@ -434,7 +479,7 @@ input:focus{
     margin: 10px 0;
   }
 
-  .box{
+  .box {
     margin-top: -20vh;
     max-height: 60vh;
     min-width: 40vh;
@@ -452,12 +497,12 @@ input:focus{
     width: 30px;
     height: 30px;
   }
-  
+
   .player-name {
-    font-size: 8px ;
+    font-size: 8px;
   }
 
-  #rightnav{
+  #rightnav {
     margin-top: 5vh;
   }
 
@@ -468,8 +513,8 @@ input:focus{
   }
 }
 
-@media (max-width: 380px){
-  #searchbox{
+@media (max-width: 380px) {
+  #searchbox {
     height: 80%;
   }
 
@@ -482,7 +527,7 @@ input:focus{
     width: 25px;
     height: 25px;
   }
-  
+
   .player-name {
     font-size: 8px;
   }

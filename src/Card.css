@@ -113,7 +113,7 @@
     display: flex;
     justify-content: center;
     flex-wrap: wrap;
-    margin-top: 7vh;
+    margin-top: -5vh;
   }
 
   @media (max-width: 768px) {

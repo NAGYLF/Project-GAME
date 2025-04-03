@@ -48,18 +48,9 @@ TagManager:
   - name: MapEnviromentObjects
     uniqueID: 202653477
     locked: 0
-  - name: Player
-    uniqueID: 1909509017
-    locked: 0
   - name: Default
     uniqueID: 0
     locked: 0
   - name: Inventory
     uniqueID: 1214542165
-    locked: 0
-  - name: InventoryItem
-    uniqueID: 2827886323
-    locked: 0
-  - name: InventoryWindows
-    uniqueID: 1860340889
     locked: 0

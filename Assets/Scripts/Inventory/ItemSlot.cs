@@ -1,67 +1,71 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using UnityEngine;
+﻿using UnityEngine;
 using UnityEngine.UI;
-using ItemHandler;
-using PlayerInventoryClass;
 using TMPro;
+using Unity.VisualScripting;
+using ItemHandler;
 
 namespace Assets.Scripts
 { 
     public class ItemSlot : MonoBehaviour
     {
-        #region Equipment variables
-        public bool IsEquipment = false;
+        #region Set In Inspector
+        public bool IsEquipment = false;//csak az inspectorban allithato be
+        public string SlotType;//azon tipusok melyeket befogadhat, ha nincs megadva akkor mindent.
         #endregion
 
-        [HideInInspector] public GameObject ParentObject;//a saját sectora ezzel végezteti az adatszinkronizációt és a az item elhelyezés azon problemajat,
-                                                   //hogyha nem egy szektoron belün, de egyszere anyi itemcontainer kerülne targetba ami eleglenne az item tarolasakor,
-                                                   //ekkor az item ellenorzi, hogy a tergetek egy sectorba tartoznak e.
-        public string SlotType;//azon tipusok melyeket befogadhat, ha nincs megadva akkor mindent.
+        public AdvancedItem SlotParentItem;
+        public int sectorId;
+        public (int Height,int Width) Coordinate;
 
         #region  Runtime Instantiated Objects Datas
         public GameObject PartOfItemObject;//ezen értéket egy itemslot egy item vizualizációjakor kellene hogy kapjon
         public GameObject ActualPartOfItemObject;//ezt vizualizációkor kapja és továbbiakban a vizualizációban lesz fumciója az iteomobjectum azonosításban
-        public bool CountAddAvaiable = false;
-        private Color color;
+        public bool MouseOver = false;
+
+        public Color color;
         public GameObject Title;
+        public Image Background;
         #endregion
+        public void Deactivation()//3
+        {
+            Background.color = color;
+        }
+        public void Open()//2
+        {
+            Background.color = Color.yellow;
+        }
+        public void Close()//2
+        {
+            Background.color = Color.red;
+        }
         private void OnCollisionEnter2D(Collision2D collision)
         {
-            if ((PartOfItemObject == null || (PartOfItemObject.GetInstanceID() == collision.gameObject.GetInstanceID())) && (SlotType == "" || SlotType.Contains(collision.gameObject.GetComponent<ItemObject>().ActualData.ItemType)))
-            {
-                ActualPartOfItemObject = collision.gameObject;
-                ParentObject.GetComponent<ContainerObject>().activeSlots.Add(gameObject);
-                color = gameObject.GetComponent<Image>().color;
-                gameObject.GetComponent<Image>().color = Color.yellow;
-            }
-            else if (PartOfItemObject != null && PartOfItemObject.GetComponent<ItemObject>().ActualData.ItemName == collision.gameObject.GetComponent<ItemObject>().ActualData.ItemName && PartOfItemObject.GetComponent<ItemObject>().ActualData.Quantity != PartOfItemObject.GetComponent<ItemObject>().ActualData.MaxStackSize)
-            {
-                ActualPartOfItemObject = collision.gameObject;
-                color = gameObject.GetComponent<Image>().color;
-                gameObject.GetComponent<Image>().color = Color.yellow;
-                CountAddAvaiable = true;
-                ParentObject.GetComponent<ContainerObject>().activeSlots.Add(gameObject);
-            }
-            else
-            {
-                color = gameObject.GetComponent<Image>().color;
-                gameObject.GetComponent<Image>().color = Color.red;
-            }
+            ActualPartOfItemObject = collision.gameObject;
+            SlotParentItem.Container.ContainerObject.GetComponent<ContainerObject>().activeSlots.Add(gameObject);
+            SlotParentItem.Container.ContainerObject.GetComponent<ContainerObject>().ChangedFlag = true;
         }
         private void OnCollisionExit2D(Collision2D collision)
         {
-            ParentObject.GetComponent<ContainerObject>().activeSlots.Remove(gameObject);
+            SlotParentItem.Container.ContainerObject.GetComponent<ContainerObject>().activeSlots.Remove(gameObject);
             ActualPartOfItemObject = null;
-            CountAddAvaiable = false;
-            gameObject.GetComponent<Image>().color = color;
+            SlotParentItem.Container.ContainerObject.GetComponent<ContainerObject>().ChangedFlag = true;
         }
         private void Awake()
         {
-            Title.GetComponent<TextMeshPro>().text = SlotType;
+            if (!IsEquipment)
+            {
+                Title.GetComponent<TextMeshPro>().text = SlotType;
+            }
+            else
+            {
+                BoxCollider2D boxCollider = GetComponent<BoxCollider2D>();
+                RectTransform rectTransform = GetComponent<RectTransform>();
+
+                Vector2 size = rectTransform.rect.size;
+                size.Scale(new Vector2(MainData.Main.EquipmentSlotColliderScale, MainData.Main.EquipmentSlotColliderScale));
+                boxCollider.size = size;
+            }
+            color = Background.color;
         }
     }
 }

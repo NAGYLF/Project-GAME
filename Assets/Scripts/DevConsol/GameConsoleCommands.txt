@@ -4,79 +4,79 @@
 #----------------Add Items--------------------#
 
 
-add TestPlayer item TestWeapon
+add Admin item TestBackpack
 
 
-add TestPlayer item TestHandgun
+add Admin item _6B43_6A_Zabralo_Sh_body_armor
 
 
-add TestPlayer item TestBackpack
+add Admin item TestVest
 
 
-add TestPlayer item TestVest
+add Admin item Galvion_Caiman_Hybrid_helmet_Grey
 
 
-add TestPlayer item TestHelmet
+add Admin item TestBoots
 
 
-add TestPlayer item TestBoots
+add Admin item TestFingers
 
 
-add TestPlayer item TestFingers
+add Admin item GSSh_01_active_headset
 
 
-add TestPlayer item TestHeadset
+add Admin item Atomic_Defense_CQCM_ballistic_mask_Black
 
 
-add TestPlayer item TestMask
+add Admin item USEC_Base_Upper
 
 
-add TestPlayer item TestSkin
+add Admin item USEC_Base
 
 
-add TestPlayer item TestPant
+add Admin item APOK_Tactical_Wasteland_Gladius
 
 
-add TestPlayer item TestMelee
+add Admin item Dollar_1
+
+
+add Admin item AI_2
 
 
 #----------------Add ammo--------------------#
 
 
-add TestPlayer item 7.62x39FMJ 35
+add Admin item 7.62x39FMJ 35
 
-add TestPlayer item 7.62x39FMJ 85
+add Admin item 7.62x39FMJ 85
 
-add TestPlayer item 7.62x39FMJ 60
+add Admin item 7.62x39FMJ 60
 
-add TestPlayer item 7.62x39FMJ 113
+add Admin item 7.62x39FMJ 113
 
-
+add Admin item _5_45x39mm_FMJ 60
 
 
 #----------------Remove Items--------------------#
 
-remove TestPlayer item TestHandgun
 
-remove TestPlayer item 7.62x39FMJ 113
-
-
+remove Admin item _5_45x39mm_FMJ 60
 
 
 
 
 #----------------Test Dev Commands--------------------#
 
-add TestPlayer DevInventory
+add Admin DevInventory
 
 
-add TestPlayer 3xTestWeapon+TestBackPack
+add Admin DevInvenotry_AKS74UAdvnacedItem
 
 
-add TestPlayer DevInventory_2xHandgun
+add Admin DevInventory_FullGear
 
 
-add TestPlayer _7.62x39FMJx600
+add Admin _7.62x39FMJx600
 
 
 #----------------Virtual Inventory Commands--------------------#
@@ -87,30 +87,27 @@ Clear
 
 Load
 
-
-
-
 #----------------Player Bar Commands--------------------#
 
-TestPlayer Healt 60
+Admin Healt 60
 
 
-TestPlayer Healt -60
+Admin Healt -60
 
 
-TestPlayer Stamina 60
+Admin Stamina 60
 
 
-TestPlayer Stamina -60
+Admin Stamina -60
 
 
-TestPlayer Hunger 60
+Admin Hunger 60
 
 
-TestPlayer Hunger -60
+Admin Hunger -60
 
 
-TestPlayer Thirst 60
+Admin Thirst 60
 
 
-TestPlayer Thirst -60
+Admin Thirst -60

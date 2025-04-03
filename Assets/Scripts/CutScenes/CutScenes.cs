@@ -1,7 +1,5 @@
 using MainData;
-using System;
 using System.Collections;
-using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.SceneManagement;
 using UnityEngine.Video;
@@ -25,7 +23,7 @@ public class CutScenes : MonoBehaviour
     }
     private void Update()
     {
-        if ((videoPlayer.length*1000-videoPlayer.time*1000 == fadeDurationEnd*1000) || end) 
+        if (Mathf.Abs((float)(videoPlayer.length - videoPlayer.time) - fadeDurationEnd) < 0.1f || end)
         {
            StartCoroutine(EndFadeOutScreen());
            end = false;

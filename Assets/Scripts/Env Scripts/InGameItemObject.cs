@@ -40,16 +40,17 @@ public class InGameItemObject : MonoBehaviour
         SystemPoints sp = ActualData?.Parts.SelectMany(part => part.SystemPoints).FirstOrDefault(sp => sp.SPData.PointName == "FirstHand");
         if (sp != null)
         {
+            Debug.LogWarning("size");
             float distance = Vector2.Distance(sp.InGameRefPoint1.transform.position, sp.InGameRefPoint2.transform.position);
             Debug.LogWarning(distance);
             float scale = MainData.Main.CharacterHandSize / distance;
             //SelectedItemObject.gameObject.GetComponent<RectTransform>().localScale = Vector3.one;
-            ItemCompound.gameObject.GetComponent<RectTransform>().localScale = new Vector3(scale, scale, 1);
+            gameObject.GetComponent<RectTransform>().localScale = new Vector3(scale, scale, 1);
         }
     }
     public void ReSetInGameItemSize()
     {
-        ItemCompound.gameObject.GetComponent<RectTransform>().localScale = new Vector3(1, 1, 1);
+        gameObject.GetComponent<RectTransform>().localScale = new Vector3(1, 1, 1);
     }
     public void SetDataRoute(AdvancedItem Data)
     {

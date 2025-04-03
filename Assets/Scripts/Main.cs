@@ -211,7 +211,7 @@ namespace MainData
         {
             public const string PartPath = "GameElements/ItemOPart";
             public const string CPPath = "GameElements/ItemOCP";
-            public const string AdvancedItemDataFilePath = "Assets/Resources/Items/AdvancedItemData.xlsx";
+            public static string AdvancedItemDataFilePath = Path.Combine(Application.streamingAssetsPath, "AdvancedItemData.xlsx");
 
             public static PartData[] ItemPartDatas { get; private set; }
             public static MainItem[] MainItems { get; private set; }

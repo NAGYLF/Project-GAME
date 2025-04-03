@@ -42,7 +42,7 @@ function App() {
 
   //Lekéri az adminkódot
   const admincode = () => {
-    axios.get('http://localhost:5269/api/Player/code')
+    axios.get('https://localhost:5266/api/Player/code')
       .then(res => {
         setCode(res.data.code);
       })
@@ -53,7 +53,7 @@ function App() {
         if (prev > 1) {
           return prev - 1;
         } else {
-          axios.get('http://localhost:5269/api/Player/code')
+          axios.get('https://localhost:5266/api/Player/code')
             .then(res => {
               setCode(res.data.code);
               setSecondsLeft(res.data.secondsLeft);
@@ -82,7 +82,7 @@ function App() {
       password: password
     };
 
-      axios.post('http://localhost:5269/api/auth/login', user).then((response) => {
+      axios.post('https://localhost:5266/api/auth/login', user).then((response) => {
         if (response.data) {
           const token = response.data.token;
           localStorage.setItem('token', token);

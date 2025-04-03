@@ -26,7 +26,7 @@ export default function Player({ language, token, isAdmin, showAlert }) {
 
     //Lekéri id alapján a playert, bizonyos adatok miatt
   useEffect(() => {
-    axios.get(`http://localhost:5269/GetbyId/${id}`)
+    axios.get(`https://localhost:5266/GetbyId/${id}`)
       .then(response => {
         const data = response.data;
         if (data.name) {
@@ -38,7 +38,7 @@ export default function Player({ language, token, isAdmin, showAlert }) {
       .catch(error => console.error('Error fetching player name:', error));
 
       //Lekéri id alapján a player statjait
-      axios.get(`http://localhost:5269/api/Player/stats/${id}`)
+      axios.get(`https://localhost:5266/api/Player/stats/${id}`)
       .then(response => {
         const data = response.data;
         if (data) {
@@ -76,7 +76,7 @@ export default function Player({ language, token, isAdmin, showAlert }) {
         {isAdmin && !isItAdmin ? (
           <button className='btn btn-danger' style={{ position: 'absolute', bottom: '15px', right: '15px', height: '40px' }} onClick={() => {
             if (window.confirm(language === "hu" ? 'Biztosan törölni szeretnéd a fiókot?' : 'Are you sure you want to delete this account?')) {
-              axios.delete(`http://localhost:5269/api/Player/${id}?token=${token}`)
+              axios.delete(`https://localhost:5266/api/Player/${id}?token=${token}`)
                 .then(() => {
                   showAlert(language === "hu" ? "Fiók sikeresen törölve!" : "Account deleted successfully!", "success");
                   navigate("/search");
@@ -94,7 +94,7 @@ export default function Player({ language, token, isAdmin, showAlert }) {
         {isAdmin && !isItAdmin && !isItBanned ? (
           <button className='btn btn-danger' style={{ position: 'absolute', bottom: '15px', left: '15px', height: '40px' }} onClick={() => {
             if (window.confirm(language === "hu" ? 'Biztosan bannolni szeretnéd a fiókot?' : 'Are you sure you want to ban this account?')) {
-              axios.put(`http://localhost:5269/api/Player/${id}/ban`, {
+              axios.put(`:https//localhost:5266/api/Player/${id}/ban`, {
                 isBanned: true
               })
                 .then(() => {
@@ -111,7 +111,7 @@ export default function Player({ language, token, isAdmin, showAlert }) {
         {isAdmin && !isItAdmin && isItBanned ? (
           <button className='btn btn-light' style={{ position: 'absolute', bottom: '15px', left: '15px', height: '40px' }} onClick={() => {
             if (window.confirm(language === "hu" ? 'Biztosan unbannolni szeretnéd a fiókot?' : 'Are you sure you want to unban this account?')) {
-              axios.put(`http://localhost:5269/api/Player/${id}/ban`, {
+              axios.put(`https://localhost:5266/api/Player/${id}/ban`, {
                 isBanned: false
               })
                 .then(() => {

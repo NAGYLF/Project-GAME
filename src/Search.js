@@ -20,7 +20,7 @@ const Search = ({ texts, language}) => {
 
   //Lekéri az összes playert
   useEffect(() => {
-    axios.get('http://localhost:5269/api/Player')
+    axios.get('https://localhost:5266/api/Player')
       .then(response => {
         const data = response.data;
         setPlayers(data);

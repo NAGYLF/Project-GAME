@@ -9,6 +9,7 @@ const Search = ({ texts, language}) => {
   const [players, setPlayers] = useState([]);
   const [filteredPlayers, setFilteredPlayers] = useState([]);
   const [searchTerm, setSearchTerm] = useState('');
+  const [loading, setLoading] = useState(true);
 
   const navigate = useNavigate();
 
@@ -25,8 +26,11 @@ const Search = ({ texts, language}) => {
         const data = response.data;
         setPlayers(data);
         setFilteredPlayers(data);
+        setLoading(false);
       })
-      .catch(error => console.error('Error fetching player data:', error));
+      .catch(error => console.error('Error fetching player data:', error))
+      .finally(() => {
+      });
   }, []);
 
   //Keresés
@@ -71,7 +75,7 @@ const Search = ({ texts, language}) => {
           onChange={(e) => handleSearch(e.target.value)}
         />
         <div id="searchbox">
-          {renderPlayers()}
+          {loading ? <p style={{ color: 'azure' }}>{language === "hu" ? "Betöltés..." : "Loading..."}</p> : renderPlayers()}
         </div>
       </div>
     </div>

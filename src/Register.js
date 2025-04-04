@@ -86,7 +86,7 @@ function Register({ language, code, login, admincode, showAlert }) {
       `
     };
 
-    axios.post('https://localhost:5266/api/email', sendingEmail, {
+    axios.post(`${process.env.REACT_APP_URL}/api/email`, sendingEmail, {
       headers: {
         'Content-Type': 'application/json'
       }
@@ -129,7 +129,7 @@ function Register({ language, code, login, admincode, showAlert }) {
                 e.preventDefault();
                 if (password === passwordAgain) {
                   const isAdmin = adminCode == code;
-                  axios.post("https://localhost:5266/api/auth/register", {
+                  axios.post(`${process.env.REACT_APP_URL}/api/auth/register`, {
                     name: username,
                     password: password,
                     email: email,

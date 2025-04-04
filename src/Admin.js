@@ -12,7 +12,7 @@ const Admin = ({ texts, language, code, secondsLeft, id }) => {
 
   //Lekérjük az adminkódot az adatbázisból
   const GetAdminCode = () => {
-    axios.get('https://localhost:5266/api/Player/code')
+    axios.get(`${process.env.REACT_APP_URL}/api/Player/code`)
       .then(res => {
         setGeneratedCode(res.data.code);
         setSeconds(res.data.secondsLeft);
@@ -25,7 +25,7 @@ const Admin = ({ texts, language, code, secondsLeft, id }) => {
     const newDevConsoleState = e.target.checked;
     setDevConsole(newDevConsoleState);
 
-    axios.put(`https://localhost:5266/api/Admin/${id}`, {
+    axios.put(`${process.env.REACT_APP_URL}/api/Admin/${id}`, {
       devConsole: newDevConsoleState
     })
       .catch(err => console.error(err));
@@ -34,7 +34,7 @@ const Admin = ({ texts, language, code, secondsLeft, id }) => {
   //Ha true a DevConsole akkor bepipálja a checkboxot
   const getDevConsole = () => {
     console.log(id);
-    axios.get(`https://localhost:5266/api/Admin/${id}`).then(res => {
+    axios.get(`${process.env.REACT_APP_URL}/api/Admin/${id}`).then(res => {
       setDevConsole(res.data.devConsole);
     });
   };

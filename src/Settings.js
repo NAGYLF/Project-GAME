@@ -13,7 +13,7 @@ const Settings = ({ texts, language, id, token, logout, showAlert, setUsername }
 
   //Kitörli a usert és kijelentkezteti
   const deleteAccount = () => {
-    axios.delete(`https://localhost:5266/api/Player/${id}?token=${token}`).then(() => {
+    axios.delete(`${process.env.REACT_APP_URL}/api/Player/${id}?token=${token}`).then(() => {
       logout();
       showAlert(language === "hu" ? "Fiók sikeresen törölve!" : "User successfully deleted!", "success");
       navigate("/");
@@ -94,7 +94,7 @@ const Settings = ({ texts, language, id, token, logout, showAlert, setUsername }
       `
     };
 
-    axios.post('https://localhost:5266/api/email', sendingEmail, {
+    axios.post(`${process.env.REACT_APP_URL}/api/email`, sendingEmail, {
       headers: {
         'Content-Type': 'application/json'
       }
@@ -109,7 +109,7 @@ const Settings = ({ texts, language, id, token, logout, showAlert, setUsername }
 
   //A felhasználó tudja módosítani az adatait
   const modifyAccount = () => {
-    axios.put(`https://localhost:5266/api/Player/${id}`, {
+    axios.put(`${process.env.REACT_APP_URL}/api/Player/${id}`, {
       name: newName,
       email: newEmail,
       password: newPassword,
@@ -129,7 +129,7 @@ const Settings = ({ texts, language, id, token, logout, showAlert, setUsername }
 
   useEffect(() => {
     if (id) {
-      axios.get(`https://localhost:5266/GetbyId/${id}`).then((res) => {
+      axios.get(`${process.env.REACT_APP_URL}/GetbyId/${id}`).then((res) => {
         setNewName(res.data.name);
         setNewEmail(res.data.email);
         setIsAdmin(res.data.isAdmin);
@@ -187,7 +187,7 @@ const Settings = ({ texts, language, id, token, logout, showAlert, setUsername }
                     id="newName"
                     value={newName}
                     onChange={(e) => setNewName(e.target.value)}
-                    maxlength="30"
+                    maxLength="30"
                     placeholder={language === "hu" ? 'Új felhasználónév' : 'New username'}
                     required
                   />

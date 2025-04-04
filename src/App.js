@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import { Route, Routes, useNavigate } from 'react-router-dom';
+import { Route, Routes, useNavigate, Redirect, Navigate } from 'react-router-dom';
 import Nav from './Nav';
 import Description from './Description';
 import About from './About';
@@ -11,6 +11,7 @@ import Admin from "./Admin";
 import Footer from "./Footer";
 import Player from "./Player";
 import Alert from './Alert';
+import Home from "./Home"
 import { jwtDecode } from 'jwt-decode';
 import axios from 'axios';
 
@@ -42,7 +43,7 @@ function App() {
 
   //Lekéri az adminkódot
   const admincode = () => {
-    axios.get('https://localhost:5266/api/Player/code')
+    axios.get(`${process.env.REACT_APP_URL}/api/Player/code`)
       .then(res => {
         setCode(res.data.code);
       })
@@ -53,7 +54,7 @@ function App() {
         if (prev > 1) {
           return prev - 1;
         } else {
-          axios.get('https://localhost:5266/api/Player/code')
+          axios.get(`${process.env.REACT_APP_URL}/api/Player/code`)
             .then(res => {
               setCode(res.data.code);
               setSecondsLeft(res.data.secondsLeft);
@@ -82,7 +83,7 @@ function App() {
       password: password
     };
 
-      axios.post('https://localhost:5266/api/auth/login', user).then((response) => {
+      axios.post(`${process.env.REACT_APP_URL}/api/auth/login`, user).then((response) => {
         if (response.data) {
           const token = response.data.token;
           localStorage.setItem('token', token);
@@ -168,6 +169,7 @@ function App() {
       />
       <Alert message={alertMessage} />
       <Routes>
+        <Route path="/" element={<Home language={language} texts={texts}/>} />
         <Route path="/description" element={<Description language={language} texts={texts} />} />
         <Route path="/about" element={<About language={language} texts={texts} />} />
         <Route path="/login" element={<Login language={language} texts={texts} isLoggedIn={isLoggedIn} setIsLoggedIn={setIsLoggedIn} setIsAdmin={setIsAdmin} login={login} showAlert={showAlert} />} />

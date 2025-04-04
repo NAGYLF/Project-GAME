@@ -94,7 +94,7 @@ export default function Player({ language, token, isAdmin, showAlert }) {
         {isAdmin && !isItAdmin && !isItBanned ? (
           <button className='btn btn-danger' style={{ position: 'absolute', bottom: '15px', left: '15px', height: '40px' }} onClick={() => {
             if (window.confirm(language === "hu" ? 'Biztosan bannolni szeretnéd a fiókot?' : 'Are you sure you want to ban this account?')) {
-              axios.put(`:https//localhost:5266/api/Player/${id}/ban`, {
+              axios.put(`https://localhost:5266/api/Player/${id}/ban`, {
                 isBanned: true
               })
                 .then(() => {

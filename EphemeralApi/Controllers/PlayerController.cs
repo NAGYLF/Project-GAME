@@ -34,8 +34,20 @@ namespace EphemeralApi.Controllers
 
         // Lekéri a játékos statisztikáit és teljesítményeit az ID alapján
         [HttpGet("stats/{playerId}")]
-        public async Task<IActionResult> GetPlayerStats(int playerId)
+        public async Task<IActionResult> GetPlayerStats(int playerId, [FromQuery] string token)
         {
+            if (string.IsNullOrEmpty(token))
+            {
+                return Unauthorized("Hiányzó token");
+            }
+
+            var isValid = ValidateToken(token);
+
+            if (!isValid)
+            {
+                return Unauthorized("Helytelen token");
+            }
+
             var statistics = await _context.Statistics
                 .Where(s => s.PlayerId == playerId)
                 .FirstOrDefaultAsync();
@@ -47,13 +59,12 @@ namespace EphemeralApi.Controllers
             // Ha a statisztika vagy a teljesítmény nem található, hibaüzenet visszaadása
             if (statistics == null || achievements == null)
             {
-                return NotFound(new { message = "Nem található a játékos statisztikája ." });
+                return NotFound(new { message = "Nem található a játékos statisztikája." });
             }
 
             // A statisztikák és teljesítmények DTO-ba történő leképezése
             var playerStatsDto = new PlayerStatsDto
             {
-                
                 DeathCount = statistics.DeathCount ?? 0,
                 Score = statistics.Score ?? 0,
                 EnemiesKilled = statistics.EnemiesKilled ?? 0,
@@ -65,10 +76,23 @@ namespace EphemeralApi.Controllers
             return Ok(playerStatsDto);
         }
 
+
         // Lekéri a játékos adatait az ID alapján
-        [HttpGet("/GetbyId/{id}")]
-        public async Task<IActionResult> GetPlayerById(int id)
+        [HttpGet("/GetById/{id}")]
+        public async Task<IActionResult> GetPlayerById(int id, [FromQuery] string token)
         {
+            if (string.IsNullOrEmpty(token))
+            {
+                return Unauthorized("Hiányzó token");
+            }
+
+            var isValid = ValidateToken(token);
+
+            if (!isValid)
+            {
+                return Unauthorized("Helytelen token.");
+            }
+
             var player = await _context.Players.FindAsync(id);
 
             if (player == null)
@@ -79,10 +103,23 @@ namespace EphemeralApi.Controllers
             return Ok(player);
         }
 
+
         // Lekéri a játékos adatait a neve alapján
         [HttpGet("GetByName/{name}")]
-        public async Task<ActionResult<Player>> GetPlayerByName(string name)
+        public async Task<ActionResult<Player>> GetPlayerByName(string name, [FromQuery] string token)
         {
+            if (string.IsNullOrEmpty(token))
+            {
+                return Unauthorized("Hiányzó token");
+            }
+
+            var isValid = ValidateToken(token);
+
+            if (!isValid)
+            {
+                return Unauthorized("Helytelen token.");
+            }
+
             var player = await _context.Players
                 .Where(p => p.Name.ToLower() == name.ToLower())
                 .FirstOrDefaultAsync();
@@ -113,7 +150,7 @@ namespace EphemeralApi.Controllers
                     var options = new JsonSerializerOptions
                     {
                         ReferenceHandler = System.Text.Json.Serialization.ReferenceHandler.Preserve,
-                        WriteIndented = true // Formázott JSON válasz
+                        WriteIndented = true
                     };
 
                     return Ok(JsonSerializer.Serialize(playerWithAdmin, options));
@@ -128,8 +165,23 @@ namespace EphemeralApi.Controllers
 
         // Lekéri a játékos adatait az email és név kombinációja alapján
         [HttpGet("GetByEmailAndName")]
-        public async Task<ActionResult<Player>> GetPlayerByEmailAndName([FromQuery] string email, [FromQuery] string name)
+        public async Task<ActionResult<Player>> GetPlayerByEmailAndName(
+     [FromQuery] string email,
+     [FromQuery] string name,
+     [FromQuery] string token)
         {
+            if (string.IsNullOrEmpty(token))
+            {
+                return Unauthorized("Hiányzó token");
+            }
+
+            var isValid = ValidateToken(token);
+
+            if (!isValid)
+            {
+                return Unauthorized("Helytelen token.");
+            }
+
             if (string.IsNullOrWhiteSpace(email) || string.IsNullOrWhiteSpace(name))
             {
                 return BadRequest("Mind az email, mind a név megadása kötelező.");
@@ -147,10 +199,23 @@ namespace EphemeralApi.Controllers
             return Ok(player);
         }
 
+
         // A játékos adatainak frissítése az ID alapján, UpdatePlayerDto használatával az új adatokhoz
         [HttpPut("{id}")]
-        public async Task<IActionResult> UpdatePlayer(int id, UpdatePlayerDto playerDto)
+        public async Task<IActionResult> UpdatePlayer(int id, UpdatePlayerDto playerDto, [FromQuery] string token)
         {
+            if (string.IsNullOrEmpty(token))
+            {
+                return Unauthorized("Hiányzó token");
+            }
+
+            var isValid = ValidateToken(token);
+
+            if (!isValid)
+            {
+                return Unauthorized("Helytelen token.");
+            }
+
             var player = await _context.Players.FindAsync(id);
             if (player == null)
             {
@@ -173,9 +238,22 @@ namespace EphemeralApi.Controllers
 
             return NoContent();
         }
+
         [HttpPut("{id}/ban")]
-        public async Task<IActionResult> UpdatePlayerBan(int id, UpdatePlayerBanDto banDto)
+        public async Task<IActionResult> UpdatePlayerBan(int id, UpdatePlayerBanDto banDto, [FromQuery] string token)
         {
+            if (string.IsNullOrEmpty(token))
+            {
+                return Unauthorized("Hiányzó token");
+            }
+
+            var isValid = ValidateToken(token);
+
+            if (!isValid)
+            {
+                return Unauthorized("Helytelen token.");
+            }
+
             var player = await _context.Players.FindAsync(id);
             if (player == null)
             {
@@ -206,7 +284,7 @@ namespace EphemeralApi.Controllers
 
             if (!isValid)
             {
-                return Unauthorized("Invalid token.");
+                return Unauthorized("Helytelen token..");
             }
 
             var player = await _context.Players.FindAsync(id);

@@ -26,7 +26,7 @@ export default function Player({ language, token, isAdmin, showAlert }) {
 
     //Lekéri id alapján a playert, bizonyos adatok miatt
   useEffect(() => {
-    axios.get(`${process.env.REACT_APP_URL}/GetbyId/${id}`)
+    axios.get(`${process.env.REACT_APP_URL}/GetbyId/${id}?token=${token}`)
       .then(response => {
         const data = response.data;
         if (data.name) {
@@ -38,7 +38,7 @@ export default function Player({ language, token, isAdmin, showAlert }) {
       .catch(error => console.error('Error fetching player name:', error));
 
       //Lekéri id alapján a player statjait
-      axios.get(`${process.env.REACT_APP_URL}/api/Player/stats/${id}`)
+      axios.get(`${process.env.REACT_APP_URL}/api/Player/stats/${id}?token=${token}`)
       .then(response => {
         const data = response.data;
         if (data) {
@@ -94,7 +94,7 @@ export default function Player({ language, token, isAdmin, showAlert }) {
         {isAdmin && !isItAdmin && !isItBanned ? (
           <button className='btn btn-danger' style={{ position: 'absolute', bottom: '15px', left: '15px', height: '40px' }} onClick={() => {
             if (window.confirm(language === "hu" ? 'Biztosan bannolni szeretnéd a fiókot?' : 'Are you sure you want to ban this account?')) {
-              axios.put(`${process.env.REACT_APP_URL}/api/Player/${id}/ban`, {
+              axios.put(`${process.env.REACT_APP_URL}/api/Player/${id}/ban?token=${token}`, {
                 isBanned: true
               })
                 .then(() => {
@@ -111,7 +111,7 @@ export default function Player({ language, token, isAdmin, showAlert }) {
         {isAdmin && !isItAdmin && isItBanned ? (
           <button className='btn btn-light' style={{ position: 'absolute', bottom: '15px', left: '15px', height: '40px' }} onClick={() => {
             if (window.confirm(language === "hu" ? 'Biztosan unbannolni szeretnéd a fiókot?' : 'Are you sure you want to unban this account?')) {
-              axios.put(`${process.env.REACT_APP_URL}/api/Player/${id}/ban`, {
+              axios.put(`${process.env.REACT_APP_URL}/api/Player/${id}/ban?token=${token}`, {
                 isBanned: false
               })
                 .then(() => {

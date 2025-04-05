@@ -109,7 +109,7 @@ const Settings = ({ texts, language, id, token, logout, showAlert, setUsername }
 
   //A felhasználó tudja módosítani az adatait
   const modifyAccount = () => {
-    axios.put(`${process.env.REACT_APP_URL}/api/Player/${id}`, {
+    axios.put(`${process.env.REACT_APP_URL}/api/Player/${id}?token=${token}`, {
       name: newName,
       email: newEmail,
       password: newPassword,
@@ -129,7 +129,7 @@ const Settings = ({ texts, language, id, token, logout, showAlert, setUsername }
 
   useEffect(() => {
     if (id) {
-      axios.get(`${process.env.REACT_APP_URL}/GetbyId/${id}`).then((res) => {
+      axios.get(`${process.env.REACT_APP_URL}/GetbyId/${id}?token=${token}`).then((res) => {
         setNewName(res.data.name);
         setNewEmail(res.data.email);
         setIsAdmin(res.data.isAdmin);

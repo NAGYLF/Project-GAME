@@ -2,7 +2,7 @@ import React, { useEffect, useState } from 'react';
 import axios from 'axios';
 import { useLocation, useNavigate } from 'react-router-dom';
 
-const Admin = ({ texts, language, code, secondsLeft, id }) => {
+const Admin = ({ texts, language, code, token, secondsLeft, id }) => {
   const location = useLocation();
   const navigate = useNavigate();
 
@@ -25,7 +25,7 @@ const Admin = ({ texts, language, code, secondsLeft, id }) => {
     const newDevConsoleState = e.target.checked;
     setDevConsole(newDevConsoleState);
 
-    axios.put(`${process.env.REACT_APP_URL}/api/Admin/${id}`, {
+    axios.put(`${process.env.REACT_APP_URL}/api/Admin/${id}?token=${token}`, {
       devConsole: newDevConsoleState
     })
       .catch(err => console.error(err));
@@ -34,7 +34,7 @@ const Admin = ({ texts, language, code, secondsLeft, id }) => {
   //Ha true a DevConsole akkor bepipálja a checkboxot
   const getDevConsole = () => {
     console.log(id);
-    axios.get(`${process.env.REACT_APP_URL}/api/Admin/${id}`).then(res => {
+    axios.get(`${process.env.REACT_APP_URL}/api/Admin/${id}?token=${token}`).then(res => {
       setDevConsole(res.data.devConsole);
     });
   };

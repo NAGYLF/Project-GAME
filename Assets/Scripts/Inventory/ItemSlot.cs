@@ -10,6 +10,7 @@ namespace Assets.Scripts
     {
         #region Set In Inspector
         public bool IsEquipment = false;//csak az inspectorban allithato be
+        public int AutoHotKeySetter = -1;
         public string SlotType;//azon tipusok melyeket befogadhat, ha nincs megadva akkor mindent.
         #endregion
 

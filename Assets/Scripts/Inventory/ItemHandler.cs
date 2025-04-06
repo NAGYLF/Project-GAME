@@ -53,13 +53,15 @@ namespace ItemHandler
         public int SectorID;
         public (int Height, int Widht) Coordinate;
         public string SlotType;
+        public int AutoHotKeySetter;//az itemslot auto hotkeyje
         public AdvancedItem PartOfItemData;
 
-        public ItemSlotData(int SectorID,int Height,int Width,string SlotType = "", AdvancedItem PartOfItemData = null)
+        public ItemSlotData(int SectorID,int Height,int Width,string SlotType = "", int AutoHotKeySetter = -1, AdvancedItem PartOfItemData = null)
         {
             this.SectorID = SectorID;
             this.Coordinate = (Height,Width);
             this.SlotType = SlotType;
+            this.AutoHotKeySetter = AutoHotKeySetter;
             this.PartOfItemData = PartOfItemData;
         }
     }
@@ -536,6 +538,15 @@ namespace ItemHandler
                     AddComponent(item.Component);
                 }
             }
+
+            if (InGameSelfObject != null)
+            {
+                InGameSelfObject.GetComponent<InGameItemObject>().SelfVisualisation();
+            }
+            if (PlayerHandRef != null)
+            {
+                PlayerHandRef.GetComponent<CharacterHand>().SetItem(this);
+            }
         }
     }
     public class SimpleItem
@@ -965,7 +976,7 @@ namespace ItemHandler
                     for (int width = 0; width < NonLive_Sectors[sector].GetLength(1); width++)
                     {
                         ItemSlot RefSlot = staticSectorDatas[sector].SectorObject.transform.GetChild(height* NonLive_Sectors[sector].GetLength(1)+width).GetComponent<ItemSlot>();
-                        NonLive_Sectors[sector][height, width] = new ItemSlotData(sector,height,width,RefSlot.SlotType);
+                        NonLive_Sectors[sector][height, width] = new ItemSlotData(sector,height,width,RefSlot.SlotType,RefSlot.AutoHotKeySetter);
                     }
                 }
             }
@@ -2308,7 +2319,7 @@ namespace ItemHandler
 
                 //Debug.LogWarning($" X: {ItemCoordinates.GetLength(0)}                ----- Itemo coordinate grid ------             Y: {ItemCoordinates.GetLength(1)}");
                 //item coordinátáinak megkeresese a NonLive Gridben
-                //Debug.LogWarning($"------------------");
+                Debug.LogWarning($"------------------");
                 for (int Height = 0; Height < NonLiveGrid.GetLength(0); Height++)
                 {
                     for (int Width = 0; Width < NonLiveGrid.GetLength(1); Width++)
@@ -2316,20 +2327,22 @@ namespace ItemHandler
                         if (NonLiveGrid[Height, Width].PartOfItemData == AdvancedItem)
                         {
                             ExtendCoordinates.Add((Height, Width));
-                            //Debug.LogWarning($"height: {Height}  witdh: {Width}");
+                            Debug.LogWarning($"height: {Height}  witdh: {Width}");
                         }
                     }
                 }
-                //Debug.LogWarning($"------------------");
+                Debug.LogWarning($"------------------");
                 //item megkeresett koordinatainak beépítése annak gridjébe
-                for (int height = 0, index_ = 0; height < ItemCoordinates.GetLength(0); height++)
+                for (int height = 0, index_ = 0; height < ItemCoordinates.GetLength(0) && height < NonLiveGrid.GetLength(0) ; height++)
                 {
-                    for (int width = 0; width < ItemCoordinates.GetLength(1); width++)
+                    for (int width = 0; width < ItemCoordinates.GetLength(1) && width < NonLiveGrid.GetLength(1); width++)
                     {
+                        Debug.LogWarning($"-- {height} ----------- {width} -----");
+                        Debug.LogWarning($"-- {ItemCoordinates[height, width]} -----");
                         ItemCoordinates[height, width] = ExtendCoordinates.ElementAt(index_++);
                     }
                 }
-
+                Debug.LogWarning($"------------------");
                 foreach (KeyValuePair<char, int> direction in Directions)
                 {
                     if (direction.Key == 'U')
@@ -2663,7 +2676,15 @@ namespace ItemHandler
                 ChangerValue *= -1;
             }
 
+            //megszerzi annak a sor koordinatait amelyikekre szukseg van
             ActualDownLine = Get_ItemCoodinateLine_AtDataGrid(AdvancedItem, ExtendCoordinates, Orientation);
+
+            //elelnorizzuk hog yaz a sor amit lekert az nem e az item azon tájolású egyetlen sora mivel ha ekkor eltavolias lenne akkor az item egesz elfoglalat teruletet torolne
+            //Debug.LogWarning($" extended coordiante lsit: {ExtendCoordinates.Count} >  {ActualDownLine.Length}");
+            if (ActualDownLine.Length <= ExtendCoordinates.Count)
+            {
+                return AllCoordianateIsEmpty;// true ad vissza, de nem csainl valtozasokat ezzel
+            }
 
             //itt zajik a koordinatak hozzadasa vagy eltavolitasa
             if (ChangedSize > 0)
@@ -2781,6 +2802,13 @@ namespace ItemHandler
 
             ActualDownLine = Get_ItemCoodinateLine_AtDataGrid(AdvancedItem, ExtendCoordinates, Orientation);
 
+            //elelnorizzuk hog yaz a sor amit lekert az nem e az item azon tájolású egyetlen sora mivel ha ekkor eltavolias lenne akkor az item egesz elfoglalat teruletet torolne
+            //Debug.LogWarning($" extended coordiante lsit: {ExtendCoordinates.Count} >  {ActualDownLine.Length}");
+            if (ActualDownLine.Length <= ExtendCoordinates.Count)
+            {
+                return AllCoordianateIsEmpty;// true ad vissza, de nem csainl valtozasokat ezzel
+            }
+
             //itt zajik a koordinatak hozzadasa vagy eltavolitasa
             if (ChangedSize > 0)
             {
@@ -2897,6 +2925,12 @@ namespace ItemHandler
 
             ActualDownLine = Get_ItemCoodinateLine_AtDataGrid(AdvancedItem, ExtendCoordinates, Orientation);
 
+            //elelnorizzuk hog yaz a sor amit lekert az nem e az item azon tájolású egyetlen sora mivel ha ekkor eltavolias lenne akkor az item egesz elfoglalat teruletet torolne
+            //Debug.LogWarning($" extended coordiante lsit: {ExtendCoordinates.Count} >  {ActualDownLine.Length}");
+            if (ActualDownLine.Length <= ExtendCoordinates.Count)
+            {
+                return AllCoordianateIsEmpty;// true ad vissza, de nem csainl valtozasokat ezzel
+            }
             //Debug.LogWarning($" Line hossz: {ActualDownLine.Length}     ChangerValue: {ChangerValue}     Item.Rptationdegree: {AdvancedItem.RotateDegree}");
 
             //itt zajik a koordinatak hozzadasa vagy eltavolitasa
@@ -3022,6 +3056,13 @@ namespace ItemHandler
 
             ActualDownLine = Get_ItemCoodinateLine_AtDataGrid(AdvancedItem, ExtendCoordinates, Orientation);
 
+            //elelnorizzuk hog yaz a sor amit lekert az nem e az item azon tájolású egyetlen sora mivel ha ekkor eltavolias lenne akkor az item egesz elfoglalat teruletet torolne
+            //Debug.LogWarning($" extended coordiante lsit: {ExtendCoordinates.Count} >  {ActualDownLine.Length}");
+            if (ActualDownLine.Length <= ExtendCoordinates.Count)
+            {
+                return AllCoordianateIsEmpty;// true ad vissza, de nem csainl valtozasokat ezzel
+            }
+
             //itt zajik a koordinatak hozzadasa vagy eltavolitasa
             if (ChangedSize > 0)
             {
@@ -3120,18 +3161,18 @@ namespace ItemHandler
         }
         private static void AutoSetHotKey(AdvancedItem SetIn)
         {
-            switch (SetIn.Coordinates.First())
+            switch (SetIn.ItemSlotsDataRef.FirstOrDefault().AutoHotKeySetter)
             {
-                case (0,10):
+                case 1:
                     InGameUI.HotKey1.SetHotKey(SetIn);
                     break;
-                case (0, 11):
+                case 2:
                     InGameUI.HotKey2.SetHotKey(SetIn);
                     break;
-                case (0, 12):
+                case 3:
                     InGameUI.HotKey3.SetHotKey(SetIn);
                     break;
-                case (0, 13):
+                case 4 :
                     InGameUI.HotKey4.SetHotKey(SetIn);
                     break;
                 default:

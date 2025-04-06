@@ -314,17 +314,21 @@ namespace PlayerInventoryClass
             //!!! a fejlesztes soran valtozhat , figyelmet igenylehet
             GetComponent<WindowManager>().ClearWindowManager();
 
-            for (int i = EquipmentsPanelObject.GetComponent<PanelMain>().Equipments.transform.childCount - 1; i >= 0; i--)
-            {
-                if (EquipmentsPanelObject.GetComponent<PanelMain>().Equipments.transform.GetChild(i).GetComponent<ItemObject>())
-                {
-                    Destroy(EquipmentsPanelObject.GetComponent<PanelMain>().Equipments.transform.GetChild(i).gameObject);
-                }
-            }
-            for (int i = SlotPanelObject.GetComponent<PanelSlots>().Content.transform.childCount - 1; i >= 0; i--)
-            {
-                Destroy(SlotPanelObject.GetComponent<PanelSlots>().Content.transform.GetChild(i).gameObject);
-            }
+            //itenventoryban szrteplo ossze item objectum torlese tovabba ha van azok containerobecjetumat is
+            levelManager.Items.Where(item => item.Lvl > -1).ToList().ForEach(item => {Destroy(item.SelfGameobject);Destroy(item.Container?.ContainerObject);});
+
+            //out of order
+            //for (int i = EquipmentsPanelObject.GetComponent<PanelMain>().Equipments.transform.childCount - 1; i >= 0; i--)
+            //{
+            //    if (EquipmentsPanelObject.GetComponent<PanelMain>().Equipments.transform.GetChild(i).GetComponent<ItemObject>())
+            //    {
+            //        Destroy(EquipmentsPanelObject.GetComponent<PanelMain>().Equipments.transform.GetChild(i).gameObject);
+            //    }
+            //}
+            //for (int i = SlotPanelObject.GetComponent<PanelSlots>().Content.transform.childCount - 1; i >= 0; i--)
+            //{
+            //    Destroy(SlotPanelObject.GetComponent<PanelSlots>().Content.transform.GetChild(i).gameObject);
+            //}
             for (int i = LootPanelObject.GetComponent<PanelLoot>().Content.transform.childCount - 1; i >= 0; i--)
             {
                 Destroy(LootPanelObject.GetComponent<PanelLoot>().Content.transform.GetChild(i).gameObject);

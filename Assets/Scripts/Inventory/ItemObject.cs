@@ -12,6 +12,7 @@ using UnityEngine.EventSystems;
 using PlayerInventoryClass;
 using UI;
 using Items;
+using Assets.Scripts.Inventory;
 
 public class ItemObject : MonoBehaviour, IPointerDownHandler, IPointerUpHandler, IPointerEnterHandler, IPointerExitHandler
 {
@@ -21,7 +22,7 @@ public class ItemObject : MonoBehaviour, IPointerDownHandler, IPointerUpHandler,
     public TextMeshProUGUI Counter;
     public GameObject ItemCompound;
     //public List<GameObject> ItemObjectParts;//opcionálisan használandó
-    private GameObject Window;
+    public GameObject Window;
     public AdvancedItem ActualData { get; private set; }
 
     private Transform originalParent;
@@ -47,16 +48,11 @@ public class ItemObject : MonoBehaviour, IPointerDownHandler, IPointerUpHandler,
     {
         if (eventData.button == PointerEventData.InputButton.Right)
         {
-            //Debug.LogWarning("window opened");
-            GameObject itemWindow = CreatePrefab("GameElements/ItemWindow");
-            itemWindow.transform.SetParent(InventoryObjectRef.transform);
-            itemWindow.GetComponent<ItemWindow>().itemObject = gameObject;
-            itemWindow.GetComponent<ItemWindow>().positioning();
-            Window = itemWindow;
+            InGameUI.PlayerInventory.GetComponent<WindowManager>().CreatePopUpWindow(ActualData);
         }
         else if (eventData.button == PointerEventData.InputButton.Left)
         {
-            if (Window != null) Destroy(Window);
+            InGameUI.PlayerInventory.GetComponent<WindowManager>().DestroyWindow(Window);
             // Ekkor indul a mozgatás, ha rákattintunk az objektumra
             #region Save Original Object Datas
             originalPosition = transform.position;

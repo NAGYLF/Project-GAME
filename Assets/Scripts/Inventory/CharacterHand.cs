@@ -124,8 +124,8 @@ public class CharacterHand : MonoBehaviour
         }
         else
         {
-            InGameUI.MagasineIndicator.GetComponent<TextMeshProUGUI>().text = $"In Magasine: - ";
-            InGameUI.ChamberIndiator.GetComponent<TextMeshProUGUI>().text = $"In Chamber: - ";
+            InGameUI.MagasineIndicator.GetComponent<TextMeshProUGUI>().text = $"";
+            InGameUI.ChamberIndiator.GetComponent<TextMeshProUGUI>().text = $"";
         }
     }
     public void SetItem(AdvancedItem item)
@@ -159,8 +159,8 @@ public class CharacterHand : MonoBehaviour
         else
         {
             SelectedItem = null;
-            InGameUI.MagasineIndicator.GetComponent<TextMeshProUGUI>().text = $"In Magasine: - ";
-            InGameUI.ChamberIndiator.GetComponent<TextMeshProUGUI>().text = $"In Chamber: - ";
+            InGameUI.MagasineIndicator.GetComponent<TextMeshProUGUI>().text = $"";
+            InGameUI.ChamberIndiator.GetComponent<TextMeshProUGUI>().text = $"";
         }
     }
     public void UnsetItem()
@@ -176,5 +176,7 @@ public class CharacterHand : MonoBehaviour
             SelectedItemObject.SetDataRoute(null);
             SelectedItemObject.Inicialisation();
         }
+
+        SetIndicators();
     }
 }

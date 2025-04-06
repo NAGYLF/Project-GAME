@@ -12,13 +12,13 @@ using static MainData.SupportScripts;
 public class ItemWindow : MonoBehaviour,IPointerExitHandler
 {
     [SerializeField] public GameObject Content;
-    [HideInInspector] public GameObject itemObject;
+
     private AdvancedItem item;
     public void OnPointerExit(PointerEventData eventData)
     {
         Destroy(gameObject);
     }
-    public void positioning()
+    public void positioning(AdvancedItem item)
     {
         RectTransform rectTransform = GetComponent<RectTransform>();
         // Beállítjuk a szülõt
@@ -40,7 +40,7 @@ public class ItemWindow : MonoBehaviour,IPointerExitHandler
         Vector3 localPosition = new Vector3(tempLocalPosition.x, tempLocalPosition.y, 0);
         gameObject.GetComponent<RectTransform>().localPosition = localPosition;
 
-        item = itemObject.GetComponent<ItemObject>().ActualData;
+        this.item = item;
 
         ActionConstruction();
     }

@@ -143,8 +143,16 @@ public class ContainerObject : MonoBehaviour
                         {
                             //Debug.LogWarning("MergeParts");
                             InventorySystem.MergeParts ActionMergeParts = new(InteractiveItem, IncomingItem);
-                            IncomingItem.AvaiablePlacerMetodes.Add(ActionMergeParts.Execute_MergeParts);
-                            CanBePlaceble = true;
+                            if (ActionMergeParts.IsPossible)
+                            {
+                                IncomingItem.AvaiablePlacerMetodes.Add(ActionMergeParts.Execute_MergeParts);
+                                CanBePlaceble = true;
+                            }
+                            else
+                            {
+
+                            }
+
                         }
                         if (InventorySystem.CanSplitable(InteractiveItem, IncomingItem))
                         {

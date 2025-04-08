@@ -286,8 +286,8 @@ public class TemporaryItemObject : MonoBehaviour
                     };
             ActualData.Parts.First().GetConnectedPartsTree(parts_);
 
-            ((int X, int Y) ChangedSize, Dictionary<char, int> Directions) Effect = InventorySystem.AdvancedItem_SizeChanger_EffectDetermination(AdvancedItem, parts_, true);
-            (HashSet<(int Height, int Widht)> NonLiveCoordinates, int SectorIndex, bool IsPositionAble) NewPosition = InventorySystem.Try_PartPositioning(AdvancedItem, Effect.ChangedSize, Effect.Directions);
+            ((int X, int Y) ChangedSize, Dictionary<char, int> Directions) Effect = InventorySystem.AdvancedItem_Size_Determination(AdvancedItem, parts_, true);
+            (HashSet<(int Height, int Widht)> NonLiveCoordinates, int SectorIndex, bool IsPositionAble) NewPosition = InventorySystem.AdvancedItem_Try_InpoundSpace(AdvancedItem, Effect.ChangedSize, Effect.Directions);
 
             (ConnectionPoint SCP, ConnectionPoint ICP, bool IsPossible) Data = AdvancedItem.PartPut_IsPossible(ActualData);
             AdvancedItem.PartPut(ActualData,Data.SCP,Data.ICP);

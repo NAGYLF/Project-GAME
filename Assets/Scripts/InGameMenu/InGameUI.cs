@@ -15,7 +15,7 @@ namespace UI
 
         public int Key;
 
-        public bool IsInPlayerHand = false;
+        public bool IsInPlayerHand { get; set; } = false;
 
         public HotKey(int key)
         {

@@ -172,6 +172,7 @@ public class CharacterHand : MonoBehaviour
             {
                 SelectedItem.hotKeyRef.IsInPlayerHand = false;
             }
+            SelectedItem.InGameSelfObject = null;
             SelectedItem = null;
             SelectedItemObject.SetDataRoute(null);
             SelectedItemObject.Inicialisation();

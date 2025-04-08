@@ -1200,8 +1200,8 @@ namespace ItemHandler
                     };
 
                     IncomingItem.Parts.First().GetConnectedPartsTree(parts_);
-                    Effect = AdvancedItem_SizeChanger_EffectDetermination(InteractiveItem, parts_, true);
-                    NewPosition = Try_PartPositioning(InteractiveItem, Effect.ChangedSize, Effect.Directions);
+                    Effect = AdvancedItem_Size_Determination(InteractiveItem, parts_, true);
+                    NewPosition = AdvancedItem_Try_InpoundSpace(InteractiveItem, Effect.ChangedSize, Effect.Directions);
 
                     IsPossible = NewPosition.IsPositionAble;
                 }
@@ -1276,6 +1276,8 @@ namespace ItemHandler
 
             ItemCompound.ResetFitter();
 
+            Debug.LogWarning($"what is null? {ActualData != null}");
+            Debug.LogWarning($"what is null? {ActualData.Parts != null}");
             foreach (Part part in ActualData.Parts)
             {
                 part.SetLiveInGame(ItemCompound.fitter.gameObject);
@@ -1859,7 +1861,7 @@ namespace ItemHandler
             SetHierarhicLVL(item, item.ParentItem);
         }
 
-        public static ((int X,int Y) ChangedSize, Dictionary<char,int> Directions) AdvancedItem_SizeChanger_EffectDetermination(AdvancedItem AdvancedItem,List<Part> IncomingParts,bool Add)
+        public static ((int X,int Y) ChangedSize, Dictionary<char,int> Directions) AdvancedItem_Size_Determination(AdvancedItem AdvancedItem,List<Part> IncomingParts,bool Add)
         {
             /*
              * meghaatrozza, hogy a megadott sizechanger az advanced itememet merre és menyivel mozgatja
@@ -2276,7 +2278,7 @@ namespace ItemHandler
                 return (ChangedSize, Directions);
             }
         }
-        public static (HashSet<(int Height, int Widht)> NonLiveCoordinates,int SectorIndex, bool IsPositionAble) Try_PartPositioning(AdvancedItem AdvancedItem, (int X, int Y) ChangedSize, Dictionary<char, int> Directions)
+        public static (HashSet<(int Height, int Widht)> NonLiveCoordinates,int SectorIndex, bool IsPositionAble) AdvancedItem_Try_InpoundSpace(AdvancedItem AdvancedItem, (int X, int Y) ChangedSize, Dictionary<char, int> Directions)
         {
             /*
              * egy megvaltoztataott referncia meretbol meghatarozza hogy az advanced itemet kicsinyiteni kell e vagy nagyobbitani
@@ -2286,11 +2288,13 @@ namespace ItemHandler
              */
             if (Directions != null)
             {
+                //szukséges változók inicializálása
                 bool IsPositionAble = true;
                 int sectorindex = 0;
                 HashSet<(int Height, int Width)> ExtendCoordinates = new();
 
                 //sectorIndex keresese
+                //az az melyik sectorban foglal helyet az item egy containerben
                 int index = 0;
                 foreach (ItemSlotData[,] sector in AdvancedItem.ParentItem.Container.NonLive_Sectors)
                 {
@@ -2305,6 +2309,7 @@ namespace ItemHandler
                 }
 
                 ItemSlotData[,] NonLiveGrid = AdvancedItem.ParentItem.Container.NonLive_Sectors[sectorindex];
+
                 //itemcoordinata grid létrehozasa forgatas szerint
                 (int X, int Y)[,] ItemCoordinates;
 
@@ -2319,7 +2324,7 @@ namespace ItemHandler
 
                 //Debug.LogWarning($" X: {ItemCoordinates.GetLength(0)}                ----- Itemo coordinate grid ------             Y: {ItemCoordinates.GetLength(1)}");
                 //item coordinátáinak megkeresese a NonLive Gridben
-                Debug.LogWarning($"------------------");
+                //Debug.LogWarning($"------------------");
                 for (int Height = 0; Height < NonLiveGrid.GetLength(0); Height++)
                 {
                     for (int Width = 0; Width < NonLiveGrid.GetLength(1); Width++)
@@ -2327,22 +2332,22 @@ namespace ItemHandler
                         if (NonLiveGrid[Height, Width].PartOfItemData == AdvancedItem)
                         {
                             ExtendCoordinates.Add((Height, Width));
-                            Debug.LogWarning($"height: {Height}  witdh: {Width}");
+                            //Debug.LogWarning($"height: {Height}  witdh: {Width}");
                         }
                     }
                 }
-                Debug.LogWarning($"------------------");
+                //Debug.LogWarning($"------------------");
                 //item megkeresett koordinatainak beépítése annak gridjébe
                 for (int height = 0, index_ = 0; height < ItemCoordinates.GetLength(0) && height < NonLiveGrid.GetLength(0) ; height++)
                 {
                     for (int width = 0; width < ItemCoordinates.GetLength(1) && width < NonLiveGrid.GetLength(1); width++)
                     {
-                        Debug.LogWarning($"-- {height} ----------- {width} -----");
-                        Debug.LogWarning($"-- {ItemCoordinates[height, width]} -----");
+                        //Debug.LogWarning($"-- {height} ----------- {width} -----");
+                        //Debug.LogWarning($"-- {ItemCoordinates[height, width]} -----");
                         ItemCoordinates[height, width] = ExtendCoordinates.ElementAt(index_++);
                     }
                 }
-                Debug.LogWarning($"------------------");
+                //Debug.LogWarning($"------------------");
                 foreach (KeyValuePair<char, int> direction in Directions)
                 {
                     if (direction.Key == 'U')
@@ -2475,6 +2480,11 @@ namespace ItemHandler
             {
                 //Debug.LogWarning($"{item.SystemName}   remove player inventory");
                 RemovePlayerInventory(item);
+            }
+
+            if (item.hotKeyRef != null && item.hotKeyRef.IsInPlayerHand)
+            {
+                item.PlayerHandRef.UnsetItem();
             }
 
             StatusIsInPlayerInventory(item);

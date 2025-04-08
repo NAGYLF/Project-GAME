@@ -110,10 +110,7 @@ public class ItemObject : MonoBehaviour, IPointerDownHandler, IPointerUpHandler,
             #region unSet Dragable mod
             InventoryObjectRef.GetComponent<PlayerInventory>().SlotPanelObject.GetComponent<PanelSlots>().ScrollPanel.GetComponent<ScrollRect>().enabled = true;
             isDragging = false;
-            if (ActualData.AvaiablePlacerMetodes.Count > 0)
-            {
-                InventorySystem.Placer(ActualData, originalRotation);
-            }
+            InventorySystem.Placer(ActualData, originalRotation);
             ActualData.AvaiablePlacerMetodes.Clear();
             InventorySystem.ItemCompoundRefresh(ItemCompound.GetComponent<ItemImgFitter>(), ActualData);
             #endregion

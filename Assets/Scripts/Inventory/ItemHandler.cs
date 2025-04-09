@@ -1181,9 +1181,9 @@ namespace ItemHandler
             public AdvancedItem InteractiveItem { get; private set; }
             public bool IsPossible { get; private set; }
 
-            private ((int X, int Y) ChangedSize, Dictionary<char, int> Directions) Effect;
-            private (HashSet<(int Height, int Widht)> NonLiveCoordinates, int SectorIndex, bool IsPositionAble) NewPosition;
-            private (ConnectionPoint SCP, ConnectionPoint ICP, bool IsPossible) Data;
+            public ((int X, int Y) ChangedSize, Dictionary<char, int> Directions) Effect;
+            public (HashSet<(int Height, int Widht)> NonLiveCoordinates, int SectorIndex, bool IsPositionAble) NewPosition;
+            public (ConnectionPoint SCP, ConnectionPoint ICP, bool IsPossible) Data;
             public MergeParts(AdvancedItem interactiveItem,AdvancedItem incomingItem)
             {
                 IncomingItem = incomingItem;

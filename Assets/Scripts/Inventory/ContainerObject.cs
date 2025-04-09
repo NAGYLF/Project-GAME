@@ -141,19 +141,17 @@ public class ContainerObject : MonoBehaviour
                         }
                         if (InteractiveItem.PartPut_IsPossible(IncomingItem).IsPossible)
                         {
-                            Debug.LogWarning("MergeParts");
+                            //Debug.LogWarning("MergeParts");
                             InventorySystem.MergeParts ActionMergeParts = new(InteractiveItem, IncomingItem);
                             if (ActionMergeParts.IsPossible)
                             {
-                                Debug.LogWarning("MergeParts is possible");
                                 IncomingItem.AvaiablePlacerMetodes.Add(ActionMergeParts.Execute_MergeParts);
                                 CanBePlaceble = true;
                             }
-                            else
+                            foreach (var item in ActionMergeParts.NewPosition.NonLiveCoordinates)
                             {
-
+                                interactibleSlots.Add(LiveSector[ActionMergeParts.NewPosition.SectorIndex][item.Height, item.Widht]);
                             }
-
                         }
                         if (InventorySystem.CanSplitable(InteractiveItem, IncomingItem))
                         {
@@ -161,6 +159,10 @@ public class ContainerObject : MonoBehaviour
                             InventorySystem.Split ActionSplit = new(IncomingItem, interactibleSlots.ToArray());
                             IncomingItem.AvaiablePlacerMetodes.Add(ActionSplit.Execute_Split);
                             CanBePlaceble = true;
+                        }
+                        foreach (var item in InteractiveItem.Coordinates)
+                        {
+                            interactibleSlots.Add(LiveSector[IncomingItem.SectorId][item.Item1, item.Item2]);
                         }
                     }
                     //ha nincs interacti item
@@ -293,10 +295,15 @@ public class ContainerObject : MonoBehaviour
 
     public void Inicialisation()//az objecktum létrehozásának elsõ pillanatában töltõdik be
     {
+        LiveSector = new ItemSlot[StaticSectorDatas.Length][,];
+
+
         for (int sector = 0; sector < StaticSectorDatas.Length; sector++)
         {
             SectorData sectorData = StaticSectorDatas[sector];
             ItemSlot[] itemSlots = sectorData.SectorObject.GetComponentsInChildren<ItemSlot>();
+
+            LiveSector[sector] = new ItemSlot[sectorData.Heigth, sectorData.Widht];
 
             for (int height = 0, index = 0; height < sectorData.Heigth; height++)
             {
@@ -305,7 +312,9 @@ public class ContainerObject : MonoBehaviour
                     itemSlots[index].SlotParentItem = ActualData;
                     itemSlots[index].sectorId = sector;
                     itemSlots[index].Coordinate = (height,width);
-                    ActualData.Container.Live_Sector[sector][height, width] = itemSlots[index++];
+                    ActualData.Container.Live_Sector[sector][height, width] = itemSlots[index];
+
+                    LiveSector[sector][height, width] = itemSlots[index++];
                 }
             }
         }

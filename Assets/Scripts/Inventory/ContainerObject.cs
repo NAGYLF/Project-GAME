@@ -141,10 +141,11 @@ public class ContainerObject : MonoBehaviour
                         }
                         if (InteractiveItem.PartPut_IsPossible(IncomingItem).IsPossible)
                         {
-                            //Debug.LogWarning("MergeParts");
+                            Debug.LogWarning("MergeParts");
                             InventorySystem.MergeParts ActionMergeParts = new(InteractiveItem, IncomingItem);
                             if (ActionMergeParts.IsPossible)
                             {
+                                Debug.LogWarning("MergeParts is possible");
                                 IncomingItem.AvaiablePlacerMetodes.Add(ActionMergeParts.Execute_MergeParts);
                                 CanBePlaceble = true;
                             }

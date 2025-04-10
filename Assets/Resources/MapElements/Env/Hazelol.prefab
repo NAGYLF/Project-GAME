@@ -13,6 +13,7 @@ GameObject:
   - component: {fileID: -704431718194286922}
   - component: {fileID: 7670595495217690668}
   - component: {fileID: 3060544376398745134}
+  - component: {fileID: -8995196619983911256}
   m_Layer: 0
   m_Name: Hazelol
   m_TagString: Untagged
@@ -149,5 +150,17 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 58f7c342b845e6f4aacb5f49a40c7640, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+--- !u!114 &-8995196619983911256
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 6025557902187073236}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 54868cf9c5f41c34cb2e0be6b90e662d, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 

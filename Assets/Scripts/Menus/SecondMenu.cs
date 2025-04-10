@@ -10,14 +10,14 @@ public class SecondMenu : MonoBehaviour
     {
         GameObject.Find("SecondMenu").SetActive(false);
     }
-    public void LoginBT()
+    public async void LoginBT()
     {
       
         string name = GameObject.Find("NameInput").GetComponent<TMP_InputField>().text;
         string password = GameObject.Find("PasswordInput").GetComponent<TMP_InputField>().text;
         string email = GameObject.Find("EmailInput").GetComponent<TMP_InputField>().text;
 
-        MainData.UIFunctions.LogIn(name, email, password);
+        await MainData.UIFunctions.LogIn(name, email, password);//async
 
         if (MainData.Main.playerData != null)
         {

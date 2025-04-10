@@ -14,6 +14,9 @@ using Items;
 using ExcelDataReader;
 using System.Data;
 using System.Text;
+using System.Net.Http;
+using UnityEngine.Rendering.VirtualTexturing;
+using System.Drawing;
 
 namespace MainData
 {
@@ -84,20 +87,28 @@ namespace MainData
 
     public static class DatabaseManager
     {
-        public static async Task<PlayerData> GetDataAsync(string name, string password)
+        public static async Task<string> GetTokenAsync(string email, string password)
         {
-            string url = $"https://localhost:5266/api/Player/GetByName/{name}";
+            var payload = new {email,password };
+            string json = JsonConvert.SerializeObject(payload);
+            Debug.LogWarning(json);
+            byte[] bodyRaw = Encoding.UTF8.GetBytes(json);
 
-            using (UnityWebRequest webRequest = UnityWebRequest.Get(url))
+            string url = "https://localhost:5266/api/auth/login";
+            using (UnityWebRequest webRequest = new UnityWebRequest(url, "POST"))
             {
-                var operation = webRequest.SendWebRequest();
+                webRequest.uploadHandler = new UploadHandlerRaw(bodyRaw);
+                webRequest.downloadHandler = new DownloadHandlerBuffer();
+                webRequest.SetRequestHeader("Content-Type", "application/json");
 
+                var operation = webRequest.SendWebRequest();
                 while (!operation.isDone)
                 {
                     await Task.Yield();
                 }
 
-                if (webRequest.result == UnityWebRequest.Result.ConnectionError || webRequest.result == UnityWebRequest.Result.ProtocolError)
+                if (webRequest.result == UnityWebRequest.Result.ConnectionError ||
+                    webRequest.result == UnityWebRequest.Result.ProtocolError)
                 {
                     Debug.LogWarning(webRequest.error);
                     return null;
@@ -106,6 +117,39 @@ namespace MainData
                 {
                     Debug.Log("Successful Server connection");
                     string jsonResponse = webRequest.downloadHandler.text;
+                    // A szerver visszatér egy objektummal, melynek van egy "Token" mezője
+                    var tokenObj = JsonConvert.DeserializeAnonymousType(jsonResponse, new { Token = "" });
+
+                    return tokenObj.Token;
+                }
+            }
+        }
+        public static async Task<PlayerData> GetDataAsync(string token)
+        {
+            // Token hozzáadása az URL-hez query paraméterként
+            string url = $"https://localhost:5266/api/Player/GetByToken?token={UnityWebRequest.EscapeURL(token)}";
+
+            using (UnityWebRequest webRequest = UnityWebRequest.Get(url))
+            {
+                webRequest.downloadHandler = new DownloadHandlerBuffer();
+
+                var operation = webRequest.SendWebRequest();
+                while (!operation.isDone)
+                {
+                    await Task.Yield();
+                }
+
+                if (webRequest.result == UnityWebRequest.Result.ConnectionError ||
+                    webRequest.result == UnityWebRequest.Result.ProtocolError)
+                {
+                    Debug.LogWarning(webRequest.error);
+                    return null;
+                }
+                else
+                {
+                    Debug.Log("Successful Server connection");
+                    string jsonResponse = webRequest.downloadHandler.text;
+
                     return JsonConvert.DeserializeObject<ApiResponse>(jsonResponse).Player;
                 }
             }
@@ -128,35 +172,43 @@ namespace MainData
             GameObject.Find("ProfileButton").GetComponentInChildren<TMP_Text>().text = monogram;
         }
         //NewLogin
-        public static async void LogIn(string name, string email, string password)//new or another accunt login
+        public static async Task<bool> LogIn(string name, string email, string password)//new or another accunt login
         {
-            
-            Main.playerData = await DatabaseManager.GetDataAsync(name, password);
+            Main.Token = await DatabaseManager.GetTokenAsync(email, password);
+            Main.playerData = await DatabaseManager.GetDataAsync(Main.Token);
 
             if (Main.playerData == null)
             {
                 Debug.LogWarning("Login failed. User data is not available.");
-                return;
+                return false;
             }
             else
             {
-                StreamWriter sw = new StreamWriter("AutoLogUser.txt");
-                sw.WriteLine(Main.playerData.Name);
-                sw.WriteLine(Main.playerData.Email);
-                sw.Close();
+                using (StreamWriter sw = new StreamWriter("AutoLogUser.txt"))
+                {
+                    await sw.WriteLineAsync(email);
+                    await sw.WriteLineAsync(password);
+                }
 
                 Debug.Log($"login completed: {Main.playerData.Id} - {Main.playerData.Name} - {Main.playerData.Password} - {Main.playerData.Email}  user");
+
                 ProfileBTStyle();
+
+                return true;
             }
         }
         //AutoLogin
         public static async Task<bool> AutoLogIn()//auto login
         {
+            Debug.Log("auto login start");
             if (File.Exists("AutoLogUser.txt"))
             {
                 StreamReader sr = new StreamReader("AutoLogUser.txt");
 
-                Main.playerData = await DatabaseManager.GetDataAsync(sr.ReadLine(), sr.ReadLine());
+                string email = sr.ReadLine();
+                string password = sr.ReadLine();
+                Main.Token = await DatabaseManager.GetTokenAsync(email, password);
+                Main.playerData = await DatabaseManager.GetDataAsync(Main.Token);
 
                 if (Main.playerData == null)
                 {
@@ -205,7 +257,9 @@ namespace MainData
 
         }
 
-        public static PlayerData playerData;
+        public static PlayerData playerData { get; set; }
+
+        public static string Token { get; set; }
 
         public class DataHandler
         {

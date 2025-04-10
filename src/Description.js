@@ -1,5 +1,4 @@
 import React from 'react';
-import './Nav.css';
 import { useNavigate } from 'react-router-dom';
 
 function Description(props) {

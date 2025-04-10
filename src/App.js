@@ -76,7 +76,7 @@ function App() {
     setIsAdmin(false);
   };
 
-  //Bejelentkezik kap egy tokent
+  //Bejelentkezik, kap egy tokent
   const login = (email, password, showAlert) => {
     let user = {
       email: email,

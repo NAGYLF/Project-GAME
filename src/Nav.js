@@ -5,7 +5,7 @@ import Logo from './img/logo.png';
 import Kep from './img/profilkep.jpg';
 import AdminKep from './img/admin.png';
 import { useLocation } from 'react-router-dom';
-import './Nav.css';
+import './Style.css';
 
 function Nav({ language, setLanguage, texts, isLoggedIn, isAdmin, logout }) {
   const handleLanguageChange = (e) => {

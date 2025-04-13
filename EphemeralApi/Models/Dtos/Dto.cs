@@ -50,7 +50,18 @@
     {
         public bool IsBanned { get; set; }
     }
-
+    public class UpdateStatisticsDto
+    {
+        public int DeathCount { get; set; }
+        public int Score { get; set; }
+        public int EnemiesKilled { get; set; }
+    }
+    public class UpdateAchievementsDto
+    {
+        public bool FirstBlood { get; set; }
+        public bool RookieWork { get; set; }
+        public bool YouAreOnYourOwnNow { get; set; }
+    }
 
 
 

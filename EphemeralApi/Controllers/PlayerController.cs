@@ -294,5 +294,50 @@ namespace EphemeralApi.Controllers
             var secondsLeft = step - (unixTime % step);
             return Ok(new { code, secondsLeft });
         }
+
+        [HttpPut("stats/{id}")]
+        public async Task<IActionResult> UpdatePlayerStatistics(int id, UpdateStatisticsDto statsDto)
+        {
+            var statistics = await _context.Statistics
+                .Where(s => s.PlayerId == id)
+                .FirstOrDefaultAsync();
+
+            if (statistics == null)
+            {
+                return NotFound(new { message = "A játékos statisztikái nem találhatóak." });
+            }
+
+            statistics.DeathCount = statsDto.DeathCount;
+            statistics.Score = statsDto.Score;
+            statistics.EnemiesKilled = statsDto.EnemiesKilled;
+
+            _context.Statistics.Update(statistics);
+            await _context.SaveChangesAsync();
+
+            return NoContent();
+        }
+        [HttpPut("achievements/{id}")]
+        public async Task<IActionResult> UpdatePlayerAchievements(int id, UpdateAchievementsDto achievementsDto)
+        {
+            var achievements = await _context.Achievements
+                .Where(a => a.PlayerId == id)
+                .FirstOrDefaultAsync();
+
+            if (achievements == null)
+            {
+                return NotFound(new { message = "A játékos teljesítményei nem találhatóak." });
+            }
+
+            achievements.FirstBlood = achievementsDto.FirstBlood;
+            achievements.RookieWork = achievementsDto.RookieWork;
+            achievements.YouAreOnYourOwnNow = achievementsDto.YouAreOnYourOwnNow;
+
+            _context.Achievements.Update(achievements);
+            await _context.SaveChangesAsync();
+
+            return NoContent();
+        }
+
+
     }
 }

@@ -5,11 +5,8 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.IdentityModel.Tokens;
 using EphemeralApi.Models;
 using Microsoft.AspNetCore.Authorization;
-using System.Security.Cryptography;
 using Microsoft.EntityFrameworkCore;
 using EphemeralApi.Models.Dtos;
-using Org.BouncyCastle.Crypto.Generators;
-using System;
 using System.Text.RegularExpressions;
 
 [Route("api/auth")]
@@ -73,8 +70,31 @@ public class AuthController : ControllerBase
         };
 
         _context.Players.Add(newUser);
-        await _context.SaveChangesAsync();
+        await _context.SaveChangesAsync(); // Itt kapja meg az Id-t (pl. 24)
 
+        // Achievement rekord – ugyanazzal az Id-vel
+        var newAchievement = new Achievement
+        {
+            Id = newUser.Id,
+            PlayerId = newUser.Id,
+            FirstBlood = false,
+            RookieWork = false,
+            YouAreOnYourOwnNow = false
+        };
+        _context.Achievements.Add(newAchievement);
+
+        // Statistic rekord – ugyanazzal az Id-vel
+        var newStatistic = new Statistic
+        {
+            Id = newUser.Id,
+            PlayerId = newUser.Id,
+            DeathCount = 0,
+            Score = 0,
+            EnemiesKilled = 0
+        };
+        _context.Statistics.Add(newStatistic);
+
+        // Admin rekord, ha admin a felhasználó
         if (request.IsAdmin)
         {
             var newAdmin = new Admin
@@ -83,29 +103,25 @@ public class AuthController : ControllerBase
                 PlayerId = newUser.Id,
                 DevConsole = false
             };
-
             _context.Admins.Add(newAdmin);
-            await _context.SaveChangesAsync();
         }
+
+        await _context.SaveChangesAsync();
 
         return Ok("Sikeres regisztráció.");
     }
 
-
-
-    // Felhasználó bejelentkezése
     [HttpPost("login")]
     public async Task<IActionResult> Login([FromBody] LoginDto request)
     {
         var user = await _context.Players.FirstOrDefaultAsync(p => p.Email == request.Email);
         if (user == null || !BCrypt.Net.BCrypt.Verify(request.Password, user.Password))
-            return Unauthorized("Invalid credentials.");
+            return Unauthorized("Hibás bejelentkezési adatok.");
 
         string token = GenerateJwtToken(user);
         return Ok(new { Token = token });
     }
 
-    // JWT token generálása bejelentkezés után
     private string GenerateJwtToken(Player user)
     {
         var key = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(_config["Jwt:Key"]));

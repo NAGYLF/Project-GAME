@@ -62,7 +62,7 @@ public class Bullet : MonoBehaviour
     {
         if (collider.gameObject.GetComponent<BulletBlocker>())
         {
-            CreateImpactEffect(collider.transform.position);
+            CreateImpactEffect(gameObject.transform.position);
             Destroy(gameObject);
         }
         if (collider.gameObject.GetComponent<DestroyAbleObjectcs>())

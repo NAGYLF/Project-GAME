@@ -6,7 +6,6 @@ using System.Threading.Tasks;
 using UnityEngine;
 using static MainData.SupportScripts;
 using ItemHandler;
-using UnityEditor.PackageManager.UI;
 
 namespace Assets.Scripts.Inventory
 {

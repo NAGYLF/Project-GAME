@@ -123,9 +123,6 @@ namespace EphemeralApi.Controllers
             // Ha nem admin, akkor csak a játékos adatokat adjuk vissza
             return Ok(player);
         }
-
-
-
         [HttpGet("GetByToken")]
         public async Task<IActionResult> GetPlayerByToken([FromQuery] string token)
         {
@@ -136,7 +133,6 @@ namespace EphemeralApi.Controllers
 
             try
             {
-                // JWT token olvasása
                 var tokenHandler = new JwtSecurityTokenHandler();
                 var jwtToken = tokenHandler.ReadToken(token) as JwtSecurityToken;
 
@@ -145,7 +141,6 @@ namespace EphemeralApi.Controllers
                     return Unauthorized("Érvénytelen token.");
                 }
 
-                // Felhasználói azonosító (UserId) kinyerése a tokenből
                 var userIdClaim = jwtToken.Claims.FirstOrDefault(c => c.Type == "UserId");
 
                 if (userIdClaim == null || !int.TryParse(userIdClaim.Value, out int userId))
@@ -153,39 +148,59 @@ namespace EphemeralApi.Controllers
                     return Unauthorized("A token nem tartalmaz érvényes UserId-t.");
                 }
 
-                // Játékos keresése a Player táblában
                 var player = await _context.Players.FindAsync(userId);
-
                 if (player == null)
                 {
                     return NotFound("A játékos nem található.");
                 }
 
-                // Admin rekord keresése, ha létezik a játékoshoz
+                var statistics = await _context.Statistics
+                    .FirstOrDefaultAsync(s => s.PlayerId == player.Id);
+
+                var achievements = await _context.Achievements
+                    .FirstOrDefaultAsync(a => a.PlayerId == player.Id);
+
                 var admin = await _context.Admins
-                    .Where(a => a.PlayerId == player.Id)
-                    .FirstOrDefaultAsync();
+                    .FirstOrDefaultAsync(a => a.PlayerId == player.Id);
 
-                // Ha találunk admin rekordot, akkor visszaadjuk a játékos és admin adatokat együtt
-                if (admin != null)
+                // Ha a PlayerDto, StatisticsDto, AchievementsDto és AdminDto mind tartalmazza a szükséges adatokat:
+                var responseDto = new
                 {
-                    var playerWithAdmin = new
+                    Player = new PlayerDto
                     {
-                        Player = player,
-                        AdminDetails = admin
-                    };
+                        Id = player.Id,
+                        Name = player.Name,
+                        Email = player.Email,
+                        IsAdmin = player.IsAdmin,
+                        IsBanned = player.IsBanned
+                    },
+                    Statistics = new StatisticsDto
+                    {
+                        DeathCount = statistics?.DeathCount ?? 0,
+                        Score = statistics?.Score ?? 0,
+                        EnemiesKilled = statistics?.EnemiesKilled ?? 0
+                    },
+                    Achievements = new AchievementsDto
+                    {
+                        FirstBlood = achievements?.FirstBlood ?? false,
+                        RookieWork = achievements?.RookieWork ?? false,
+                        YouAreOnYourOwnNow = achievements?.YouAreOnYourOwnNow ?? false
+                    },
+                    Admin = new AdminDto
+                    {
+                        Id = admin?.Id ?? 0,
+                        DevConsole = admin?.DevConsole ?? false
+                    }
+                };
 
-                    return Ok(playerWithAdmin);
-                }
-
-                // Ha nincs admin rekord, akkor csak a játékos adatokat küldjük vissza
-                return Ok(player);
+                return Ok(responseDto);
             }
             catch (Exception ex)
             {
                 return BadRequest($"Hiba történt a token feldolgozása közben: {ex.Message}");
             }
         }
+
 
 
 

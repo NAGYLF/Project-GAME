@@ -5,8 +5,6 @@ using ItemHandler;
 using static MainData.Main;
 using System.Linq;
 
-using static CharacterHand;
-
 namespace Items
 {
     public class WeaponBody : IItemComponent
@@ -40,10 +38,9 @@ namespace Items
         }
         public IItemComponent CloneComponent()
         {
-            return new WeaponBody()
+            WeaponBody wb = new WeaponBody()
             {
                 ChamberSize = this.ChamberSize,
-                Chamber = new Stack<Ammunition>((IEnumerable<Ammunition>)this.Chamber.Select(ammo => ammo.CloneComponent()).Reverse()),
                 Spread = this.Spread,
                 Fpm = this.Fpm,
                 Recoil = this.Recoil,
@@ -53,6 +50,17 @@ namespace Items
                 Caliber= this.Caliber,
                 CartridgeSize= this.CartridgeSize,
             };
+
+            if (this.Chamber.Count > 0)
+            {
+                wb.Chamber = new Stack<Ammunition>((IEnumerable<Ammunition>)this.Chamber.Select(ammo => ammo.CloneComponent()).Reverse());
+            }
+            else
+            {
+                wb.Chamber = new Stack<Ammunition>();
+            }
+
+            return wb;
         }
     }
 }

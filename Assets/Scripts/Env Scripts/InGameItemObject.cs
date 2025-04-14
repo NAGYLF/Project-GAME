@@ -19,9 +19,13 @@ public class InGameItemObject : MonoBehaviour
 
             ActualData.InGameSelfObject = gameObject;
 
+
+
             SelfVisualisation();//itt nem allitunk be referenciat
 
             SetInGameItemSize();
+
+
         }
         else
         {

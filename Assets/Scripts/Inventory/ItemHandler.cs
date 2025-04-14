@@ -561,7 +561,10 @@ namespace ItemHandler
             }
             if (PlayerHandRef != null)
             {
-                PlayerHandRef.GetComponent<CharacterHand>().SetItem(this);
+                //azert van igy hogy megfelelo legyen a merete a fegyvernek mert valamiert elveszti a mretet
+                CharacterHand playerHandRef = PlayerHandRef;
+                playerHandRef.GetComponent<CharacterHand>().UnsetItem();
+                playerHandRef.GetComponent<CharacterHand>().SetItem(this);
             }
         }
     }
@@ -3291,6 +3294,18 @@ namespace ItemHandler
                     CloneParts(item, clonedItem);
                 }
 
+                if (!item.IsRoot)
+                {
+                    clonedItem.AdvancedItemContsruct();
+                    Debug.LogWarning($"---{clonedItem.ItemName}-------------------------------------------");
+                    foreach (var p in clonedItem.Components)
+                    {
+                        Debug.LogWarning(p.Key.Name  + "   "+p.Value);
+                    }
+                    Debug.LogWarning("------------------------------------------------------");
+                }
+
+
                 clone.Items.Add(clonedItem);
             }
 
@@ -3313,6 +3328,15 @@ namespace ItemHandler
             {
                 // Klónozzuk a part-hoz tartozó itemet, majd létrehozunk egy új Part példányt.
                 SimpleItem clonedPartItem = partRef.item_s_Part.ShallowClone();
+                if (clonedPartItem.Component != null)
+                {
+                    Debug.LogWarning($"ggggg 1 {clonedPartItem.Component}");
+                }
+                else
+                {
+                    Debug.LogWarning($"ggggg 2 {clonedPartItem.ItemName}");
+                }
+
                 clonedItem.Parts.Add(new Part(clonedPartItem));
                 clonedItem.Parts.Last().HierarhicPlace = partRef.HierarhicPlace;
             }

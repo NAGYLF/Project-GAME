@@ -2,6 +2,7 @@
 using ItemHandler;
 using static MainData.Main;
 using System;
+using System.Linq;
 
 namespace Items
 {
@@ -23,9 +24,31 @@ namespace Items
             CartridgeSize = advancedItemStruct.CartridgeSize;
         }
 
+        public Magasine()
+        {
+        }
+
         public IItemComponent CloneComponent()
         {
-            throw new NotImplementedException();
+            Magasine mag = new Magasine()
+            {
+                SystemName = this.SystemName,
+                MagasineSize = this.MagasineSize,
+                Ergonomy = this.Ergonomy,
+                Caliber = this.Caliber,
+                CartridgeSize = this.CartridgeSize,
+            };
+
+            if (this.ContainedAmmo.Count > 0)
+            {
+                mag.ContainedAmmo = new Stack<Ammunition>((IEnumerable<Ammunition>)this.ContainedAmmo.Select(ammo => ammo.CloneComponent()).Reverse());
+            }
+            else
+            {
+                mag.ContainedAmmo = new Stack<Ammunition>();
+            }
+
+            return mag;
         }
     }
 }

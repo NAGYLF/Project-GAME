@@ -6,10 +6,47 @@
     "HttpMethod": "GET",
     "IsController": true,
     "Order": 0,
-    "Parameters": [],
+    "Parameters": [
+      {
+        "Name": "token",
+        "Type": "System.String",
+        "IsRequired": false
+      }
+    ],
     "ReturnTypes": [
       {
         "Type": "System.Collections.Generic.IEnumerable\u00601[[EphemeralApi.Models.Admin, EphemeralApi, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null]]",
+        "MediaTypes": [
+          "text/plain",
+          "application/json",
+          "text/json"
+        ],
+        "StatusCode": 200
+      }
+    ]
+  },
+  {
+    "ContainingType": "EphemeralApi.Controllers.AdminController",
+    "Method": "GetAdminById",
+    "RelativePath": "api/Admin/{id}",
+    "HttpMethod": "GET",
+    "IsController": true,
+    "Order": 0,
+    "Parameters": [
+      {
+        "Name": "id",
+        "Type": "System.Int32",
+        "IsRequired": true
+      },
+      {
+        "Name": "token",
+        "Type": "System.String",
+        "IsRequired": false
+      }
+    ],
+    "ReturnTypes": [
+      {
+        "Type": "EphemeralApi.Models.Dtos.AdminDto",
         "MediaTypes": [
           "text/plain",
           "application/json",
@@ -36,6 +73,11 @@
         "Name": "updateDto",
         "Type": "EphemeralApi.Models.Dtos.DevConsoleUpdateDto",
         "IsRequired": true
+      },
+      {
+        "Name": "token",
+        "Type": "System.String",
+        "IsRequired": false
       }
     ],
     "ReturnTypes": []
@@ -152,6 +194,48 @@
   },
   {
     "ContainingType": "EphemeralApi.Controllers.PlayerController",
+    "Method": "UpdatePlayerBan",
+    "RelativePath": "api/Player/{id}/ban",
+    "HttpMethod": "PUT",
+    "IsController": true,
+    "Order": 0,
+    "Parameters": [
+      {
+        "Name": "id",
+        "Type": "System.Int32",
+        "IsRequired": true
+      },
+      {
+        "Name": "banDto",
+        "Type": "EphemeralApi.Models.Dtos.UpdatePlayerBanDto",
+        "IsRequired": true
+      }
+    ],
+    "ReturnTypes": []
+  },
+  {
+    "ContainingType": "EphemeralApi.Controllers.PlayerController",
+    "Method": "UpdatePlayerAchievementsByToken",
+    "RelativePath": "api/Player/achievements",
+    "HttpMethod": "PUT",
+    "IsController": true,
+    "Order": 0,
+    "Parameters": [
+      {
+        "Name": "token",
+        "Type": "System.String",
+        "IsRequired": false
+      },
+      {
+        "Name": "achievementsDto",
+        "Type": "EphemeralApi.Models.Dtos.UpdateAchievementsDto",
+        "IsRequired": true
+      }
+    ],
+    "ReturnTypes": []
+  },
+  {
+    "ContainingType": "EphemeralApi.Controllers.PlayerController",
     "Method": "GetTotpCode",
     "RelativePath": "api/Player/code",
     "HttpMethod": "GET",
@@ -159,37 +243,6 @@
     "Order": 0,
     "Parameters": [],
     "ReturnTypes": []
-  },
-  {
-    "ContainingType": "EphemeralApi.Controllers.PlayerController",
-    "Method": "GetPlayerByEmailAndName",
-    "RelativePath": "api/Player/GetByEmailAndName",
-    "HttpMethod": "GET",
-    "IsController": true,
-    "Order": 0,
-    "Parameters": [
-      {
-        "Name": "email",
-        "Type": "System.String",
-        "IsRequired": false
-      },
-      {
-        "Name": "name",
-        "Type": "System.String",
-        "IsRequired": false
-      }
-    ],
-    "ReturnTypes": [
-      {
-        "Type": "EphemeralApi.Models.Player",
-        "MediaTypes": [
-          "text/plain",
-          "application/json",
-          "text/json"
-        ],
-        "StatusCode": 200
-      }
-    ]
   },
   {
     "ContainingType": "EphemeralApi.Controllers.PlayerController",
@@ -216,6 +269,43 @@
         "StatusCode": 200
       }
     ]
+  },
+  {
+    "ContainingType": "EphemeralApi.Controllers.PlayerController",
+    "Method": "GetPlayerByToken",
+    "RelativePath": "api/Player/GetByToken",
+    "HttpMethod": "GET",
+    "IsController": true,
+    "Order": 0,
+    "Parameters": [
+      {
+        "Name": "token",
+        "Type": "System.String",
+        "IsRequired": false
+      }
+    ],
+    "ReturnTypes": []
+  },
+  {
+    "ContainingType": "EphemeralApi.Controllers.PlayerController",
+    "Method": "UpdatePlayerStatisticsByToken",
+    "RelativePath": "api/Player/stats",
+    "HttpMethod": "PUT",
+    "IsController": true,
+    "Order": 0,
+    "Parameters": [
+      {
+        "Name": "token",
+        "Type": "System.String",
+        "IsRequired": false
+      },
+      {
+        "Name": "statsDto",
+        "Type": "EphemeralApi.Models.Dtos.UpdateStatisticsDto",
+        "IsRequired": true
+      }
+    ],
+    "ReturnTypes": []
   },
   {
     "ContainingType": "EphemeralApi.Controllers.PlayerController",

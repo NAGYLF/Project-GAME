@@ -10,6 +10,15 @@
         "tags": [
           "Admin"
         ],
+        "parameters": [
+          {
+            "name": "token",
+            "in": "query",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
         "responses": {
           "200": {
             "description": "OK",
@@ -44,6 +53,51 @@
       }
     },
     "/api/Admin/{id}": {
+      "get": {
+        "tags": [
+          "Admin"
+        ],
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "integer",
+              "format": "int32"
+            }
+          },
+          {
+            "name": "token",
+            "in": "query",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "text/plain": {
+                "schema": {
+                  "$ref": "#/components/schemas/AdminDto"
+                }
+              },
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/AdminDto"
+                }
+              },
+              "text/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/AdminDto"
+                }
+              }
+            }
+          }
+        }
+      },
       "put": {
         "tags": [
           "Admin"
@@ -56,6 +110,13 @@
             "schema": {
               "type": "integer",
               "format": "int32"
+            }
+          },
+          {
+            "name": "token",
+            "in": "query",
+            "schema": {
+              "type": "string"
             }
           }
         ],
@@ -301,21 +362,14 @@
         }
       }
     },
-    "/api/Player/GetByEmailAndName": {
+    "/api/Player/GetByToken": {
       "get": {
         "tags": [
           "Player"
         ],
         "parameters": [
           {
-            "name": "email",
-            "in": "query",
-            "schema": {
-              "type": "string"
-            }
-          },
-          {
-            "name": "name",
+            "name": "token",
             "in": "query",
             "schema": {
               "type": "string"
@@ -324,24 +378,7 @@
         ],
         "responses": {
           "200": {
-            "description": "OK",
-            "content": {
-              "text/plain": {
-                "schema": {
-                  "$ref": "#/components/schemas/Player"
-                }
-              },
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/Player"
-                }
-              },
-              "text/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/Player"
-                }
-              }
-            }
+            "description": "OK"
           }
         }
       }
@@ -416,11 +453,133 @@
         }
       }
     },
+    "/api/Player/{id}/ban": {
+      "put": {
+        "tags": [
+          "Player"
+        ],
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "integer",
+              "format": "int32"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/UpdatePlayerBanDto"
+              }
+            },
+            "text/json": {
+              "schema": {
+                "$ref": "#/components/schemas/UpdatePlayerBanDto"
+              }
+            },
+            "application/*+json": {
+              "schema": {
+                "$ref": "#/components/schemas/UpdatePlayerBanDto"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "OK"
+          }
+        }
+      }
+    },
     "/api/Player/code": {
       "get": {
         "tags": [
           "Player"
         ],
+        "responses": {
+          "200": {
+            "description": "OK"
+          }
+        }
+      }
+    },
+    "/api/Player/stats": {
+      "put": {
+        "tags": [
+          "Player"
+        ],
+        "parameters": [
+          {
+            "name": "token",
+            "in": "query",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/UpdateStatisticsDto"
+              }
+            },
+            "text/json": {
+              "schema": {
+                "$ref": "#/components/schemas/UpdateStatisticsDto"
+              }
+            },
+            "application/*+json": {
+              "schema": {
+                "$ref": "#/components/schemas/UpdateStatisticsDto"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "OK"
+          }
+        }
+      }
+    },
+    "/api/Player/achievements": {
+      "put": {
+        "tags": [
+          "Player"
+        ],
+        "parameters": [
+          {
+            "name": "token",
+            "in": "query",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/UpdateAchievementsDto"
+              }
+            },
+            "text/json": {
+              "schema": {
+                "$ref": "#/components/schemas/UpdateAchievementsDto"
+              }
+            },
+            "application/*+json": {
+              "schema": {
+                "$ref": "#/components/schemas/UpdateAchievementsDto"
+              }
+            }
+          }
+        },
         "responses": {
           "200": {
             "description": "OK"
@@ -435,10 +594,6 @@
         "type": "object",
         "properties": {
           "id": {
-            "type": "integer",
-            "format": "int32"
-          },
-          "playerId": {
             "type": "integer",
             "format": "int32"
           },
@@ -473,9 +628,19 @@
           },
           "devConsole": {
             "type": "boolean"
+          }
+        },
+        "additionalProperties": false
+      },
+      "AdminDto": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "integer",
+            "format": "int32"
           },
-          "player": {
-            "$ref": "#/components/schemas/Player"
+          "devConsole": {
+            "type": "boolean"
           }
         },
         "additionalProperties": false
@@ -496,6 +661,9 @@
             "nullable": true
           },
           "isAdmin": {
+            "type": "boolean"
+          },
+          "isBanned": {
             "type": "boolean"
           }
         },
@@ -564,6 +732,9 @@
           "isAdmin": {
             "type": "boolean"
           },
+          "isBanned": {
+            "type": "boolean"
+          },
           "achievements": {
             "type": "array",
             "items": {
@@ -591,10 +762,6 @@
             "type": "integer",
             "format": "int32"
           },
-          "playerId": {
-            "type": "integer",
-            "format": "int32"
-          },
           "deathCount": {
             "type": "integer",
             "format": "int32",
@@ -612,6 +779,30 @@
           },
           "player": {
             "$ref": "#/components/schemas/Player"
+          }
+        },
+        "additionalProperties": false
+      },
+      "UpdateAchievementsDto": {
+        "type": "object",
+        "properties": {
+          "firstBlood": {
+            "type": "boolean"
+          },
+          "rookieWork": {
+            "type": "boolean"
+          },
+          "youAreOnYourOwnNow": {
+            "type": "boolean"
+          }
+        },
+        "additionalProperties": false
+      },
+      "UpdatePlayerBanDto": {
+        "type": "object",
+        "properties": {
+          "isBanned": {
+            "type": "boolean"
           }
         },
         "additionalProperties": false
@@ -636,6 +827,27 @@
           "password": {
             "type": "string",
             "nullable": true
+          },
+          "isBanned": {
+            "type": "boolean"
+          }
+        },
+        "additionalProperties": false
+      },
+      "UpdateStatisticsDto": {
+        "type": "object",
+        "properties": {
+          "deathCount": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "score": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "enemiesKilled": {
+            "type": "integer",
+            "format": "int32"
           }
         },
         "additionalProperties": false

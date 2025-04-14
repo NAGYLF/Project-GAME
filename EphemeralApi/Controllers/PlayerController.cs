@@ -309,49 +309,88 @@ namespace EphemeralApi.Controllers
             var secondsLeft = step - (unixTime % step);
             return Ok(new { code, secondsLeft });
         }
-
-        [HttpPut("stats/{id}")]
-        public async Task<IActionResult> UpdatePlayerStatistics(int id, UpdateStatisticsDto statsDto)
+        [HttpPut("stats")]
+        public async Task<IActionResult> UpdatePlayerStatisticsByToken([FromQuery] string token, [FromBody] UpdateStatisticsDto statsDto)
         {
-            var statistics = await _context.Statistics
-                .Where(s => s.PlayerId == id)
-                .FirstOrDefaultAsync();
+            if (string.IsNullOrWhiteSpace(token))
+                return BadRequest("A token megadása kötelező.");
 
-            if (statistics == null)
+            try
             {
-                return NotFound(new { message = "A játékos statisztikái nem találhatóak." });
+                var tokenHandler = new JwtSecurityTokenHandler();
+                var jwtToken = tokenHandler.ReadToken(token) as JwtSecurityToken;
+
+                if (jwtToken == null)
+                    return Unauthorized("Érvénytelen token.");
+
+                var userIdClaim = jwtToken.Claims.FirstOrDefault(c => c.Type == "UserId");
+
+                if (userIdClaim == null || !int.TryParse(userIdClaim.Value, out int userId))
+                    return Unauthorized("A token nem tartalmaz érvényes UserId-t.");
+
+                var statistics = await _context.Statistics
+                    .Where(s => s.PlayerId == userId)
+                    .FirstOrDefaultAsync();
+
+                if (statistics == null)
+                    return NotFound(new { message = "A játékos statisztikái nem találhatóak." });
+
+                statistics.DeathCount = statsDto.DeathCount;
+                statistics.Score = statsDto.Score;
+                statistics.EnemiesKilled = statsDto.EnemiesKilled;
+
+                _context.Statistics.Update(statistics);
+                await _context.SaveChangesAsync();
+
+                return NoContent();
             }
-
-            statistics.DeathCount = statsDto.DeathCount;
-            statistics.Score = statsDto.Score;
-            statistics.EnemiesKilled = statsDto.EnemiesKilled;
-
-            _context.Statistics.Update(statistics);
-            await _context.SaveChangesAsync();
-
-            return NoContent();
+            catch (Exception ex)
+            {
+                return BadRequest($"Hiba történt a token feldolgozása közben: {ex.Message}");
+            }
         }
-        [HttpPut("achievements/{id}")]
-        public async Task<IActionResult> UpdatePlayerAchievements(int id, UpdateAchievementsDto achievementsDto)
+
+        [HttpPut("achievements")]
+        public async Task<IActionResult> UpdatePlayerAchievementsByToken([FromQuery] string token, [FromBody] UpdateAchievementsDto achievementsDto)
         {
-            var achievements = await _context.Achievements
-                .Where(a => a.PlayerId == id)
-                .FirstOrDefaultAsync();
+            if (string.IsNullOrWhiteSpace(token))
+                return BadRequest("A token megadása kötelező.");
 
-            if (achievements == null)
+            try
             {
-                return NotFound(new { message = "A játékos teljesítményei nem találhatóak." });
+                var tokenHandler = new JwtSecurityTokenHandler();
+                var jwtToken = tokenHandler.ReadToken(token) as JwtSecurityToken;
+
+                if (jwtToken == null)
+                    return Unauthorized("Érvénytelen token.");
+
+                var userIdClaim = jwtToken.Claims.FirstOrDefault(c => c.Type == "UserId");
+
+                if (userIdClaim == null || !int.TryParse(userIdClaim.Value, out int userId))
+                    return Unauthorized("A token nem tartalmaz érvényes UserId-t.");
+
+                var achievements = await _context.Achievements
+                    .Where(a => a.PlayerId == userId)
+                    .FirstOrDefaultAsync();
+
+                if (achievements == null)
+                    return NotFound(new { message = "A játékos teljesítményei nem találhatóak." });
+
+                achievements.FirstBlood = achievementsDto.FirstBlood;
+                achievements.RookieWork = achievementsDto.RookieWork;
+                achievements.YouAreOnYourOwnNow = achievementsDto.YouAreOnYourOwnNow;
+
+                _context.Achievements.Update(achievements);
+                await _context.SaveChangesAsync();
+
+                return NoContent();
             }
-
-            achievements.FirstBlood = achievementsDto.FirstBlood;
-            achievements.RookieWork = achievementsDto.RookieWork;
-            achievements.YouAreOnYourOwnNow = achievementsDto.YouAreOnYourOwnNow;
-
-            _context.Achievements.Update(achievements);
-            await _context.SaveChangesAsync();
-
-            return NoContent();
+            catch (Exception ex)
+            {
+                return BadRequest($"Hiba történt a token feldolgozása közben: {ex.Message}");
+            }
         }
+
 
 
     }

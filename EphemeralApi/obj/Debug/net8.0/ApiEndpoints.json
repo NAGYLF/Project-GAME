@@ -215,16 +215,16 @@
   },
   {
     "ContainingType": "EphemeralApi.Controllers.PlayerController",
-    "Method": "UpdatePlayerAchievementsByToken",
-    "RelativePath": "api/Player/achievements",
+    "Method": "UpdatePlayerAchievements",
+    "RelativePath": "api/Player/achievements/{id}",
     "HttpMethod": "PUT",
     "IsController": true,
     "Order": 0,
     "Parameters": [
       {
-        "Name": "token",
-        "Type": "System.String",
-        "IsRequired": false
+        "Name": "id",
+        "Type": "System.Int32",
+        "IsRequired": true
       },
       {
         "Name": "achievementsDto",
@@ -288,16 +288,16 @@
   },
   {
     "ContainingType": "EphemeralApi.Controllers.PlayerController",
-    "Method": "UpdatePlayerStatisticsByToken",
-    "RelativePath": "api/Player/stats",
+    "Method": "UpdatePlayerStatistics",
+    "RelativePath": "api/Player/stats/{id}",
     "HttpMethod": "PUT",
     "IsController": true,
     "Order": 0,
     "Parameters": [
       {
-        "Name": "token",
-        "Type": "System.String",
-        "IsRequired": false
+        "Name": "id",
+        "Type": "System.Int32",
+        "IsRequired": true
       },
       {
         "Name": "statsDto",

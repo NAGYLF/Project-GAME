@@ -17,5 +17,6 @@ public partial class Achievement
 
     public bool? YouAreOnYourOwnNow { get; set; }
 
+    [JsonIgnore]
     public virtual Player Player { get; set; } = null!;
 }

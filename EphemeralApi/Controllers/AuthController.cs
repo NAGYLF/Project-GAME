@@ -127,35 +127,14 @@ public class AuthController : ControllerBase
         var key = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(_config["Jwt:Key"]));
         var creds = new SigningCredentials(key, SecurityAlgorithms.HmacSha256);
 
-        // Lekérjük a kapcsolódó adatokat
-        var achievement = _context.Achievements.FirstOrDefault(a => a.PlayerId == user.Id);
-        var statistic = _context.Statistics.FirstOrDefault(s => s.PlayerId == user.Id);
-        var admin = _context.Admins.FirstOrDefault(a => a.PlayerId == user.Id);
-
-        var claims = new List<Claim>
-    {
-        new Claim("UserId", user.Id.ToString()),
-        new Claim("Email", user.Email),
-        new Claim("IsAdmin", user.IsAdmin.ToString()),
-        new Claim("Username", user.Name),
-        new Claim("IsBanned", user.IsBanned.ToString()),
-
-        // Stat
-        new Claim("DeathCount", statistic?.DeathCount?.ToString() ?? "0"),
-        new Claim("Score", statistic?.Score?.ToString() ?? "0"),
-        new Claim("EnemiesKilled", statistic?.EnemiesKilled?.ToString() ?? "0"),
-
-        // Achievements
-        new Claim("FirstBlood", achievement?.FirstBlood?.ToString() ?? "false"),
-        new Claim("RookieWork", achievement?.RookieWork?.ToString() ?? "false"),
-        new Claim("YouAreOnYourOwnNow", achievement?.YouAreOnYourOwnNow?.ToString() ?? "false"),
-    };
-
-        // Ha admin, hozzáadjuk a DevConsole jogosultságot is
-        if (admin != null)
+        var claims = new[]
         {
-            claims.Add(new Claim("DevConsole", admin.DevConsole.ToString()));
-        }
+            new Claim("UserId", user.Id.ToString()),
+            new Claim("Email", user.Email),
+            new Claim("IsAdmin", user.IsAdmin.ToString()),
+            new Claim("Username", user.Name),
+            new Claim("IsBanned", user.IsBanned.ToString()),
+        };
 
         var token = new JwtSecurityToken(
             _config["Jwt:Issuer"],
@@ -167,5 +146,4 @@ public class AuthController : ControllerBase
 
         return new JwtSecurityTokenHandler().WriteToken(token);
     }
-
 }

@@ -3,7 +3,7 @@
 -- https://www.phpmyadmin.net/
 --
 -- Gép: 127.0.0.1
--- Létrehozás ideje: 2025. Ápr 03. 08:38
+-- Létrehozás ideje: 2025. Ápr 14. 18:02
 -- Kiszolgáló verziója: 10.4.32-MariaDB
 -- PHP verzió: 8.2.12
 
@@ -42,10 +42,7 @@ CREATE TABLE `achievement` (
 --
 
 INSERT INTO `achievement` (`Id`, `PlayerId`, `FirstBlood`, `RookieWork`, `YouAreOnYourOwnNow`) VALUES
-(6, 6, 1, 1, 1),
-(7, 7, 1, 0, 1),
-(10, 10, 1, 1, 0),
-(11, 11, 0, 1, 0);
+(12, 14, 0, 0, 0);
 
 -- --------------------------------------------------------
 
@@ -64,9 +61,10 @@ CREATE TABLE `admin` (
 --
 
 INSERT INTO `admin` (`Id`, `PlayerId`, `DevConsole`) VALUES
-(10, 10, 0),
-(11, 11, 1),
-(12, 12, 1);
+(14, 14, 1),
+(15, 15, 1),
+(16, 16, 0),
+(21, 21, 0);
 
 -- --------------------------------------------------------
 
@@ -88,11 +86,12 @@ CREATE TABLE `player` (
 --
 
 INSERT INTO `player` (`Id`, `Name`, `Password`, `Email`, `IsAdmin`, `IsBanned`) VALUES
-(6, 'TestPlayer', '$2a$11$NfmNe8sARCDRsctkGdzCLeC4FQ4TPyuxzNs4oSfA7yIMk7ul9Skcm', 'TestPlayer@gmail.com', 0, 0),
-(7, 'TestBanned', '$2a$11$2TKoLiEfKSF9ukhGdRwaievtyn.wSisn5ZC6q6GYQ2rUQxCuwHCNy', 'TestPlayerBanned@gmail.com', 0, 1),
-(10, 'TestAdmin', '$2a$11$FRnm7qqc1znlfdhSYY18SOX7ZyCEkqXC36wZ6ozM09ASoIcTEgPL2', 'TestAdmin@gmail.com', 1, 0),
-(11, 'TestDev', '$2a$11$Ngj0JZGzT5mEfB6uLkFN7uFLoV0G2R7K2IymVlPuhZfaWR1j7oZS2', 'TestDevConsole@gmail.com', 1, 0),
-(12, 'Admin', '$2a$11$3vmhYMGAwNN2bWk7/A8Be.ML5n/yIZP4Beh9MJubsRi5IBRccyEza', 'Admin@.Admin', 1, 0);
+(14, 'Admin', '$2a$11$JV7zDIPuH0/EZQf2559ev.XFL.528Ic0K8xvW67DfYnfAgBx45f92', 'Admin@.Admin', 1, 0),
+(15, 'TEST', '$2a$11$iULFl9CbVAuK/BeM5t16k.tYRgo8jUXr/dFrZ9WxGGJSY.VNMW97q', 'TEST@.TEST', 1, 0),
+(16, 'TEST2', '$2a$11$YXoWMIou5yMgdk3INeeOO.amRcRqNGsTgJh.hwyELYfsLs7248.SW', 'TEST@.TEST2', 1, 0),
+(17, 'TestPlayer', '$2a$11$03ES3mZHAng2j7mi2O2M9.6sMh1.kTdCF7AWyTTbEX/vUys3fzlFG', 'TestPlayer@gmail.com', 0, 0),
+(21, 'TestAdmin', '$2a$11$cNtmeiKYotigIoNlZQfKAuwohG.FJO4cyQ9Ye80hyQZ.dnXbHC3Sm', 'TestAdmin@gmail.com', 1, 0),
+(23, 'TestValami', '$2a$11$Q4C.oYumlO3qQudH5cmJ8uu0JDsWim4d/fsvXZxoYFssufOt/nN4O', 'valamiemail@gmail.com', 0, 0);
 
 -- --------------------------------------------------------
 
@@ -113,10 +112,7 @@ CREATE TABLE `statistic` (
 --
 
 INSERT INTO `statistic` (`Id`, `PlayerId`, `DeathCount`, `Score`, `EnemiesKilled`) VALUES
-(6, 6, 10, 100, 13),
-(7, 7, 0, 99999, 99999),
-(10, 10, 1, 1000, 10000),
-(11, 11, 2, 12455, 1001);
+(12, 14, 0, 0, 0);
 
 --
 -- Indexek a kiírt táblákhoz
@@ -158,25 +154,25 @@ ALTER TABLE `statistic`
 -- AUTO_INCREMENT a táblához `achievement`
 --
 ALTER TABLE `achievement`
-  MODIFY `Id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=12;
+  MODIFY `Id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=13;
 
 --
 -- AUTO_INCREMENT a táblához `admin`
 --
 ALTER TABLE `admin`
-  MODIFY `Id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=13;
+  MODIFY `Id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=22;
 
 --
 -- AUTO_INCREMENT a táblához `player`
 --
 ALTER TABLE `player`
-  MODIFY `Id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=13;
+  MODIFY `Id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=26;
 
 --
 -- AUTO_INCREMENT a táblához `statistic`
 --
 ALTER TABLE `statistic`
-  MODIFY `Id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=12;
+  MODIFY `Id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=13;
 
 --
 -- Megkötések a kiírt táblákhoz

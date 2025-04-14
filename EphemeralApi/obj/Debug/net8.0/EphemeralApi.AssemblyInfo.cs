@@ -14,7 +14,7 @@ using System.Reflection;
 [assembly: System.Reflection.AssemblyCompanyAttribute("EphemeralApi")]
 [assembly: System.Reflection.AssemblyConfigurationAttribute("Debug")]
 [assembly: System.Reflection.AssemblyFileVersionAttribute("1.0.0.0")]
-[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0+db73e7d1ffb9303d765d71bc99074b646dfbd585")]
+[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0+75bc0b126b099dc421b7b5ea864ea3320aeacc92")]
 [assembly: System.Reflection.AssemblyProductAttribute("EphemeralApi")]
 [assembly: System.Reflection.AssemblyTitleAttribute("EphemeralApi")]
 [assembly: System.Reflection.AssemblyVersionAttribute("1.0.0.0")]

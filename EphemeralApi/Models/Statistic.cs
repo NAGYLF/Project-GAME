@@ -17,5 +17,6 @@ public partial class Statistic
 
     public int? EnemiesKilled { get; set; }
 
+    [JsonIgnore]
     public virtual Player Player { get; set; } = null!;
 }

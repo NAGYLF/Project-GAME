@@ -1,5 +1,9 @@
 ﻿using Items;
+using MainData;
+using System.Linq;
+using Unity.VisualScripting;
 using UnityEngine;
+using Assets.Scripts.Effects;
 
 public class Bullet : MonoBehaviour
 {
@@ -23,6 +27,8 @@ public class Bullet : MonoBehaviour
     private float k;                // Egyszerűsített drag-együttható: 0.5 * ρ * C_d * A
     private float simulatedHeight = 0f; // Magasság szimulációhoz
 
+    private Sprite impactSprite; // Impact1 sprite kódból betöltve
+
     public void Initialize(Ammunition ammunition, Vector3 fireDirection)
     {
         mass = ammunition.Mass;
@@ -41,8 +47,30 @@ public class Bullet : MonoBehaviour
 
         // Ha szükséges, induló "magasság" állítása (méterben)
         simulatedHeight = 1.2f;
+
+        // Impact sprite betöltése a Resources mappából
+        impactSprite = Resources.Load<Sprite>("Sprites/Impact1");
+
+        BoxCollider2D collider = gameObject.AddComponent<BoxCollider2D>();
+        collider.isTrigger = true;
+        gameObject.AddComponent<Rigidbody2D>();
+        Rigidbody2D rb = GetComponent<Rigidbody2D>();
+        rb.isKinematic = true;
     }
 
+    void OnTriggerEnter2D(Collider2D collider)
+    {
+        if (collider.gameObject.GetComponent<BulletBlocker>())
+        {
+            CreateImpactEffect(gameObject.transform.position);
+            Destroy(gameObject);
+        }
+        if (collider.gameObject.GetComponent<DestroyAbleObjectcs>())
+        {
+            Destroy(collider.gameObject);
+            Main.playerData.Statistics[0].score += (int)Dmg;
+        }
+    }
     void Update()
     {
         float dt = Time.deltaTime;
@@ -65,6 +93,7 @@ public class Bullet : MonoBehaviour
         // Ha "leesett" a földre (szimuláltan)
         if (simulatedHeight < 0f)
         {
+            CreateImpactEffect(transform.position);
             Destroy(gameObject);
             return;
         }
@@ -78,4 +107,27 @@ public class Bullet : MonoBehaviour
         // Csak X-Y síkban mozog a GameObject, Z nem változik fizikailag
         transform.position += new Vector3(velocity.x, velocity.y, 0f) * dt;
     }
+
+    private void CreateImpactEffect(Vector3 position)
+    {
+        if (impactSprite == null) return;
+
+        GameObject impactGO = new GameObject("ImpactEffect");
+        impactGO.transform.position = position;
+
+        SpriteRenderer sr = impactGO.AddComponent<SpriteRenderer>();
+        sr.sprite = impactSprite;
+        sr.sortingOrder = 10; // Ha fontos, hogy más fölé kerüljön
+
+        // Először kiszámítjuk a szöget a lövedék irányából
+        float angle = Mathf.Atan2(velocity.y, velocity.x) * Mathf.Rad2Deg; // Szög kiszámítása
+        impactGO.transform.rotation = Quaternion.Euler(new Vector3(0, 0, angle)); // Forgatás a megfelelő irányba
+
+        Destroy(impactGO, 0.2f); // Automatikus eltüntetés 0.2 sec után
+    }
+
+
+
+
+
 }

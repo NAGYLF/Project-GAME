@@ -53,37 +53,55 @@ namespace ItemHandler
         public int SectorID;
         public (int Height, int Widht) Coordinate;
         public string SlotType;
+        public int AutoHotKeySetter;//az itemslot auto hotkeyje
         public AdvancedItem PartOfItemData;
 
-        public ItemSlotData(int SectorID,int Height,int Width,string SlotType = "", AdvancedItem PartOfItemData = null)
+        public ItemSlotData(int SectorID,int Height,int Width,string SlotType = "", int AutoHotKeySetter = -1, AdvancedItem PartOfItemData = null)
         {
             this.SectorID = SectorID;
             this.Coordinate = (Height,Width);
             this.SlotType = SlotType;
+            this.AutoHotKeySetter = AutoHotKeySetter;
             this.PartOfItemData = PartOfItemData;
         }
     }
     public class AdvancedItem
     {
+        [JsonIgnore]
         public const string SimpleItemObjectParth = "GameElements/SimpleItemObject";
+        [JsonIgnore]
         public const string AdvancedItemObjectParth = "GameElements/AdvancedItemObject";
+        [JsonIgnore]
         public const string TemporaryItemObjectPath = "GameElements/TemporaryAdvancedItemObject";
 
         #region Ref Variables
+        [JsonIgnore]
         public ModificationWindow ModificationWindowRef;
+
+        [JsonIgnore]
         public LevelManager LevelManagerRef;
+
         public List<ItemSlotData> ItemSlotsDataRef = new List<ItemSlotData>();
+
         public List<AdvancedItem> ContainerItemListRef = new List<AdvancedItem>();
+        [JsonIgnore]
         public HotKey hotKeyRef;
+        [JsonIgnore]
         public List<ItemSlot> ItemSlotObjectsRef = new List<ItemSlot>();
+        [JsonIgnore]
         public CharacterHand PlayerHandRef;
+        [JsonIgnore]
         public GameObject SelfGameobject { get; set; }
+        [JsonIgnore]
         public GameObject InGameSelfObject { get; set; }
+
         public AdvancedItem ParentItem { get; set; }//az az item ami tárolja ezt az itemet
         #endregion
 
         #region PlacerVariables
+        [JsonIgnore]
         public List<Action> AvaiablePlacerMetodes = new List<Action>();
+        [JsonIgnore]
         public AdvancedItem AvaiableParentItem { get; set; }
         #endregion
 
@@ -536,6 +554,18 @@ namespace ItemHandler
                     AddComponent(item.Component);
                 }
             }
+
+            if (InGameSelfObject != null)
+            {
+                InGameSelfObject.GetComponent<InGameItemObject>().SelfVisualisation();
+            }
+            if (PlayerHandRef != null)
+            {
+                //azert van igy hogy megfelelo legyen a merete a fegyvernek mert valamiert elveszti a mretet
+                CharacterHand playerHandRef = PlayerHandRef;
+                playerHandRef.GetComponent<CharacterHand>().UnsetItem();
+                playerHandRef.GetComponent<CharacterHand>().SetItem(this);
+            }
         }
     }
     public class SimpleItem
@@ -656,10 +686,14 @@ namespace ItemHandler
     }
     public class SystemPoints
     {
+        [JsonIgnore]
         public GameObject RefPoint1 = null;//LIVE
+        [JsonIgnore]
         public GameObject RefPoint2 = null;//LIVE
 
+        [JsonIgnore]
         public GameObject InGameRefPoint1 = null;//LIVE
+        [JsonIgnore]
         public GameObject InGameRefPoint2 = null;//LIVE
 
         public SP SPData;
@@ -734,10 +768,14 @@ namespace ItemHandler
     public class ConnectionPoint
     {
         //Live adatok meylek addig vannak amig a connectionPoint létezik
+        [JsonIgnore]
         public GameObject RefPoint1 = null;//LIVE
+        [JsonIgnore]
         public GameObject RefPoint2 = null;//LIVE
 
+        [JsonIgnore]
         public GameObject InGameRefPoint1 = null;//LIVE
+        [JsonIgnore]
         public GameObject InGameRefPoint2 = null;//LIVE
 
         //active adatok melyek valtozhatnak
@@ -830,7 +868,9 @@ namespace ItemHandler
     public class Part
     {
         //Live adatok meylek addig vannak amig a connectionPoint létezik
+        [JsonIgnore]
         public GameObject PartObject;//csak live ban van
+        [JsonIgnore]
         public GameObject InGamePartObject;
 
         //active adatok melyek valtozhatnak
@@ -943,7 +983,9 @@ namespace ItemHandler
         public string PrefabPath;
         public List<AdvancedItem> Items { get; set; }
         public ItemSlotData[][,] NonLive_Sectors { get; set; }
+        [JsonIgnore]
         public ItemSlot[][,] Live_Sector { get; set; }//ezek referanca pontokat atralamaznak amelyeken kersztul a tenyleges gameobjectumokat manipulalhatjuk
+        [JsonIgnore]
         public GameObject ContainerObject { get; set; }//conainer objectum
         public Container(string prefabPath)
         {
@@ -965,7 +1007,7 @@ namespace ItemHandler
                     for (int width = 0; width < NonLive_Sectors[sector].GetLength(1); width++)
                     {
                         ItemSlot RefSlot = staticSectorDatas[sector].SectorObject.transform.GetChild(height* NonLive_Sectors[sector].GetLength(1)+width).GetComponent<ItemSlot>();
-                        NonLive_Sectors[sector][height, width] = new ItemSlotData(sector,height,width,RefSlot.SlotType);
+                        NonLive_Sectors[sector][height, width] = new ItemSlotData(sector,height,width,RefSlot.SlotType,RefSlot.AutoHotKeySetter);
                     }
                 }
             }
@@ -1170,9 +1212,9 @@ namespace ItemHandler
             public AdvancedItem InteractiveItem { get; private set; }
             public bool IsPossible { get; private set; }
 
-            private ((int X, int Y) ChangedSize, Dictionary<char, int> Directions) Effect;
-            private (HashSet<(int Height, int Widht)> NonLiveCoordinates, int SectorIndex, bool IsPositionAble) NewPosition;
-            private (ConnectionPoint SCP, ConnectionPoint ICP, bool IsPossible) Data;
+            public ((int X, int Y) ChangedSize, Dictionary<char, int> Directions) Effect;
+            public (HashSet<(int Height, int Widht)> NonLiveCoordinates, int SectorIndex, bool IsPositionAble) NewPosition;
+            public (ConnectionPoint SCP, ConnectionPoint ICP, bool IsPossible) Data;
             public MergeParts(AdvancedItem interactiveItem,AdvancedItem incomingItem)
             {
                 IncomingItem = incomingItem;
@@ -1189,8 +1231,8 @@ namespace ItemHandler
                     };
 
                     IncomingItem.Parts.First().GetConnectedPartsTree(parts_);
-                    Effect = AdvancedItem_SizeChanger_EffectDetermination(InteractiveItem, parts_, true);
-                    NewPosition = Try_PartPositioning(InteractiveItem, Effect.ChangedSize, Effect.Directions);
+                    Effect = AdvancedItem_Size_Determination(InteractiveItem, parts_, true);
+                    NewPosition = AdvancedItem_Try_InpoundSpace(InteractiveItem, Effect.ChangedSize, Effect.Directions);
 
                     IsPossible = NewPosition.IsPositionAble;
                 }
@@ -1265,6 +1307,8 @@ namespace ItemHandler
 
             ItemCompound.ResetFitter();
 
+            Debug.LogWarning($"what is null? {ActualData != null}");
+            Debug.LogWarning($"what is null? {ActualData.Parts != null}");
             foreach (Part part in ActualData.Parts)
             {
                 part.SetLiveInGame(ItemCompound.fitter.gameObject);
@@ -1812,6 +1856,8 @@ namespace ItemHandler
                     {
                         for (int x = X; x < X + item.SizeY; x++)//megforditjuk a koordinatakat mivel elforgazva van
                         {
+                            Debug.LogWarning($"  x width {x}  y height {y}");
+                            Debug.LogWarning($"{Parent.Container.NonLive_Sectors[sectorIndex][y, x].Coordinate}");
                             coordiantes.Add(Parent.Container.NonLive_Sectors[sectorIndex][y, x].Coordinate);//ez alapjan azonositunk egy itemslotot
                         }
                     }
@@ -1822,6 +1868,7 @@ namespace ItemHandler
                     {
                         for (int x = X; x < X + item.SizeX; x++)
                         {
+                            Debug.LogWarning($"  x {x}  y {y}");
                             coordiantes.Add(Parent.Container.NonLive_Sectors[sectorIndex][y, x].Coordinate);//ez alapjan azonositunk egy itemslotot
                         }
                     }
@@ -1848,7 +1895,7 @@ namespace ItemHandler
             SetHierarhicLVL(item, item.ParentItem);
         }
 
-        public static ((int X,int Y) ChangedSize, Dictionary<char,int> Directions) AdvancedItem_SizeChanger_EffectDetermination(AdvancedItem AdvancedItem,List<Part> IncomingParts,bool Add)
+        public static ((int X,int Y) ChangedSize, Dictionary<char,int> Directions) AdvancedItem_Size_Determination(AdvancedItem AdvancedItem,List<Part> IncomingParts,bool Add)
         {
             /*
              * meghaatrozza, hogy a megadott sizechanger az advanced itememet merre és menyivel mozgatja
@@ -2265,7 +2312,7 @@ namespace ItemHandler
                 return (ChangedSize, Directions);
             }
         }
-        public static (HashSet<(int Height, int Widht)> NonLiveCoordinates,int SectorIndex, bool IsPositionAble) Try_PartPositioning(AdvancedItem AdvancedItem, (int X, int Y) ChangedSize, Dictionary<char, int> Directions)
+        public static (HashSet<(int Height, int Widht)> NonLiveCoordinates,int SectorIndex, bool IsPositionAble) AdvancedItem_Try_InpoundSpace(AdvancedItem AdvancedItem, (int X, int Y) ChangedSize, Dictionary<char, int> Directions)
         {
             /*
              * egy megvaltoztataott referncia meretbol meghatarozza hogy az advanced itemet kicsinyiteni kell e vagy nagyobbitani
@@ -2275,11 +2322,13 @@ namespace ItemHandler
              */
             if (Directions != null)
             {
+                //szukséges változók inicializálása
                 bool IsPositionAble = true;
                 int sectorindex = 0;
                 HashSet<(int Height, int Width)> ExtendCoordinates = new();
 
                 //sectorIndex keresese
+                //az az melyik sectorban foglal helyet az item egy containerben
                 int index = 0;
                 foreach (ItemSlotData[,] sector in AdvancedItem.ParentItem.Container.NonLive_Sectors)
                 {
@@ -2294,6 +2343,7 @@ namespace ItemHandler
                 }
 
                 ItemSlotData[,] NonLiveGrid = AdvancedItem.ParentItem.Container.NonLive_Sectors[sectorindex];
+
                 //itemcoordinata grid létrehozasa forgatas szerint
                 (int X, int Y)[,] ItemCoordinates;
 
@@ -2322,14 +2372,16 @@ namespace ItemHandler
                 }
                 //Debug.LogWarning($"------------------");
                 //item megkeresett koordinatainak beépítése annak gridjébe
-                for (int height = 0, index_ = 0; height < ItemCoordinates.GetLength(0); height++)
+                for (int height = 0, index_ = 0; height < ItemCoordinates.GetLength(0) && height < NonLiveGrid.GetLength(0) ; height++)
                 {
-                    for (int width = 0; width < ItemCoordinates.GetLength(1); width++)
+                    for (int width = 0; width < ItemCoordinates.GetLength(1) && width < NonLiveGrid.GetLength(1); width++)
                     {
+                        //Debug.LogWarning($"-- {height} ----------- {width} -----");
+                        //Debug.LogWarning($"-- {ItemCoordinates[height, width]} -----");
                         ItemCoordinates[height, width] = ExtendCoordinates.ElementAt(index_++);
                     }
                 }
-
+                //Debug.LogWarning($"------------------");
                 foreach (KeyValuePair<char, int> direction in Directions)
                 {
                     if (direction.Key == 'U')
@@ -2341,6 +2393,7 @@ namespace ItemHandler
                     {
                         //Debug.LogWarning($"{direction.Key} Down Way  {direction.Value}");
                         IsPositionAble = Try_DownWayScaling(AdvancedItem, NonLiveGrid, direction.Value, ExtendCoordinates);
+                        //Debug.LogWarning($"{direction.Key} Down Way  {direction.Value}   {IsPositionAble}");
                     }
                     else if (direction.Key == 'L')
                     {
@@ -2462,6 +2515,11 @@ namespace ItemHandler
             {
                 //Debug.LogWarning($"{item.SystemName}   remove player inventory");
                 RemovePlayerInventory(item);
+            }
+
+            if (item.hotKeyRef != null && item.hotKeyRef.IsInPlayerHand)
+            {
+                item.PlayerHandRef.UnsetItem();
             }
 
             StatusIsInPlayerInventory(item);
@@ -2617,8 +2675,8 @@ namespace ItemHandler
         }
         private static bool Try_UpWayScaling(AdvancedItem AdvancedItem, ItemSlotData[,] NonLiveGrid, int ChangedSize, HashSet<(int X, int Y)> ExtendCoordinates)
         {
-            (int Height, int Width)[] ActualDownLine = null;
-            int Value = 0;//a kezdo ertek
+            (int Height, int Width)[] ActualUpLine = null;
+            int Value = 1;//a kezdo ertek
             bool AllCoordianateIsEmpty = true;
 
             //------------------------------
@@ -2661,9 +2719,18 @@ namespace ItemHandler
             if (ChangedSize < 0)
             {
                 ChangerValue *= -1;
+                Value *= -1;//newm fix hoyg ez jo mivel nem biztos hogy negativ iranyba kepe noni
             }
 
-            ActualDownLine = Get_ItemCoodinateLine_AtDataGrid(AdvancedItem, ExtendCoordinates, Orientation);
+            //megszerzi annak a sor koordinatait amelyikekre szukseg van
+            ActualUpLine = Get_ItemCoodinateLine_AtDataGrid(AdvancedItem, ExtendCoordinates, Orientation);
+
+            //elelnorizzuk hog yaz a sor amit lekert az nem e az item azon tájolású egyetlen sora mivel ha ekkor eltavolias lenne akkor az item egesz elfoglalat teruletet torolne
+            //Debug.LogWarning($" extended coordiante lsit: {ExtendCoordinates.Count} >  {ActualDownLine.Length}");
+            if (ChangedSize < 0 && ActualUpLine.Length >= ExtendCoordinates.Count)
+            {
+                return false;// false
+            }
 
             //itt zajik a koordinatak hozzadasa vagy eltavolitasa
             if (ChangedSize > 0)
@@ -2672,13 +2739,18 @@ namespace ItemHandler
                 {
                     for (; Math.Abs(Value) <= Math.Abs(ChangedSize); Value += ChangerValue)
                     {
-                        for (int Coord = 0; Coord < ActualDownLine.Length; Coord++)
+                        for (int Coord = 0; Coord < ActualUpLine.Length; Coord++)
                         {
-                            if (ActualDownLine[Coord].Width + Value != GridStop)
+                            if (ActualUpLine[Coord].Width + Value < GridStop)
                             {
-                                ExtendCoordinates.Add((ActualDownLine[Coord].Height, ActualDownLine[Coord].Width + Value));
+                                ExtendCoordinates.Add((ActualUpLine[Coord].Height, ActualUpLine[Coord].Width + Value));
+
+                                if (NonLiveGrid[ActualUpLine[Coord].Height, ActualUpLine[Coord].Width + Value].PartOfItemData != null)
+                                {
+                                    AllCoordianateIsEmpty = false;
+                                }
                             }
-                            if (Value > 0 && NonLiveGrid[ActualDownLine[Coord].Height, ActualDownLine[Coord].Width + Value].PartOfItemData != null)
+                            else
                             {
                                 AllCoordianateIsEmpty = false;
                             }
@@ -2689,13 +2761,18 @@ namespace ItemHandler
                 {
                     for (; Math.Abs(Value) <= Math.Abs(ChangedSize); Value += ChangerValue)
                     {
-                        for (int j = 0; j < ActualDownLine.Length; j++)
+                        for (int Coord = 0; Coord < ActualUpLine.Length; Coord++)
                         {
-                            if (ActualDownLine[j].Height + Value != GridStop)
+                            if (ActualUpLine[Coord].Height + Value < GridStop)
                             {
-                                ExtendCoordinates.Add((ActualDownLine[j].Height + Value, ActualDownLine[j].Width ));
+                                ExtendCoordinates.Add((ActualUpLine[Coord].Height + Value, ActualUpLine[Coord].Width));
+
+                                if (NonLiveGrid[ActualUpLine[Coord].Height + Value, ActualUpLine[Coord].Width].PartOfItemData != null)
+                                {
+                                    AllCoordianateIsEmpty = false;
+                                }
                             }
-                            if (Value > 0 && NonLiveGrid[ActualDownLine[j].Height + Value, ActualDownLine[j].Width].PartOfItemData != null)
+                            else
                             {
                                 AllCoordianateIsEmpty = false;
                             }
@@ -2709,10 +2786,10 @@ namespace ItemHandler
                 {
                     for (; Math.Abs(Value) < Math.Abs(ChangedSize); Value += ChangerValue)
                     {
-                        for (int j = 0; j < ActualDownLine.Length; j++)
+                        for (int j = 0; j < ActualUpLine.Length; j++)
                         {
                             //Debug.LogWarning($"Deleted Horzontal coodinate: Y: {ActualDownLine[j].Height }  X: {ActualDownLine[j].Width + Value}");
-                            ExtendCoordinates.Remove((ActualDownLine[j].Height, ActualDownLine[j].Width + Value));
+                            ExtendCoordinates.Remove((ActualUpLine[j].Height, ActualUpLine[j].Width + Value));
                         }
                     }
                 }
@@ -2720,10 +2797,10 @@ namespace ItemHandler
                 {
                     for (; Math.Abs(Value) < Math.Abs(ChangedSize); Value += ChangerValue)
                     {
-                        for (int j = 0; j < ActualDownLine.Length; j++)
+                        for (int j = 0; j < ActualUpLine.Length; j++)
                         {
                             //Debug.LogWarning($"Deleted Horzontal coodinate: Y: {ActualDownLine[j].Height}  X: {ActualDownLine[j].Width + Value}");
-                            ExtendCoordinates.Remove((ActualDownLine[j].Height + Value, ActualDownLine[j].Width));
+                            ExtendCoordinates.Remove((ActualUpLine[j].Height + Value, ActualUpLine[j].Width));
                         }
                     }
                 }
@@ -2731,10 +2808,10 @@ namespace ItemHandler
 
             return AllCoordianateIsEmpty;
         }
-        public static bool Try_DownWayScaling(AdvancedItem AdvancedItem, ItemSlotData[,] NonLiveGrid, int ChangedSize, HashSet<(int X, int Y)> ExtendCoordinates)
+        private static bool Try_DownWayScaling(AdvancedItem AdvancedItem, ItemSlotData[,] NonLiveGrid, int ChangedSize, HashSet<(int X, int Y)> ExtendCoordinates)
         {
             (int Height, int Width)[] ActualDownLine = null;
-            int Value = 0;//a kezdo ertek
+            int Value = 1;//a kezdo ertek
             bool AllCoordianateIsEmpty = true;
 
             //------------------------------
@@ -2777,9 +2854,17 @@ namespace ItemHandler
             if (ChangedSize < 0)
             {
                 ChangerValue *= -1;
+                Value *= -1;//newm fix hoyg ez jo mivel nem biztos hogy negativ iranyba kepe noni
             }
 
             ActualDownLine = Get_ItemCoodinateLine_AtDataGrid(AdvancedItem, ExtendCoordinates, Orientation);
+
+            //elelnorizzuk hog yaz a sor amit lekert az nem e az item azon tájolású egyetlen sora mivel ha ekkor eltavolias lenne akkor az item egesz elfoglalat teruletet torolne
+            //Debug.LogWarning($" extended coordiante lsit: {ExtendCoordinates.Count} >  {ActualDownLine.Length}");
+            if (ChangedSize < 0 && ActualDownLine.Length >= ExtendCoordinates.Count)
+            {
+                return false;// false
+            }
 
             //itt zajik a koordinatak hozzadasa vagy eltavolitasa
             if (ChangedSize > 0)
@@ -2790,11 +2875,16 @@ namespace ItemHandler
                     {
                         for (int Coord = 0; Coord < ActualDownLine.Length; Coord++)
                         {
-                            if (ActualDownLine[Coord].Width + Value != GridStop)
+                            if (ActualDownLine[Coord].Width + Value < GridStop)
                             {
                                 ExtendCoordinates.Add((ActualDownLine[Coord].Height, ActualDownLine[Coord].Width + Value));
+
+                                if (NonLiveGrid[ActualDownLine[Coord].Height, ActualDownLine[Coord].Width + Value].PartOfItemData != null)
+                                {
+                                    AllCoordianateIsEmpty = false;
+                                }
                             }
-                            if (Value > 0 && NonLiveGrid[ActualDownLine[Coord].Height, ActualDownLine[Coord].Width + Value].PartOfItemData != null)
+                            else
                             {
                                 AllCoordianateIsEmpty = false;
                             }
@@ -2805,13 +2895,18 @@ namespace ItemHandler
                 {
                     for (; Math.Abs(Value) <= Math.Abs(ChangedSize); Value += ChangerValue)
                     {
-                        for (int j = 0; j < ActualDownLine.Length; j++)
+                        for (int Coord = 0; Coord < ActualDownLine.Length; Coord++)
                         {
-                            if (ActualDownLine[j].Height + Value != GridStop)
+                            if (ActualDownLine[Coord].Height + Value < GridStop)
                             {
-                                ExtendCoordinates.Add((ActualDownLine[j].Height + Value, ActualDownLine[j].Width));
+                                ExtendCoordinates.Add((ActualDownLine[Coord].Height + Value, ActualDownLine[Coord].Width));
+
+                                if (NonLiveGrid[ActualDownLine[Coord].Height + Value, ActualDownLine[Coord].Width].PartOfItemData != null)
+                                {
+                                    AllCoordianateIsEmpty = false;
+                                }
                             }
-                            if (Value > 0 && NonLiveGrid[ActualDownLine[j].Height + Value, ActualDownLine[j].Width].PartOfItemData != null)
+                            else
                             {
                                 AllCoordianateIsEmpty = false;
                             }
@@ -2850,7 +2945,7 @@ namespace ItemHandler
         private static bool Try_RightWayScaling(AdvancedItem AdvancedItem, ItemSlotData[,] NonLiveGrid, int ChangedSize, HashSet<(int X, int Y)> ExtendCoordinates)
         {
             (int Height, int Width)[] ActualDownLine = null;
-            int Value = 0;//a kezdo ertek
+            int Value = 1;//a kezdo ertek
             bool AllCoordianateIsEmpty = true;
 
             //------------------------------
@@ -2893,10 +2988,17 @@ namespace ItemHandler
             if (ChangedSize < 0)
             {
                 ChangerValue *= -1;
+                Value *= -1;//newm fix hoyg ez jo mivel nem biztos hogy negativ iranyba kepe noni
             }
 
             ActualDownLine = Get_ItemCoodinateLine_AtDataGrid(AdvancedItem, ExtendCoordinates, Orientation);
 
+            //elelnorizzuk hog yaz a sor amit lekert az nem e az item azon tájolású egyetlen sora mivel ha ekkor eltavolias lenne akkor az item egesz elfoglalat teruletet torolne
+            //Debug.LogWarning($" extended coordiante lsit: {ExtendCoordinates.Count} >  {ActualDownLine.Length}");
+            if (ChangedSize < 0 && ActualDownLine.Length >= ExtendCoordinates.Count)
+            {
+                return false;// false
+            }
             //Debug.LogWarning($" Line hossz: {ActualDownLine.Length}     ChangerValue: {ChangerValue}     Item.Rptationdegree: {AdvancedItem.RotateDegree}");
 
             //itt zajik a koordinatak hozzadasa vagy eltavolitasa
@@ -2904,44 +3006,47 @@ namespace ItemHandler
             {
                 if (HorizontalWay)
                 {
-                    //Debug.LogWarning($"Vertical, iteralhato");
                     for (; Math.Abs(Value) <= Math.Abs(ChangedSize); Value += ChangerValue)
                     {
                         for (int Coord = 0; Coord < ActualDownLine.Length; Coord++)
                         {
-                            if (ActualDownLine[Coord].Width + Value != GridStop)
+                            if (ActualDownLine[Coord].Width + Value < GridStop)
                             {
-                                //Debug.LogWarning($"H:  {ActualDownLine[Coord].Height}   W: {ActualDownLine[Coord].Width + Value}");
                                 ExtendCoordinates.Add((ActualDownLine[Coord].Height, ActualDownLine[Coord].Width + Value));
+
+                                if (NonLiveGrid[ActualDownLine[Coord].Height, ActualDownLine[Coord].Width + Value].PartOfItemData != null)
+                                {
+                                    AllCoordianateIsEmpty = false;
+                                }
                             }
-                            if (Value > 0 && NonLiveGrid[ActualDownLine[Coord].Height, ActualDownLine[Coord].Width + Value].PartOfItemData != null)
+                            else
                             {
                                 AllCoordianateIsEmpty = false;
                             }
                         }
                     }
-                    //Debug.LogWarning($"------------------------");
                 }
                 else
                 {
-                    //Debug.LogWarning($"Vertical, iteralhato");
                     for (; Math.Abs(Value) <= Math.Abs(ChangedSize); Value += ChangerValue)
                     {
-
                         for (int Coord = 0; Coord < ActualDownLine.Length; Coord++)
                         {
-                            if (ActualDownLine[Coord].Height + Value != GridStop)
+                            if (ActualDownLine[Coord].Height + Value < GridStop)
                             {
-                                //Debug.LogWarning($"H:  {ActualDownLine[Coord].Height + Value}   W: {ActualDownLine[Coord].Width}");
                                 ExtendCoordinates.Add((ActualDownLine[Coord].Height + Value, ActualDownLine[Coord].Width));
+
+                                if (NonLiveGrid[ActualDownLine[Coord].Height + Value, ActualDownLine[Coord].Width].PartOfItemData != null)
+                                {
+                                    AllCoordianateIsEmpty = false;
+                                }
                             }
-                            if (Value > 0 && NonLiveGrid[ActualDownLine[Coord].Height + Value, ActualDownLine[Coord].Width].PartOfItemData != null)
+                            else
                             {
                                 AllCoordianateIsEmpty = false;
                             }
                         }
                     }
-                    //Debug.LogWarning($"------------------------");
                 }
             }
             else
@@ -2975,7 +3080,7 @@ namespace ItemHandler
         private static bool Try_LeftWayScaling(AdvancedItem AdvancedItem, ItemSlotData[,] NonLiveGrid, int ChangedSize, HashSet<(int X, int Y)> ExtendCoordinates)
         {
             (int Height, int Width)[] ActualDownLine = null;
-            int Value = 0;//a kezdo ertek
+            int Value = 1;//a kezdo ertek
             bool AllCoordianateIsEmpty = true;
 
             //------------------------------
@@ -3018,9 +3123,17 @@ namespace ItemHandler
             if (ChangedSize < 0)
             {
                 ChangerValue *= -1;
+                Value *= -1;//newm fix hoyg ez jo mivel nem biztos hogy negativ iranyba kepe noni
             }
 
             ActualDownLine = Get_ItemCoodinateLine_AtDataGrid(AdvancedItem, ExtendCoordinates, Orientation);
+
+            //elelnorizzuk hog yaz a sor amit lekert az nem e az item azon tájolású egyetlen sora mivel ha ekkor eltavolias lenne akkor az item egesz elfoglalat teruletet torolne
+            //Debug.LogWarning($" extended coordiante lsit: {ExtendCoordinates.Count} >  {ActualDownLine.Length}");
+            if (ChangedSize < 0 && ActualDownLine.Length >= ExtendCoordinates.Count)
+            {
+                return false;// false
+            }
 
             //itt zajik a koordinatak hozzadasa vagy eltavolitasa
             if (ChangedSize > 0)
@@ -3031,11 +3144,16 @@ namespace ItemHandler
                     {
                         for (int Coord = 0; Coord < ActualDownLine.Length; Coord++)
                         {
-                            if (ActualDownLine[Coord].Width + Value != GridStop)
+                            if (ActualDownLine[Coord].Width + Value < GridStop)
                             {
                                 ExtendCoordinates.Add((ActualDownLine[Coord].Height, ActualDownLine[Coord].Width + Value));
+
+                                if (NonLiveGrid[ActualDownLine[Coord].Height, ActualDownLine[Coord].Width + Value].PartOfItemData != null)
+                                {
+                                    AllCoordianateIsEmpty = false;
+                                }
                             }
-                            if (Value > 0 && NonLiveGrid[ActualDownLine[Coord].Height, ActualDownLine[Coord].Width + Value].PartOfItemData != null)
+                            else
                             {
                                 AllCoordianateIsEmpty = false;
                             }
@@ -3046,13 +3164,18 @@ namespace ItemHandler
                 {
                     for (; Math.Abs(Value) <= Math.Abs(ChangedSize); Value += ChangerValue)
                     {
-                        for (int j = 0; j < ActualDownLine.Length; j++)
+                        for (int Coord = 0; Coord < ActualDownLine.Length; Coord++)
                         {
-                            if (ActualDownLine[j].Height + Value != GridStop)
+                            if (ActualDownLine[Coord].Height + Value < GridStop)
                             {
-                                ExtendCoordinates.Add((ActualDownLine[j].Height + Value, ActualDownLine[j].Width));
+                                ExtendCoordinates.Add((ActualDownLine[Coord].Height + Value, ActualDownLine[Coord].Width));
+
+                                if (NonLiveGrid[ActualDownLine[Coord].Height + Value, ActualDownLine[Coord].Width].PartOfItemData != null)
+                                {
+                                    AllCoordianateIsEmpty = false;
+                                }
                             }
-                            if (Value > 0 && NonLiveGrid[ActualDownLine[j].Height + Value, ActualDownLine[j].Width].PartOfItemData != null)
+                            else
                             {
                                 AllCoordianateIsEmpty = false;
                             }
@@ -3120,18 +3243,18 @@ namespace ItemHandler
         }
         private static void AutoSetHotKey(AdvancedItem SetIn)
         {
-            switch (SetIn.Coordinates.First())
+            switch (SetIn.ItemSlotsDataRef.FirstOrDefault().AutoHotKeySetter)
             {
-                case (0,10):
+                case 1:
                     InGameUI.HotKey1.SetHotKey(SetIn);
                     break;
-                case (0, 11):
+                case 2:
                     InGameUI.HotKey2.SetHotKey(SetIn);
                     break;
-                case (0, 12):
+                case 3:
                     InGameUI.HotKey3.SetHotKey(SetIn);
                     break;
-                case (0, 13):
+                case 4 :
                     InGameUI.HotKey4.SetHotKey(SetIn);
                     break;
                 default:
@@ -3171,6 +3294,18 @@ namespace ItemHandler
                     CloneParts(item, clonedItem);
                 }
 
+                if (!item.IsRoot)
+                {
+                    clonedItem.AdvancedItemContsruct();
+                    Debug.LogWarning($"---{clonedItem.ItemName}-------------------------------------------");
+                    foreach (var p in clonedItem.Components)
+                    {
+                        Debug.LogWarning(p.Key.Name  + "   "+p.Value);
+                    }
+                    Debug.LogWarning("------------------------------------------------------");
+                }
+
+
                 clone.Items.Add(clonedItem);
             }
 
@@ -3193,6 +3328,15 @@ namespace ItemHandler
             {
                 // Klónozzuk a part-hoz tartozó itemet, majd létrehozunk egy új Part példányt.
                 SimpleItem clonedPartItem = partRef.item_s_Part.ShallowClone();
+                if (clonedPartItem.Component != null)
+                {
+                    Debug.LogWarning($"ggggg 1 {clonedPartItem.Component}");
+                }
+                else
+                {
+                    Debug.LogWarning($"ggggg 2 {clonedPartItem.ItemName}");
+                }
+
                 clonedItem.Parts.Add(new Part(clonedPartItem));
                 clonedItem.Parts.Last().HierarhicPlace = partRef.HierarhicPlace;
             }

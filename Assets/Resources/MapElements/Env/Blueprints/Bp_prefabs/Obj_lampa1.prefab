@@ -12,6 +12,7 @@ GameObject:
   - component: {fileID: 8765818616479201985}
   - component: {fileID: 7427710072991876312}
   - component: {fileID: 3056638687977469246}
+  - component: {fileID: 1575001953561546315}
   m_Layer: 0
   m_Name: Obj_lampa1
   m_TagString: Untagged
@@ -155,3 +156,15 @@ PolygonCollider2D:
       - {x: -5.031612, y: -21.973852}
       - {x: -4.5, y: -17.666668}
       - {x: -4.556604, y: -17.477325}
+--- !u!114 &1575001953561546315
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1077196910394421675}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 54868cf9c5f41c34cb2e0be6b90e662d, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 

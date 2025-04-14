@@ -17,6 +17,15 @@ namespace Assets.Scripts.Inventory
         {
             windows = new List<GameObject>();
         }
+        public void CreatePopUpWindow(AdvancedItem item)
+        {
+            GameObject window = CreatePrefab("GameElements/ItemWindow");
+            window.transform.SetParent(gameObject.transform);//a window manager a payler inventoryn van
+            window.GetComponent<ItemWindow>().positioning(item);
+            item.SelfGameobject.GetComponent<ItemObject>().Window = window;
+            windows.Add(window);
+            windows.OrderBy(item => item.transform.GetSiblingIndex());
+        }
         public void CreateModificationPanel(AdvancedItem item)
         {
             GameObject window = CreatePrefab(modificationWindow);

@@ -14,18 +14,11 @@ using Items;
 using ExcelDataReader;
 using System.Data;
 using System.Text;
+using System.Net.Http;
 
 namespace MainData
 {
     #region DataBase Connection 
-    public class ApiResponse
-    {
-        [JsonProperty("Player")]
-        public PlayerData Player { get; set; }
-
-        [JsonProperty("AdminDetails")]
-        public Admin AdminDetails { get; set; }
-    }
 
     public class PlayerData
     {
@@ -59,14 +52,35 @@ namespace MainData
 
     public class Achievement
     {
-        // További tulajdonságok, ha szükséges
+        [JsonIgnore]
+        [JsonProperty("id")]
+        public int id { get; set; }
+
+        [JsonProperty("firstBlood")]
+        public bool firstBlood { get; set; }
+
+        [JsonProperty("rookieWork")]
+        public bool rookieWork { get; set; }
+
+        [JsonProperty("youAreOnYourOwnNow")]
+        public bool youAreOnYourOwnNow { get; set; }
     }
 
     public class Statistic
     {
-        // További tulajdonságok, ha szükséges
-    }
+        [JsonIgnore]
+        [JsonProperty("id")]
+        public int id { get; set; }
 
+        [JsonProperty("deathCount")]
+        public int deathCount { get; set; }
+
+        [JsonProperty("score")]
+        public int score { get; set; }
+
+        [JsonProperty("enemiesKilled")]
+        public int enemiesKilled { get; set; }
+    }
     public class Admin
     {
         [JsonProperty("Id")]
@@ -77,27 +91,32 @@ namespace MainData
 
         [JsonProperty("DevConsole")]
         public bool DevConsole { get; set; }
-
-        [JsonProperty("Player")]
-        public PlayerData Player { get; set; }
     }
 
     public static class DatabaseManager
     {
-        public static async Task<PlayerData> GetDataAsync(string name, string password)
+        public static async Task<string> GetTokenAsync(string email, string password)
         {
-            string url = $"https://localhost:5266/api/Player/GetByName/{name}";
+            var payload = new {email,password };
+            string json = JsonConvert.SerializeObject(payload);
+            Debug.LogWarning(json);
+            byte[] bodyRaw = Encoding.UTF8.GetBytes(json);
 
-            using (UnityWebRequest webRequest = UnityWebRequest.Get(url))
+            string url = "https://localhost:5266/api/auth/login";
+            using (UnityWebRequest webRequest = new UnityWebRequest(url, "POST"))
             {
-                var operation = webRequest.SendWebRequest();
+                webRequest.uploadHandler = new UploadHandlerRaw(bodyRaw);
+                webRequest.downloadHandler = new DownloadHandlerBuffer();
+                webRequest.SetRequestHeader("Content-Type", "application/json");
 
+                var operation = webRequest.SendWebRequest();
                 while (!operation.isDone)
                 {
                     await Task.Yield();
                 }
 
-                if (webRequest.result == UnityWebRequest.Result.ConnectionError || webRequest.result == UnityWebRequest.Result.ProtocolError)
+                if (webRequest.result == UnityWebRequest.Result.ConnectionError ||
+                    webRequest.result == UnityWebRequest.Result.ProtocolError)
                 {
                     Debug.LogWarning(webRequest.error);
                     return null;
@@ -106,7 +125,67 @@ namespace MainData
                 {
                     Debug.Log("Successful Server connection");
                     string jsonResponse = webRequest.downloadHandler.text;
-                    return JsonConvert.DeserializeObject<ApiResponse>(jsonResponse).Player;
+                    // A szerver visszatér egy objektummal, melynek van egy "Token" mezője
+                    var tokenObj = JsonConvert.DeserializeAnonymousType(jsonResponse, new { Token = "" });
+
+                    return tokenObj.Token;
+                }
+            }
+        }
+        public static async Task<PlayerData> GetDataAsync(string token)
+        {
+            // Token hozzáadása az URL-hez query paraméterként
+            string url = $"https://localhost:5266/api/Player/GetByToken?token={UnityWebRequest.EscapeURL(token)}";
+
+            using (UnityWebRequest webRequest = UnityWebRequest.Get(url))
+            {
+                webRequest.downloadHandler = new DownloadHandlerBuffer();
+
+                var operation = webRequest.SendWebRequest();
+                while (!operation.isDone)
+                {
+                    await Task.Yield();
+                }
+
+                if (webRequest.result == UnityWebRequest.Result.ConnectionError ||
+                    webRequest.result == UnityWebRequest.Result.ProtocolError)
+                {
+                    Debug.LogWarning(webRequest.error);
+                    return null;
+                }
+                else
+                {
+
+                    Debug.Log("Successful Server connection");
+                    string jsonResponse = webRequest.downloadHandler.text;
+                    Debug.Log(webRequest.downloadHandler.text);
+                    return JsonConvert.DeserializeObject<PlayerData>(jsonResponse);
+                }
+            }
+        }
+        public static async Task<bool> SetStatistic(string token,Statistic statistic)
+        {
+            // Így állítsd be a statisztika frissítő endpoint URL-jét,
+            // itt az "UpdatePlayerStatisticsByToken" route-ot használjuk.
+            string url = $"https://localhost:5266/api/Player/stats?token={UnityWebRequest.EscapeURL(token)}";
+
+            // Feltételezzük, hogy Main.playerData.Statistics a frissítendő statisztikák
+            string json = JsonConvert.SerializeObject(statistic, Formatting.Indented);
+            var content = new StringContent(json, Encoding.UTF8, "application/json");
+
+            using (HttpClient client = new HttpClient())
+            {
+                HttpResponseMessage response = await client.PutAsync(url, content);
+
+                if (response.IsSuccessStatusCode)
+                {
+                    Debug.Log("Sikeres statisztika frissítés!");
+                    return true;
+                }
+                else
+                {
+                    Debug.LogWarning($"Hiba a statisztika frissítése közben: {response.StatusCode}");
+                    return false;
                 }
             }
         }
@@ -128,35 +207,43 @@ namespace MainData
             GameObject.Find("ProfileButton").GetComponentInChildren<TMP_Text>().text = monogram;
         }
         //NewLogin
-        public static async void LogIn(string name, string email, string password)//new or another accunt login
+        public static async Task<bool> LogIn(string name, string email, string password)//new or another accunt login
         {
-            
-            Main.playerData = await DatabaseManager.GetDataAsync(name, password);
+            Main.Token = await DatabaseManager.GetTokenAsync(email, password);
+            Main.playerData = await DatabaseManager.GetDataAsync(Main.Token);
 
             if (Main.playerData == null)
             {
                 Debug.LogWarning("Login failed. User data is not available.");
-                return;
+                return false;
             }
             else
             {
-                StreamWriter sw = new StreamWriter("AutoLogUser.txt");
-                sw.WriteLine(Main.playerData.Name);
-                sw.WriteLine(Main.playerData.Email);
-                sw.Close();
+                using (StreamWriter sw = new StreamWriter("AutoLogUser.txt"))
+                {
+                    await sw.WriteLineAsync(email);
+                    await sw.WriteLineAsync(password);
+                }
 
                 Debug.Log($"login completed: {Main.playerData.Id} - {Main.playerData.Name} - {Main.playerData.Password} - {Main.playerData.Email}  user");
+
                 ProfileBTStyle();
+
+                return true;
             }
         }
         //AutoLogin
         public static async Task<bool> AutoLogIn()//auto login
         {
+            Debug.Log("auto login start");
             if (File.Exists("AutoLogUser.txt"))
             {
                 StreamReader sr = new StreamReader("AutoLogUser.txt");
 
-                Main.playerData = await DatabaseManager.GetDataAsync(sr.ReadLine(), sr.ReadLine());
+                string email = sr.ReadLine();
+                string password = sr.ReadLine();
+                Main.Token = await DatabaseManager.GetTokenAsync(email, password);
+                Main.playerData = await DatabaseManager.GetDataAsync(Main.Token);
 
                 if (Main.playerData == null)
                 {
@@ -205,13 +292,15 @@ namespace MainData
 
         }
 
-        public static PlayerData playerData;
+        public static PlayerData playerData { get; set; }
+
+        public static string Token { get; set; }
 
         public class DataHandler
         {
             public const string PartPath = "GameElements/ItemOPart";
             public const string CPPath = "GameElements/ItemOCP";
-            public const string AdvancedItemDataFilePath = "Assets/Resources/Items/AdvancedItemData.xlsx";
+            public static string AdvancedItemDataFilePath = Path.Combine(Application.streamingAssetsPath, "AdvancedItemData.xlsx");
 
             public static PartData[] ItemPartDatas { get; private set; }
             public static MainItem[] MainItems { get; private set; }

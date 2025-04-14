@@ -12,6 +12,7 @@ GameObject:
   - component: {fileID: 3432574906166607636}
   - component: {fileID: 2249314599257868737}
   - component: {fileID: 3676071883843291638}
+  - component: {fileID: -5765693468344103473}
   m_Layer: 0
   m_Name: kuka
   m_TagString: Untagged
@@ -161,3 +162,15 @@ PolygonCollider2D:
       - {x: 2.7307694, y: -7.5384617}
       - {x: 3.6538463, y: -6.615385}
       - {x: 3.8846154, y: -6.2307696}
+--- !u!114 &-5765693468344103473
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1817121814827891154}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 54868cf9c5f41c34cb2e0be6b90e662d, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 

@@ -20,8 +20,8 @@ public class ModificationPartBox : MonoBehaviour, IPointerDownHandler
         };
             AdvancedItem.Parts[PartIndex].GetConnectedPartsTree(parts_);
 
-            ((int X, int Y) ChangedSize, Dictionary<char, int> Directions) Effect = InventorySystem.AdvancedItem_SizeChanger_EffectDetermination(AdvancedItem, parts_, false);
-            (HashSet<(int Height, int Widht)> NonLiveCoordinates, int SectorIndex, bool IsPositionAble) NewPosition = InventorySystem.Try_PartPositioning(AdvancedItem, Effect.ChangedSize, Effect.Directions);
+            ((int X, int Y) ChangedSize, Dictionary<char, int> Directions) Effect = InventorySystem.AdvancedItem_Size_Determination(AdvancedItem, parts_, false);
+            (HashSet<(int Height, int Widht)> NonLiveCoordinates, int SectorIndex, bool IsPositionAble) NewPosition = InventorySystem.AdvancedItem_Try_InpoundSpace(AdvancedItem, Effect.ChangedSize, Effect.Directions);
 
             List<Part> parts = AdvancedItem.PartCut(AdvancedItem.Parts[PartIndex]);
 

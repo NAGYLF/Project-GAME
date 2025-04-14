@@ -1,6 +1,7 @@
 using UnityEngine;
 using static MainData.SupportScripts;
 using UI;
+using MainData;
 
 public class InGameMenu : MonoBehaviour
 {
@@ -18,7 +19,7 @@ public class InGameMenu : MonoBehaviour
     }
     public void Save()
     {
-
+        //Debug.LogWarning(Main.playerData.Statistics[0].score);
     }
     public void Load()
     {

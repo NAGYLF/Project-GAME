@@ -1,5 +1,9 @@
 ﻿using Items;
+using MainData;
+using System.Linq;
+using Unity.VisualScripting;
 using UnityEngine;
+using Assets.Scripts.Effects;
 
 public class Bullet : MonoBehaviour
 {
@@ -46,8 +50,27 @@ public class Bullet : MonoBehaviour
 
         // Impact sprite betöltése a Resources mappából
         impactSprite = Resources.Load<Sprite>("Sprites/Impact1");
+
+        BoxCollider2D collider = gameObject.AddComponent<BoxCollider2D>();
+        collider.isTrigger = true;
+        gameObject.AddComponent<Rigidbody2D>();
+        Rigidbody2D rb = GetComponent<Rigidbody2D>();
+        rb.isKinematic = true;
     }
 
+    void OnTriggerEnter2D(Collider2D collider)
+    {
+        if (collider.gameObject.GetComponent<BulletBlocker>())
+        {
+            CreateImpactEffect(collider.transform.position);
+            Destroy(gameObject);
+        }
+        if (collider.gameObject.GetComponent<DestroyAbleObjectcs>())
+        {
+            Destroy(collider.gameObject);
+            //Main.playerData.Statistics[0].score += (int)Dmg;
+        }
+    }
     void Update()
     {
         float dt = Time.deltaTime;
@@ -73,25 +96,6 @@ public class Bullet : MonoBehaviour
             CreateImpactEffect(transform.position);
             Destroy(gameObject);
             return;
-        }
-
-        // Ellenőrzés, hogy van-e Collider2D a lövedék pozícióján, és nincs-e BulletBlocker script rajta
-        Collider2D[] hitColliders = Physics2D.OverlapPointAll(transform.position);
-        foreach (var collider in hitColliders)
-        {
-            // Ha az objektum a játékos, akkor ne ütközzön vele
-            if (collider.CompareTag("Player"))
-            {
-                continue; // Játékos kizárása az ütközésből
-            }
-
-            // Ha az objektum rendelkezik a BulletBlocker komponenssel, akkor blokkolja a lövedéket
-            if (collider.GetComponent<BulletBlocker>() != null)
-            {
-                CreateImpactEffect(transform.position);
-                Destroy(gameObject);
-                return;
-            }
         }
 
         // Vízszintes gyorsulás és sebesség

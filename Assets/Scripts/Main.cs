@@ -67,9 +67,21 @@ namespace MainData
 
     public class Statistic
     {
-        // További tulajdonságok, ha szükséges
-    }
+        [JsonProperty("id")]
+        public int id { get; set; }
 
+        [JsonProperty("deathCount")]
+        public int deathCount { get; set; }
+
+        [JsonProperty("score")]
+        public int score { get; set; }
+
+        [JsonProperty("enemiesKilled")]
+        public int enemiesKilled { get; set; }
+
+        [JsonProperty("player")]
+        public string player { get; set; }
+    }
     public class Admin
     {
         [JsonProperty("Id")]

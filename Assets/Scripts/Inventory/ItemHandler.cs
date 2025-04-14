@@ -67,25 +67,41 @@ namespace ItemHandler
     }
     public class AdvancedItem
     {
+        [JsonIgnore]
         public const string SimpleItemObjectParth = "GameElements/SimpleItemObject";
+        [JsonIgnore]
         public const string AdvancedItemObjectParth = "GameElements/AdvancedItemObject";
+        [JsonIgnore]
         public const string TemporaryItemObjectPath = "GameElements/TemporaryAdvancedItemObject";
 
         #region Ref Variables
+        [JsonIgnore]
         public ModificationWindow ModificationWindowRef;
+
+        [JsonIgnore]
         public LevelManager LevelManagerRef;
+
         public List<ItemSlotData> ItemSlotsDataRef = new List<ItemSlotData>();
+
         public List<AdvancedItem> ContainerItemListRef = new List<AdvancedItem>();
+        [JsonIgnore]
         public HotKey hotKeyRef;
+        [JsonIgnore]
         public List<ItemSlot> ItemSlotObjectsRef = new List<ItemSlot>();
+        [JsonIgnore]
         public CharacterHand PlayerHandRef;
+        [JsonIgnore]
         public GameObject SelfGameobject { get; set; }
+        [JsonIgnore]
         public GameObject InGameSelfObject { get; set; }
+
         public AdvancedItem ParentItem { get; set; }//az az item ami tárolja ezt az itemet
         #endregion
 
         #region PlacerVariables
+        [JsonIgnore]
         public List<Action> AvaiablePlacerMetodes = new List<Action>();
+        [JsonIgnore]
         public AdvancedItem AvaiableParentItem { get; set; }
         #endregion
 
@@ -667,10 +683,14 @@ namespace ItemHandler
     }
     public class SystemPoints
     {
+        [JsonIgnore]
         public GameObject RefPoint1 = null;//LIVE
+        [JsonIgnore]
         public GameObject RefPoint2 = null;//LIVE
 
+        [JsonIgnore]
         public GameObject InGameRefPoint1 = null;//LIVE
+        [JsonIgnore]
         public GameObject InGameRefPoint2 = null;//LIVE
 
         public SP SPData;
@@ -745,10 +765,14 @@ namespace ItemHandler
     public class ConnectionPoint
     {
         //Live adatok meylek addig vannak amig a connectionPoint létezik
+        [JsonIgnore]
         public GameObject RefPoint1 = null;//LIVE
+        [JsonIgnore]
         public GameObject RefPoint2 = null;//LIVE
 
+        [JsonIgnore]
         public GameObject InGameRefPoint1 = null;//LIVE
+        [JsonIgnore]
         public GameObject InGameRefPoint2 = null;//LIVE
 
         //active adatok melyek valtozhatnak
@@ -841,7 +865,9 @@ namespace ItemHandler
     public class Part
     {
         //Live adatok meylek addig vannak amig a connectionPoint létezik
+        [JsonIgnore]
         public GameObject PartObject;//csak live ban van
+        [JsonIgnore]
         public GameObject InGamePartObject;
 
         //active adatok melyek valtozhatnak
@@ -954,7 +980,9 @@ namespace ItemHandler
         public string PrefabPath;
         public List<AdvancedItem> Items { get; set; }
         public ItemSlotData[][,] NonLive_Sectors { get; set; }
+        [JsonIgnore]
         public ItemSlot[][,] Live_Sector { get; set; }//ezek referanca pontokat atralamaznak amelyeken kersztul a tenyleges gameobjectumokat manipulalhatjuk
+        [JsonIgnore]
         public GameObject ContainerObject { get; set; }//conainer objectum
         public Container(string prefabPath)
         {

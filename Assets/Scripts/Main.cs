@@ -15,20 +15,10 @@ using ExcelDataReader;
 using System.Data;
 using System.Text;
 using System.Net.Http;
-using UnityEngine.Rendering.VirtualTexturing;
-using System.Drawing;
 
 namespace MainData
 {
     #region DataBase Connection 
-    public class ApiResponse
-    {
-        [JsonProperty("Player")]
-        public PlayerData Player { get; set; }
-
-        [JsonProperty("AdminDetails")]
-        public Admin AdminDetails { get; set; }
-    }
 
     public class PlayerData
     {
@@ -62,11 +52,23 @@ namespace MainData
 
     public class Achievement
     {
-        // További tulajdonságok, ha szükséges
+        [JsonIgnore]
+        [JsonProperty("id")]
+        public int id { get; set; }
+
+        [JsonProperty("firstBlood")]
+        public bool firstBlood { get; set; }
+
+        [JsonProperty("rookieWork")]
+        public bool rookieWork { get; set; }
+
+        [JsonProperty("youAreOnYourOwnNow")]
+        public bool youAreOnYourOwnNow { get; set; }
     }
 
     public class Statistic
     {
+        [JsonIgnore]
         [JsonProperty("id")]
         public int id { get; set; }
 
@@ -78,9 +80,6 @@ namespace MainData
 
         [JsonProperty("enemiesKilled")]
         public int enemiesKilled { get; set; }
-
-        [JsonProperty("player")]
-        public string player { get; set; }
     }
     public class Admin
     {
@@ -92,9 +91,6 @@ namespace MainData
 
         [JsonProperty("DevConsole")]
         public bool DevConsole { get; set; }
-
-        [JsonProperty("Player")]
-        public PlayerData Player { get; set; }
     }
 
     public static class DatabaseManager
@@ -159,10 +155,37 @@ namespace MainData
                 }
                 else
                 {
+
                     Debug.Log("Successful Server connection");
                     string jsonResponse = webRequest.downloadHandler.text;
+                    Debug.Log(webRequest.downloadHandler.text);
+                    return JsonConvert.DeserializeObject<PlayerData>(jsonResponse);
+                }
+            }
+        }
+        public static async Task<bool> SetStatistic(string token,Statistic statistic)
+        {
+            // Így állítsd be a statisztika frissítő endpoint URL-jét,
+            // itt az "UpdatePlayerStatisticsByToken" route-ot használjuk.
+            string url = $"https://localhost:5266/api/Player/stats?token={UnityWebRequest.EscapeURL(token)}";
 
-                    return JsonConvert.DeserializeObject<ApiResponse>(jsonResponse).Player;
+            // Feltételezzük, hogy Main.playerData.Statistics a frissítendő statisztikák
+            string json = JsonConvert.SerializeObject(statistic, Formatting.Indented);
+            var content = new StringContent(json, Encoding.UTF8, "application/json");
+
+            using (HttpClient client = new HttpClient())
+            {
+                HttpResponseMessage response = await client.PutAsync(url, content);
+
+                if (response.IsSuccessStatusCode)
+                {
+                    Debug.Log("Sikeres statisztika frissítés!");
+                    return true;
+                }
+                else
+                {
+                    Debug.LogWarning($"Hiba a statisztika frissítése közben: {response.StatusCode}");
+                    return false;
                 }
             }
         }

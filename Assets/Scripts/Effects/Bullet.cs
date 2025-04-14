@@ -68,7 +68,7 @@ public class Bullet : MonoBehaviour
         if (collider.gameObject.GetComponent<DestroyAbleObjectcs>())
         {
             Destroy(collider.gameObject);
-            //Main.playerData.Statistics[0].score += (int)Dmg;
+            Main.playerData.Statistics[0].score += (int)Dmg;
         }
     }
     void Update()

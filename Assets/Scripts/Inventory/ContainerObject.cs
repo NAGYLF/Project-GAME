@@ -162,7 +162,7 @@ public class ContainerObject : MonoBehaviour
                         }
                         foreach (var item in InteractiveItem.Coordinates)
                         {
-                            interactibleSlots.Add(LiveSector[IncomingItem.SectorId][item.Item1, item.Item2]);
+                            interactibleSlots.Add(LiveSector[InteractiveItem.SectorId][item.Item1, item.Item2]);
                         }
                     }
                     //ha nincs interacti item
@@ -239,6 +239,7 @@ public class ContainerObject : MonoBehaviour
             }
             else
             {
+
                 HashSet<ItemSlot> interactibleSlots_ = new(interactibleSlots);
                 foreach (ItemSlot slot_ in interactibleSlots_)
                 {
